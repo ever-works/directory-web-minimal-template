@@ -1,0 +1,26 @@
+---
+/**
+ * Hero — Headless hero/banner section component.
+ * Renders a prominent section with title, subtitle, and optional CTA.
+ * AI agents apply styling via class prop or data-* selectors.
+ *
+ * @example
+ * ```astro
+ * <Hero title="Find the best tools" subtitle="Curated directory" ctaText="Browse" ctaHref="/items" />
+ * ```
+ */
+import type { HeroProps } from '../types.js';
+
+type Props = HeroProps;
+
+const { title, subtitle, ctaText, ctaHref, class: className, ...attrs } = Astro.props;
+---
+
+<section class={className} data-component="hero" {...attrs}>
+  <h1 data-part="title">{title}</h1>
+  {subtitle && <p data-part="subtitle">{subtitle}</p>}
+  {ctaText && ctaHref && (
+    <a href={ctaHref} data-part="cta">{ctaText}</a>
+  )}
+  <slot />
+</section>

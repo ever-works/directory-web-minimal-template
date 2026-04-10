@@ -1,0 +1,215 @@
+# AI Agent Instructions — Ever Works Minimal Directory Template
+
+> This file is the primary instruction set for all AI agents working on this codebase.
+> Read CLAUDE.md first for project overview, then follow these rules.
+
+## Mandatory Rules
+
+Every document, specification, code file, and decision MUST comply with these rules. Cross-check before creating anything:
+
+### R1: TypeScript Only
+- All source code must be TypeScript (`.ts`, `.tsx`, `.astro`)
+- No JavaScript (`.js`, `.jsx`), Python, or any other language for source files
+- Config files (`.json`, `.yaml`, `.toml`) are acceptable
+
+### R2: Plugin Architecture
+- Almost every feature MUST be a plugin
+- Almost every UI feature MUST be a plugin
+- Core should contain only the absolute minimum: data loading, type definitions, plugin system
+- Plugins live in `packages/` as separate packages
+- Plugins can be enabled/disabled/replaced independently
+- Default plugins ship with the template; users can swap them
+
+### R3: Git-First Data
+- Default data storage is Git repositories (YAML files)
+- No database by default (plugins may add DB support later)
+- No custom storage backends by default
+- Data repo structure must match the full Next.js template's `.content/` format
+
+### R4: No Advanced Features
+- No authentication / user accounts
+- No payments / billing / subscriptions
+- No geo / maps / location services
+- No CRM integration
+- No analytics (can be added as plugin later)
+- No i18n (can be added as plugin later)
+- No rich text editor
+
+### R5: Static Output Only
+- Astro `output: 'static'` — no SSR, no server endpoints
+- All pages pre-rendered at build time
+- No client-side data fetching for core content (hydration for interactions only)
+
+### R6: Extreme Performance
+- Zero unnecessary JavaScript in output
+- Astro islands architecture — hydrate only what needs interactivity
+- Minimal CSS — headless components, AI applies styling
+- No large runtime dependencies (no React Query, no Zustand, etc.)
+- Prefer Astro's built-in features over external libraries
+
+### R7: Modular & Replaceable
+- Every component, adapter, plugin can be swapped
+- Use dependency injection / configuration over hard-coded imports
+- Adapter pattern for all external integrations
+- Clear interfaces/contracts between modules
+
+### R8: AI-Optimized Codebase
+- Explicit file naming — no abbreviations
+- Inline JSDoc comments on all public APIs
+- Data contracts documented with TypeScript interfaces
+- Extension points clearly marked with comments
+- `AGENTS.md` and `CLAUDE.md` always up to date
+
+### R9: Documentation First
+- Do NOT implement code without a spec/plan in `.specify/` or `docs/`
+- Every feature needs a written spec before implementation
+- Update `docs/index.md` when adding docs
+- Update `docs/log.md` when making changes
+- Add questions to `docs/questions.md` — pick a default, note alternatives
+
+### R10: Use Existing Libraries
+- Prefer popular, well-maintained packages over custom implementations
+- Do NOT build what already exists as a popular package
+- Exception: if the existing package is too heavy or doesn't fit the plugin architecture
+
+### R11: Do Not Remove, Only Improve
+- Never delete existing code/docs without moving or improving
+- Refactoring and reorganization is fine
+- If something seems wrong, improve it — don't delete it
+
+## Working Process
+
+### Before Starting Any Task
+1. Check current state: read `docs/log.md` for recent changes
+2. Check specs: read relevant `.specify/` specs
+3. Check questions: read `docs/questions.md` for open decisions
+4. Check rules: verify task aligns with R1-R11 above
+
+### When Creating New Features
+1. Write spec in `.specify/` folder first
+2. Document plan in `docs/plans/`
+3. Add any questions to `docs/questions.md`
+4. Implement as a plugin (R2) unless it's truly core
+5. Add TypeScript types and JSDoc comments
+6. Update `docs/index.md` and `docs/log.md`
+
+### When Uncertain
+1. Add question to `docs/questions.md` with options
+2. Select a reasonable default (mark it as `[DEFAULT]`)
+3. Proceed with the default choice
+4. Owner will review and adjust later
+
+## File Structure Conventions
+
+```
+packages/<name>/
+├── src/
+│   ├── index.ts          — Public API (barrel export)
+│   ├── types.ts          — TypeScript interfaces
+│   └── ...               — Implementation files
+├── package.json
+├── tsconfig.json
+└── README.md
+```
+
+```
+apps/web/
+├── src/
+│   ├── components/       — Astro/framework components
+│   ├── layouts/          — Page layouts
+│   ├── pages/            — Astro pages (file-based routing)
+│   ├── styles/           — Global styles (minimal)
+│   └── lib/              — App-specific utilities
+├── public/               — Static assets
+├── astro.config.ts
+├── package.json
+└── tsconfig.json
+```
+
+## Data Contracts
+
+### Item (from `.content/data/<slug>/<slug>.yml`)
+```typescript
+interface ItemData {
+    id: string;
+    name: string;
+    slug: string;
+    description: string;
+    source_url: string;
+    category: string | string[];
+    tags: string[];
+    collections?: string[];
+    featured?: boolean;
+    icon_url?: string;
+    updated_at: string;
+    status: 'draft' | 'pending' | 'approved' | 'rejected';
+}
+```
+
+### Category (from `.content/categories.yml`)
+```typescript
+interface CategoryData {
+    id: string;
+    name: string;
+    icon_url?: string;
+}
+```
+
+### Tag (from `.content/tags.yml`)
+```typescript
+interface TagData {
+    id: string;
+    name: string;
+    isActive?: boolean;
+}
+```
+
+### Collection (from `.content/collections.yml`)
+```typescript
+interface CollectionData {
+    id: string;
+    slug: string;
+    name: string;
+    description: string;
+    icon_url?: string;
+    items?: string[];
+    isActive?: boolean;
+}
+```
+
+### Config (from `.content/config.yml`)
+```typescript
+interface SiteConfig {
+    company_name: string;
+    item_name: string;
+    items_name: string;
+    copyright_year: number;
+    app_url?: string;
+    logo?: {
+        logo_image?: string;
+        logo_image_dark?: string;
+        favicon?: string;
+    };
+    pagination?: {
+        type: 'standard' | 'infinite';
+        itemsPerPage: number;
+    };
+    settings?: {
+        categories_enabled?: boolean;
+        tags_enabled?: boolean;
+    };
+}
+```
+
+## Skills for AI Agents
+
+When building a directory website from this template, an AI agent should:
+
+1. **Read the data repo** — Understand what items, categories, tags exist
+2. **Choose a layout** — Select from available layout plugins or create custom
+3. **Apply styling** — Use Tailwind CSS or custom CSS on headless components
+4. **Configure pages** — Set up routes for listings, item details, categories, tags
+5. **Add plugins** — Enable search, filtering, comparison, etc.
+6. **Build & deploy** — Static build, deploy to Vercel
+
+See `SKILLS.md` (when created) for detailed step-by-step guides.

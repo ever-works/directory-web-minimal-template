@@ -1,0 +1,33 @@
+{
+    "name": "@ever-works/sample-basic",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "description": "Reference implementation: a basic directory website built by AI from the minimal template. Demonstrates the full AI workflow.",
+    "scripts": {
+        "predev": "tsx scripts/clone-content.ts",
+        "dev": "astro dev --port 4323",
+        "prebuild": "tsx scripts/clone-content.ts",
+        "build": "astro build",
+        "preview": "astro preview --port 4323",
+        "clean": "rm -rf dist .astro"
+    },
+    "dependencies": {
+        "@astrojs/preact": "^4.0.0",
+        "@astrojs/tailwind": "^6.0.0",
+        "@astrojs/sitemap": "^3.3.0",
+        "@ever-works/core": "workspace:*",
+        "@ever-works/plugins": "workspace:*",
+        "@ever-works/adapters": "workspace:*",
+        "@ever-works/ui": "workspace:*",
+        "astro": "^5.0.0",
+        "preact": "^10.25.0",
+        "tailwindcss": "^4.1.0",
+        "yaml": "^2.7.0"
+    },
+    "devDependencies": {
+        "@ever-works/tsconfig": "workspace:*",
+        "tsx": "^4.19.0",
+        "typescript": "^5.7.0"
+    }
+}

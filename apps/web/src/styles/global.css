@@ -1,0 +1,6 @@
+/*
+ * Global styles — intentionally minimal.
+ * This file imports Tailwind CSS v4 and provides a reset.
+ * AI agents add custom styles here when building from the template.
+ */
+@import "tailwindcss";

@@ -1,0 +1,9 @@
+{
+    "extends": "@ever-works/tsconfig/astro.json",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "rootDir": "./src"
+    },
+    "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.astro"],
+    "exclude": ["node_modules", "dist"]
+}

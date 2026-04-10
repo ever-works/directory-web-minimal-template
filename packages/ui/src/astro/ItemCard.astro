@@ -1,0 +1,69 @@
+---
+/**
+ * ItemCard — Headless item card component.
+ * Renders a single directory item with semantic HTML and data attributes.
+ * AI agents apply styling via class prop or data-* selectors.
+ *
+ * @example
+ * ```astro
+ * <ItemCard item={item} showCategory showTags />
+ * ```
+ */
+import type { ItemCardProps } from '../types.js';
+
+type Props = ItemCardProps;
+
+const {
+  item,
+  showCategory = true,
+  showTags = true,
+  showDescription = true,
+  class: className,
+  ...attrs
+} = Astro.props;
+
+const categories = Array.isArray(item.category) ? item.category : [item.category];
+---
+
+<article
+  class={className}
+  data-component="item-card"
+  data-featured={item.featured ? '' : undefined}
+  {...attrs}
+>
+  {item.icon_url && (
+    <img
+      src={item.icon_url}
+      alt={`${item.name} icon`}
+      data-part="icon"
+      loading="lazy"
+    />
+  )}
+  <h3 data-part="name">
+    <a href={`/item/${item.slug}`}>{item.name}</a>
+  </h3>
+  {showDescription && item.description && (
+    <p data-part="description">{item.description}</p>
+  )}
+  {showCategory && categories.length > 0 && (
+    <div data-part="categories">
+      {categories.map((cat) => (
+        <a href={`/category/${cat}`} data-part="category">{cat}</a>
+      ))}
+    </div>
+  )}
+  {showTags && item.tags?.length > 0 && (
+    <ul data-part="tags">
+      {item.tags.map((tag) => (
+        <li data-part="tag">
+          <a href={`/tag/${tag}`}>{tag}</a>
+        </li>
+      ))}
+    </ul>
+  )}
+  {item.source_url && (
+    <a href={item.source_url} data-part="source-link" rel="noopener noreferrer" target="_blank">
+      Visit
+    </a>
+  )}
+</article>

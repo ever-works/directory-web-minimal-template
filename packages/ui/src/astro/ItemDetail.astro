@@ -1,0 +1,86 @@
+---
+/**
+ * ItemDetail — Headless detail view for a single directory item.
+ * Renders comprehensive item information with semantic HTML.
+ * AI agents apply styling via class prop or data-* selectors.
+ *
+ * @example
+ * ```astro
+ * <ItemDetail item={item} relatedItems={related} />
+ * ```
+ */
+import type { ItemDetailProps } from '../types.js';
+import ItemCard from './ItemCard.astro';
+
+type Props = ItemDetailProps;
+
+const { item, relatedItems = [], class: className, ...attrs } = Astro.props;
+
+const categories = Array.isArray(item.category) ? item.category : [item.category];
+---
+
+<article class={className} data-component="item-detail" {...attrs}>
+  <header data-part="header">
+    {item.icon_url && (
+      <img
+        src={item.icon_url}
+        alt={`${item.name} icon`}
+        data-part="icon"
+        loading="lazy"
+      />
+    )}
+    <h1 data-part="name">{item.name}</h1>
+    {item.description && <p data-part="description">{item.description}</p>}
+  </header>
+
+  <div data-part="meta">
+    {categories.length > 0 && (
+      <div data-part="categories">
+        {categories.map((cat) => (
+          <a href={`/category/${cat}`} data-part="category">{cat}</a>
+        ))}
+      </div>
+    )}
+    {item.tags?.length > 0 && (
+      <ul data-part="tags">
+        {item.tags.map((tag) => (
+          <li data-part="tag">
+            <a href={`/tag/${tag}`}>{tag}</a>
+          </li>
+        ))}
+      </ul>
+    )}
+    {item.source_url && (
+      <a
+        href={item.source_url}
+        data-part="source-link"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Visit Website
+      </a>
+    )}
+    {item.updated_at && (
+      <time data-part="updated-at" datetime={item.updated_at}>
+        Updated: {item.updated_at}
+      </time>
+    )}
+  </div>
+
+  {item.markdown && (
+    <div data-part="content" set:html={item.markdown} />
+  )}
+
+  <slot />
+
+  {relatedItems.length > 0 && (
+    <section data-part="related">
+      <h2 data-part="related-heading">Related Items</h2>
+      <div data-part="related-items">
+        {relatedItems.map((related) => (
+          <ItemCard item={related} showDescription={false} />
+        ))}
+      </div>
+    </section>
+  )}
+</article>

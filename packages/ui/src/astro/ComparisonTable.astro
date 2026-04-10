@@ -1,0 +1,76 @@
+---
+/**
+ * ComparisonTable — Headless comparison table component.
+ * Renders a side-by-side comparison of two items with dimensions.
+ * AI agents apply styling via class prop or data-* selectors.
+ *
+ * @example
+ * ```astro
+ * <ComparisonTable comparison={comparisonData} showScores />
+ * ```
+ */
+import type { ComparisonTableProps } from '../types.js';
+
+type Props = ComparisonTableProps;
+
+const { comparison, showScores = true, class: className, ...attrs } = Astro.props;
+---
+
+<div class={className} data-component="comparison-table" {...attrs}>
+  <header data-part="header">
+    <h2 data-part="title">{comparison.title}</h2>
+    {comparison.summary && <p data-part="summary">{comparison.summary}</p>}
+  </header>
+
+  <table data-part="table">
+    <thead>
+      <tr>
+        <th data-part="dimension-header">Dimension</th>
+        <th data-part="item-a-header">
+          <a href={`/item/${comparison.item_a_slug}`}>{comparison.item_a_name}</a>
+        </th>
+        <th data-part="item-b-header">
+          <a href={`/item/${comparison.item_b_slug}`}>{comparison.item_b_name}</a>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {comparison.dimensions?.map((dim) => (
+        <tr
+          data-part="dimension-row"
+          data-winner={dim.winner ?? undefined}
+        >
+          <td data-part="dimension-name">{dim.name}</td>
+          <td
+            data-part="item-a-cell"
+            data-winner={dim.winner === 'item_a' ? '' : undefined}
+          >
+            {dim.item_a_summary && <span data-part="summary">{dim.item_a_summary}</span>}
+            {showScores && dim.item_a_score !== undefined && (
+              <span data-part="score">{dim.item_a_score}/10</span>
+            )}
+          </td>
+          <td
+            data-part="item-b-cell"
+            data-winner={dim.winner === 'item_b' ? '' : undefined}
+          >
+            {dim.item_b_summary && <span data-part="summary">{dim.item_b_summary}</span>}
+            {showScores && dim.item_b_score !== undefined && (
+              <span data-part="score">{dim.item_b_score}/10</span>
+            )}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  {comparison.verdict && (
+    <footer data-part="verdict" data-winner={comparison.verdict_winner ?? undefined}>
+      <p data-part="verdict-text">{comparison.verdict}</p>
+    </footer>
+  )}
+
+  {comparison.content && (
+    <div data-part="content" set:html={comparison.content} />
+  )}
+</div>

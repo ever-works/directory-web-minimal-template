@@ -1,0 +1,32 @@
+---
+/**
+ * ItemGrid — Headless grid layout for directory items.
+ * Renders items in a semantic list with a data attribute for column count.
+ * AI agents apply grid/flexbox styling via class prop or data-* selectors.
+ *
+ * @example
+ * ```astro
+ * <ItemGrid items={items} columns={3} />
+ * ```
+ */
+import type { ItemGridProps } from '../types.js';
+import ItemCard from './ItemCard.astro';
+
+type Props = ItemGridProps;
+
+const { items, columns = 3, class: className, ...attrs } = Astro.props;
+---
+
+<div
+  class={className}
+  data-component="item-grid"
+  data-columns={String(columns)}
+  role="list"
+  {...attrs}
+>
+  {items.map((item) => (
+    <div role="listitem" data-part="grid-item">
+      <ItemCard item={item} />
+    </div>
+  ))}
+</div>

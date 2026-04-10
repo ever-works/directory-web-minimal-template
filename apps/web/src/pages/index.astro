@@ -1,0 +1,70 @@
+---
+/**
+ * Home Page — Lists all approved items with basic navigation.
+ *
+ * This is the main entry point. Shows a hero, category navigation,
+ * and a paginated grid of all directory items.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getContent } from '../lib/content';
+
+const { items, categories, tags, config } = await getContent();
+---
+
+<BaseLayout title="Home" config={config}>
+    <section data-component="hero">
+        <h1 data-part="title">
+            {config.company_name}
+        </h1>
+        <p data-part="subtitle">
+            Browse {items.length} {items.length === 1 ? config.item_name : config.items_name}
+        </p>
+    </section>
+
+    {categories.length > 0 && (
+        <nav data-component="category-nav">
+            <h2 data-part="heading">Categories</h2>
+            <ul data-part="list">
+                {categories.map((cat) => (
+                    <li data-part="item">
+                        <a href={`/category/${cat.id}`}>
+                            {cat.name}
+                            <span data-part="count">({cat.count})</span>
+                        </a>
+                    </li>
+                ))}
+            </ul>
+        </nav>
+    )}
+
+    <section data-component="item-listing">
+        <h2 data-part="heading">All {config.items_name}</h2>
+        {items.length === 0 ? (
+            <p data-component="empty-state">No {config.items_name.toLowerCase()} found.</p>
+        ) : (
+            <div data-part="grid">
+                {items.map((item) => (
+                    <article data-component="item-card" data-featured={item.featured ? '' : undefined}>
+                        {item.icon_url && (
+                            <img
+                                src={item.icon_url}
+                                alt={`${item.name} icon`}
+                                data-part="icon"
+                                loading="lazy"
+                            />
+                        )}
+                        <h3 data-part="name">
+                            <a href={`/item/${item.slug}`}>{item.name}</a>
+                        </h3>
+                        {item.description && (
+                            <p data-part="description">{item.description}</p>
+                        )}
+                        <span data-part="category">
+                            {Array.isArray(item.category) ? item.category[0] : item.category}
+                        </span>
+                    </article>
+                ))}
+            </div>
+        )}
+    </section>
+</BaseLayout>

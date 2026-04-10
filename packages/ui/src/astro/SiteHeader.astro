@@ -1,0 +1,67 @@
+---
+/**
+ * SiteHeader — Headless site header/navigation component.
+ * Renders site branding and navigation links with semantic HTML.
+ * AI agents apply styling via class prop or data-* selectors.
+ *
+ * @example
+ * ```astro
+ * <SiteHeader config={siteConfig} nav={navItems} />
+ * ```
+ */
+import type { SiteHeaderProps } from '../types.js';
+
+type Props = SiteHeaderProps;
+
+const { config, nav = [], class: className, ...attrs } = Astro.props;
+
+const logoSrc = config.logo?.logo_image;
+const logoSrcDark = config.logo?.logo_image_dark;
+---
+
+<header class={className} data-component="site-header" {...attrs}>
+  <div data-part="branding">
+    <a href="/" data-part="logo-link" aria-label={`${config.company_name} home`}>
+      {logoSrc ? (
+        <>
+          <img
+            src={logoSrc}
+            alt={config.company_name}
+            data-part="logo"
+            data-theme="light"
+            loading="lazy"
+          />
+          {logoSrcDark && (
+            <img
+              src={logoSrcDark}
+              alt={config.company_name}
+              data-part="logo"
+              data-theme="dark"
+              loading="lazy"
+            />
+          )}
+        </>
+      ) : (
+        <span data-part="site-name">{config.company_name}</span>
+      )}
+    </a>
+  </div>
+
+  {nav.length > 0 && (
+    <nav data-part="nav" aria-label="Main navigation">
+      <ul data-part="nav-list">
+        {nav.map((item) => (
+          <li data-part="nav-item" data-active={item.isActive ? '' : undefined}>
+            <a href={item.href} data-part="nav-link" aria-current={item.isActive ? 'page' : undefined}>
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )}
+
+  <div data-part="actions">
+    <slot />
+  </div>
+</header>

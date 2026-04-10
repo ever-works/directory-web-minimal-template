@@ -1,0 +1,68 @@
+---
+/**
+ * BaseLayout — Root layout for all pages.
+ *
+ * Provides HTML document structure, meta tags, header, and footer.
+ * Headless: no styling applied by default. AI agents add CSS.
+ */
+import type { SiteConfig } from '@ever-works/core';
+import '../styles/global.css';
+
+interface Props {
+    /** Page title (appended to site name) */
+    title: string;
+    /** Meta description for SEO */
+    description?: string;
+    /** Site configuration */
+    config: SiteConfig;
+    /** Optional canonical URL */
+    canonicalUrl?: string;
+}
+
+const { title, description, config, canonicalUrl } = Astro.props;
+const siteTitle = `${title} | ${config.company_name}`;
+const metaDescription = description || `${config.company_name} — Browse ${config.items_name}`;
+---
+
+<!doctype html>
+<html lang="en" data-component="root">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="generator" content={Astro.generator} />
+        <title>{siteTitle}</title>
+        <meta name="description" content={metaDescription} />
+        {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+        {config.logo?.favicon && <link rel="icon" href={config.logo.favicon} />}
+        <slot name="head" />
+    </head>
+    <body data-component="body">
+        <header data-component="site-header">
+            <a href="/" data-part="logo">
+                {config.logo?.logo_image && (
+                    <img
+                        src={config.logo.logo_image}
+                        alt={config.company_name}
+                        data-part="logo-image"
+                    />
+                )}
+                <span data-part="site-name">{config.company_name}</span>
+            </a>
+            <nav data-part="nav">
+                <a href="/">Home</a>
+                <a href="/categories">Categories</a>
+                <a href="/tags">Tags</a>
+            </nav>
+        </header>
+
+        <main data-component="main">
+            <slot />
+        </main>
+
+        <footer data-component="site-footer">
+            <p data-part="copyright">
+                &copy; {config.copyright_year} {config.company_name}
+            </p>
+        </footer>
+    </body>
+</html>

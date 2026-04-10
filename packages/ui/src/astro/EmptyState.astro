@@ -1,0 +1,23 @@
+---
+/**
+ * EmptyState — Headless empty state component.
+ * Renders a message when no items/results are available.
+ * AI agents apply styling via class prop or data-* selectors.
+ *
+ * @example
+ * ```astro
+ * <EmptyState message="No items found" suggestion="Try adjusting your filters" />
+ * ```
+ */
+import type { EmptyStateProps } from '../types.js';
+
+type Props = EmptyStateProps;
+
+const { message, suggestion, class: className, ...attrs } = Astro.props;
+---
+
+<div class={className} data-component="empty-state" role="status" {...attrs}>
+  <p data-part="message">{message}</p>
+  {suggestion && <p data-part="suggestion">{suggestion}</p>}
+  <slot />
+</div>

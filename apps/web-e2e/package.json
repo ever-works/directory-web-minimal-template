@@ -1,0 +1,16 @@
+{
+    "name": "@ever-works/web-e2e",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "test:e2e": "playwright test",
+        "test:e2e:ui": "playwright test --ui",
+        "clean": "rm -rf test-results playwright-report"
+    },
+    "devDependencies": {
+        "@ever-works/tsconfig": "workspace:*",
+        "@playwright/test": "^1.50.0",
+        "typescript": "^5.7.0"
+    }
+}

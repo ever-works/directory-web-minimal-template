@@ -1,0 +1,9 @@
+{
+    "extends": "@ever-works/tsconfig/base.json",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "rootDir": "."
+    },
+    "include": ["**/*.ts"],
+    "exclude": ["node_modules", "dist", "test-results", "playwright-report"]
+}

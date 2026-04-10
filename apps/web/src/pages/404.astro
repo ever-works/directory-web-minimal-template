@@ -1,0 +1,17 @@
+---
+/**
+ * 404 Page — Shown when a page is not found.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getContent } from '../lib/content';
+
+const { config } = await getContent();
+---
+
+<BaseLayout title="Not Found" config={config}>
+    <section data-component="not-found">
+        <h1 data-part="title">Page Not Found</h1>
+        <p data-part="message">The page you're looking for doesn't exist.</p>
+        <a href="/" data-part="home-link">Go back home</a>
+    </section>
+</BaseLayout>

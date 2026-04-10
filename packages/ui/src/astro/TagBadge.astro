@@ -1,0 +1,31 @@
+---
+/**
+ * TagBadge — Headless tag badge/chip component.
+ * Renders a single tag as a link or span with optional count.
+ * AI agents apply styling via class prop or data-* selectors.
+ *
+ * @example
+ * ```astro
+ * <TagBadge tag={tag} count={5} href="/tag/open-source" />
+ * ```
+ */
+import type { TagBadgeProps } from '../types.js';
+
+type Props = TagBadgeProps;
+
+const { tag, count, href, class: className, ...attrs } = Astro.props;
+
+const Tag = href ? 'a' : 'span';
+---
+
+<Tag
+  class={className}
+  data-component="tag-badge"
+  {...(href ? { href } : {})}
+  {...attrs}
+>
+  <span data-part="name">{tag.name}</span>
+  {count !== undefined && (
+    <span data-part="count">{count}</span>
+  )}
+</Tag>

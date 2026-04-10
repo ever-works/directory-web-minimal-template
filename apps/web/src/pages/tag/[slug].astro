@@ -1,0 +1,69 @@
+---
+/**
+ * Tag Page — Lists all items with a specific tag.
+ *
+ * Uses getStaticPaths to generate one page per active tag at build time.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getContent } from '../../lib/content';
+
+export async function getStaticPaths() {
+    const { tags } = await getContent();
+    return tags.map((tag) => ({
+        params: { slug: tag.id },
+        props: { tag },
+    }));
+}
+
+const { tag } = Astro.props;
+const { items, config } = await getContent();
+
+// Filter items by this tag
+const tagItems = items.filter((item) =>
+    item.tags?.includes(tag.id)
+);
+---
+
+<BaseLayout
+    title={tag.name}
+    description={`Browse ${tagItems.length} ${config.items_name.toLowerCase()} tagged with ${tag.name}`}
+    config={config}
+>
+    <nav data-component="breadcrumbs">
+        <a href="/">Home</a>
+        <span data-part="separator">/</span>
+        <a href="/tags">Tags</a>
+        <span data-part="separator">/</span>
+        <span data-part="current">{tag.name}</span>
+    </nav>
+
+    <section data-component="tag-page">
+        <h1 data-part="heading">{tag.name}</h1>
+        <p data-part="count">{tagItems.length} {tagItems.length === 1 ? config.item_name : config.items_name}</p>
+
+        {tagItems.length === 0 ? (
+            <p data-component="empty-state">No {config.items_name.toLowerCase()} with this tag.</p>
+        ) : (
+            <div data-part="grid">
+                {tagItems.map((item) => (
+                    <article data-component="item-card" data-featured={item.featured ? '' : undefined}>
+                        {item.icon_url && (
+                            <img
+                                src={item.icon_url}
+                                alt={`${item.name} icon`}
+                                data-part="icon"
+                                loading="lazy"
+                            />
+                        )}
+                        <h3 data-part="name">
+                            <a href={`/item/${item.slug}`}>{item.name}</a>
+                        </h3>
+                        {item.description && (
+                            <p data-part="description">{item.description}</p>
+                        )}
+                    </article>
+                ))}
+            </div>
+        )}
+    </section>
+</BaseLayout>

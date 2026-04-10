@@ -1,0 +1,51 @@
+---
+/**
+ * Breadcrumbs — Headless breadcrumb navigation component.
+ * Renders breadcrumb trail with semantic HTML and structured data.
+ * AI agents apply styling via class prop or data-* selectors.
+ *
+ * @example
+ * ```astro
+ * <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Tools' }]} />
+ * ```
+ */
+import type { BreadcrumbsProps } from '../types.js';
+
+type Props = BreadcrumbsProps;
+
+const { items, separator = '/', class: className, ...attrs } = Astro.props;
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: items.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.label,
+    ...(item.href ? { item: item.href } : {}),
+  })),
+};
+---
+
+<nav
+  class={className}
+  data-component="breadcrumbs"
+  aria-label="Breadcrumb"
+  {...attrs}
+>
+  <ol data-part="list">
+    {items.map((item, index) => (
+      <li data-part="item" aria-current={index === items.length - 1 ? 'page' : undefined}>
+        {item.href && index < items.length - 1 ? (
+          <a href={item.href} data-part="link">{item.label}</a>
+        ) : (
+          <span data-part="current">{item.label}</span>
+        )}
+        {index < items.length - 1 && (
+          <span data-part="separator" aria-hidden="true">{separator}</span>
+        )}
+      </li>
+    ))}
+  </ol>
+</nav>
+<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />

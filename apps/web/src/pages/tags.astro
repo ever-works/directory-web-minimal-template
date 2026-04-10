@@ -1,0 +1,36 @@
+---
+/**
+ * Tags Index Page — Lists all active tags with item counts.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getContent } from '../lib/content';
+
+const { tags, config } = await getContent();
+---
+
+<BaseLayout title="Tags" config={config}>
+    <nav data-component="breadcrumbs">
+        <a href="/">Home</a>
+        <span data-part="separator">/</span>
+        <span data-part="current">Tags</span>
+    </nav>
+
+    <section data-component="tags-page">
+        <h1 data-part="heading">Tags</h1>
+
+        {tags.length === 0 ? (
+            <p data-component="empty-state">No tags defined.</p>
+        ) : (
+            <ul data-part="list">
+                {tags.map((tag) => (
+                    <li data-part="item">
+                        <a href={`/tag/${tag.id}`} data-component="tag-badge">
+                            <span data-part="name">{tag.name}</span>
+                            <span data-part="count">({tag.count})</span>
+                        </a>
+                    </li>
+                ))}
+            </ul>
+        )}
+    </section>
+</BaseLayout>

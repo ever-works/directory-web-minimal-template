@@ -1,0 +1,39 @@
+---
+/**
+ * CollectionCard — Headless collection card component.
+ * Renders a single curated collection with semantic HTML.
+ * AI agents apply styling via class prop or data-* selectors.
+ *
+ * @example
+ * ```astro
+ * <CollectionCard collection={collection} itemCount={15} />
+ * ```
+ */
+import type { CollectionCardProps } from '../types.js';
+
+type Props = CollectionCardProps;
+
+const { collection, itemCount, class: className, ...attrs } = Astro.props;
+---
+
+<article class={className} data-component="collection-card" {...attrs}>
+  {collection.icon_url && (
+    <img
+      src={collection.icon_url}
+      alt={`${collection.name} icon`}
+      data-part="icon"
+      loading="lazy"
+    />
+  )}
+  <h3 data-part="name">
+    <a href={`/collection/${collection.slug}`}>{collection.name}</a>
+  </h3>
+  {collection.description && (
+    <p data-part="description">{collection.description}</p>
+  )}
+  {itemCount !== undefined && (
+    <span data-part="item-count">
+      {itemCount} {itemCount === 1 ? 'item' : 'items'}
+    </span>
+  )}
+</article>

@@ -1,0 +1,22 @@
+{
+    "name": "@ever-works/plugins",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "main": "./src/index.ts",
+    "types": "./src/index.ts",
+    "exports": {
+        ".": "./src/index.ts"
+    },
+    "scripts": {
+        "typecheck": "tsc --noEmit",
+        "clean": "rm -rf dist"
+    },
+    "dependencies": {
+        "@ever-works/core": "workspace:*"
+    },
+    "devDependencies": {
+        "@ever-works/tsconfig": "workspace:*",
+        "typescript": "^5.7.0"
+    }
+}

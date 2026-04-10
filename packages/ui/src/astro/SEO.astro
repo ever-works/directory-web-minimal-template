@@ -1,0 +1,72 @@
+---
+/**
+ * SEO — Meta tags component for search engine optimization.
+ * Renders essential meta tags, Open Graph, and JSON-LD structured data.
+ * Should be placed inside the <head> element.
+ *
+ * @example
+ * ```astro
+ * <head>
+ *   <SEO
+ *     title="Best Tools Directory"
+ *     description="Find the best tools"
+ *     canonicalUrl="https://example.com"
+ *   />
+ * </head>
+ * ```
+ */
+
+interface Props {
+  /** Page title */
+  title: string;
+  /** Meta description */
+  description?: string;
+  /** Canonical URL for this page */
+  canonicalUrl?: string;
+  /** Open Graph image URL */
+  ogImage?: string;
+  /** Open Graph type (default: 'website') */
+  ogType?: 'website' | 'article';
+  /** Site name for Open Graph */
+  siteName?: string;
+  /** Do not index this page */
+  noindex?: boolean;
+  /** JSON-LD structured data object */
+  jsonLd?: Record<string, unknown>;
+}
+
+const {
+  title,
+  description,
+  canonicalUrl,
+  ogImage,
+  ogType = 'website',
+  siteName,
+  noindex = false,
+  jsonLd,
+} = Astro.props;
+---
+
+<title>{title}</title>
+{description && <meta name="description" content={description} />}
+{canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+{noindex && <meta name="robots" content="noindex,nofollow" />}
+
+<!-- Open Graph -->
+<meta property="og:title" content={title} />
+{description && <meta property="og:description" content={description} />}
+<meta property="og:type" content={ogType} />
+{canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+{ogImage && <meta property="og:image" content={ogImage} />}
+{siteName && <meta property="og:site_name" content={siteName} />}
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+<meta name="twitter:title" content={title} />
+{description && <meta name="twitter:description" content={description} />}
+{ogImage && <meta name="twitter:image" content={ogImage} />}
+
+<!-- JSON-LD Structured Data -->
+{jsonLd && (
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+)}

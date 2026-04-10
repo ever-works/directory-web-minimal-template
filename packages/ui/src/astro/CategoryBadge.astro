@@ -1,0 +1,40 @@
+---
+/**
+ * CategoryBadge — Headless category badge/chip component.
+ * Renders a single category as a link or span with optional count.
+ * AI agents apply styling via class prop or data-* selectors.
+ *
+ * @example
+ * ```astro
+ * <CategoryBadge category={cat} count={12} href="/category/tools" />
+ * ```
+ */
+import type { CategoryBadgeProps } from '../types.js';
+
+type Props = CategoryBadgeProps;
+
+const { category, count, href, class: className, ...attrs } = Astro.props;
+
+const Tag = href ? 'a' : 'span';
+---
+
+<Tag
+  class={className}
+  data-component="category-badge"
+  {...(href ? { href } : {})}
+  {...attrs}
+>
+  {category.icon_url && (
+    <img
+      src={category.icon_url}
+      alt=""
+      data-part="icon"
+      loading="lazy"
+      aria-hidden="true"
+    />
+  )}
+  <span data-part="name">{category.name}</span>
+  {count !== undefined && (
+    <span data-part="count">{count}</span>
+  )}
+</Tag>

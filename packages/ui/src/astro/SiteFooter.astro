@@ -1,0 +1,33 @@
+---
+/**
+ * SiteFooter — Headless site footer component.
+ * Renders site footer with branding and copyright.
+ * AI agents apply styling via class prop or data-* selectors.
+ *
+ * @example
+ * ```astro
+ * <SiteFooter config={siteConfig} />
+ * ```
+ */
+import type { SiteFooterProps } from '../types.js';
+
+type Props = SiteFooterProps;
+
+const { config, class: className, ...attrs } = Astro.props;
+---
+
+<footer class={className} data-component="site-footer" {...attrs}>
+  <div data-part="branding">
+    <a href="/" data-part="logo-link" aria-label={`${config.company_name} home`}>
+      <span data-part="site-name">{config.company_name}</span>
+    </a>
+  </div>
+
+  <div data-part="content">
+    <slot />
+  </div>
+
+  <div data-part="copyright">
+    <p>&copy; {config.copyright_year} {config.company_name}. All rights reserved.</p>
+  </div>
+</footer>

@@ -1,0 +1,40 @@
+{
+    "name": "ever-works-minimal-monorepo",
+    "version": "0.1.0",
+    "private": true,
+    "packageManager": "pnpm@10.31.0",
+    "engines": {
+        "node": ">=20.19.0"
+    },
+    "scripts": {
+        "build": "turbo run build",
+        "dev": "turbo run dev",
+        "dev:web": "turbo run dev --filter=@ever-works/web-minimal",
+        "dev:docs": "turbo run dev --filter=@ever-works/docs-minimal",
+        "lint": "turbo run lint",
+        "test:e2e": "turbo run test:e2e",
+        "clean": "turbo run clean",
+        "format": "prettier --write \"**/*.{ts,tsx,js,jsx,md,json}\"",
+        "typecheck": "turbo run typecheck"
+    },
+    "devDependencies": {
+        "prettier": "^3.5.0",
+        "turbo": "^2.5.0"
+    },
+    "prettier": {
+        "useTabs": false,
+        "tabWidth": 4,
+        "printWidth": 120,
+        "singleQuote": true,
+        "semi": true,
+        "trailingComma": "none",
+        "overrides": [
+            {
+                "files": ["*.yml", "*.yaml"],
+                "options": {
+                    "tabWidth": 2
+                }
+            }
+        ]
+    }
+}

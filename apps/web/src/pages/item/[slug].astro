@@ -1,0 +1,138 @@
+---
+/**
+ * Item Detail Page — Shows full details for a single directory item.
+ *
+ * Uses getStaticPaths to generate one page per approved item at build time.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getContent } from '../../lib/content';
+import type { ItemData } from '@ever-works/core';
+
+export async function getStaticPaths() {
+    const { items } = await getContent();
+    return items.map((item) => ({
+        params: { slug: item.slug },
+        props: { item },
+    }));
+}
+
+interface Props {
+    item: ItemData;
+}
+
+const { item } = Astro.props;
+const { config, items, categories } = await getContent();
+
+// Find related items (same category, excluding self)
+const primaryCategory = Array.isArray(item.category) ? item.category[0] : item.category;
+const relatedItems = items
+    .filter((i) => {
+        if (i.slug === item.slug) return false;
+        const cats = Array.isArray(i.category) ? i.category : [i.category];
+        return cats.includes(primaryCategory);
+    })
+    .slice(0, 6);
+
+// Resolve category name
+const categoryData = categories.find((c) => c.id === primaryCategory);
+---
+
+<BaseLayout
+    title={item.name}
+    description={item.description}
+    config={config}
+>
+    <article data-component="item-detail">
+        <nav data-component="breadcrumbs">
+            <a href="/">Home</a>
+            <span data-part="separator">/</span>
+            {categoryData && (
+                <>
+                    <a href={`/category/${categoryData.id}`}>{categoryData.name}</a>
+                    <span data-part="separator">/</span>
+                </>
+            )}
+            <span data-part="current">{item.name}</span>
+        </nav>
+
+        <header data-part="header">
+            {item.icon_url && (
+                <img
+                    src={item.icon_url}
+                    alt={`${item.name} icon`}
+                    data-part="icon"
+                    loading="lazy"
+                />
+            )}
+            <h1 data-part="name">{item.name}</h1>
+            {item.description && (
+                <p data-part="description">{item.description}</p>
+            )}
+        </header>
+
+        <section data-part="meta">
+            {item.source_url && (
+                <a
+                    href={item.source_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-part="source-link"
+                >
+                    Visit Website
+                </a>
+            )}
+
+            {categoryData && (
+                <span data-part="category">
+                    <a href={`/category/${categoryData.id}`}>{categoryData.name}</a>
+                </span>
+            )}
+
+            {item.tags && item.tags.length > 0 && (
+                <ul data-part="tags">
+                    {item.tags.map((tag) => (
+                        <li data-part="tag">
+                            <a href={`/tag/${tag}`}>{tag}</a>
+                        </li>
+                    ))}
+                </ul>
+            )}
+
+            {item.updated_at && (
+                <time data-part="updated-at" datetime={item.updated_at}>
+                    Updated: {item.updated_at}
+                </time>
+            )}
+        </section>
+
+        {item.markdown && (
+            <section data-part="content" set:html={item.markdown} />
+        )}
+    </article>
+
+    {relatedItems.length > 0 && (
+        <section data-component="related-items">
+            <h2 data-part="heading">Related {config.items_name}</h2>
+            <div data-part="grid">
+                {relatedItems.map((related) => (
+                    <article data-component="item-card">
+                        {related.icon_url && (
+                            <img
+                                src={related.icon_url}
+                                alt={`${related.name} icon`}
+                                data-part="icon"
+                                loading="lazy"
+                            />
+                        )}
+                        <h3 data-part="name">
+                            <a href={`/item/${related.slug}`}>{related.name}</a>
+                        </h3>
+                        {related.description && (
+                            <p data-part="description">{related.description}</p>
+                        )}
+                    </article>
+                ))}
+            </div>
+        </section>
+    )}
+</BaseLayout>
