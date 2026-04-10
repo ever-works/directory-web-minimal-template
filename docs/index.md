@@ -33,6 +33,15 @@
 - [specs/adapter-interface.md](specs/adapter-interface.md) — Adapter interface contract
 - [specs/component-catalog.md](specs/component-catalog.md) — Component catalog specification
 
+## Spec Kit (.specify/)
+
+- [../.specify/project.md](../.specify/project.md) — Project specification
+- [../.specify/features/data-layer.md](../.specify/features/data-layer.md) — Data layer feature spec
+- [../.specify/features/plugin-system.md](../.specify/features/plugin-system.md) — Plugin system feature spec
+- [../.specify/features/ui-components.md](../.specify/features/ui-components.md) — UI components feature spec
+- [../.specify/features/web-app.md](../.specify/features/web-app.md) — Web app feature spec
+- [../.specify/features/plugins-phase4.md](../.specify/features/plugins-phase4.md) — Phase 4 built-in plugins detailed spec
+
 ## Guides
 
 - [guides/creating-a-plugin.md](guides/creating-a-plugin.md) — How to create a plugin

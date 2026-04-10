@@ -110,8 +110,78 @@
 - **Status: Phases 1-3 IMPLEMENTED. Ready for Phase 4 (plugins) and Phase 5 (sample).**
 
 ### Next Steps (for next scheduled run)
-1. Implement built-in plugins: search (Pagefind), filters, SEO
+1. ~~Implement built-in plugins: search (Pagefind), filters, SEO~~ DONE
 2. Create the `sample-basic` implementation using AI agents
 3. Set up the docs site (Starlight/Docusaurus)
 4. Clean up and verify E2E tests
 5. Update CI/CD workflow for deployment
+
+## 2026-04-11 — Phase 4 Implementation (Built-in Plugins)
+
+### Detailed Specs
+- Created `.specify/features/plugins-phase4.md` — detailed specification for all 6 plugins
+  with factory function signatures, options interfaces, exports, hook usage, and file structure
+
+### @ever-works/plugin-seo (packages/plugin-seo)
+- `src/types.ts` — SeoPluginOptions, PageMeta, MetaTag (key/value/content), JsonLdType, JsonLdInput (discriminated union: WebSiteInput | ItemListInput | ProductInput)
+- `src/meta.ts` — `generateMetaTags()` pure utility: produces standard HTML, Open Graph, and Twitter Card meta tags
+- `src/json-ld.ts` — `generateJsonLd()` pure utility: generates Schema.org JSON-LD for WebSite, ItemList, Product
+- `src/plugin.ts` �� `seoPlugin()` factory with `onInit` (validates options) and `onDataLoaded` (passthrough — SEO computed at render time)
+- `src/index.ts` — barrel export of all public API
+
+### @ever-works/plugin-pagination (packages/plugin-pagination)
+- `src/types.ts` — PaginationPluginOptions, PaginateOptions, PaginationResult<T>, PagePathEntry
+- `src/paginate.ts` — `paginate<T>()` (array slice with full metadata) and `generatePagePaths()` (Astro getStaticPaths entries)
+- `src/plugin.ts` — `paginationPlugin()` factory with `onInit` (merges with site config pagination)
+- `src/index.ts` — barrel export
+
+### @ever-works/plugin-filters (packages/plugin-filters)
+- `src/types.ts` — FiltersPluginOptions, FilterType, ParamNames, ActiveFilters, DEFAULT_PARAM_NAMES
+- `src/filter-items.ts` — `filterItems()` pure utility: OR within category/tag groups, AND between groups, case-insensitive search
+- `src/url-sync.ts` — `parseFiltersFromUrl()` and `serializeFiltersToUrl()` for URL param sync
+- `src/plugin.ts` — `filtersPlugin()` factory with `onInit` (log enabled filters)
+- `src/index.ts` — barrel export
+
+### @ever-works/plugin-search (packages/plugin-search)
+- `src/types.ts` — SearchPluginOptions, ResolvedSearchConfig
+- `src/plugin.ts` — `searchPlugin()` factory with `onInit` (log config) and `onAfterBuild` (runs Pagefind CLI on dist/)
+- `src/index.ts` — barrel export
+
+### @ever-works/plugin-sort (packages/plugin-sort)
+- `src/types.ts` — SortField, SortDirection, SortPluginOptions, ResolvedSortConfig
+- `src/sort-items.ts` — `sortItems()` pure utility: name (locale-aware), updated_at (date), featured (featured-first)
+- `src/plugin.ts` — `sortPlugin()` factory with `onInit` (log config) and `onDataLoaded` (applies default sort)
+- `src/index.ts` — barrel export
+
+### @ever-works/plugin-sitemap (packages/plugin-sitemap)
+- `src/types.ts` — SitemapPluginOptions, ChangeFrequency, ResolvedSitemapConfig
+- `src/plugin.ts` — `sitemapPlugin()` factory wrapping Astro's @astrojs/sitemap with defaults
+- `src/index.ts` — barrel export
+
+### Web App Integration
+- Created `apps/web/src/lib/plugins.config.ts` — registers all 6 plugins via `definePlugins()`
+- Updated `apps/web/src/lib/content.ts` — integrates PluginRunner pipeline (onInit, onDataLoaded)
+- Updated `apps/web/src/layouts/BaseLayout.astro` — uses SEO plugin for meta tag generation
+- Updated `apps/web/src/pages/index.astro` — uses pagination + JSON-LD structured data
+- Updated `apps/web/src/pages/item/[slug].astro` — uses Product JSON-LD structured data
+- Created `apps/web/src/pages/page/[page].astro` — paginated listing with getStaticPaths
+- Fixed `apps/web/scripts/clone-content.ts` — cross-platform content dir detection
+- Added `@astrojs/check` devDependency for proper Astro type checking
+- Added all 6 plugin packages as dependencies in `apps/web/package.json`
+
+### Build Verification
+- `pnpm typecheck` — ALL 11 tasks pass (0 errors, 0 warnings, 0 hints)
+- `astro build` — succeeds, generates 8 static pages in 2.88s (was 7, added paginated page)
+- Sitemap generated at `dist/sitemap-index.xml`
+
+### Summary
+- **Total new plugin files: ~30 TypeScript files across 6 packages**
+- **Phase 4 (Built-in Plugins): COMPLETE** — all 6 plugins implemented, tested, and wired in
+- **Status: Phases 1-4 IMPLEMENTED. Ready for Phase 5 (sample) and Phase 6 (deployment).**
+
+### Next Steps (for next scheduled run)
+1. Create `sample-basic` implementation using AI agents (Phase 5)
+2. Create SKILLS.md for AI agent guidance
+3. Set up docs site content (Starlight)
+4. Expand E2E tests
+5. Update CI/CD workflow for Vercel deployment

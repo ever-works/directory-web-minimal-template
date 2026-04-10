@@ -13,7 +13,7 @@
  */
 
 import { execSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const CONTENT_DIR = resolve(process.cwd(), '.content');
@@ -25,8 +25,8 @@ function main(): void {
         return;
     }
 
-    // Skip if already cloned
-    if (existsSync(resolve(CONTENT_DIR, '.git'))) {
+    // Skip if content directory already exists (sample data or previous clone)
+    if (existsSync(CONTENT_DIR)) {
         console.log('[clone-content] .content/ already exists, skipping clone.');
         return;
     }
@@ -34,7 +34,7 @@ function main(): void {
     const repo = process.env.DATA_REPOSITORY;
     if (!repo) {
         console.warn('[clone-content] DATA_REPOSITORY not set. Creating empty .content/ directory.');
-        execSync(`mkdir -p "${CONTENT_DIR}"`, { stdio: 'inherit' });
+        mkdirSync(CONTENT_DIR, { recursive: true });
         return;
     }
 
@@ -52,10 +52,10 @@ function main(): void {
     try {
         execSync(
             `git clone --depth 1 --single-branch --branch "${branch}" "${cloneUrl}" "${CONTENT_DIR}"`,
-            { stdio: 'inherit' }
+            { stdio: 'inherit' },
         );
         console.log('[clone-content] Clone complete.');
-    } catch (error) {
+    } catch {
         console.error('[clone-content] Failed to clone data repository.');
         console.error('[clone-content] Check DATA_REPOSITORY and GH_TOKEN environment variables.');
         process.exit(1);

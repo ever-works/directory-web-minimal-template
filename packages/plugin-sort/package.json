@@ -1,0 +1,22 @@
+{
+    "name": "@ever-works/plugin-sort",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "exports": {
+        ".": "./src/index.ts"
+    },
+    "scripts": {
+        "typecheck": "tsc --noEmit",
+        "lint": "eslint src/"
+    },
+    "dependencies": {
+        "@ever-works/core": "workspace:*",
+        "@ever-works/plugins": "workspace:*"
+    },
+    "devDependencies": {
+        "@ever-works/eslint-config": "workspace:*",
+        "@ever-works/tsconfig": "workspace:*",
+        "typescript": "^5.7.0"
+    }
+}

@@ -3,9 +3,11 @@
  * Item Detail Page — Shows full details for a single directory item.
  *
  * Uses getStaticPaths to generate one page per approved item at build time.
+ * Integrates with plugin-seo for Product JSON-LD structured data.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getContent } from '../../lib/content';
+import { generateJsonLd } from '@ever-works/plugin-seo';
 import type { ItemData } from '@ever-works/core';
 
 export async function getStaticPaths() {
@@ -24,24 +26,40 @@ const { item } = Astro.props;
 const { config, items, categories } = await getContent();
 
 // Find related items (same category, excluding self)
-const primaryCategory = Array.isArray(item.category) ? item.category[0] : item.category;
-const relatedItems = items
-    .filter((i) => {
-        if (i.slug === item.slug) return false;
-        const cats = Array.isArray(i.category) ? i.category : [i.category];
-        return cats.includes(primaryCategory);
-    })
-    .slice(0, 6);
+const primaryCategory: string | undefined = Array.isArray(item.category) ? item.category[0] : item.category;
+const relatedItems = primaryCategory
+    ? items
+        .filter((i) => {
+            if (i.slug === item.slug) return false;
+            const cats = Array.isArray(i.category) ? i.category : [i.category];
+            return cats.includes(primaryCategory);
+        })
+        .slice(0, 6)
+    : [];
 
 // Resolve category name
 const categoryData = categories.find((c) => c.id === primaryCategory);
+
+// JSON-LD for the item
+const jsonLd = generateJsonLd('Product', {
+    type: 'Product',
+    name: item.name,
+    description: item.description,
+    url: item.source_url,
+    image: item.icon_url,
+});
 ---
 
 <BaseLayout
     title={item.name}
     description={item.description}
     config={config}
+    pageType="product"
 >
+    <Fragment slot="head">
+        <script is:inline type="application/ld+json" set:html={jsonLd} />
+    </Fragment>
+
     <article data-component="item-detail">
         <nav data-component="breadcrumbs">
             <a href="/">Home</a>

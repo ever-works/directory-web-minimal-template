@@ -1,0 +1,97 @@
+---
+/**
+ * Paginated Listing Page — Shows items for a specific page number.
+ *
+ * Uses getStaticPaths with plugin-pagination to generate all pages.
+ * Page 1 redirects to / (home page handles it).
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getContent } from '../../lib/content';
+import { paginate, generatePagePaths } from '@ever-works/plugin-pagination';
+import { generateJsonLd } from '@ever-works/plugin-seo';
+
+export async function getStaticPaths() {
+    const { items, config } = await getContent();
+    const perPage = config.pagination?.itemsPerPage ?? 12;
+    return generatePagePaths(items.length, perPage);
+}
+
+const { currentPage, totalPages } = Astro.props;
+const { items, config } = await getContent();
+const perPage = config.pagination?.itemsPerPage ?? 12;
+const pagination = paginate(items, { page: currentPage, perPage });
+
+// JSON-LD for the listing page
+const jsonLd = generateJsonLd('ItemList', {
+    type: 'ItemList',
+    items: pagination.items.map((item) => ({
+        name: item.name,
+        url: `/item/${item.slug}`,
+    })),
+});
+---
+
+<BaseLayout
+    title={`${config.items_name} — Page ${currentPage}`}
+    description={`Browse ${config.items_name} — Page ${currentPage} of ${totalPages}`}
+    config={config}
+>
+    <Fragment slot="head">
+        <script is:inline type="application/ld+json" set:html={jsonLd} />
+    </Fragment>
+
+    <section data-component="item-listing">
+        <h1 data-part="heading">
+            {config.items_name} — Page {currentPage} of {totalPages}
+        </h1>
+
+        {pagination.items.length === 0 ? (
+            <p data-component="empty-state">No {config.items_name.toLowerCase()} found.</p>
+        ) : (
+            <div data-part="grid">
+                {pagination.items.map((item) => (
+                    <article data-component="item-card" data-featured={item.featured ? '' : undefined}>
+                        {item.icon_url && (
+                            <img
+                                src={item.icon_url}
+                                alt={`${item.name} icon`}
+                                data-part="icon"
+                                loading="lazy"
+                            />
+                        )}
+                        <h3 data-part="name">
+                            <a href={`/item/${item.slug}`}>{item.name}</a>
+                        </h3>
+                        {item.description && (
+                            <p data-part="description">{item.description}</p>
+                        )}
+                        <span data-part="category">
+                            {Array.isArray(item.category) ? item.category[0] : item.category}
+                        </span>
+                    </article>
+                ))}
+            </div>
+        )}
+
+        <nav data-component="pagination">
+            {pagination.hasPrev && (
+                <a
+                    href={pagination.prevPage === 1 ? '/' : `/page/${pagination.prevPage}`}
+                    data-part="prev"
+                >
+                    Previous
+                </a>
+            )}
+
+            <span data-part="info">
+                Page {currentPage} of {totalPages}
+            </span>
+
+            {pagination.hasNext && (
+                <a href={`/page/${pagination.nextPage}`} data-part="next">
+                    Next
+                </a>
+            )}
+        </nav>
+    </section>
+</BaseLayout>

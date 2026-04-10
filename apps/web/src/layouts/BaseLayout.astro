@@ -3,9 +3,12 @@
  * BaseLayout — Root layout for all pages.
  *
  * Provides HTML document structure, meta tags, header, and footer.
+ * Integrates with plugin-seo for Open Graph and JSON-LD structured data.
  * Headless: no styling applied by default. AI agents add CSS.
  */
 import type { SiteConfig } from '@ever-works/core';
+import { generateMetaTags } from '@ever-works/plugin-seo';
+import type { PageMeta } from '@ever-works/plugin-seo';
 import '../styles/global.css';
 
 interface Props {
@@ -17,11 +20,26 @@ interface Props {
     config: SiteConfig;
     /** Optional canonical URL */
     canonicalUrl?: string;
+    /** Optional Open Graph image */
+    ogImage?: string;
+    /** Page type for structured data */
+    pageType?: 'website' | 'article' | 'product';
 }
 
-const { title, description, config, canonicalUrl } = Astro.props;
+const { title, description, config, canonicalUrl, ogImage, pageType = 'website' } = Astro.props;
 const siteTitle = `${title} | ${config.company_name}`;
 const metaDescription = description || `${config.company_name} — Browse ${config.items_name}`;
+
+// Generate SEO meta tags via plugin
+const pageMeta: PageMeta = {
+    title: siteTitle,
+    description: metaDescription,
+    url: canonicalUrl || Astro.url.href,
+    image: ogImage,
+    type: pageType,
+};
+
+const metaTags = generateMetaTags(pageMeta, {});
 ---
 
 <!doctype html>
@@ -31,7 +49,15 @@ const metaDescription = description || `${config.company_name} — Browse ${conf
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="generator" content={Astro.generator} />
         <title>{siteTitle}</title>
-        <meta name="description" content={metaDescription} />
+
+        {/* Standard + OG + Twitter meta tags from SEO plugin */}
+        {metaTags.map((tag) => {
+            if (tag.key === 'property') {
+                return <meta property={tag.value} content={tag.content} />;
+            }
+            return <meta name={tag.value} content={tag.content} />;
+        })}
+
         {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
         {config.logo?.favicon && <link rel="icon" href={config.logo.favicon} />}
         <slot name="head" />
