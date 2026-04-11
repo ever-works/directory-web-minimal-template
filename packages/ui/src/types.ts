@@ -6,6 +6,7 @@
  */
 
 import type { ItemData, CategoryData, CategoryWithCount, TagData, TagWithCount, CollectionData, ComparisonData, SiteConfig } from '@ever-works/core';
+import type { ComponentChildren } from 'preact';
 
 // ─── Base Props ──────────────────────────────────────────────
 
@@ -212,6 +213,29 @@ export interface ThemeToggleProps {
 }
 
 export type LayoutMode = 'grid' | 'list' | 'compact';
+
+export interface ItemBrowserProps {
+    /** Items to browse */
+    items: ItemData[];
+    /** Available categories with counts */
+    categories?: CategoryWithCount[];
+    /** Available tags with counts */
+    tags?: TagWithCount[];
+    /** Singular item noun (e.g. "Tool") */
+    itemName?: string;
+    /** Plural item noun (e.g. "Tools") */
+    itemsName?: string;
+    /** Items per page */
+    perPage?: number;
+    /** Available layout modes */
+    layoutModes?: LayoutMode[];
+    /** Initial layout mode */
+    initialLayout?: LayoutMode;
+    /** Render function for a single item card */
+    renderItem?: (item: ItemData, layout: LayoutMode) => ComponentChildren;
+    /** HTML class attribute */
+    class?: string;
+}
 
 export interface LayoutSwitcherProps {
     /** Available layout modes */

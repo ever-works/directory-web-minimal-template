@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-11 (Iteration 20: Content sync, caching, ISR, isomorphic-git)
+> Updated: 2026-04-11 (Iteration 21: Tests, UI exports, docs health-check)
 
 ## Root Documents
 
@@ -69,6 +69,7 @@ slug: /
 - [guides/creating-an-adapter.md](guides/creating-an-adapter.md) — How to create a data adapter
 - [guides/building-from-template.md](guides/building-from-template.md) — How AI builds a site from template
 - [guides/interactive-components.md](guides/interactive-components.md) — How to use Preact interactive islands (search, filter, sort, theme, back-to-top)
+- [guides/quickstart.md](guides/quickstart.md) — Quick start guide for getting up and running
 - [guides/deployment.md](guides/deployment.md) — How to deploy to Vercel and other static hosts
 - [guides/content-sync.md](guides/content-sync.md) — Content sync setup (webhooks, polling, ISR)
 - [guides/troubleshooting.md](guides/troubleshooting.md) — Common issues and solutions

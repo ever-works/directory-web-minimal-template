@@ -7,6 +7,38 @@ sidebar_label: "Change Log"
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-11 — Iteration 21: Test Fixes, UI Exports, Docs Health-Check
+
+### Test Fixes
+- **`packages/adapters/src/__tests__/git-adapter.test.ts`** — Fixed 8 failing tests caused by `vi.restoreAllMocks()` clearing the `FilesystemAdapter` module-level mock. Converted to class-based mock (`class MockFilesystemAdapter`) that survives mock resets. All 69 adapter tests now pass.
+
+### UI Package Exports
+- **`packages/ui/package.json`** — Added `LayoutSwitcher` and `ItemBrowser` Preact component exports
+- **`packages/ui/src/preact/ItemBrowser.tsx`** — New composite Preact component combining FilterBar + SortSelect + SearchInput + LayoutSwitcher into a single interactive island for browsing items
+
+### Documentation Health-Check
+- **`docs/index.md`** — Added missing `guides/quickstart.md` entry, updated iteration marker
+- **Component catalog validation** — All 30 components in `docs/specs/component-catalog.md` verified to exist on disk (24 Astro + 6 Preact)
+- **AGENTS.md validation** — All 15 rules (R1-R15) present, 13 page routes match actual files
+- **Docs site build** — Docusaurus builds successfully
+
+### Build Verification
+- `pnpm test` — ALL 12 test suites pass (69 adapter, 67 plugin, 24 sync, 19 SEO, etc.)
+- `pnpm typecheck` — ALL 17 tasks pass (0 errors)
+- `pnpm build` — ALL 4 apps build (1495 sample-git pages, 35 sample-basic pages, 8 web pages)
+- `pnpm --filter @ever-works/docs-minimal build` — Docusaurus builds successfully
+
+### Summary
+- **Test infrastructure fully green** — All adapter tests fixed, 69/69 passing
+- **UI package complete** — 30 components + ItemBrowser composite, all exported
+- **Docs drift eliminated** — index.md fully synced with filesystem
+
+### Next Steps (for next scheduled run)
+1. Add more unit tests for edge cases in sync package
+2. Create additional sample templates (sample-jobs, sample-events)
+3. Set up E2E CI workflow to run against sample-basic
+4. Polish SKILLS.md with updated component references
+
 ## 2026-04-11 — Iteration 20: Content Sync, Caching, ISR, isomorphic-git
 
 ### New Principle: R15 Specification First

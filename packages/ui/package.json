@@ -14,7 +14,9 @@
         "./preact/FilterBar": "./src/preact/FilterBar.tsx",
         "./preact/SortSelect": "./src/preact/SortSelect.tsx",
         "./preact/BackToTop": "./src/preact/BackToTop.tsx",
-        "./preact/ThemeToggle": "./src/preact/ThemeToggle.tsx"
+        "./preact/ThemeToggle": "./src/preact/ThemeToggle.tsx",
+        "./preact/LayoutSwitcher": "./src/preact/LayoutSwitcher.tsx",
+        "./preact/ItemBrowser": "./src/preact/ItemBrowser.tsx"
     },
     "scripts": {
         "typecheck": "tsc --noEmit",
