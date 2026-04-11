@@ -3,7 +3,7 @@ import preact from '@astrojs/preact';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import { everWorksIntegration } from '@ever-works/astro-integration';
-import { getPluginRunner, getContent } from './src/lib/content.js';
+import { getPluginRunner, getContent } from './src/lib/content';
 
 /**
  * Astro Configuration
@@ -46,6 +46,11 @@ export default defineConfig({
         // Optimize dependency pre-bundling
         optimizeDeps: {
             include: ['preact', 'yaml'],
+        },
+        // Bundle workspace packages through Vite instead of Node's ESM resolver
+        // so extensionless TypeScript imports resolve correctly during SSR
+        ssr: {
+            noExternal: [/^@ever-works\//],
         },
     },
 });

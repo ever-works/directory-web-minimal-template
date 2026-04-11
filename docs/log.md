@@ -2,6 +2,70 @@
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-11 — Iteration 17: Static Pages, Docs Fixes, Typecheck Fixes
+
+### Overview
+Added static pages feature (PageData type, page loader, `/pages/[slug]` route), fixed all Docusaurus broken link warnings, fixed docs-minimal typecheck failures (Docusaurus `@theme/*` virtual modules), corrected documentation inaccuracies, and updated AGENTS.md data contracts.
+
+### New Feature: Static Pages (`.content/pages/`)
+
+- **`packages/core/src/types/page.ts`** — New `PageData` interface: `slug`, `title`, `description?`, `content` (markdown body), `[key: string]: unknown` (extra frontmatter).
+- **`packages/core/src/loaders/page-loader.ts`** — `loadPages()` and `loadPage()` functions. Reads `.content/pages/*.md` files, parses YAML frontmatter + markdown body. Auto-derives title from slug when frontmatter lacks title.
+- **`packages/core/src/types/content-data.ts`** — Added `pages: PageData[]` to `ContentData` interface.
+- **`packages/core/src/content-reader.ts`** — `loadContent()` now loads pages in parallel with other content.
+- **`packages/core/src/index.ts`** — Exports `PageData` type, `loadPages`, `loadPage`.
+- **`apps/web/src/pages/pages/[slug].astro`** — New static page route for the web template.
+- **`apps/sample-basic/src/pages/pages/[slug].astro`** — Same route for sample-basic.
+- **`.specify/features/static-pages.md`** — Feature specification.
+
+### Docs Site Fixes (Broken Links)
+
+- **`docs/index.md`** — Converted root document links (CLAUDE.md, AGENTS.md, SKILLS.md, README.md) and `.specify/` links from relative `../` paths to GitHub URLs. Docusaurus can't resolve files outside its content scope.
+- **`apps/docs/src/theme/Footer/FooterLinks.tsx`** — Fixed architecture link normalizer: was rewriting `/architecture/overview` to nonexistent `/architecture`; now only normalizes bare `/architecture` to `/architecture/overview`.
+- **`apps/docs/blog/authors.yml`** — New file defining the `ever-works-team` author, fixing the "authors not defined" build warning.
+- **`apps/docs/blog/2026-04-11-welcome.md`** — Updated to use `authors.yml` reference instead of inline author.
+
+### Typecheck Fixes
+
+- **`apps/docs/src/types/docusaurus-theme.d.ts`** — New type declarations for Docusaurus virtual `@theme/*` modules (Heading, Tabs, TabItem, CodeBlock, SearchBar, Footer/Copyright, Layout). Fixed 15 typecheck errors.
+- **`apps/docs/src/theme/Footer/Copyright/index.tsx`** — Fixed `JSX.Element` → `React.JSX.Element` namespace reference.
+- **Typecheck count**: 15 tasks, 0 errors (up from 14 — docs-minimal now passes).
+
+### Documentation Accuracy Fixes
+
+- **`CLAUDE.md`** — Fixed `apps/docs/` description: "Starlight (Astro)" → "Docusaurus" (was incorrectly set in iteration 16).
+- **`AGENTS.md`** — Updated ItemData contract to include `brand`, `brand_logo_url`, `images`, `publisher`, `markdown`, and `[key: string]: unknown`. Updated CollectionData to include `item_count`, `created_at`, `updated_at`. Added `PageData` contract. Added `/pages/[slug]` route to pages table.
+- **`docs/questions.md`** — Q10: Changed default from "Starlight" to "Docusaurus [IMPLEMENTED]" to match actual implementation.
+
+### Turbo Config Fix
+
+- **`turbo.json`** — Added `build/**` to build outputs (Docusaurus uses `build/` not `dist/`). Fixes cache invalidation for docs-minimal.
+
+### Test Updates
+
+- **`packages/core/src/__tests__/page-loader.test.ts`** — New, 11 tests covering: empty directory, no .md files, frontmatter parsing, title derivation from slug, no-frontmatter pages, multiple pages, failed file handling, extra frontmatter fields, adapter errors, single page loading, nonexistent page.
+- **`packages/core/src/__tests__/content-reader.test.ts`** — Added `pages` assertions to existing tests.
+- **`packages/plugins/src/__tests__/runner.test.ts`** — Added `pages: []` to mock ContentData.
+- **`packages/plugins/src/__tests__/integration.test.ts`** — Added `pages: []` to mock ContentData.
+- **`packages/plugin-breadcrumbs/src/__tests__/generator.test.ts`** — Added `pages: []` to mock ContentData.
+- **`packages/astro-integration/src/__tests__/integration.test.ts`** — Added `pages: []` to mock ContentData.
+
+### Verification
+
+- **TypeCheck**: 15 tasks, 0 errors (up from 14 — docs-minimal now passes)
+- **Unit Tests**: 288 passing across 11 packages (up from 277 — 11 new page-loader tests)
+  - adapters: 37 | core: 78 | plugins: 39 | plugin-filters: 27 | plugin-breadcrumbs: 22 | plugin-sitemap: 14 | plugin-seo: 19 | plugin-sort: 9 | plugin-pagination: 16 | plugin-search: 18 | astro-integration: 9
+- **Build**: All 3 apps build successfully, no broken link warnings
+- **E2E Tests**: 114 passing (unchanged)
+
+### Project Status
+
+- **288 unit tests** + **114 E2E tests** = **402 total tests**, all passing
+- **15 typecheck tasks**, 0 errors
+- **0 Docusaurus broken link warnings** (was 26+ in iteration 16)
+- **New data type** `PageData` with loader, page route, and spec
+- **New feature spec** `.specify/features/static-pages.md`
+
 ## 2026-04-11 — Iteration 16: Astro Integration for Plugin Build Hooks, Pagefind E2E, Docs Audit
 
 ### Overview

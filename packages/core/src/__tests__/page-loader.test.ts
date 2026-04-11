@@ -1,14 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { DataAdapter } from '@ever-works/adapters';
 import { loadPages, loadPage } from '../loaders/page-loader';
 
 /** Helper to create a mock DataAdapter */
-function createMockAdapter(overrides: Record<string, unknown> = {}) {
+function createMockAdapter(overrides: Partial<Omit<DataAdapter, 'id' | 'name'>> = {}): DataAdapter {
     return {
+        id: 'mock',
+        name: 'Mock Adapter',
         init: vi.fn().mockResolvedValue(undefined),
         readFile: vi.fn().mockRejectedValue(new Error('Not found')),
         listFiles: vi.fn().mockResolvedValue([]),
         listDirectories: vi.fn().mockResolvedValue([]),
         exists: vi.fn().mockResolvedValue(false),
+        getContentPath: vi.fn().mockReturnValue('/mock/content'),
         ...overrides,
     };
 }
@@ -55,11 +59,11 @@ We are a great company.`;
 
         const pages = await loadPages(adapter);
         expect(pages).toHaveLength(1);
-        expect(pages[0].slug).toBe('about');
-        expect(pages[0].title).toBe('About Us');
-        expect(pages[0].description).toBe('Learn about our company');
-        expect(pages[0].content).toContain('# About Us');
-        expect(pages[0].content).toContain('We are a great company.');
+        expect(pages[0]!.slug).toBe('about');
+        expect(pages[0]!.title).toBe('About Us');
+        expect(pages[0]!.description).toBe('Learn about our company');
+        expect(pages[0]!.content).toContain('# About Us');
+        expect(pages[0]!.content).toContain('We are a great company.');
     });
 
     it('should derive title from slug when frontmatter has no title', async () => {
@@ -77,8 +81,8 @@ Privacy content here.`;
 
         const pages = await loadPages(adapter);
         expect(pages).toHaveLength(1);
-        expect(pages[0].slug).toBe('privacy-policy');
-        expect(pages[0].title).toBe('Privacy Policy');
+        expect(pages[0]!.slug).toBe('privacy-policy');
+        expect(pages[0]!.title).toBe('Privacy Policy');
     });
 
     it('should handle markdown without frontmatter', async () => {
@@ -94,9 +98,9 @@ No frontmatter here.`;
 
         const pages = await loadPages(adapter);
         expect(pages).toHaveLength(1);
-        expect(pages[0].slug).toBe('simple');
-        expect(pages[0].title).toBe('Simple');
-        expect(pages[0].content).toContain('# Just Content');
+        expect(pages[0]!.slug).toBe('simple');
+        expect(pages[0]!.title).toBe('Simple');
+        expect(pages[0]!.content).toContain('# Just Content');
     });
 
     it('should load multiple pages', async () => {
@@ -142,7 +146,7 @@ About content`;
 
         const pages = await loadPages(adapter);
         expect(pages).toHaveLength(1);
-        expect(pages[0].slug).toBe('about');
+        expect(pages[0]!.slug).toBe('about');
     });
 
     it('should preserve extra frontmatter fields', async () => {
@@ -160,8 +164,8 @@ Content`;
         });
 
         const pages = await loadPages(adapter);
-        expect(pages[0].author).toBe('John');
-        expect(pages[0].order).toBe(1);
+        expect(pages[0]!.author).toBe('John');
+        expect(pages[0]!.order).toBe(1);
     });
 
     it('should return empty array on adapter error', async () => {
