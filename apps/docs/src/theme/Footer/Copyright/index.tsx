@@ -2,7 +2,7 @@ import React from 'react';
 import {useThemeConfig} from '@docusaurus/theme-common';
 import type {Props} from '@theme/Footer/Copyright';
 
-export default function FooterCopyright({copyright}: Props): JSX.Element {
+export default function FooterCopyright({copyright}: Props): React.JSX.Element {
   return (
     <div
       className="footer__copyright"

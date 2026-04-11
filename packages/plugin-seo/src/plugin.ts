@@ -13,7 +13,7 @@
 import type { Plugin } from '@ever-works/plugins';
 import type { ContentData } from '@ever-works/core';
 import type { PluginContext } from '@ever-works/plugins';
-import type { SeoPluginOptions } from './types.js';
+import type { SeoPluginOptions } from './types';
 
 /** Plugin identifier constant. */
 const PLUGIN_ID = 'seo';

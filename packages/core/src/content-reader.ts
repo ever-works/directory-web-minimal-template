@@ -4,13 +4,14 @@
  */
 
 import type { DataAdapter } from '@ever-works/adapters';
-import type { ContentData, CategoryWithCount, TagWithCount, ItemData } from './types/index.js';
-import { loadConfig } from './loaders/config-loader.js';
-import { loadCategories } from './loaders/category-loader.js';
-import { loadTags } from './loaders/tag-loader.js';
-import { loadCollections } from './loaders/collection-loader.js';
-import { loadItems } from './loaders/item-loader.js';
-import { loadComparisons } from './loaders/comparison-loader.js';
+import type { ContentData, CategoryWithCount, TagWithCount, ItemData } from './types/index';
+import { loadConfig } from './loaders/config-loader';
+import { loadCategories } from './loaders/category-loader';
+import { loadTags } from './loaders/tag-loader';
+import { loadCollections } from './loaders/collection-loader';
+import { loadItems } from './loaders/item-loader';
+import { loadComparisons } from './loaders/comparison-loader';
+import { loadPages } from './loaders/page-loader';
 
 /**
  * Count how many items belong to each category.
@@ -68,13 +69,14 @@ function computeTagCounts(
  * @returns Complete content data with all items, categories, tags, collections, and comparisons
  */
 export async function loadContent(adapter: DataAdapter): Promise<ContentData> {
-    const [config, rawCategories, rawTags, collections, items, comparisons] = await Promise.all([
+    const [config, rawCategories, rawTags, collections, items, comparisons, pages] = await Promise.all([
         loadConfig(adapter),
         loadCategories(adapter),
         loadTags(adapter),
         loadCollections(adapter),
         loadItems(adapter),
         loadComparisons(adapter),
+        loadPages(adapter),
     ]);
 
     const categories = computeCategoryCounts(rawCategories, items);
@@ -87,6 +89,7 @@ export async function loadContent(adapter: DataAdapter): Promise<ContentData> {
         tags,
         collections,
         comparisons,
+        pages,
         total: items.length,
     };
 }

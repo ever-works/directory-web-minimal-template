@@ -14,7 +14,7 @@
  */
 
 import type { ContentData } from '@ever-works/core';
-import type { BreadcrumbEntry, BreadcrumbMap, BreadcrumbsPluginOptions } from './types.js';
+import type { BreadcrumbEntry, BreadcrumbMap, BreadcrumbsPluginOptions } from './types';
 
 export function generateBreadcrumbs(
     data: ContentData,

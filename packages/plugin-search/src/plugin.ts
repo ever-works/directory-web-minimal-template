@@ -10,7 +10,7 @@ import { promisify } from 'node:util';
 
 import type { Plugin } from '@ever-works/plugins';
 
-import type { ResolvedSearchConfig, SearchPluginOptions } from './types.js';
+import type { ResolvedSearchConfig, SearchPluginOptions } from './types';
 
 const execAsync = promisify(exec);
 

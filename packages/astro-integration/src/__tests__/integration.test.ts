@@ -26,6 +26,7 @@ function createMockContent(): ContentData {
         tags: [],
         collections: [],
         comparisons: [],
+        pages: [],
         config: {
             company_name: 'Test',
             items_name: 'Items',

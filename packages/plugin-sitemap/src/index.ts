@@ -12,9 +12,9 @@
  * ```
  */
 
-export { sitemapPlugin } from './plugin.js';
+export { sitemapPlugin } from './plugin';
 export type {
     SitemapPluginOptions,
     ResolvedSitemapConfig,
     ChangeFrequency,
-} from './types.js';
+} from './types';

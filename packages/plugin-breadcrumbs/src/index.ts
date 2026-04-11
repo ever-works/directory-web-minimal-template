@@ -16,14 +16,14 @@
  */
 
 // Plugin factory
-export { breadcrumbsPlugin } from './plugin.js';
+export { breadcrumbsPlugin } from './plugin';
 
 // Pure utility function (can be used without plugin system)
-export { generateBreadcrumbs } from './generator.js';
+export { generateBreadcrumbs } from './generator';
 
 // Types
 export type {
     BreadcrumbEntry,
     BreadcrumbMap,
     BreadcrumbsPluginOptions,
-} from './types.js';
+} from './types';

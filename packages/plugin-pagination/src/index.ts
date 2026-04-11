@@ -11,11 +11,11 @@
  * ```
  */
 
-export { paginationPlugin } from './plugin.js';
-export { paginate, generatePagePaths } from './paginate.js';
+export { paginationPlugin } from './plugin';
+export { paginate, generatePagePaths } from './paginate';
 export type {
     PaginationPluginOptions,
     PaginateOptions,
     PaginationResult,
     PagePathEntry,
-} from './types.js';
+} from './types';

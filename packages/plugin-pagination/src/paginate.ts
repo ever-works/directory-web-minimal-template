@@ -5,7 +5,7 @@
  * inside the plugin pipeline and directly in Astro pages.
  */
 
-import type { PaginateOptions, PaginationResult, PagePathEntry } from './types.js';
+import type { PaginateOptions, PaginationResult, PagePathEntry } from './types';
 
 /**
  * Slice an array of items for a given page.

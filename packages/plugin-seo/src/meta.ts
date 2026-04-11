@@ -6,7 +6,7 @@
  * agnostic — the consuming Astro component renders the tags into `<head>`.
  */
 
-import type { MetaTag, PageMeta, SeoPluginOptions } from './types.js';
+import type { MetaTag, PageMeta, SeoPluginOptions } from './types';
 
 /**
  * Generate a complete set of meta tags for a single page.

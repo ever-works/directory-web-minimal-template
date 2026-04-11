@@ -13,8 +13,8 @@
 
 import type { Plugin, PluginContext } from '@ever-works/plugins';
 import type { ContentData } from '@ever-works/core';
-import type { BreadcrumbsPluginOptions } from './types.js';
-import { generateBreadcrumbs } from './generator.js';
+import type { BreadcrumbsPluginOptions } from './types';
+import { generateBreadcrumbs } from './generator';
 
 const PLUGIN_ID = 'breadcrumbs';
 

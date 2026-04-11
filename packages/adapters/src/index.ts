@@ -14,8 +14,8 @@
  * ```
  */
 
-export type { DataAdapter, AdapterConfig } from './types.js';
+export type { DataAdapter, AdapterConfig } from './types';
 
-export { FilesystemAdapter } from './filesystem-adapter.js';
-export { GitAdapter } from './git-adapter.js';
-export { createAdapter, resolveAdapterConfig } from './create-adapter.js';
+export { FilesystemAdapter } from './filesystem-adapter';
+export { GitAdapter } from './git-adapter';
+export { createAdapter, resolveAdapterConfig } from './create-adapter';

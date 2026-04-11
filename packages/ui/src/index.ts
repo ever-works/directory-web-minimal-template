@@ -25,4 +25,4 @@
  */
 
 // Re-export all component prop types for TypeScript consumers
-export type * from './types.js';
+export type * from './types';

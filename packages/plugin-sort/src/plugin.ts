@@ -7,8 +7,8 @@
  */
 
 import type { Plugin } from '@ever-works/plugins';
-import type { SortPluginOptions, ResolvedSortConfig } from './types.js';
-import { sortItems } from './sort-items.js';
+import type { SortPluginOptions, ResolvedSortConfig } from './types';
+import { sortItems } from './sort-items';
 
 /** All available sort fields */
 const ALL_SORT_OPTIONS: ResolvedSortConfig['sortOptions'] = [

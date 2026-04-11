@@ -4,8 +4,8 @@
  * Categories and tags are stored as comma-separated values in URL params.
  */
 
-import type { ActiveFilters, ParamNames } from './types.js';
-import { DEFAULT_PARAM_NAMES } from './types.js';
+import type { ActiveFilters, ParamNames } from './types';
+import { DEFAULT_PARAM_NAMES } from './types';
 
 /**
  * Resolve partial param names to full required param names.

@@ -38,6 +38,7 @@ function createTestContentData(items: ItemData[] = []): ContentData {
         tags: [],
         collections: [],
         comparisons: [],
+        pages: [],
         config: createTestConfig(),
         total: items.length,
     };

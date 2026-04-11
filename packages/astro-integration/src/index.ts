@@ -23,5 +23,5 @@
  * ```
  */
 
-export { everWorksIntegration } from './integration.js';
-export type { EverWorksIntegrationOptions } from './integration.js';
+export { everWorksIntegration } from './integration';
+export type { EverWorksIntegrationOptions } from './integration';

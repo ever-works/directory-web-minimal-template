@@ -5,7 +5,7 @@
  */
 
 import type { ItemData } from '@ever-works/core';
-import type { SortField, SortDirection } from './types.js';
+import type { SortField, SortDirection } from './types';
 
 /**
  * Sort items by the given field and direction.

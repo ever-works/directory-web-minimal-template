@@ -11,11 +11,11 @@
  * ```
  */
 
-export { sortPlugin } from './plugin.js';
-export { sortItems } from './sort-items.js';
+export { sortPlugin } from './plugin';
+export { sortItems } from './sort-items';
 export type {
     SortField,
     SortDirection,
     SortPluginOptions,
     ResolvedSortConfig,
-} from './types.js';
+} from './types';

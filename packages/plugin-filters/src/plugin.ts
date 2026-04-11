@@ -6,7 +6,7 @@
  */
 
 import type { Plugin } from '@ever-works/plugins';
-import type { FiltersPluginOptions, FilterType } from './types.js';
+import type { FiltersPluginOptions, FilterType } from './types';
 
 /** All available filter types */
 const ALL_FILTER_TYPES: FilterType[] = ['category', 'tag', 'search'];

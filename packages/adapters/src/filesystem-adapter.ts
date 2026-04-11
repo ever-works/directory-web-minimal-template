@@ -5,7 +5,7 @@
 
 import { readFile, readdir, stat, access } from 'node:fs/promises';
 import { resolve, relative } from 'node:path';
-import type { DataAdapter, AdapterConfig } from './types.js';
+import type { DataAdapter, AdapterConfig } from './types';
 
 /**
  * Data adapter that reads content from the local filesystem.

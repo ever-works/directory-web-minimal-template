@@ -5,7 +5,7 @@
  * Supports {@link JsonLdType} values: `WebSite`, `ItemList`, and `Product`.
  */
 
-import type { JsonLdInput, JsonLdType, ItemListInput, ProductInput, WebSiteInput } from './types.js';
+import type { JsonLdInput, JsonLdType, ItemListInput, ProductInput, WebSiteInput } from './types';
 
 /**
  * Generate a JSON-LD string for the given schema type and input data.

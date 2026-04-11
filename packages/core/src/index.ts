@@ -24,20 +24,22 @@ export type {
     CollectionData,
     ComparisonData,
     ComparisonDimension,
+    PageData,
     SiteConfig,
     LogoConfig,
     PaginationConfig,
     SettingsConfig,
     ContentData
-} from './types/index.js';
+} from './types/index';
 
 // Loaders
-export { loadConfig } from './loaders/config-loader.js';
-export { loadCategories } from './loaders/category-loader.js';
-export { loadTags } from './loaders/tag-loader.js';
-export { loadCollections } from './loaders/collection-loader.js';
-export { loadItems, loadItem } from './loaders/item-loader.js';
-export { loadComparisons, loadComparison } from './loaders/comparison-loader.js';
+export { loadConfig } from './loaders/config-loader';
+export { loadCategories } from './loaders/category-loader';
+export { loadTags } from './loaders/tag-loader';
+export { loadCollections } from './loaders/collection-loader';
+export { loadItems, loadItem } from './loaders/item-loader';
+export { loadComparisons, loadComparison } from './loaders/comparison-loader';
+export { loadPages, loadPage } from './loaders/page-loader';
 
 // Content reader
-export { loadContent } from './content-reader.js';
+export { loadContent } from './content-reader';

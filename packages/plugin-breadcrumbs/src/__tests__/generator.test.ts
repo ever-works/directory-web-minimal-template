@@ -11,6 +11,7 @@ function createMockContentData(overrides: Partial<ContentData> = {}): ContentDat
         tags: [],
         collections: [],
         comparisons: [],
+        pages: [],
         config: {
             company_name: 'Test Site',
             item_name: 'Tool',

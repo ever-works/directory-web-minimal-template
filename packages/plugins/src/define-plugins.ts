@@ -3,7 +3,7 @@
  * Used in plugins.config.ts to register plugins.
  */
 
-import type { Plugin } from './types.js';
+import type { Plugin } from './types';
 
 /**
  * Define the plugins to use in the build pipeline.

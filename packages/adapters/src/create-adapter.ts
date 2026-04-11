@@ -3,9 +3,9 @@
  * Determines which data adapter to use based on configuration and environment.
  */
 
-import { FilesystemAdapter } from './filesystem-adapter.js';
-import { GitAdapter } from './git-adapter.js';
-import type { DataAdapter, AdapterConfig } from './types.js';
+import { FilesystemAdapter } from './filesystem-adapter';
+import { GitAdapter } from './git-adapter';
+import type { DataAdapter, AdapterConfig } from './types';
 
 /** Default content directory when no configuration is provided. */
 const DEFAULT_CONTENT_DIR = '.content';

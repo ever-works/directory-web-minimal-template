@@ -9,7 +9,7 @@
  */
 
 import type { Plugin } from '@ever-works/plugins';
-import type { SitemapPluginOptions, ResolvedSitemapConfig } from './types.js';
+import type { SitemapPluginOptions, ResolvedSitemapConfig } from './types';
 
 /** Default configuration values */
 const DEFAULTS: ResolvedSitemapConfig = {

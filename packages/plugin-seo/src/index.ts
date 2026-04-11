@@ -24,11 +24,11 @@
  */
 
 // Plugin factory
-export { seoPlugin } from './plugin.js';
+export { seoPlugin } from './plugin';
 
 // Utility functions
-export { generateMetaTags } from './meta.js';
-export { generateJsonLd } from './json-ld.js';
+export { generateMetaTags } from './meta';
+export { generateJsonLd } from './json-ld';
 
 // Types
 export type {
@@ -41,4 +41,4 @@ export type {
     ItemListInput,
     ItemListEntry,
     ProductInput,
-} from './types.js';
+} from './types';

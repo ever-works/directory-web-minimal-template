@@ -16,9 +16,9 @@ export type {
     FilterType,
     ParamNames,
     ActiveFilters,
-} from './types.js';
+} from './types';
 
-export { DEFAULT_PARAM_NAMES } from './types.js';
-export { filtersPlugin } from './plugin.js';
-export { filterItems } from './filter-items.js';
-export { parseFiltersFromUrl, serializeFiltersToUrl } from './url-sync.js';
+export { DEFAULT_PARAM_NAMES } from './types';
+export { filtersPlugin } from './plugin';
+export { filterItems } from './filter-items';
+export { parseFiltersFromUrl, serializeFiltersToUrl } from './url-sync';

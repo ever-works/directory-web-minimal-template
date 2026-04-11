@@ -3,7 +3,7 @@
  */
 
 import type { ItemData } from '@ever-works/core';
-import type { ActiveFilters } from './types.js';
+import type { ActiveFilters } from './types';
 
 /**
  * Normalize an item's category field to an array.

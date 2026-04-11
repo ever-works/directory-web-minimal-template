@@ -7,8 +7,8 @@
 import { execFileSync } from 'node:child_process';
 import { resolve, join } from 'node:path';
 import { access, stat } from 'node:fs/promises';
-import { FilesystemAdapter } from './filesystem-adapter.js';
-import type { DataAdapter, AdapterConfig } from './types.js';
+import { FilesystemAdapter } from './filesystem-adapter';
+import type { DataAdapter, AdapterConfig } from './types';
 
 /** Default branch to clone when none is specified. */
 const DEFAULT_BRANCH = 'main';

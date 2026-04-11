@@ -3,12 +3,13 @@
  * Returned by the content reader and passed through the plugin pipeline.
  */
 
-import type { ItemData } from './item.js';
-import type { CategoryWithCount } from './category.js';
-import type { TagWithCount } from './tag.js';
-import type { CollectionData } from './collection.js';
-import type { ComparisonData } from './comparison.js';
-import type { SiteConfig } from './config.js';
+import type { ItemData } from './item';
+import type { CategoryWithCount } from './category';
+import type { TagWithCount } from './tag';
+import type { CollectionData } from './collection';
+import type { ComparisonData } from './comparison';
+import type { PageData } from './page';
+import type { SiteConfig } from './config';
 
 /** The complete loaded content from a data repository */
 export interface ContentData {
@@ -26,6 +27,9 @@ export interface ContentData {
 
     /** All comparisons */
     comparisons: ComparisonData[];
+
+    /** All static pages from .content/pages/ */
+    pages: PageData[];
 
     /** Site configuration */
     config: SiteConfig;

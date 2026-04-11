@@ -6,7 +6,7 @@
  */
 
 import type { Plugin } from '@ever-works/plugins';
-import type { PaginationPluginOptions } from './types.js';
+import type { PaginationPluginOptions } from './types';
 
 /** Default items per page when neither options nor site config specify a value */
 const DEFAULT_ITEMS_PER_PAGE = 12;

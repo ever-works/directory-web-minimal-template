@@ -10,7 +10,7 @@
  * ```
  */
 
-export type { Plugin, PluginHooks, PluginContext, PluginLogger } from './types.js';
-export { definePlugins } from './define-plugins.js';
-export { PluginRunner } from './runner.js';
-export { createPluginLogger } from './logger.js';
+export type { Plugin, PluginHooks, PluginContext, PluginLogger } from './types';
+export { definePlugins } from './define-plugins';
+export { PluginRunner } from './runner';
+export { createPluginLogger } from './logger';

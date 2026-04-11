@@ -5,7 +5,7 @@
  * All messages are prefixed with `[plugin:<id>]` for easy filtering.
  */
 
-import type { PluginLogger } from './types.js';
+import type { PluginLogger } from './types';
 
 /**
  * Create a {@link PluginLogger} scoped to a specific plugin.

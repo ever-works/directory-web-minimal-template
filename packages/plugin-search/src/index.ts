@@ -12,5 +12,5 @@
  * ```
  */
 
-export { searchPlugin } from './plugin.js';
-export type { SearchPluginOptions, ResolvedSearchConfig } from './types.js';
+export { searchPlugin } from './plugin';
+export type { SearchPluginOptions, ResolvedSearchConfig } from './types';

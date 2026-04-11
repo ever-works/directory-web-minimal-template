@@ -8,8 +8,8 @@
  */
 
 import type { ContentData } from '@ever-works/core';
-import type { Plugin, PluginContext } from './types.js';
-import { createPluginLogger } from './logger.js';
+import type { Plugin, PluginContext } from './types';
+import { createPluginLogger } from './logger';
 
 /**
  * Subset of {@link PluginContext} that callers provide.
