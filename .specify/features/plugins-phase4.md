@@ -20,8 +20,8 @@ Plugins are registered via `definePlugins()` in a `plugins.config.ts` file in th
 **Options**:
 ```typescript
 interface SeoPluginOptions {
-    /** Default page title suffix (e.g., " | My Directory") */
-    titleSuffix?: string;
+    /** Title template with %s placeholder (e.g., "%s | My Directory") */
+    titleTemplate?: string;
     /** Default meta description for pages without one */
     defaultDescription?: string;
     /** Default Open Graph image URL */
@@ -210,7 +210,7 @@ import { searchPlugin } from '@ever-works/plugin-search';
 import { sortPlugin } from '@ever-works/plugin-sort';
 
 export default definePlugins([
-    seoPlugin({ titleSuffix: ' | My Directory' }),
+    seoPlugin({ titleTemplate: '%s | My Directory' }),
     paginationPlugin({ itemsPerPage: 12 }),
     filtersPlugin(),
     searchPlugin(),

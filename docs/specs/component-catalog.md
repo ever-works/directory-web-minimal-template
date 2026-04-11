@@ -30,7 +30,7 @@ interface ItemCardProps {
 <article data-component="item-card" data-featured="true|undefined">
   <div data-part="icon"><img /></div>
   <div data-part="content">
-    <h3 data-part="title"><a href="/items/{slug}">{name}</a></h3>
+    <h3 data-part="title"><a href="/item/{slug}">{name}</a></h3>
     <p data-part="description">{description}</p>
   </div>
   <div data-part="category"><slot name="category" /></div>

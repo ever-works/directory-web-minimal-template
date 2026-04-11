@@ -108,7 +108,7 @@ const { item, showCategory = true, showTags = true, class: className, ...attrs }
     )}
     <div data-part="content">
         <h3 data-part="title">
-            <a href={`/items/${item.slug}`}>{item.name}</a>
+            <a href={`/item/${item.slug}`}>{item.name}</a>
         </h3>
         {item.description && (
             <p data-part="description">{item.description}</p>

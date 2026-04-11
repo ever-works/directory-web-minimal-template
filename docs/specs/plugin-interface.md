@@ -104,6 +104,7 @@ interface ContentData {
     tags: TagWithCount[];
     collections: CollectionData[];
     comparisons: ComparisonData[];
+    pages: PageData[];
     config: SiteConfig;
 }
 ```

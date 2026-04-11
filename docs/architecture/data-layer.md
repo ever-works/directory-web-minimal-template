@@ -105,6 +105,8 @@ interface CategoryData {
     name: string;
     /** Optional icon URL */
     icon_url?: string;
+    /** Optional image URL */
+    image_url?: string;
 }
 
 /** Category with computed item count */

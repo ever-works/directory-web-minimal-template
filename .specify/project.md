@@ -36,7 +36,7 @@ A minimal, static-rendered Astro template for AI-generated directory websites. L
 | Package Manager | pnpm 10 |
 | Deployment | Vercel (via GitHub Actions) |
 | Testing | Playwright (E2E), Vitest (unit) |
-| Docs | Starlight (Astro-based) |
+| Docs | Docusaurus 3.x (React-based) |
 
 ## Architecture
 

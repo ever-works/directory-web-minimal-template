@@ -45,6 +45,7 @@ markdown: |
 - id: "forms"
   name: "Form Libraries"
   icon_url: "https://example.com/forms-icon.png"
+  image_url: "https://example.com/forms-image.png"
 
 - id: "data-display"
   name: "Data Display"

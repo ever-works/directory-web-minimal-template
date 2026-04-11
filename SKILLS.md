@@ -340,6 +340,7 @@ interface ContentData {
     tags: TagWithCount[];
     collections: CollectionData[];
     comparisons: ComparisonData[];
+    pages: PageData[];
     config: SiteConfig;
     total: number;
 }
@@ -490,6 +491,10 @@ interface ItemData {
     updated_at: string;
     status: 'draft' | 'pending' | 'approved' | 'rejected';
     markdown?: string;
+    brand?: string;
+    brand_logo_url?: string;
+    images?: string[];
+    publisher?: string;
     [key: string]: unknown; // Additional YAML fields are preserved
 }
 ```
@@ -1273,6 +1278,8 @@ interface CategoryData {
     name: string;
     /** Optional URL to category icon */
     icon_url?: string;
+    /** Optional URL to category image */
+    image_url?: string;
 }
 
 /** Category with computed item count (returned by getContent()) */
@@ -1422,6 +1429,7 @@ interface ContentData {
     tags: TagWithCount[];
     collections: CollectionData[];
     comparisons: ComparisonData[];
+    pages: PageData[];
     config: SiteConfig;
     total: number;
 }

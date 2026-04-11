@@ -35,8 +35,7 @@ See:
 packages/plugins/
 ├── src/
 │   ├── types.ts          — Plugin, PluginHooks, PluginContext
-│   ├── registry.ts       — Plugin registration + dependency resolution
-│   ├── runner.ts         — Lifecycle hook execution
+│   ├── runner.ts         — Plugin registration, dependency resolution + lifecycle hook execution
 │   ├── define-plugins.ts — Config helper function
 │   ├── logger.ts         — Plugin logger implementation
 │   └── index.ts          — Public API

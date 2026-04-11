@@ -57,8 +57,7 @@ packages/core/
 │   │   ├── collection-loader.ts
 │   │   ├── comparison-loader.ts
 │   │   └── config-loader.ts
-│   ├── content-reader.ts    — Orchestrates all loaders
-│   ├── yaml-parser.ts       — Safe YAML parsing utility
+│   ├── content-reader.ts    — Orchestrates all loaders (YAML parsing done inline in loaders)
 │   └── index.ts             — Public API
 ├── package.json
 ├── tsconfig.json

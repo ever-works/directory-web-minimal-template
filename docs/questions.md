@@ -159,3 +159,72 @@ sidebar_label: "Questions"
 **Default choice**: **Keep web template blank, demo in sample-basic** — The web template's purpose is to be an intentionally blank canvas. The sample-basic should demonstrate all interactive components as a reference. AI agents can then copy the patterns.
 
 **Action needed**: Integrate SearchInput, FilterBar, and SortSelect into `apps/sample-basic` pages to demonstrate proper usage.
+
+**Status**: DONE — All 5 interactive components are integrated in `apps/sample-basic`.
+
+---
+
+## Q12: SiteConfig Customization Depth
+
+**Context**: The reference Next.js template has rich SiteConfig with `custom_header`, `custom_footer`, `custom_hero`, `homepage` settings (hero_title, hero_description, search_enabled, default_view, default_sort), and `header` settings. The minimal template's SiteConfig is thin — only `categories_enabled` and `tags_enabled` in settings.
+
+**Options**:
+- **A) Extend SiteConfig to support custom nav, hero, and homepage settings** — Makes every directory customizable without code changes `[DEFAULT]`
+- B) Keep SiteConfig minimal, let AI add fields as needed — Less code to maintain
+- C) Add only custom_header/custom_footer — Navigation is the highest-priority gap
+
+**Default choice**: **Extend SiteConfig** — Custom navigation items (`custom_header`, `custom_footer`) and homepage settings (`hero_title`, `hero_description`, `search_enabled`) are essential for any directory. The `[key: string]: unknown` pass-through already allows arbitrary fields, but explicit typing improves the AI developer experience.
+
+**Action needed**: Add typed fields to SiteConfig in `packages/core/src/types/config.ts` for custom_header, custom_footer, custom_hero, and homepage settings.
+
+---
+
+## Q13: Featured Items Display
+
+**Context**: ItemData has `featured?: boolean` but there are no UI components to visually highlight featured items. The reference template has `FeaturedBadge`, `FeaturedItemsSection`, and a full featured item workflow.
+
+**Options**:
+- **A) Add FeaturedBadge component and featured section to headless UI** — Simple badge + optional grid section `[DEFAULT]`
+- B) Make featured a plugin (plugin-featured) — More modular but heavier
+- C) Leave for AI to implement per-project — Simplest template
+
+**Default choice**: **Add FeaturedBadge and FeaturedSection to `@ever-works/ui`** — Small addition with high value. AI can style the badge. The template already filters by `featured` status.
+
+---
+
+## Q14: Layout Variants (Grid/List/Masonry)
+
+**Context**: The reference template has 4 layout modes (Cards, Classic, Grid, Masonry) with a view toggle. The minimal template only has `ItemGrid` and `ItemList`.
+
+**Options**:
+- **A) Add a LayoutSwitcher Preact component and at least 3 layout options** `[DEFAULT]`
+- B) Keep just grid and list — sufficient for minimal template
+- C) Add as a plugin (plugin-layouts) — Most modular
+
+**Default choice**: **Add LayoutSwitcher** — Multiple listing layouts are expected in directory sites. A Preact island LayoutSwitcher + CSS-only layout variants keeps it lightweight.
+
+---
+
+## Q15: Item Detail Decomposition
+
+**Context**: The minimal template has a monolithic `ItemDetail.astro` component. The reference template decomposes item detail into: content renderer, metadata display, CTA button, share button, similar items section, and more.
+
+**Options**:
+- **A) Decompose into sub-components** — ItemContent, ItemMetadata, ItemCTA, ShareButton, SimilarItems `[DEFAULT]`
+- B) Keep monolithic — Simpler, AI can restructure
+- C) Only split content rendering and metadata — Minimal decomposition
+
+**Default choice**: **Decompose into sub-components** — Individual sub-components let AI customize each part independently. Each becomes a separate Astro component in `packages/ui/src/astro/`.
+
+---
+
+## Q16: Item Markdown Content Rendering
+
+**Context**: ItemData has `markdown?: string` but no visible component renders it on the detail page. The sample-git data has markdown content for most items.
+
+**Options**:
+- **A) Add ItemContent component with built-in Astro markdown rendering** `[DEFAULT]`
+- B) Use a plugin for markdown rendering
+- C) Leave for AI — each project may want different markdown styling
+
+**Default choice**: **Add ItemContent component** — Use Astro's built-in `set:html` with a markdown-to-HTML library (already available via the content pipeline). Essential for rich item descriptions.

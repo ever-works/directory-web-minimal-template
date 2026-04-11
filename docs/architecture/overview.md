@@ -63,7 +63,7 @@ The minimal directory template follows a **layered, plugin-based architecture** 
 ### 4. Application Layer (`apps/web`)
 
 - Astro pages assemble components and plugins
-- File-based routing: `/items/[slug]`, `/categories/[slug]`, `/tags/[slug]`
+- File-based routing: `/item/[slug]`, `/category/[slug]`, `/tag/[slug]`
 - Layouts provide page structure
 - Minimal — intentionally a blank canvas for AI to build upon
 

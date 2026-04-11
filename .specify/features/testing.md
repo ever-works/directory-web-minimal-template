@@ -74,4 +74,4 @@ packages/plugin-sitemap/src/__tests__/plugin.test.ts   — 14 tests
 
 ## Dependencies
 
-- `vitest` ^3.x (devDependency at root)
+- `vitest` ^4.x (devDependency at root)
