@@ -1,23 +1,33 @@
-# Sample: Basic Directory Website
+# Sample: React UI Components Directory
 
-> This is a reference implementation built entirely by AI from the minimal template.
-> It demonstrates how AI agents use the template to create a complete directory website.
+> A reference implementation built by AI from the minimal template.
+> Demonstrates the full AI workflow from blank template to styled directory website.
 
 ## What This Is
 
-A working directory website for React UI Components, generated using:
+A working directory website for **React UI Components**, showcasing 12 component libraries across 8 categories and 10 tags. Built using:
+
 - The `@ever-works/web-minimal` template as the starting point
 - `SKILLS.md` and `AGENTS.md` for AI guidance
 - Claude Code (Opus 4.6) as the AI agent
 
+## Features
+
+- **12 React component libraries** — Radix UI, Headless UI, React Aria, shadcn/ui, Chakra UI, Ant Design, Material UI, Mantine, React Hook Form, TanStack Table, Framer Motion, React Spring
+- **8 categories** — Form Components, Data Display, Navigation, Layout, Feedback, Animation, Headless, Full Suite
+- **10 tags** — TypeScript, Accessible, Headless, Open Source, Tailwind CSS, and more
+- **35 static pages** — Home, item details, category listings, tag listings, pagination
+- **Modern Tailwind CSS design** — Clean, responsive, dark mode ready
+- **SEO optimized** — Meta tags, Open Graph, JSON-LD structured data, sitemap
+- **Extreme performance** — Fully static, zero unnecessary JS, ~3s build time
+
 ## How It Was Built
 
-1. AI read the data repository to understand the content
-2. AI chose a design direction (clean, modern, developer-focused)
-3. AI configured plugins (search, filters, pagination, SEO)
-4. AI applied Tailwind CSS styling to headless components
-5. AI customized page layouts
-6. AI verified the build and tested all pages
+1. AI read `AGENTS.md` and `CLAUDE.md` to understand the template rules
+2. AI created sample content data in `.content/` (config, categories, tags, items)
+3. AI copied the template structure and configured plugins
+4. AI applied Tailwind CSS styling to all headless components
+5. AI built and verified — 35 pages, 0 errors, 3.07s build time
 
 ## Prompt Used
 
@@ -34,8 +44,14 @@ deployable to Vercel.
 ```bash
 # From monorepo root
 pnpm dev --filter @ever-works/sample-basic
+
+# Or from this directory
+pnpm dev
 ```
 
-## Status
+## Building
 
-**Not yet implemented** — Will be generated in Phase 5.
+```bash
+pnpm --filter @ever-works/sample-basic build
+# Output: apps/sample-basic/dist/ (35 static pages)
+```

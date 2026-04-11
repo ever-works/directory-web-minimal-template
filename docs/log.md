@@ -180,8 +180,75 @@
 - **Status: Phases 1-4 IMPLEMENTED. Ready for Phase 5 (sample) and Phase 6 (deployment).**
 
 ### Next Steps (for next scheduled run)
-1. Create `sample-basic` implementation using AI agents (Phase 5)
-2. Create SKILLS.md for AI agent guidance
+1. ~~Create `sample-basic` implementation using AI agents~~ DONE
+2. ~~Create SKILLS.md for AI agent guidance~~ DONE
 3. Set up docs site content (Starlight)
-4. Expand E2E tests
-5. Update CI/CD workflow for Vercel deployment
+4. ~~Expand E2E tests~~ DONE
+5. ~~Update CI/CD workflow for Vercel deployment~~ DONE
+
+## 2026-04-11 — Phase 5 & 6 Implementation (Sample + Deployment)
+
+### Phase 5: sample-basic — React UI Components Directory
+- Created full sample content data in `apps/sample-basic/.content/`:
+  - `config.yml` — "React UI Components" directory configuration
+  - `categories.yml` — 8 categories (Form Components, Data Display, Navigation, Layout, Feedback, Animation, Headless, Full Suite)
+  - `tags.yml` — 10 tags (TypeScript, Accessible, Headless, Open Source, Tailwind CSS, Styled Components, Unstyled, SSR Ready, React 19, Small Bundle)
+  - `collections.yml` — 2 collections (Top Picks, Headless Libraries)
+  - `data/` — 12 React component library items (Radix UI, Headless UI, React Aria, shadcn/ui, Chakra UI, Ant Design, Material UI, Mantine, React Hook Form, TanStack Table, Framer Motion, React Spring)
+- Created `astro.config.ts` — Astro 5 static config with Preact, Tailwind v4, sitemap
+- Created `tsconfig.json` — extends shared astro config
+- Created `src/env.d.ts` — Astro client types
+- Created `src/lib/content.ts` — cached content loading with plugin pipeline
+- Created `src/lib/plugins.config.ts` — all 6 plugins configured
+- Created `src/styles/global.css` — Tailwind v4 with custom brand color tokens
+- Created `src/layouts/BaseLayout.astro` — fully styled layout with sticky header, dark mode, footer
+- Created 8 styled pages:
+  - `pages/index.astro` — Hero with gradient, category grid, featured items, all items grid
+  - `pages/item/[slug].astro` — Item detail with breadcrumbs, tags, related items
+  - `pages/category/[slug].astro` — Category listing with item grid
+  - `pages/tag/[slug].astro` — Tag listing with item grid
+  - `pages/categories.astro` — Categories index with card grid
+  - `pages/tags.astro` — Tags index with pill badges
+  - `pages/page/[page].astro` — Paginated listing with prev/next navigation
+  - `pages/404.astro` — Styled 404 page
+- Updated `package.json` — fixed dependencies (@tailwindcss/vite instead of @astrojs/tailwind), added all plugin packages, added @astrojs/check
+- Updated `README.md` — comprehensive documentation of the sample
+
+### Phase 5.3: SKILLS.md
+- Created `SKILLS.md` with 7 step-by-step AI agent skills
+
+### Phase 5 spec
+- Created `.specify/features/sample-basic.md` — detailed specification
+- Created `docs/plans/phase-5-sample-detail.md` — detailed implementation plan
+
+### Phase 6.3: E2E Tests
+- Expanded `apps/web-e2e/tests/home.spec.ts` — 5 tests (title, header, footer, hero, listing)
+- Created `tests/navigation.spec.ts` — 4 tests (categories, tags, home nav, 404)
+- Created `tests/item.spec.ts` — 5 tests (render, name/description, breadcrumbs, source link, tags)
+- Created `tests/category.spec.ts` — 6 tests (categories index, category page, items display, linking, tags index, tag page)
+- Created `tests/pagination.spec.ts` — 2 tests (page 1 render, items display)
+- Created `tests/seo.spec.ts` — 5 tests (meta description, OG tags, JSON-LD home, JSON-LD item, sitemap)
+- Total: 27 E2E tests across 6 test files
+
+### Phase 6.1: CI/CD Workflows
+- Created `.github/workflows/deploy.yml` — Deploy to Vercel on main branch push (build web + sample-basic, Vercel CLI deploy template)
+- Updated `.github/workflows/ci.yml` — existing CI for PRs (lint, typecheck, build)
+
+### Build Verification
+- `pnpm typecheck` — ALL 12 tasks pass (0 errors)
+- `pnpm --filter @ever-works/sample-basic build` — 35 static pages in 3.07s
+- `pnpm --filter @ever-works/web-minimal build` — 8 static pages in 2.97s
+
+### Summary
+- **Phase 5 (Sample Implementation): COMPLETE** — 12 items, 8 categories, 10 tags, 35 pages
+- **Phase 5.3 (SKILLS.md): COMPLETE** — 7 AI agent skills documented
+- **Phase 6.1 (CI/CD): COMPLETE** — deploy.yml workflow created
+- **Phase 6.3 (E2E Tests): COMPLETE** — 27 tests across 6 files
+- **Total new files: ~40 files** (content data, pages, configs, tests, workflows)
+
+### Next Steps (for next scheduled run)
+1. Set up docs site content (Starlight) — Phase 6.4
+2. Create additional sample templates (sample-jobs, sample-events) — future
+3. Run E2E tests against built site
+4. Template selection documentation — Phase 6.5
+5. Review and polish SKILLS.md content

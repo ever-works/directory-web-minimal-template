@@ -1,13 +1,14 @@
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-11
+> Updated: 2026-04-11 (Phase 5+6)
 
 ## Root Documents
 
 - [CLAUDE.md](../CLAUDE.md) — Claude Code instructions, project overview, commands
 - [AGENTS.md](../AGENTS.md) — AI agent rules, working process, data contracts
-- [README.md](../README.md) — Project README (to be created)
+- [SKILLS.md](../SKILLS.md) — Step-by-step AI agent skills for building directory sites
+- [README.md](../README.md) — Project README
 
 ## Architecture
 
@@ -24,6 +25,7 @@
 - [plans/phase-3-web-app.md](plans/phase-3-web-app.md) — Phase 3: Astro web app with pages
 - [plans/phase-4-plugins.md](plans/phase-4-plugins.md) — Phase 4: Built-in plugins (search, filters, etc.)
 - [plans/phase-5-sample.md](plans/phase-5-sample.md) — Phase 5: Sample implementations
+- [plans/phase-5-sample-detail.md](plans/phase-5-sample-detail.md) — Phase 5: Detailed implementation plan for sample-basic
 - [plans/phase-6-deployment.md](plans/phase-6-deployment.md) — Phase 6: Deployment, CI/CD, docs site
 
 ## Specifications
@@ -41,6 +43,7 @@
 - [../.specify/features/ui-components.md](../.specify/features/ui-components.md) — UI components feature spec
 - [../.specify/features/web-app.md](../.specify/features/web-app.md) — Web app feature spec
 - [../.specify/features/plugins-phase4.md](../.specify/features/plugins-phase4.md) — Phase 4 built-in plugins detailed spec
+- [../.specify/features/sample-basic.md](../.specify/features/sample-basic.md) — Sample basic implementation spec
 
 ## Guides
 
