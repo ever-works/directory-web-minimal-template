@@ -8,7 +8,11 @@
     "exports": {
         ".": "./src/index.ts",
         "./astro/*": "./src/astro/*",
-        "./preact/*": "./src/preact/*"
+        "./preact/SearchInput": "./src/preact/SearchInput.tsx",
+        "./preact/FilterBar": "./src/preact/FilterBar.tsx",
+        "./preact/SortSelect": "./src/preact/SortSelect.tsx",
+        "./preact/BackToTop": "./src/preact/BackToTop.tsx",
+        "./preact/ThemeToggle": "./src/preact/ThemeToggle.tsx"
     },
     "scripts": {
         "typecheck": "tsc --noEmit",

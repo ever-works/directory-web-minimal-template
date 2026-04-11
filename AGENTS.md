@@ -277,6 +277,8 @@ See `SKILLS.md` for detailed step-by-step guides.
 ### Interactive (Preact islands)
 `SearchInput`, `FilterBar`, `SortSelect`, `BackToTop`, `ThemeToggle`
 
+**Usage pattern**: Standalone components (ThemeToggle, BackToTop) go directly in layouts. Data-driven components (SearchInput, FilterBar, SortSelect) should be composed into a Preact island (e.g., `ItemBrowser.tsx`) that manages client-side filtering state. See `apps/sample-basic/src/components/ItemBrowser.tsx` for a reference implementation and `docs/guides/interactive-components.md` for the full guide.
+
 ## Available Plugins (packages/plugin-*)
 
 | Plugin | Purpose |

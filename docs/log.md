@@ -2,6 +2,36 @@
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-11 — Iteration 9: Interactive Component Integration & Dark Mode
+
+### Interactive Component Integration (apps/sample-basic)
+- **Created `src/components/ItemBrowser.tsx`** — Preact island composing SearchInput, FilterBar, SortSelect into a unified client-side filtering experience. Supports text search, category filter, tag filter (OR), sort (featured/name/date), and real-time result count.
+- **Updated `pages/index.astro`** — Replaced static item grid with interactive ItemBrowser component. Items are serialized as lightweight props for the Preact island. Hero, categories, and featured sections remain static Astro.
+- **Updated `layouts/BaseLayout.astro`** — Added ThemeToggle to header nav and BackToTop before closing body. Added flash-prevention script in `<head>` to prevent dark mode flicker.
+- **Updated `styles/global.css`** — Added `@custom-variant dark` for `data-theme="dark"` (works with ThemeToggle component). Added comprehensive headless component styling for all 5 Preact components using `data-component` / `data-part` attribute selectors.
+
+### UI Package Fix
+- **Fixed `packages/ui/package.json` exports** — Changed Preact component exports from wildcard `"./preact/*": "./src/preact/*"` to explicit per-component entries. Wildcard pattern didn't resolve `.tsx` extensions correctly with TypeScript bundler module resolution.
+
+### Documentation Expansion
+- **Created `docs/guides/interactive-components.md`** — Guide for integrating Preact islands (search, filter, sort, theme toggle, back-to-top). Covers standalone vs data-driven components, dark mode setup, headless component styling, and composing an ItemBrowser.
+- **Created `apps/docs/src/content/docs/guides/interactive-components.md`** — Starlight version of the interactive components guide
+- **Created `apps/docs/src/content/docs/guides/quickstart.md`** — 5-minute quickstart guide covering install, content setup, dev, customization, and deployment
+- **Updated `apps/docs/astro.config.ts`** — Added Quickstart and Interactive Components to sidebar
+- **Updated `docs/index.md`** — Added interactive-components guide to index
+
+### Build Verification
+- `pnpm typecheck` — ALL 12 tasks pass (0 errors)
+- `pnpm build` (sample-basic) — 41 pages built successfully
+- `pnpm build` (docs) — 17 pages built (up from 15, added quickstart + interactive-components)
+
+### Next Steps (for next scheduled run)
+1. Run full E2E test suite to verify interactive components don't break existing tests
+2. Create additional sample templates (sample-jobs, sample-events)
+3. Add unit tests for ItemBrowser client-side filtering logic
+4. Consider adding `plugin-breadcrumbs` package
+5. Add more Starlight docs content (deployment guide, troubleshooting)
+
 ## 2026-04-11 — Iteration 8: E2E Test Fixes, Validation, Doc Audit
 
 ### Data Layer Improvements

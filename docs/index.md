@@ -1,7 +1,7 @@
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-11 (Iteration 8: E2E test fixes, validation improvements, doc audit)
+> Updated: 2026-04-11 (Iteration 9: Interactive components, dark mode, docs expansion)
 
 ## Root Documents
 
@@ -50,8 +50,9 @@
 - [guides/creating-a-plugin.md](guides/creating-a-plugin.md) — How to create a plugin
 - [guides/creating-an-adapter.md](guides/creating-an-adapter.md) — How to create a data adapter
 - [guides/building-from-template.md](guides/building-from-template.md) — How AI builds a site from template
+- [guides/interactive-components.md](guides/interactive-components.md) — How to use Preact interactive islands (search, filter, sort, theme, back-to-top)
 
 ## Reference
 
-- [questions.md](questions.md) — Open questions and decisions (Q1-Q10 with defaults)
-- [log.md](log.md) — Change log (all phases tracked)
+- [questions.md](questions.md) — Open questions and decisions (Q1-Q11 with defaults)
+- [log.md](log.md) — Change log (all iterations tracked)

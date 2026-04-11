@@ -2,12 +2,14 @@
 /**
  * BaseLayout — Styled root layout for the React UI Components directory.
  *
- * Modern design with dark mode support, responsive navigation,
- * and full SEO integration via plugin-seo.
+ * Modern design with dark mode support (via ThemeToggle), responsive navigation,
+ * BackToTop button, and full SEO integration via plugin-seo.
  */
 import type { SiteConfig } from '@ever-works/core';
 import { generateMetaTags } from '@ever-works/plugin-seo';
 import type { PageMeta } from '@ever-works/plugin-seo';
+import ThemeToggle from '@ever-works/ui/preact/ThemeToggle';
+import BackToTop from '@ever-works/ui/preact/BackToTop';
 import '../styles/global.css';
 
 interface Props {
@@ -51,6 +53,17 @@ const metaTags = generateMetaTags(pageMeta, {});
 
         {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
         {config.logo?.favicon && <link rel="icon" href={config.logo.favicon} />}
+
+        <!-- Prevent flash of wrong theme -->
+        <script is:inline>
+            (function() {
+                var stored = localStorage.getItem('theme-preference');
+                if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                }
+            })();
+        </script>
+
         <slot name="head" />
     </head>
     <body class="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100 antialiased">
@@ -79,6 +92,8 @@ const metaTags = generateMetaTags(pageMeta, {});
                     <a href="/comparisons" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition-colors">
                         Comparisons
                     </a>
+                    <!-- Theme Toggle (Preact island) -->
+                    <ThemeToggle client:load />
                 </nav>
             </div>
         </header>
@@ -101,5 +116,8 @@ const metaTags = generateMetaTags(pageMeta, {});
                 </div>
             </div>
         </footer>
+
+        <!-- Back to Top (Preact island) -->
+        <BackToTop client:load showAfterPx={400} />
     </body>
 </html>

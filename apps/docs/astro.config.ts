@@ -19,6 +19,7 @@ export default defineConfig({
                     label: 'Getting Started',
                     items: [
                         { label: 'Overview', link: '/overview/' },
+                        { label: 'Quickstart', link: '/guides/quickstart/' },
                     ],
                 },
                 {
@@ -37,6 +38,7 @@ export default defineConfig({
                         { label: 'Building from Template', link: '/guides/building-from-template/' },
                         { label: 'Creating a Plugin', link: '/guides/creating-a-plugin/' },
                         { label: 'Creating an Adapter', link: '/guides/creating-an-adapter/' },
+                        { label: 'Interactive Components', link: '/guides/interactive-components/' },
                     ],
                 },
                 {
