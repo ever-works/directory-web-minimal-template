@@ -45,6 +45,9 @@ importers:
       '@ever-works/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@ever-works/plugin-breadcrumbs':
+        specifier: workspace:*
+        version: link:../../packages/plugin-breadcrumbs
       '@ever-works/plugin-filters':
         specifier: workspace:*
         version: link:../../packages/plugin-filters

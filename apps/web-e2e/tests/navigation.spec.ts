@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test';
 /**
  * Navigation E2E tests.
  * Verifies links and routing work correctly across all page types.
+ * Tests run against sample-basic.
  */
 
 test.describe('Navigation', () => {
@@ -22,7 +23,8 @@ test.describe('Navigation', () => {
 
     test('should navigate to home from logo/site-name', async ({ page }) => {
         await page.goto('/categories/');
-        await page.click('[data-component="site-header"] [data-part="logo-link"]');
+        const homeLink = page.locator('header a[href="/"]').first();
+        await homeLink.click();
         await expect(page).toHaveURL('/');
     });
 

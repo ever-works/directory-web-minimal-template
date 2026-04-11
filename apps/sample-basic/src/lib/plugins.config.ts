@@ -9,6 +9,7 @@ import { filtersPlugin } from '@ever-works/plugin-filters';
 import { searchPlugin } from '@ever-works/plugin-search';
 import { sortPlugin } from '@ever-works/plugin-sort';
 import { sitemapPlugin } from '@ever-works/plugin-sitemap';
+import { breadcrumbsPlugin } from '@ever-works/plugin-breadcrumbs';
 
 export const plugins = definePlugins([
     seoPlugin(),
@@ -17,4 +18,5 @@ export const plugins = definePlugins([
     searchPlugin(),
     sortPlugin({ defaultSort: 'name', defaultDirection: 'asc' }),
     sitemapPlugin(),
+    breadcrumbsPlugin(),
 ]);

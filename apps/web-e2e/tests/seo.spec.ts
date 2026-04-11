@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test';
 /**
  * SEO E2E tests.
  * Verifies meta tags, structured data, and sitemap.
+ * Tests run against sample-basic.
  */
 
 test.describe('SEO', () => {
@@ -25,7 +26,7 @@ test.describe('SEO', () => {
     });
 
     test('should have JSON-LD structured data on item page', async ({ page }) => {
-        await page.goto('/item/sample-item/');
+        await page.goto('/item/radix-ui/');
         const jsonLd = page.locator('script[type="application/ld+json"]').first();
         await expect(jsonLd).toBeAttached();
     });

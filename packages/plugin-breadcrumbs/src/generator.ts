@@ -106,5 +106,14 @@ export function generateBreadcrumbs(
         { label: getLabel('/comparisons', 'Comparisons') },
     ]);
 
+    // Individual comparisons
+    for (const comp of data.comparisons) {
+        map.set(`/comparison/${comp.slug}`, [
+            ...prefix,
+            { label: getLabel('/comparisons', 'Comparisons'), href: '/comparisons' },
+            { label: comp.title },
+        ]);
+    }
+
     return map;
 }

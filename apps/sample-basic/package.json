@@ -23,6 +23,7 @@
         "@ever-works/plugin-filters": "workspace:*",
         "@ever-works/plugin-search": "workspace:*",
         "@ever-works/plugin-sort": "workspace:*",
+        "@ever-works/plugin-breadcrumbs": "workspace:*",
         "@ever-works/plugin-sitemap": "workspace:*",
         "@tailwindcss/vite": "^4.1.0",
         "astro": "^5.0.0",

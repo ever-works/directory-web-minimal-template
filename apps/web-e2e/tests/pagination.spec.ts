@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test';
 /**
  * Pagination E2E tests.
  * Verifies paginated listing pages work correctly.
+ * Tests run against sample-basic (12 items, 12 per page = 1 page).
  */
 
 test.describe('Pagination', () => {
@@ -13,7 +14,8 @@ test.describe('Pagination', () => {
 
     test('should display items on paginated page', async ({ page }) => {
         await page.goto('/page/1/');
-        const listing = page.locator('[data-component="item-listing"]');
-        await expect(listing).toBeVisible();
+        const itemLinks = page.locator('a[href^="/item/"]');
+        const count = await itemLinks.count();
+        expect(count).toBeGreaterThan(0);
     });
 });

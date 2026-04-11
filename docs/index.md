@@ -1,7 +1,7 @@
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-11 (Iteration 10: Testing, plugin-breadcrumbs, deployment docs)
+> Updated: 2026-04-11 (Iteration 11: Breadcrumbs integration, E2E expansion, CI tests)
 
 ## Root Documents
 

@@ -8,7 +8,7 @@ on:
 
 jobs:
   ci:
-    name: Lint, Typecheck, Build
+    name: Lint, Typecheck, Test, Build
     runs-on: ubuntu-latest
 
     steps:
@@ -32,6 +32,9 @@ jobs:
 
       - name: Typecheck
         run: pnpm typecheck
+
+      - name: Unit Tests
+        run: pnpm test
 
       - name: Build
         run: pnpm build

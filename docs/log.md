@@ -2,6 +2,57 @@
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-11 — Iteration 11: Breadcrumbs Integration, E2E Expansion, CI Tests
+
+### Breadcrumbs Plugin Integration (sample-basic)
+- **Added `@ever-works/plugin-breadcrumbs` dependency** to `apps/sample-basic/package.json`
+- **Updated `plugins.config.ts`** — Added `breadcrumbsPlugin()` to the plugin chain
+- **Created `src/components/BreadcrumbNav.astro`** — Reusable breadcrumb component that reads `_breadcrumbs` from plugin data. Uses `data-component="breadcrumb-nav"` attribute for E2E targeting.
+- **Updated 5 pages** to use `BreadcrumbNav` instead of hardcoded breadcrumbs:
+  - `item/[slug].astro`, `category/[slug].astro`, `tag/[slug].astro`, `collection/[slug].astro`, `comparison/[slug].astro`
+- **Net reduction**: ~50 lines of duplicated breadcrumb HTML replaced with single component
+
+### Breadcrumbs Generator Enhancement
+- **Updated `packages/plugin-breadcrumbs/src/generator.ts`** — Added breadcrumb generation for `/comparison/{slug}` pages (was missing individual comparison breadcrumbs)
+
+### Pagination Bug Fix (sample-basic)
+- **Fixed `pages/page/[page].astro`** — Props interface now correctly uses `currentPage` (from `generatePagePaths`) instead of `page` (which was `undefined`). Title now shows correct page number.
+
+### Unit Tests — Plugin-Breadcrumbs (22 tests)
+- **Created `packages/plugin-breadcrumbs/vitest.config.ts`** — Vitest config
+- **Added `"test"` script** to `packages/plugin-breadcrumbs/package.json`
+- **Created `src/__tests__/generator.test.ts`** — 22 tests covering:
+  - Default options for all page types (home, categories, tags, items, collections, comparisons)
+  - Custom options (homeLabel, homeHref, includeHome=false, labelOverrides)
+  - Edge cases (item without category, item with array category, empty data)
+- **Result: 3 test suites, 41+ total unit tests, all passing**
+
+### E2E Tests — Collections & Comparisons (26 new tests)
+- **Created `tests/collections.spec.ts`** — 13 tests (index: heading, cards, descriptions, counts, links, navigation; detail: heading, description, items, breadcrumbs, secondary collection)
+- **Created `tests/comparisons.spec.ts`** — 13 tests (index: heading, entries, titles, items, links, navigation; detail: heading, summary, contestants, table, dimensions, scores, breadcrumbs, verdict, secondary comparison)
+
+### E2E Test Infrastructure Fix
+- **Updated `playwright.config.ts`** — Switched from `web-minimal` (port 4321) to `sample-basic` (port 4323). Tests now run against sample-basic which has real content data.
+- **Updated all 6 existing test files** to use sample-basic selectors and data (e.g., `radix-ui` instead of `sample-item`, `form-components` instead of `sample-category`)
+- **Result: 114 E2E tests passing (was 54)** — doubled test coverage
+
+### CI Workflow Update
+- **Updated `.github/workflows/ci.yml`** — Added `pnpm test` step between typecheck and build
+- **Updated job name** to "Lint, Typecheck, Test, Build"
+
+### Build Verification
+- `pnpm typecheck` — ALL 13 tasks pass (0 errors)
+- `pnpm test` — 3 test suites, 41+ unit tests passed
+- `pnpm build` — 3 apps built (web: 8 pages, sample-basic: 41 pages, docs: 19 pages)
+- `pnpm test:e2e` — **114 E2E tests passed** (57 chromium + 57 mobile)
+
+### Next Steps (for next scheduled run)
+1. Create additional sample templates (sample-jobs or sample-events)
+2. Consider Pagefind integration for static search
+3. Expand unit test coverage to more packages (adapters, plugin-seo)
+4. Add performance benchmarks to CI
+5. Review SKILLS.md for completeness
+
 ## 2026-04-11 — Iteration 10: Testing Infrastructure, Plugin-Breadcrumbs, Deployment Docs
 
 ### Unit Testing Infrastructure (Vitest)

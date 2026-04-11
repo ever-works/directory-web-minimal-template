@@ -13,10 +13,11 @@ export async function getStaticPaths() {
 }
 
 interface Props {
-    page: number;
+    currentPage: number;
+    totalPages: number;
 }
 
-const { page } = Astro.props;
+const { currentPage: page } = Astro.props;
 const { items, config } = await getContent();
 const perPage = config.pagination?.itemsPerPage ?? 12;
 const pagination = paginate(items, { page, perPage });

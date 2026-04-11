@@ -13,7 +13,7 @@ export default defineConfig({
     reporter: 'html',
 
     use: {
-        baseURL: 'http://localhost:4321',
+        baseURL: 'http://localhost:4323',
         trace: 'on-first-retry',
     },
 
@@ -29,8 +29,8 @@ export default defineConfig({
     ],
 
     webServer: {
-        command: 'pnpm --filter @ever-works/web-minimal preview',
-        port: 4321,
+        command: 'pnpm --filter @ever-works/sample-basic preview',
+        port: 4323,
         reuseExistingServer: !process.env.CI,
     },
 });
