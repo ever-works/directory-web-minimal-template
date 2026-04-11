@@ -1,8 +1,6 @@
 ---
 /**
- * EmptyState — Headless empty state component.
- * Renders a message when no items/results are available.
- * AI agents apply styling via class prop or data-* selectors.
+ * EmptyState — Directory-specific wrapper around fulldev/ui Empty.
  *
  * @example
  * ```astro
@@ -10,14 +8,17 @@
  * ```
  */
 import type { EmptyStateProps } from '../types.js';
+import Empty from '../primitives/empty/Empty.astro';
+import EmptyTitle from '../primitives/empty/EmptyTitle.astro';
+import EmptyDescription from '../primitives/empty/EmptyDescription.astro';
 
 type Props = EmptyStateProps;
 
 const { message, suggestion, class: className, ...attrs } = Astro.props;
 ---
 
-<div class={className} data-component="empty-state" role="status" {...attrs}>
-  <p data-part="message">{message}</p>
-  {suggestion && <p data-part="suggestion">{suggestion}</p>}
-  <slot />
-</div>
+<Empty class={className} data-component="empty-state" role="status" {...attrs}>
+    <EmptyTitle data-part="message">{message}</EmptyTitle>
+    {suggestion && <EmptyDescription data-part="suggestion">{suggestion}</EmptyDescription>}
+    <slot />
+</Empty>

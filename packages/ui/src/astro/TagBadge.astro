@@ -1,8 +1,7 @@
 ---
 /**
- * TagBadge — Headless tag badge/chip component.
- * Renders a single tag as a link or span with optional count.
- * AI agents apply styling via class prop or data-* selectors.
+ * TagBadge — Directory-specific wrapper around fulldev/ui Badge.
+ * Renders a tag label with optional count and link.
  *
  * @example
  * ```astro
@@ -10,22 +9,33 @@
  * ```
  */
 import type { TagBadgeProps } from '../types.js';
+import Badge from '../primitives/badge/Badge.astro';
 
 type Props = TagBadgeProps;
 
 const { tag, count, href, class: className, ...attrs } = Astro.props;
-
-const Tag = href ? 'a' : 'span';
 ---
 
-<Tag
-  class={className}
-  data-component="tag-badge"
-  {...(href ? { href } : {})}
-  {...attrs}
->
-  <span data-part="name">{tag.name}</span>
-  {count !== undefined && (
-    <span data-part="count">{count}</span>
-  )}
-</Tag>
+{href ? (
+    <Badge
+        as="a"
+        href={href}
+        variant="secondary"
+        class={className}
+        data-component="tag-badge"
+        {...attrs}
+    >
+        <span data-part="name">{tag.name}</span>
+        {count !== undefined && <span data-part="count">{count}</span>}
+    </Badge>
+) : (
+    <Badge
+        variant="secondary"
+        class={className}
+        data-component="tag-badge"
+        {...attrs}
+    >
+        <span data-part="name">{tag.name}</span>
+        {count !== undefined && <span data-part="count">{count}</span>}
+    </Badge>
+)}

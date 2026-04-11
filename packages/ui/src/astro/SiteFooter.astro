@@ -1,8 +1,6 @@
 ---
 /**
- * SiteFooter — Headless site footer component.
- * Renders site footer with branding and copyright.
- * AI agents apply styling via class prop or data-* selectors.
+ * SiteFooter — Site footer with branding and copyright.
  *
  * @example
  * ```astro
@@ -10,24 +8,28 @@
  * ```
  */
 import type { SiteFooterProps } from '../types.js';
+import Separator from '../primitives/separator/Separator.astro';
 
 type Props = SiteFooterProps;
 
 const { config, class: className, ...attrs } = Astro.props;
 ---
 
-<footer class={className} data-component="site-footer" {...attrs}>
-  <div data-part="branding">
-    <a href="/" data-part="logo-link" aria-label={`${config.company_name} home`}>
-      <span data-part="site-name">{config.company_name}</span>
-    </a>
-  </div>
+<footer class:list={["mt-auto", className]} data-component="site-footer" {...attrs}>
+    <Separator />
+    <div class="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 py-8 sm:flex-row sm:justify-between sm:px-6 lg:px-8">
+        <div data-part="branding">
+            <a href="/" data-part="logo-link" aria-label={`${config.company_name} home`} class="font-semibold text-foreground">
+                <span data-part="site-name">{config.company_name}</span>
+            </a>
+        </div>
 
-  <div data-part="content">
-    <slot />
-  </div>
+        <div data-part="content">
+            <slot />
+        </div>
 
-  <div data-part="copyright">
-    <p>&copy; {config.copyright_year} {config.company_name}. All rights reserved.</p>
-  </div>
+        <div data-part="copyright" class="text-xs text-muted-foreground">
+            <p>&copy; {config.copyright_year} {config.company_name}. All rights reserved.</p>
+        </div>
+    </div>
 </footer>

@@ -1,8 +1,6 @@
 ---
 /**
- * ItemGrid — Headless grid layout for directory items.
- * Renders items in a semantic list with a data attribute for column count.
- * AI agents apply grid/flexbox styling via class prop or data-* selectors.
+ * ItemGrid — Grid layout for directory items using Card primitives.
  *
  * @example
  * ```astro
@@ -15,18 +13,24 @@ import ItemCard from './ItemCard.astro';
 type Props = ItemGridProps;
 
 const { items, columns = 3, class: className, ...attrs } = Astro.props;
+
+const gridCols: Record<number, string> = {
+    2: 'grid-cols-1 sm:grid-cols-2',
+    3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+    4: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
+};
 ---
 
 <div
-  class={className}
-  data-component="item-grid"
-  data-columns={String(columns)}
-  role="list"
-  {...attrs}
+    class:list={[`grid gap-4 ${gridCols[columns] ?? gridCols[3]}`, className]}
+    data-component="item-grid"
+    data-columns={String(columns)}
+    role="list"
+    {...attrs}
 >
-  {items.map((item) => (
-    <div role="listitem" data-part="grid-item">
-      <ItemCard item={item} />
-    </div>
-  ))}
+    {items.map((item) => (
+        <div role="listitem" data-part="grid-item">
+            <ItemCard item={item} />
+        </div>
+    ))}
 </div>

@@ -1,8 +1,6 @@
 ---
 /**
- * ItemList — Headless list layout for directory items.
- * Renders items in a vertical list with semantic HTML.
- * AI agents apply styling via class prop or data-* selectors.
+ * ItemList — Vertical list layout for directory items.
  *
  * @example
  * ```astro
@@ -17,10 +15,10 @@ type Props = ItemListProps;
 const { items, class: className, ...attrs } = Astro.props;
 ---
 
-<ul class={className} data-component="item-list" {...attrs}>
-  {items.map((item) => (
-    <li data-part="list-item">
-      <ItemCard item={item} />
-    </li>
-  ))}
+<ul class:list={["flex flex-col gap-4", className]} data-component="item-list" {...attrs}>
+    {items.map((item) => (
+        <li data-part="list-item">
+            <ItemCard item={item} />
+        </li>
+    ))}
 </ul>

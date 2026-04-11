@@ -1,0 +1,27 @@
+---
+/**
+ * Badge primitive — from fulldev/ui
+ * Polymorphic component for labels, tags, and status indicators.
+ * @see https://github.com/fulldotdev/ui
+ */
+import type { HTMLTag, Polymorphic } from "astro/types";
+import { cn } from "../../lib/utils";
+import { badgeVariants, type BadgeVariantProps } from "./badge-variants";
+
+type Props<Tag extends HTMLTag> = Polymorphic<{ as: Tag }> & BadgeVariantProps;
+
+const {
+    as: Tag = "span",
+    class: className,
+    variant = "default",
+    ...props
+} = Astro.props;
+---
+
+<Tag
+    data-slot="badge"
+    class={cn(badgeVariants({ variant }), className)}
+    {...props}
+>
+    <slot />
+</Tag>

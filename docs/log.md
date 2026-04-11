@@ -2,6 +2,53 @@
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-11 — Iteration 14: fulldev/ui Integration
+
+### Overview
+Replaced 14 hand-built headless Astro components with fulldev/ui primitives per R10 (Use Existing Libraries). The directory-specific wrapper components now compose fulldev/ui primitives (Badge, Button, Card, Table, Separator, Avatar, Empty) with our domain types (ItemData, CategoryData, etc.).
+
+### New Files
+- `packages/ui/src/lib/utils.ts` — cn() class merging utility (clsx + tailwind-merge)
+- `packages/ui/src/primitives/badge/` — Badge, badge-variants (from fulldev/ui)
+- `packages/ui/src/primitives/button/` — Button, button-variants (from fulldev/ui)
+- `packages/ui/src/primitives/card/` — Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, CardAction (from fulldev/ui)
+- `packages/ui/src/primitives/table/` — Table, TableHeader, TableBody, TableRow, TableHead, TableCell (from fulldev/ui)
+- `packages/ui/src/primitives/avatar/` — Avatar, AvatarImage, AvatarFallback (from fulldev/ui)
+- `packages/ui/src/primitives/separator/` — Separator (from fulldev/ui)
+- `packages/ui/src/primitives/empty/` — Empty, EmptyTitle, EmptyDescription (from fulldev/ui)
+
+### Rewritten Components (14 of 17)
+- `CategoryBadge.astro` — wraps fulldev/ui Badge (outline variant)
+- `TagBadge.astro` — wraps fulldev/ui Badge (secondary variant)
+- `ItemCard.astro` — wraps fulldev/ui Card + CardHeader + CardTitle + CardDescription + Badge
+- `ItemGrid.astro` — responsive grid layout using Tailwind grid
+- `ItemList.astro` — vertical list layout
+- `ItemDetail.astro` — full detail view with Card + Badge + Separator + Button
+- `CollectionCard.astro` — wraps fulldev/ui Card
+- `CategoryList.astro` — list of CategoryBadge components
+- `TagList.astro` — list of TagBadge components
+- `ComparisonTable.astro` — wraps fulldev/ui Table primitives + Badge for scores
+- `EmptyState.astro` — wraps fulldev/ui Empty + EmptyTitle + EmptyDescription
+- `Hero.astro` — section with fulldev/ui Button for CTA
+- `SiteHeader.astro` — sticky header with fulldev/ui Button (ghost variant) for nav
+- `SiteFooter.astro` — footer with fulldev/ui Separator
+
+### Components Kept Custom (3)
+- `SEO.astro` — no fulldev/ui equivalent (meta tags, JSON-LD)
+- `Pagination.astro` — custom page-number/ellipsis logic
+- `Breadcrumbs.astro` — custom structured data integration
+
+### Dependencies Added
+- `class-variance-authority` ^0.7.1 — variant styling system
+- `clsx` ^2.1.1 — conditional class composition
+- `tailwind-merge` ^3.0.0 — Tailwind class deduplication
+
+### Verification
+- **TypeCheck**: 13 tasks, 0 errors
+- **Unit Tests**: 216 passing (8 packages)
+- **Build**: 56 pages (15 web + 41 sample-basic) + 19 docs
+- **E2E Tests**: 114 passing (all data-component/data-part selectors preserved)
+
 ## 2026-04-11 — Iteration 13: Comprehensive Test Coverage, Docs Audit
 
 ### New Unit Tests (packages/core)

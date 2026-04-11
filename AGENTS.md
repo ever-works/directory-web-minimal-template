@@ -301,15 +301,33 @@ See `SKILLS.md` for detailed step-by-step guides.
 
 ## Available UI Components (packages/ui)
 
-### Static (Astro)
+### Primitives (from fulldev/ui — `src/primitives/`)
+Low-level, styled Astro components from [fulldev/ui](https://github.com/fulldotdev/ui). These are the building blocks:
+- **Badge** — Labels, tags, status indicators (variants: default, secondary, outline, ghost, destructive, link)
+- **Button** — Polymorphic button/link (variants: default, outline, secondary, ghost, destructive, link)
+- **Card** — Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, CardAction
+- **Table** — Table, TableHeader, TableBody, TableRow, TableHead, TableCell
+- **Avatar** — Avatar, AvatarImage, AvatarFallback
+- **Separator** — Horizontal/vertical divider
+- **Empty** — Empty, EmptyTitle, EmptyDescription
+
+Import: `import Badge from '@ever-works/ui/primitives/badge/Badge.astro'`
+
+### Directory Wrappers (Astro — `src/astro/`)
+Directory-specific components that compose fulldev/ui primitives with domain types:
 `ItemCard`, `ItemGrid`, `ItemList`, `ItemDetail`, `CategoryList`, `CategoryBadge`,
 `TagList`, `TagBadge`, `CollectionCard`, `ComparisonTable`, `Breadcrumbs`, `Pagination`,
 `SiteHeader`, `SiteFooter`, `Hero`, `EmptyState`, `SEO`
 
-### Interactive (Preact islands)
+Import: `import ItemCard from '@ever-works/ui/astro/ItemCard.astro'`
+
+### Interactive (Preact islands — `src/preact/`)
 `SearchInput`, `FilterBar`, `SortSelect`, `BackToTop`, `ThemeToggle`
 
 **Usage pattern**: Standalone components (ThemeToggle, BackToTop) go directly in layouts. Data-driven components (SearchInput, FilterBar, SortSelect) should be composed into a Preact island (e.g., `ItemBrowser.tsx`) that manages client-side filtering state. See `apps/sample-basic/src/components/ItemBrowser.tsx` for a reference implementation and `docs/guides/interactive-components.md` for the full guide.
+
+### Utility
+- `cn()` from `@ever-works/ui/lib/utils` — Tailwind class merging (clsx + tailwind-merge)
 
 ## Available Plugins (packages/plugin-*)
 

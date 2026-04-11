@@ -1,8 +1,7 @@
 ---
 /**
- * ItemDetail — Headless detail view for a single directory item.
- * Renders comprehensive item information with semantic HTML.
- * AI agents apply styling via class prop or data-* selectors.
+ * ItemDetail — Full detail view for a single directory item.
+ * Composes Card, Badge, and Separator primitives.
  *
  * @example
  * ```astro
@@ -10,77 +9,96 @@
  * ```
  */
 import type { ItemDetailProps } from '../types.js';
+import Card from '../primitives/card/Card.astro';
+import CardHeader from '../primitives/card/CardHeader.astro';
+import CardTitle from '../primitives/card/CardTitle.astro';
+import CardDescription from '../primitives/card/CardDescription.astro';
+import CardContent from '../primitives/card/CardContent.astro';
+import Badge from '../primitives/badge/Badge.astro';
+import Separator from '../primitives/separator/Separator.astro';
+import Button from '../primitives/button/Button.astro';
 import ItemCard from './ItemCard.astro';
 
 type Props = ItemDetailProps;
 
 const { item, relatedItems = [], class: className, ...attrs } = Astro.props;
-
 const categories = Array.isArray(item.category) ? item.category : [item.category];
 ---
 
 <article class={className} data-component="item-detail" {...attrs}>
-  <header data-part="header">
-    {item.icon_url && (
-      <img
-        src={item.icon_url}
-        alt={`${item.name} icon`}
-        data-part="icon"
-        loading="lazy"
-      />
-    )}
-    <h1 data-part="name">{item.name}</h1>
-    {item.description && <p data-part="description">{item.description}</p>}
-  </header>
+    <Card>
+        <CardHeader>
+            <div class="flex items-start gap-4">
+                {item.icon_url && (
+                    <img
+                        src={item.icon_url}
+                        alt={`${item.name} icon`}
+                        data-part="icon"
+                        loading="lazy"
+                        class="size-12 shrink-0 rounded-lg object-contain"
+                    />
+                )}
+                <div class="min-w-0">
+                    <CardTitle class="text-2xl">
+                        <span data-part="name">{item.name}</span>
+                    </CardTitle>
+                    {item.description && (
+                        <CardDescription data-part="description" class="mt-1">
+                            {item.description}
+                        </CardDescription>
+                    )}
+                </div>
+            </div>
+        </CardHeader>
 
-  <div data-part="meta">
-    {categories.length > 0 && (
-      <div data-part="categories">
-        {categories.map((cat) => (
-          <a href={`/category/${cat}`} data-part="category">{cat}</a>
-        ))}
-      </div>
-    )}
-    {item.tags?.length > 0 && (
-      <ul data-part="tags">
-        {item.tags.map((tag) => (
-          <li data-part="tag">
-            <a href={`/tag/${tag}`}>{tag}</a>
-          </li>
-        ))}
-      </ul>
-    )}
-    {item.source_url && (
-      <a
-        href={item.source_url}
-        data-part="source-link"
-        rel="noopener noreferrer"
-        target="_blank"
-      >
-        Visit Website
-      </a>
-    )}
-    {item.updated_at && (
-      <time data-part="updated-at" datetime={item.updated_at}>
-        Updated: {item.updated_at}
-      </time>
-    )}
-  </div>
+        <CardContent>
+            <div data-part="meta" class="flex flex-wrap items-center gap-2">
+                {categories.length > 0 && categories.map((cat) => (
+                    <Badge as="a" href={`/category/${cat}`} variant="outline" data-part="category">
+                        {cat}
+                    </Badge>
+                ))}
+                {item.tags?.length > 0 && item.tags.map((tag) => (
+                    <Badge as="a" href={`/tag/${tag}`} variant="secondary" data-part="tag">
+                        {tag}
+                    </Badge>
+                ))}
+            </div>
 
-  {item.markdown && (
-    <div data-part="content" set:html={item.markdown} />
-  )}
+            <div class="mt-4 flex items-center gap-3">
+                {item.source_url && (
+                    <Button as="a" href={item.source_url} data-part="source-link" rel="noopener noreferrer" target="_blank">
+                        Visit Website &rarr;
+                    </Button>
+                )}
+                {item.updated_at && (
+                    <time data-part="updated-at" datetime={item.updated_at} class="text-xs text-muted-foreground">
+                        Updated: {item.updated_at}
+                    </time>
+                )}
+            </div>
+        </CardContent>
 
-  <slot />
+        {item.markdown && (
+            <>
+                <Separator />
+                <CardContent>
+                    <div data-part="content" class="prose dark:prose-invert max-w-none" set:html={item.markdown} />
+                </CardContent>
+            </>
+        )}
+    </Card>
 
-  {relatedItems.length > 0 && (
-    <section data-part="related">
-      <h2 data-part="related-heading">Related Items</h2>
-      <div data-part="related-items">
-        {relatedItems.map((related) => (
-          <ItemCard item={related} showDescription={false} />
-        ))}
-      </div>
-    </section>
-  )}
+    <slot />
+
+    {relatedItems.length > 0 && (
+        <section data-part="related" class="mt-8">
+            <h2 data-part="related-heading" class="mb-4 text-lg font-semibold">Related Items</h2>
+            <div data-part="related-items" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {relatedItems.map((related) => (
+                    <ItemCard item={related} showDescription={false} />
+                ))}
+            </div>
+        </section>
+    )}
 </article>

@@ -1,8 +1,7 @@
 ---
 /**
- * CategoryBadge — Headless category badge/chip component.
- * Renders a single category as a link or span with optional count.
- * AI agents apply styling via class prop or data-* selectors.
+ * CategoryBadge — Directory-specific wrapper around fulldev/ui Badge.
+ * Renders a category label with optional icon, count, and link.
  *
  * @example
  * ```astro
@@ -10,31 +9,39 @@
  * ```
  */
 import type { CategoryBadgeProps } from '../types.js';
+import Badge from '../primitives/badge/Badge.astro';
 
 type Props = CategoryBadgeProps;
 
 const { category, count, href, class: className, ...attrs } = Astro.props;
-
-const Tag = href ? 'a' : 'span';
 ---
 
-<Tag
-  class={className}
-  data-component="category-badge"
-  {...(href ? { href } : {})}
-  {...attrs}
->
-  {category.icon_url && (
-    <img
-      src={category.icon_url}
-      alt=""
-      data-part="icon"
-      loading="lazy"
-      aria-hidden="true"
-    />
-  )}
-  <span data-part="name">{category.name}</span>
-  {count !== undefined && (
-    <span data-part="count">{count}</span>
-  )}
-</Tag>
+{href ? (
+    <Badge
+        as="a"
+        href={href}
+        variant="outline"
+        class={className}
+        data-component="category-badge"
+        {...attrs}
+    >
+        {category.icon_url && (
+            <img src={category.icon_url} alt="" data-part="icon" loading="lazy" aria-hidden="true" class="inline-block size-3" />
+        )}
+        <span data-part="name">{category.name}</span>
+        {count !== undefined && <span data-part="count">{count}</span>}
+    </Badge>
+) : (
+    <Badge
+        variant="outline"
+        class={className}
+        data-component="category-badge"
+        {...attrs}
+    >
+        {category.icon_url && (
+            <img src={category.icon_url} alt="" data-part="icon" loading="lazy" aria-hidden="true" class="inline-block size-3" />
+        )}
+        <span data-part="name">{category.name}</span>
+        {count !== undefined && <span data-part="count">{count}</span>}
+    </Badge>
+)}

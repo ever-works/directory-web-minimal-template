@@ -1,7 +1,9 @@
 /**
  * ThemeToggle — Client-side dark/light theme toggle.
- * Headless — no styling applied. Use class prop or data-* selectors.
- * Persists preference in localStorage and applies via data-theme attribute on <html>.
+ *
+ * Built on shadcn/ui Button component.
+ * Persists preference in localStorage and applies the .dark class
+ * on html element (shadcn convention for dark mode with Tailwind v4).
  *
  * @example
  * ```astro
@@ -10,6 +12,8 @@
  */
 import { useState, useEffect, useCallback } from 'preact/hooks';
 import type { ThemeToggleProps } from '../types.js';
+import { Button } from '../components/ui/button';
+import { cn } from '../lib/utils';
 
 type Theme = 'light' | 'dark';
 
@@ -30,7 +34,13 @@ function getSystemTheme(): Theme {
 }
 
 function applyTheme(theme: Theme): void {
-  document.documentElement.setAttribute('data-theme', theme);
+  const root = document.documentElement;
+  if (theme === 'dark') {
+    root.classList.add('dark');
+  } else {
+    root.classList.remove('dark');
+  }
+  root.setAttribute('data-theme', theme);
 }
 
 export default function ThemeToggle({ class: className }: ThemeToggleProps) {
@@ -64,15 +74,54 @@ export default function ThemeToggle({ class: className }: ThemeToggleProps) {
   }, [theme]);
 
   return (
-    <button
+    <Button
       type="button"
-      class={className}
+      variant="ghost"
+      size="icon"
+      className={cn(className)}
       data-component="theme-toggle"
       data-theme={theme}
       onClick={toggle}
       aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
     >
-      <span data-part="label">{theme === 'light' ? 'Dark' : 'Light'} mode</span>
-    </button>
+      {theme === 'dark' && (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2" />
+          <path d="M12 20v2" />
+          <path d="m4.93 4.93 1.41 1.41" />
+          <path d="m17.66 17.66 1.41 1.41" />
+          <path d="M2 12h2" />
+          <path d="M20 12h2" />
+          <path d="m6.34 17.66-1.41 1.41" />
+          <path d="m19.07 4.93-1.41 1.41" />
+        </svg>
+      )}
+      {theme === 'light' && (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+        </svg>
+      )}
+    </Button>
   );
 }

@@ -1,6 +1,8 @@
 /**
  * SearchInput — Client-side search input with debounce.
- * Headless — no styling applied. Use class prop or data-* selectors.
+ *
+ * Built on shadcn/ui Input + Button components.
+ * Provides debounced search with a clear button (X icon).
  *
  * @example
  * ```astro
@@ -9,6 +11,9 @@
  */
 import { useState, useCallback, useRef, useEffect } from 'preact/hooks';
 import type { SearchInputProps } from '../types.js';
+import { Input } from '../components/ui/input';
+import { Button } from '../components/ui/button';
+import { cn } from '../lib/utils';
 
 export default function SearchInput({
   placeholder = 'Search...',
@@ -59,8 +64,11 @@ export default function SearchInput({
   }, []);
 
   return (
-    <div class={className} data-component="search-input">
-      <input
+    <div
+      className={cn('relative flex items-center gap-2', className)}
+      data-component="search-input"
+    >
+      <Input
         type="search"
         value={value}
         placeholder={placeholder}
@@ -68,16 +76,33 @@ export default function SearchInput({
         onKeyDown={handleKeyDown}
         data-part="input"
         aria-label={placeholder}
+        className="pr-8"
       />
       {value.length > 0 && (
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon"
           onClick={handleClear}
           data-part="clear"
           aria-label="Clear search"
+          className="absolute right-1 h-7 w-7"
         >
-          Clear
-        </button>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </Button>
       )}
     </div>
   );

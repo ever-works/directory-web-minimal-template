@@ -1,6 +1,8 @@
 /**
  * SortSelect — Client-side sort selector component.
- * Headless — no styling applied. Use class prop or data-* selectors.
+ *
+ * Built on shadcn/ui Select + Label components.
+ * Uses a native select styled to match shadcn conventions.
  *
  * @example
  * ```astro
@@ -9,6 +11,9 @@
  */
 import { useCallback } from 'preact/hooks';
 import type { SortSelectProps, SortOption } from '../types.js';
+import { Select, SelectOption } from '../components/ui/select';
+import { Label } from '../components/ui/label';
+import { cn } from '../lib/utils';
 
 const DEFAULT_OPTIONS: SortOption[] = [
   'featured',
@@ -41,22 +46,25 @@ export default function SortSelect({
   );
 
   return (
-    <div class={className} data-component="sort-select">
-      <label data-part="label" for="sort-select">
+    <div
+      className={cn('flex items-center gap-2', className)}
+      data-component="sort-select"
+    >
+      <Label htmlFor="sort-select" data-part="label">
         Sort by
-      </label>
-      <select
+      </Label>
+      <Select
         id="sort-select"
         data-part="select"
         value={selected}
         onChange={handleChange}
       >
         {options.map((option) => (
-          <option key={option} value={option}>
+          <SelectOption key={option} value={option}>
             {LABELS[option]}
-          </option>
+          </SelectOption>
         ))}
-      </select>
+      </Select>
     </div>
   );
 }

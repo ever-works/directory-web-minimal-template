@@ -7,6 +7,8 @@
     "types": "./src/index.ts",
     "exports": {
         ".": "./src/index.ts",
+        "./lib/*": "./src/lib/*",
+        "./primitives/*": "./src/primitives/*",
         "./astro/*": "./src/astro/*",
         "./preact/SearchInput": "./src/preact/SearchInput.tsx",
         "./preact/FilterBar": "./src/preact/FilterBar.tsx",
@@ -19,7 +21,10 @@
         "clean": "rm -rf dist"
     },
     "dependencies": {
-        "@ever-works/core": "workspace:*"
+        "@ever-works/core": "workspace:*",
+        "class-variance-authority": "^0.7.1",
+        "clsx": "^2.1.1",
+        "tailwind-merge": "^3.0.0"
     },
     "peerDependencies": {
         "astro": "^5.0.0",

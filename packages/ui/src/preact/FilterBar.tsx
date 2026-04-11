@@ -1,6 +1,8 @@
 /**
  * FilterBar — Client-side filter bar with category and tag selection.
- * Headless — no styling applied. Use class prop or data-* selectors.
+ *
+ * Built on shadcn/ui Button + Badge components.
+ * Categories are single-select, tags are multi-select.
  *
  * @example
  * ```astro
@@ -15,6 +17,9 @@
  */
 import { useState, useCallback } from 'preact/hooks';
 import type { FilterBarProps } from '../types.js';
+import { Button } from '../components/ui/button';
+import { Badge } from '../components/ui/badge';
+import { cn } from '../lib/utils';
 
 export default function FilterBar({
   categories = [],
@@ -60,55 +65,91 @@ export default function FilterBar({
   const hasActiveFilters = activeCategory !== null || activeTags.length > 0;
 
   return (
-    <div class={className} data-component="filter-bar">
+    <div
+      className={cn('flex flex-col gap-4', className)}
+      data-component="filter-bar"
+    >
       {categories.length > 0 && (
-        <fieldset data-part="categories">
-          <legend data-part="legend">Categories</legend>
-          <div data-part="category-options">
+        <fieldset data-part="categories" className="flex flex-col gap-2">
+          <legend
+            data-part="legend"
+            className="text-sm font-medium text-muted-foreground"
+          >
+            Categories
+          </legend>
+          <div data-part="category-options" className="flex flex-wrap gap-2">
             {categories.map((cat) => (
-              <button
+              <Button
                 key={cat.id}
                 type="button"
+                variant={activeCategory === cat.id ? 'default' : 'outline'}
+                size="sm"
                 data-part="category-option"
                 data-selected={activeCategory === cat.id ? '' : undefined}
                 onClick={() => handleCategoryClick(cat.id)}
                 aria-pressed={activeCategory === cat.id}
               >
                 {cat.name}
-              </button>
+              </Button>
             ))}
           </div>
         </fieldset>
       )}
 
       {tags.length > 0 && (
-        <fieldset data-part="tags">
-          <legend data-part="legend">Tags</legend>
-          <div data-part="tag-options">
+        <fieldset data-part="tags" className="flex flex-col gap-2">
+          <legend
+            data-part="legend"
+            className="text-sm font-medium text-muted-foreground"
+          >
+            Tags
+          </legend>
+          <div data-part="tag-options" className="flex flex-wrap gap-2">
             {tags.map((tag) => (
-              <button
+              <Badge
                 key={tag.id}
-                type="button"
+                variant={activeTags.includes(tag.id) ? 'default' : 'outline'}
                 data-part="tag-option"
                 data-selected={activeTags.includes(tag.id) ? '' : undefined}
                 onClick={() => handleTagClick(tag.id)}
                 aria-pressed={activeTags.includes(tag.id)}
+                role="button"
+                tabIndex={0}
+                className="cursor-pointer"
               >
                 {tag.name}
-              </button>
+              </Badge>
             ))}
           </div>
         </fieldset>
       )}
 
       {hasActiveFilters && (
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="sm"
           data-part="clear-all"
           onClick={handleClearAll}
+          className="self-start"
         >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            className="mr-1"
+          >
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
           Clear filters
-        </button>
+        </Button>
       )}
     </div>
   );

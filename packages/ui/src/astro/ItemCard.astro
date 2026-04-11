@@ -1,8 +1,7 @@
 ---
 /**
- * ItemCard — Headless item card component.
- * Renders a single directory item with semantic HTML and data attributes.
- * AI agents apply styling via class prop or data-* selectors.
+ * ItemCard — Directory-specific wrapper around fulldev/ui Card.
+ * Renders a single directory item with icon, name, description, categories, tags.
  *
  * @example
  * ```astro
@@ -10,60 +9,81 @@
  * ```
  */
 import type { ItemCardProps } from '../types.js';
+import Card from '../primitives/card/Card.astro';
+import CardHeader from '../primitives/card/CardHeader.astro';
+import CardTitle from '../primitives/card/CardTitle.astro';
+import CardDescription from '../primitives/card/CardDescription.astro';
+import CardContent from '../primitives/card/CardContent.astro';
+import CardFooter from '../primitives/card/CardFooter.astro';
+import Badge from '../primitives/badge/Badge.astro';
 
 type Props = ItemCardProps;
 
 const {
-  item,
-  showCategory = true,
-  showTags = true,
-  showDescription = true,
-  class: className,
-  ...attrs
+    item,
+    showCategory = true,
+    showTags = true,
+    showDescription = true,
+    class: className,
+    ...attrs
 } = Astro.props;
 
 const categories = Array.isArray(item.category) ? item.category : [item.category];
 ---
 
-<article
-  class={className}
-  data-component="item-card"
-  data-featured={item.featured ? '' : undefined}
-  {...attrs}
+<Card
+    size="sm"
+    class={className}
+    data-component="item-card"
+    data-featured={item.featured ? '' : undefined}
+    {...attrs}
 >
-  {item.icon_url && (
-    <img
-      src={item.icon_url}
-      alt={`${item.name} icon`}
-      data-part="icon"
-      loading="lazy"
-    />
-  )}
-  <h3 data-part="name">
-    <a href={`/item/${item.slug}`}>{item.name}</a>
-  </h3>
-  {showDescription && item.description && (
-    <p data-part="description">{item.description}</p>
-  )}
-  {showCategory && categories.length > 0 && (
-    <div data-part="categories">
-      {categories.map((cat) => (
-        <a href={`/category/${cat}`} data-part="category">{cat}</a>
-      ))}
-    </div>
-  )}
-  {showTags && item.tags?.length > 0 && (
-    <ul data-part="tags">
-      {item.tags.map((tag) => (
-        <li data-part="tag">
-          <a href={`/tag/${tag}`}>{tag}</a>
-        </li>
-      ))}
-    </ul>
-  )}
-  {item.source_url && (
-    <a href={item.source_url} data-part="source-link" rel="noopener noreferrer" target="_blank">
-      Visit
-    </a>
-  )}
-</article>
+    <CardHeader>
+        <div class="flex items-start gap-3">
+            {item.icon_url && (
+                <img
+                    src={item.icon_url}
+                    alt={`${item.name} icon`}
+                    data-part="icon"
+                    loading="lazy"
+                    class="size-8 shrink-0 rounded-md object-contain"
+                />
+            )}
+            <div class="min-w-0">
+                <CardTitle>
+                    <a href={`/item/${item.slug}`} data-part="name" class="hover:underline">{item.name}</a>
+                </CardTitle>
+                {showDescription && item.description && (
+                    <CardDescription data-part="description">
+                        {item.description}
+                    </CardDescription>
+                )}
+            </div>
+        </div>
+    </CardHeader>
+
+    {(showCategory || showTags) && (
+        <CardContent>
+            <div class="flex flex-wrap gap-1">
+                {showCategory && categories.length > 0 && categories.map((cat) => (
+                    <Badge as="a" href={`/category/${cat}`} variant="outline" data-part="category">
+                        {cat}
+                    </Badge>
+                ))}
+                {showTags && item.tags?.length > 0 && item.tags.map((tag) => (
+                    <Badge as="a" href={`/tag/${tag}`} variant="secondary" data-part="tag">
+                        {tag}
+                    </Badge>
+                ))}
+            </div>
+        </CardContent>
+    )}
+
+    {item.source_url && (
+        <CardFooter>
+            <a href={item.source_url} data-part="source-link" rel="noopener noreferrer" target="_blank" class="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                Visit &rarr;
+            </a>
+        </CardFooter>
+    )}
+</Card>

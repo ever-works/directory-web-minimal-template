@@ -1,0 +1,24 @@
+---
+/**
+ * AvatarImage — simplified from fulldev/ui to use plain <img> for external URLs.
+ */
+import type { HTMLAttributes } from "astro/types";
+import { cn } from "../../lib/utils";
+
+interface Props extends HTMLAttributes<"img"> {
+    src: string;
+    alt?: string;
+}
+
+const { class: className, alt = "", ...props } = Astro.props;
+---
+
+{props.src && (
+    <img
+        data-slot="avatar-image"
+        class={cn("absolute inset-0 z-10 aspect-square size-full rounded-full object-cover", className)}
+        alt={alt}
+        loading="lazy"
+        {...props}
+    />
+)}

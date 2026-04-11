@@ -1,8 +1,7 @@
 ---
 /**
- * ComparisonTable — Headless comparison table component.
- * Renders a side-by-side comparison of two items with dimensions.
- * AI agents apply styling via class prop or data-* selectors.
+ * ComparisonTable — Comparison view composing fulldev/ui Table primitives.
+ * Renders a side-by-side comparison of two items with dimensions and scoring.
  *
  * @example
  * ```astro
@@ -10,6 +9,13 @@
  * ```
  */
 import type { ComparisonTableProps } from '../types.js';
+import Table from '../primitives/table/Table.astro';
+import TableHeader from '../primitives/table/TableHeader.astro';
+import TableBody from '../primitives/table/TableBody.astro';
+import TableRow from '../primitives/table/TableRow.astro';
+import TableHead from '../primitives/table/TableHead.astro';
+import TableCell from '../primitives/table/TableCell.astro';
+import Badge from '../primitives/badge/Badge.astro';
 
 type Props = ComparisonTableProps;
 
@@ -17,60 +23,51 @@ const { comparison, showScores = true, class: className, ...attrs } = Astro.prop
 ---
 
 <div class={className} data-component="comparison-table" {...attrs}>
-  <header data-part="header">
-    <h2 data-part="title">{comparison.title}</h2>
-    {comparison.summary && <p data-part="summary">{comparison.summary}</p>}
-  </header>
+    <header data-part="header" class="mb-6">
+        <h2 data-part="title" class="text-2xl font-bold">{comparison.title}</h2>
+        {comparison.summary && <p data-part="summary" class="mt-2 text-muted-foreground">{comparison.summary}</p>}
+    </header>
 
-  <table data-part="table">
-    <thead>
-      <tr>
-        <th data-part="dimension-header">Dimension</th>
-        <th data-part="item-a-header">
-          <a href={`/item/${comparison.item_a_slug}`}>{comparison.item_a_name}</a>
-        </th>
-        <th data-part="item-b-header">
-          <a href={`/item/${comparison.item_b_slug}`}>{comparison.item_b_name}</a>
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      {comparison.dimensions?.map((dim) => (
-        <tr
-          data-part="dimension-row"
-          data-winner={dim.winner ?? undefined}
-        >
-          <td data-part="dimension-name">{dim.name}</td>
-          <td
-            data-part="item-a-cell"
-            data-winner={dim.winner === 'item_a' ? '' : undefined}
-          >
-            {dim.item_a_summary && <span data-part="summary">{dim.item_a_summary}</span>}
-            {showScores && dim.item_a_score !== undefined && (
-              <span data-part="score">{dim.item_a_score}/10</span>
-            )}
-          </td>
-          <td
-            data-part="item-b-cell"
-            data-winner={dim.winner === 'item_b' ? '' : undefined}
-          >
-            {dim.item_b_summary && <span data-part="summary">{dim.item_b_summary}</span>}
-            {showScores && dim.item_b_score !== undefined && (
-              <span data-part="score">{dim.item_b_score}/10</span>
-            )}
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
+    <Table data-part="table">
+        <TableHeader>
+            <TableRow>
+                <TableHead data-part="dimension-header">Dimension</TableHead>
+                <TableHead data-part="item-a-header">
+                    <a href={`/item/${comparison.item_a_slug}`} class="hover:underline">{comparison.item_a_name}</a>
+                </TableHead>
+                <TableHead data-part="item-b-header">
+                    <a href={`/item/${comparison.item_b_slug}`} class="hover:underline">{comparison.item_b_name}</a>
+                </TableHead>
+            </TableRow>
+        </TableHeader>
+        <TableBody>
+            {comparison.dimensions?.map((dim) => (
+                <TableRow data-part="dimension-row" data-winner={dim.winner ?? undefined}>
+                    <TableCell data-part="dimension-name" class="font-medium">{dim.name}</TableCell>
+                    <TableCell data-part="item-a-cell" data-winner={dim.winner === 'item_a' ? '' : undefined}>
+                        {dim.item_a_summary && <span data-part="summary">{dim.item_a_summary}</span>}
+                        {showScores && dim.item_a_score !== undefined && (
+                            <Badge variant="outline" class="ml-2" data-part="score">{dim.item_a_score}/10</Badge>
+                        )}
+                    </TableCell>
+                    <TableCell data-part="item-b-cell" data-winner={dim.winner === 'item_b' ? '' : undefined}>
+                        {dim.item_b_summary && <span data-part="summary">{dim.item_b_summary}</span>}
+                        {showScores && dim.item_b_score !== undefined && (
+                            <Badge variant="outline" class="ml-2" data-part="score">{dim.item_b_score}/10</Badge>
+                        )}
+                    </TableCell>
+                </TableRow>
+            ))}
+        </TableBody>
+    </Table>
 
-  {comparison.verdict && (
-    <footer data-part="verdict" data-winner={comparison.verdict_winner ?? undefined}>
-      <p data-part="verdict-text">{comparison.verdict}</p>
-    </footer>
-  )}
+    {comparison.verdict && (
+        <footer data-part="verdict" data-winner={comparison.verdict_winner ?? undefined} class="mt-6 rounded-lg bg-muted p-4">
+            <p data-part="verdict-text" class="font-medium">{comparison.verdict}</p>
+        </footer>
+    )}
 
-  {comparison.content && (
-    <div data-part="content" set:html={comparison.content} />
-  )}
+    {comparison.content && (
+        <div data-part="content" class="prose dark:prose-invert mt-6 max-w-none" set:html={comparison.content} />
+    )}
 </div>

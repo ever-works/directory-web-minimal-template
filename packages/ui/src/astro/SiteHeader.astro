@@ -1,8 +1,6 @@
 ---
 /**
- * SiteHeader — Headless site header/navigation component.
- * Renders site branding and navigation links with semantic HTML.
- * AI agents apply styling via class prop or data-* selectors.
+ * SiteHeader — Site header/navigation using fulldev/ui Button for nav links.
  *
  * @example
  * ```astro
@@ -10,6 +8,7 @@
  * ```
  */
 import type { SiteHeaderProps } from '../types.js';
+import Button from '../primitives/button/Button.astro';
 
 type Props = SiteHeaderProps;
 
@@ -19,49 +18,50 @@ const logoSrc = config.logo?.logo_image;
 const logoSrcDark = config.logo?.logo_image_dark;
 ---
 
-<header class={className} data-component="site-header" {...attrs}>
-  <div data-part="branding">
-    <a href="/" data-part="logo-link" aria-label={`${config.company_name} home`}>
-      {logoSrc ? (
-        <>
-          <img
-            src={logoSrc}
-            alt={config.company_name}
-            data-part="logo"
-            data-theme="light"
-            loading="lazy"
-          />
-          {logoSrcDark && (
-            <img
-              src={logoSrcDark}
-              alt={config.company_name}
-              data-part="logo"
-              data-theme="dark"
-              loading="lazy"
-            />
-          )}
-        </>
-      ) : (
-        <span data-part="site-name">{config.company_name}</span>
-      )}
-    </a>
-  </div>
-
-  {nav.length > 0 && (
-    <nav data-part="nav" aria-label="Main navigation">
-      <ul data-part="nav-list">
-        {nav.map((item) => (
-          <li data-part="nav-item" data-active={item.isActive ? '' : undefined}>
-            <a href={item.href} data-part="nav-link" aria-current={item.isActive ? 'page' : undefined}>
-              {item.label}
+<header
+    class:list={["sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-lg", className]}
+    data-component="site-header"
+    {...attrs}
+>
+    <div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div data-part="branding">
+            <a href="/" data-part="logo-link" aria-label={`${config.company_name} home`} class="flex items-center gap-2 font-semibold text-foreground">
+                {logoSrc ? (
+                    <>
+                        <img src={logoSrc} alt={config.company_name} data-part="logo" data-theme="light" loading="lazy" class="h-6" />
+                        {logoSrcDark && (
+                            <img src={logoSrcDark} alt={config.company_name} data-part="logo" data-theme="dark" loading="lazy" class="h-6" />
+                        )}
+                    </>
+                ) : (
+                    <span data-part="site-name">{config.company_name}</span>
+                )}
             </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  )}
+        </div>
 
-  <div data-part="actions">
-    <slot />
-  </div>
+        {nav.length > 0 && (
+            <nav data-part="nav" aria-label="Main navigation">
+                <ul data-part="nav-list" class="flex items-center gap-1">
+                    {nav.map((item) => (
+                        <li data-part="nav-item" data-active={item.isActive ? '' : undefined}>
+                            <Button
+                                as="a"
+                                href={item.href}
+                                variant="ghost"
+                                size="sm"
+                                data-part="nav-link"
+                                aria-current={item.isActive ? 'page' : undefined}
+                            >
+                                {item.label}
+                            </Button>
+                        </li>
+                    ))}
+                </ul>
+            </nav>
+        )}
+
+        <div data-part="actions" class="flex items-center gap-2">
+            <slot />
+        </div>
+    </div>
 </header>

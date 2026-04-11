@@ -1,0 +1,12 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { cn } from "../../lib/utils";
+
+interface Props extends HTMLAttributes<"td"> {}
+
+const { class: className, ...props } = Astro.props;
+---
+
+<td data-slot="table-cell" class={cn("p-2 align-middle whitespace-nowrap", className)} {...props}>
+    <slot />
+</td>
