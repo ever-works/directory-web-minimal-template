@@ -6,6 +6,8 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getContent } from '../../lib/content';
+import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
+import ComparisonTable from '@ever-works/ui/astro/ComparisonTable.astro';
 
 export async function getStaticPaths() {
     const { comparisons } = await getContent();
@@ -17,6 +19,12 @@ export async function getStaticPaths() {
 
 const { comparison } = Astro.props;
 const { config } = await getContent();
+
+const breadcrumbItems = [
+    { label: 'Home', href: '/' },
+    { label: 'Comparisons', href: '/comparisons' },
+    { label: comparison.title },
+];
 ---
 
 <BaseLayout
@@ -24,69 +32,7 @@ const { config } = await getContent();
     description={comparison.summary || `Compare ${comparison.item_a_name} vs ${comparison.item_b_name}`}
     config={config}
 >
-    <nav data-component="breadcrumbs">
-        <a href="/">Home</a>
-        <span data-part="separator">/</span>
-        <span data-part="current">{comparison.title}</span>
-    </nav>
+    <Breadcrumbs items={breadcrumbItems} />
 
-    <article data-component="comparison-detail">
-        <h1 data-part="title">{comparison.title}</h1>
-
-        {comparison.summary && (
-            <p data-part="summary">{comparison.summary}</p>
-        )}
-
-        <div data-part="contestants">
-            <div data-part="item-a">
-                <h2 data-part="name">
-                    <a href={`/item/${comparison.item_a_slug}`}>{comparison.item_a_name}</a>
-                </h2>
-            </div>
-            <span data-part="vs">vs</span>
-            <div data-part="item-b">
-                <h2 data-part="name">
-                    <a href={`/item/${comparison.item_b_slug}`}>{comparison.item_b_name}</a>
-                </h2>
-            </div>
-        </div>
-
-        {comparison.dimensions && comparison.dimensions.length > 0 && (
-            <table data-part="dimensions">
-                <thead>
-                    <tr>
-                        <th data-part="dimension-header">Dimension</th>
-                        <th data-part="item-a-header">{comparison.item_a_name}</th>
-                        <th data-part="item-b-header">{comparison.item_b_name}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {comparison.dimensions.map((dim) => (
-                        <tr data-part="dimension-row" data-winner={dim.winner || undefined}>
-                            <td data-part="dimension-name">{dim.name}</td>
-                            <td data-part="item-a-cell">
-                                {dim.item_a_summary && <span data-part="summary">{dim.item_a_summary}</span>}
-                                {dim.item_a_score != null && <span data-part="score">{dim.item_a_score}/10</span>}
-                            </td>
-                            <td data-part="item-b-cell">
-                                {dim.item_b_summary && <span data-part="summary">{dim.item_b_summary}</span>}
-                                {dim.item_b_score != null && <span data-part="score">{dim.item_b_score}/10</span>}
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        )}
-
-        {comparison.verdict && (
-            <section data-part="verdict" data-winner={comparison.verdict_winner || undefined}>
-                <h3 data-part="verdict-heading">Verdict</h3>
-                <p data-part="verdict-text">{comparison.verdict}</p>
-            </section>
-        )}
-
-        {comparison.content && (
-            <section data-part="content" set:html={comparison.content} />
-        )}
-    </article>
+    <ComparisonTable comparison={comparison} showScores />
 </BaseLayout>

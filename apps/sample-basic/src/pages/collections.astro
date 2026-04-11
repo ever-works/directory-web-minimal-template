@@ -1,0 +1,53 @@
+---
+/**
+ * Collections Index — Overview of all curated collections.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getContent } from '../lib/content';
+
+const { collections, config } = await getContent();
+const activeCollections = collections.filter((c) => c.isActive !== false);
+---
+
+<BaseLayout title="Collections" description={`Browse curated collections of ${config.items_name.toLowerCase()}`} config={config}>
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Collections</h1>
+        <p class="mt-2 text-gray-600 dark:text-gray-400">Curated sets of {config.items_name.toLowerCase()}</p>
+    </div>
+
+    {activeCollections.length === 0 ? (
+        <div class="rounded-xl border-2 border-dashed border-gray-300 p-12 text-center dark:border-gray-700">
+            <p class="text-gray-500 dark:text-gray-400">No collections available yet.</p>
+        </div>
+    ) : (
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {activeCollections.map((collection) => (
+                <a
+                    href={`/collection/${collection.slug}`}
+                    class="group rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:border-brand-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-900 dark:hover:border-brand-600"
+                >
+                    <div class="flex items-center gap-4">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-2xl dark:bg-brand-950 group-hover:bg-brand-100 dark:group-hover:bg-brand-900 transition-colors">
+                            {collection.icon_url ? (
+                                <span>{collection.icon_url}</span>
+                            ) : (
+                                <svg class="h-6 w-6 text-brand-600 dark:text-brand-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
+                                </svg>
+                            )}
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">{collection.name}</h2>
+                            {collection.description && (
+                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2">{collection.description}</p>
+                            )}
+                            {collection.items && (
+                                <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">{collection.items.length} {collection.items.length === 1 ? 'item' : 'items'}</p>
+                            )}
+                        </div>
+                    </div>
+                </a>
+            ))}
+        </div>
+    )}
+</BaseLayout>

@@ -10,12 +10,18 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { getContent } from '../lib/content';
 import { paginate } from '@ever-works/plugin-pagination';
 import { generateJsonLd } from '@ever-works/plugin-seo';
+import Hero from '@ever-works/ui/astro/Hero.astro';
+import CategoryList from '@ever-works/ui/astro/CategoryList.astro';
+import ItemGrid from '@ever-works/ui/astro/ItemGrid.astro';
+import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
+import Pagination from '@ever-works/ui/astro/Pagination.astro';
 
 const { items, categories, config } = await getContent();
 
 // Paginate items — page 1 of the full listing
 const perPage = config.pagination?.itemsPerPage ?? 12;
 const pagination = paginate(items, { page: 1, perPage });
+const totalPages = Math.ceil(items.length / perPage);
 
 // JSON-LD for the homepage
 const jsonLd = generateJsonLd('WebSite', {
@@ -30,65 +36,28 @@ const jsonLd = generateJsonLd('WebSite', {
         <script is:inline type="application/ld+json" set:html={jsonLd} />
     </Fragment>
 
-    <section data-component="hero">
-        <h1 data-part="title">
-            {config.company_name}
-        </h1>
-        <p data-part="subtitle">
-            Browse {items.length} {items.length === 1 ? config.item_name : config.items_name}
-        </p>
-    </section>
+    <Hero
+        title={config.company_name}
+        subtitle={`Browse ${items.length} ${items.length === 1 ? config.item_name : config.items_name}`}
+    />
 
     {categories.length > 0 && (
-        <nav data-component="category-nav">
+        <section data-component="category-nav">
             <h2 data-part="heading">Categories</h2>
-            <ul data-part="list">
-                {categories.map((cat) => (
-                    <li data-part="item">
-                        <a href={`/category/${cat.id}`}>
-                            {cat.name}
-                            <span data-part="count">({cat.count})</span>
-                        </a>
-                    </li>
-                ))}
-            </ul>
-        </nav>
+            <CategoryList categories={categories} showCounts />
+        </section>
     )}
 
     <section data-component="item-listing">
         <h2 data-part="heading">All {config.items_name}</h2>
         {pagination.items.length === 0 ? (
-            <p data-component="empty-state">No {config.items_name.toLowerCase()} found.</p>
+            <EmptyState message={`No ${config.items_name.toLowerCase()} found.`} />
         ) : (
-            <div data-part="grid">
-                {pagination.items.map((item) => (
-                    <article data-component="item-card" data-featured={item.featured ? '' : undefined}>
-                        {item.icon_url && (
-                            <img
-                                src={item.icon_url}
-                                alt={`${item.name} icon`}
-                                data-part="icon"
-                                loading="lazy"
-                            />
-                        )}
-                        <h3 data-part="name">
-                            <a href={`/item/${item.slug}`}>{item.name}</a>
-                        </h3>
-                        {item.description && (
-                            <p data-part="description">{item.description}</p>
-                        )}
-                        <span data-part="category">
-                            {Array.isArray(item.category) ? item.category[0] : item.category}
-                        </span>
-                    </article>
-                ))}
-            </div>
+            <ItemGrid items={pagination.items} columns={3} />
         )}
 
-        {pagination.hasNext && (
-            <nav data-component="pagination">
-                <a href="/page/2" data-part="next">Next page</a>
-            </nav>
+        {totalPages > 1 && (
+            <Pagination currentPage={1} totalPages={totalPages} baseUrl="/" />
         )}
     </section>
 </BaseLayout>

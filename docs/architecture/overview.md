@@ -50,9 +50,10 @@ The minimal directory template follows a **layered, plugin-based architecture** 
   - `plugin-search` — Static search via Pagefind
   - `plugin-filters` — Category/tag filtering
   - `plugin-pagination` — Pagination strategies
-  - `plugin-seo` — Meta tags, JSON-LD, sitemap
-  - `plugin-comparison` — Item comparison views
-- Plugins can inject components, add pages, modify data pipeline
+  - `plugin-seo` — Meta tags, JSON-LD structured data
+  - `plugin-sort` — Item sorting (name, date, featured)
+  - `plugin-sitemap` — XML sitemap generation
+- Plugins can transform data, add build hooks, modify pipeline
 
 ### 4. Application Layer (`apps/web`)
 

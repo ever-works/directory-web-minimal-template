@@ -4,14 +4,17 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getContent } from '../lib/content';
+import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
 
 const { config } = await getContent();
 ---
 
 <BaseLayout title="Not Found" config={config}>
     <section data-component="not-found">
-        <h1 data-part="title">Page Not Found</h1>
-        <p data-part="message">The page you're looking for doesn't exist.</p>
+        <EmptyState
+            message="Page Not Found"
+            suggestion="The page you're looking for doesn't exist."
+        />
         <a href="/" data-part="home-link">Go back home</a>
     </section>
 </BaseLayout>

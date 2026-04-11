@@ -4,41 +4,28 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getContent } from '../lib/content';
+import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
+import CategoryList from '@ever-works/ui/astro/CategoryList.astro';
+import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
 
 const { categories, config } = await getContent();
+
+const breadcrumbItems = [
+    { label: 'Home', href: '/' },
+    { label: 'Categories' },
+];
 ---
 
 <BaseLayout title="Categories" config={config}>
-    <nav data-component="breadcrumbs">
-        <a href="/">Home</a>
-        <span data-part="separator">/</span>
-        <span data-part="current">Categories</span>
-    </nav>
+    <Breadcrumbs items={breadcrumbItems} />
 
     <section data-component="categories-page">
         <h1 data-part="heading">Categories</h1>
 
         {categories.length === 0 ? (
-            <p data-component="empty-state">No categories defined.</p>
+            <EmptyState message="No categories defined." />
         ) : (
-            <ul data-part="list">
-                {categories.map((cat) => (
-                    <li data-part="item">
-                        <a href={`/category/${cat.id}`} data-component="category-card">
-                            {cat.icon_url && (
-                                <img
-                                    src={cat.icon_url}
-                                    alt={`${cat.name} icon`}
-                                    data-part="icon"
-                                    loading="lazy"
-                                />
-                            )}
-                            <span data-part="name">{cat.name}</span>
-                            <span data-part="count">{cat.count} {cat.count === 1 ? config.item_name : config.items_name}</span>
-                        </a>
-                    </li>
-                ))}
-            </ul>
+            <CategoryList categories={categories} showCounts />
         )}
     </section>
 </BaseLayout>

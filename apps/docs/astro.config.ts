@@ -6,6 +6,7 @@ import starlight from '@astrojs/starlight';
  * Serves the docs/ folder content as a browsable documentation site.
  */
 export default defineConfig({
+    site: 'https://ever-works.github.io/directory-web-minimal-template',
     integrations: [
         starlight({
             title: 'Ever Works Minimal Template',
@@ -43,6 +44,7 @@ export default defineConfig({
                     items: [
                         { label: 'Data Schema', link: '/specs/data-schema/' },
                         { label: 'Plugin Interface', link: '/specs/plugin-interface/' },
+                        { label: 'Adapter Interface', link: '/specs/adapter-interface/' },
                         { label: 'Component Catalog', link: '/specs/component-catalog/' },
                     ],
                 },

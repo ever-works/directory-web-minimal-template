@@ -4,33 +4,28 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getContent } from '../lib/content';
+import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
+import TagList from '@ever-works/ui/astro/TagList.astro';
+import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
 
 const { tags, config } = await getContent();
+
+const breadcrumbItems = [
+    { label: 'Home', href: '/' },
+    { label: 'Tags' },
+];
 ---
 
 <BaseLayout title="Tags" config={config}>
-    <nav data-component="breadcrumbs">
-        <a href="/">Home</a>
-        <span data-part="separator">/</span>
-        <span data-part="current">Tags</span>
-    </nav>
+    <Breadcrumbs items={breadcrumbItems} />
 
     <section data-component="tags-page">
         <h1 data-part="heading">Tags</h1>
 
         {tags.length === 0 ? (
-            <p data-component="empty-state">No tags defined.</p>
+            <EmptyState message="No tags defined." />
         ) : (
-            <ul data-part="list">
-                {tags.map((tag) => (
-                    <li data-part="item">
-                        <a href={`/tag/${tag.id}`} data-component="tag-badge">
-                            <span data-part="name">{tag.name}</span>
-                            <span data-part="count">({tag.count})</span>
-                        </a>
-                    </li>
-                ))}
-            </ul>
+            <TagList tags={tags} showCounts />
         )}
     </section>
 </BaseLayout>

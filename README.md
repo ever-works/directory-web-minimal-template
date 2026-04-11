@@ -59,9 +59,15 @@ apps/
 
 packages/
   core/             Data layer, types, content reader
-  ui/               Headless UI components
-  plugins/          Plugin system + built-in plugins
+  ui/               Headless UI components (17 Astro + 5 Preact)
+  plugins/          Plugin system (runner, lifecycle hooks)
   adapters/         Data source adapters (git, filesystem)
+  plugin-seo/       Meta tags, Open Graph, JSON-LD
+  plugin-pagination/ Paginate item arrays
+  plugin-filters/   Client-side category/tag filtering
+  plugin-search/    Static search via Pagefind
+  plugin-sort/      Sort items by name, date, featured
+  plugin-sitemap/   XML sitemap generation
   tsconfig/         Shared TypeScript configurations
   eslint-config/    Shared ESLint configuration
 ```
@@ -84,9 +90,10 @@ packages/
 Read these files before working on this codebase:
 
 1. **`CLAUDE.md`** — Project overview, rules, and commands
-2. **`AGENTS.md`** — Mandatory rules (R1-R11), working process, data contracts
-3. **`docs/questions.md`** — Open design decisions with default choices
-4. **`.specify/`** — Feature specifications
+2. **`AGENTS.md`** — Mandatory rules (R1-R14), working process, data contracts
+3. **`SKILLS.md`** — Step-by-step skills for building directory sites
+4. **`docs/questions.md`** — Open design decisions with default choices
+5. **`.specify/`** — Feature specifications
 
 ## Data Source
 

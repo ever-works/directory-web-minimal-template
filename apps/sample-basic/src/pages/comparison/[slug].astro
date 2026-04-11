@@ -1,0 +1,166 @@
+---
+/**
+ * Comparison Detail Page — Side-by-side comparison of two directory items.
+ *
+ * Uses getStaticPaths to generate one page per comparison at build time.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getContent } from '../../lib/content';
+import type { ComparisonData } from '@ever-works/core';
+
+export async function getStaticPaths() {
+    const { comparisons } = await getContent();
+    return comparisons.map((comp) => ({
+        params: { slug: comp.slug },
+        props: { comparison: comp },
+    }));
+}
+
+interface Props {
+    comparison: ComparisonData;
+}
+
+const { comparison } = Astro.props;
+const { config } = await getContent();
+---
+
+<BaseLayout
+    title={comparison.title}
+    description={comparison.summary || `Compare ${comparison.item_a_name} vs ${comparison.item_b_name}`}
+    config={config}
+>
+    <!-- Breadcrumbs -->
+    <nav class="mb-6 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+        <a href="/" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Home</a>
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+        </svg>
+        <a href="/comparisons" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Comparisons</a>
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+        </svg>
+        <span class="text-gray-900 dark:text-white font-medium">{comparison.title}</span>
+    </nav>
+
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{comparison.title}</h1>
+        {comparison.summary && (
+            <p class="mt-2 text-gray-600 dark:text-gray-400 max-w-3xl">{comparison.summary}</p>
+        )}
+    </div>
+
+    <!-- Contestants -->
+    <div class="mb-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+        <a
+            href={`/item/${comparison.item_a_slug}`}
+            class="flex-1 max-w-xs rounded-xl border border-gray-200 bg-white p-5 text-center shadow-sm transition-all hover:border-brand-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-900 dark:hover:border-brand-600"
+        >
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">{comparison.item_a_name}</h2>
+        </a>
+        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-sm font-bold text-gray-500 dark:bg-gray-800 dark:text-gray-400">vs</span>
+        <a
+            href={`/item/${comparison.item_b_slug}`}
+            class="flex-1 max-w-xs rounded-xl border border-gray-200 bg-white p-5 text-center shadow-sm transition-all hover:border-brand-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-900 dark:hover:border-brand-600"
+        >
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">{comparison.item_b_name}</h2>
+        </a>
+    </div>
+
+    <!-- Dimensions Table -->
+    {comparison.dimensions && comparison.dimensions.length > 0 && (
+        <div class="mb-8 overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900">
+                        <th class="px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white">Dimension</th>
+                        <th class="px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white">{comparison.item_a_name}</th>
+                        <th class="px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white">{comparison.item_b_name}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    {comparison.dimensions.map((dim) => (
+                        <tr class="bg-white dark:bg-gray-950">
+                            <td class="px-4 py-3">
+                                <span class="font-medium text-gray-900 dark:text-white">{dim.name}</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                {dim.item_a_summary && (
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">{dim.item_a_summary}</p>
+                                )}
+                                {dim.item_a_score != null && (
+                                    <div class="mt-1 flex items-center gap-2">
+                                        <div class="h-2 w-24 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                                            <div
+                                                class:list={[
+                                                    "h-full rounded-full",
+                                                    dim.winner === 'item_a' ? "bg-brand-500" : "bg-gray-400 dark:bg-gray-500"
+                                                ]}
+                                                style={`width: ${dim.item_a_score * 10}%`}
+                                            />
+                                        </div>
+                                        <span class:list={[
+                                            "text-sm font-medium",
+                                            dim.winner === 'item_a' ? "text-brand-600 dark:text-brand-400" : "text-gray-500 dark:text-gray-400"
+                                        ]}>{dim.item_a_score}/10</span>
+                                    </div>
+                                )}
+                            </td>
+                            <td class="px-4 py-3">
+                                {dim.item_b_summary && (
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">{dim.item_b_summary}</p>
+                                )}
+                                {dim.item_b_score != null && (
+                                    <div class="mt-1 flex items-center gap-2">
+                                        <div class="h-2 w-24 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                                            <div
+                                                class:list={[
+                                                    "h-full rounded-full",
+                                                    dim.winner === 'item_b' ? "bg-brand-500" : "bg-gray-400 dark:bg-gray-500"
+                                                ]}
+                                                style={`width: ${dim.item_b_score * 10}%`}
+                                            />
+                                        </div>
+                                        <span class:list={[
+                                            "text-sm font-medium",
+                                            dim.winner === 'item_b' ? "text-brand-600 dark:text-brand-400" : "text-gray-500 dark:text-gray-400"
+                                        ]}>{dim.item_b_score}/10</span>
+                                    </div>
+                                )}
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    )}
+
+    <!-- Verdict -->
+    {comparison.verdict && (
+        <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+            <h3 class="mb-2 text-lg font-bold text-gray-900 dark:text-white">Verdict</h3>
+            <p class="text-gray-600 dark:text-gray-400">{comparison.verdict}</p>
+            {comparison.verdict_winner && (
+                <p class="mt-3">
+                    <span class:list={[
+                        "inline-flex items-center rounded-full px-3 py-1 text-sm font-medium",
+                        comparison.verdict_winner === 'tie'
+                            ? "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                            : "bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-400"
+                    ]}>
+                        {comparison.verdict_winner === 'item_a'
+                            ? `Winner: ${comparison.item_a_name}`
+                            : comparison.verdict_winner === 'item_b'
+                            ? `Winner: ${comparison.item_b_name}`
+                            : 'Result: Tie'}
+                    </span>
+                </p>
+            )}
+        </div>
+    )}
+
+    <!-- Markdown Content -->
+    {comparison.content && (
+        <div class="mt-8 prose prose-gray dark:prose-invert max-w-none" set:html={comparison.content} />
+    )}
+</BaseLayout>

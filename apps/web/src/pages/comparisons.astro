@@ -4,26 +4,24 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getContent } from '../lib/content';
+import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
+import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
 
 const { comparisons, config } = await getContent();
 ---
 
 <BaseLayout title="Comparisons" config={config}>
-    <nav data-component="breadcrumbs">
-        <a href="/">Home</a>
-        <span data-part="separator">/</span>
-        <span data-part="current">Comparisons</span>
-    </nav>
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Comparisons' }]} />
 
     <section data-component="comparisons-page">
         <h1 data-part="heading">Comparisons</h1>
 
         {comparisons.length === 0 ? (
-            <p data-component="empty-state">No comparisons available yet.</p>
+            <EmptyState message="No comparisons available yet." />
         ) : (
-            <div data-part="grid">
+            <div data-part="grid" role="list">
                 {comparisons.map((comp) => (
-                    <article data-component="comparison-card">
+                    <article data-component="comparison-card" role="listitem">
                         <h2 data-part="title">
                             <a href={`/comparison/${comp.slug}`}>{comp.title}</a>
                         </h2>

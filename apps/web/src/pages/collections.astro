@@ -4,42 +4,31 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getContent } from '../lib/content';
+import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
+import CollectionCard from '@ever-works/ui/astro/CollectionCard.astro';
+import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
 
 const { collections, config } = await getContent();
 const activeCollections = collections.filter((c) => c.isActive !== false);
 ---
 
 <BaseLayout title="Collections" config={config}>
-    <nav data-component="breadcrumbs">
-        <a href="/">Home</a>
-        <span data-part="separator">/</span>
-        <span data-part="current">Collections</span>
-    </nav>
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Collections' }]} />
 
     <section data-component="collections-page">
         <h1 data-part="heading">Collections</h1>
 
         {activeCollections.length === 0 ? (
-            <p data-component="empty-state">No collections available.</p>
+            <EmptyState message="No collections available." />
         ) : (
-            <div data-part="grid">
+            <div data-part="grid" role="list">
                 {activeCollections.map((collection) => (
-                    <article data-component="collection-card">
-                        {collection.icon_url && (
-                            <span data-part="icon">{collection.icon_url}</span>
-                        )}
-                        <h2 data-part="name">
-                            <a href={`/collection/${collection.slug}`}>{collection.name}</a>
-                        </h2>
-                        {collection.description && (
-                            <p data-part="description">{collection.description}</p>
-                        )}
-                        {collection.items && (
-                            <span data-part="item-count">
-                                {collection.items.length} {collection.items.length === 1 ? config.item_name : config.items_name}
-                            </span>
-                        )}
-                    </article>
+                    <div role="listitem">
+                        <CollectionCard
+                            collection={collection}
+                            itemCount={collection.items?.length}
+                        />
+                    </div>
                 ))}
             </div>
         )}
