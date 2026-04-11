@@ -50,7 +50,7 @@ async function parseItem(adapter: DataAdapter, slug: string): Promise<ItemData |
                 ? data['tags'].filter((t): t is string => typeof t === 'string')
                 : [],
             updated_at: typeof data['updated_at'] === 'string' ? data['updated_at'] : '',
-            status: isValidStatus(data['status']) ? data['status'] : 'approved',
+            status: isValidStatus(data['status']) ? data['status'] : 'draft',
         };
 
         if (Array.isArray(data['collections'])) {

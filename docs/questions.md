@@ -236,3 +236,32 @@ sidebar_label: "Questions"
 **Default choice**: **Add ItemContent component** — Use Astro's built-in `set:html` with a markdown-to-HTML library (already available via the content pipeline). Essential for rich item descriptions.
 
 **Status**: DONE — Created `ItemContent.astro` in `packages/ui/src/astro/`. Uses Astro's `set:html` directive for trusted HTML content rendering.
+
+---
+
+## Q17: ISR as Default Output Mode
+
+**Context**: The template originally used `output: 'static'` (Rule R5). Adding content sync and ISR requires `output: 'hybrid'` with `@astrojs/vercel`. Should ISR be the default or opt-in?
+
+**Options**:
+- **A) ISR enabled by default** — `output: 'hybrid'`, users opt out with `ENABLE_ISR=false` `[DEFAULT]`
+- B) Static by default — Users opt in with `ENABLE_ISR=true`
+
+**Default choice**: **ISR enabled by default** — ISR is the expected behavior for directory sites that pull content from external repos. Pages are still pre-rendered at build time; ISR just enables on-demand regeneration when content changes. Pure static fallback via `ENABLE_ISR=false`.
+
+**Status**: IMPLEMENTING — Rule R5 updated to "ISR by Default, Static Opt-Out".
+
+---
+
+## Q18: Git Implementation — isomorphic-git vs Shell Commands
+
+**Context**: The current GitAdapter uses `execFileSync('git', [...])` for cloning. Adding refresh/fetch/pull support requires more git operations. `isomorphic-git` is a pure JS git implementation used by the full Next.js template.
+
+**Options**:
+- **A) isomorphic-git** — Pure JS, no git binary dependency, proven in full template `[DEFAULT]`
+- B) Shell git commands — Simpler, but requires git binary in deployment environment
+- C) GitHub API — REST API for file fetching, no git at all
+
+**Default choice**: **isomorphic-git** — Pure JavaScript, works in any Node.js environment including serverless. Already proven in the full Next.js template. Supports clone, fetch, pull, resolveRef for change detection. No system dependency on git binary.
+
+**Status**: IMPLEMENTING — Rewriting GitAdapter to use isomorphic-git.

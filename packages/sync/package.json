@@ -1,5 +1,5 @@
 {
-    "name": "@ever-works/adapters",
+    "name": "@ever-works/sync",
     "version": "0.1.0",
     "private": true,
     "type": "module",
@@ -13,13 +13,14 @@
         "typecheck": "tsc --noEmit",
         "clean": "rm -rf dist"
     },
+    "dependencies": {
+        "@ever-works/adapters": "workspace:*",
+        "@ever-works/core": "workspace:*"
+    },
     "devDependencies": {
         "@ever-works/tsconfig": "workspace:*",
         "@types/node": "^22.0.0",
         "typescript": "^5.7.0",
         "vitest": "^4.1.4"
-    },
-    "dependencies": {
-        "isomorphic-git": "^1.37.5"
     }
 }

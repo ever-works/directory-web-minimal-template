@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-11 (Iteration 19: Q12-Q16 implementation, docs audit, 30 components)
+> Updated: 2026-04-11 (Iteration 20: Content sync, caching, ISR, isomorphic-git)
 
 ## Root Documents
 
@@ -26,6 +26,7 @@ slug: /
 - [architecture/plugin-system.md](architecture/plugin-system.md) — Plugin architecture, lifecycle hooks, plugin types
 - [architecture/adapter-system.md](architecture/adapter-system.md) — Adapter pattern for data sources (git, filesystem)
 - [architecture/component-system.md](architecture/component-system.md) — Headless UI component design, island architecture
+- [architecture/content-sync.md](architecture/content-sync.md) — Content synchronization, caching, ISR architecture
 
 ## Plans
 
@@ -60,6 +61,7 @@ slug: /
 - **features/testing.md** — Unit testing infrastructure spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/testing.md))
 - **features/static-pages.md** — Static pages feature spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/static-pages.md))
 - **features/sample-git.md** — Sample Git reference implementation spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/sample-git.md))
+- **features/content-sync.md** — Content sync, caching & ISR spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/content-sync.md))
 
 ## Guides
 
@@ -68,6 +70,7 @@ slug: /
 - [guides/building-from-template.md](guides/building-from-template.md) — How AI builds a site from template
 - [guides/interactive-components.md](guides/interactive-components.md) — How to use Preact interactive islands (search, filter, sort, theme, back-to-top)
 - [guides/deployment.md](guides/deployment.md) — How to deploy to Vercel and other static hosts
+- [guides/content-sync.md](guides/content-sync.md) — Content sync setup (webhooks, polling, ISR)
 - [guides/troubleshooting.md](guides/troubleshooting.md) — Common issues and solutions
 
 ## Reference

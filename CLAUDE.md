@@ -47,7 +47,7 @@ This is a **minimal, static-rendered Astro template** for AI-generated directory
 2. **No database** — All data comes from Git repos via YAML files
 3. **No auth** — No user accounts, sessions, or authentication
 4. **No payments** — No billing, subscriptions, or payment providers
-5. **No SSR** — Fully static output only (`astro build` produces static HTML)
+5. **ISR by default** — `output: 'hybrid'` with ISR via `@astrojs/vercel`. Opt out with `ENABLE_ISR=false` for pure static.
 6. **Plugin everything** — Almost every feature must be a plugin. Core should be minimal.
 7. **Git-first data** — Default data storage is Git repos. No DB, no custom storage.
 8. **Extreme performance** — Every decision optimizes for speed
@@ -75,6 +75,22 @@ The template connects to the same git-backed data repositories as the full Next.
 - `DATA_REPOSITORY` — GitHub URL of content repo (required)
 - `GH_TOKEN` — GitHub PAT for private repos (optional)
 - `GITHUB_BRANCH` — Branch to sync (default: `main`)
+- `ENABLE_ISR` — Set to `false` for pure static output (default: `true`)
+- `CONTENT_CACHE_TTL_MS` — Cache TTL in ms (default: `300000` = 5 min)
+- `WEBHOOK_SECRET` — HMAC secret for GitHub webhooks
+- `SYNC_POLL_INTERVAL_MS` — Polling interval in ms (default: `0` = disabled)
+- `VERCEL_DEPLOY_HOOK_URL` — Vercel deploy hook (static mode only)
+
+## Content Sync & ISR
+
+The template supports ISR (Incremental Static Regeneration) by default via `@astrojs/vercel`:
+- **ISR mode** (default): Pages pre-rendered at build time, regenerated on-demand when content changes
+- **Static mode** (`ENABLE_ISR=false`): Pure static output, requires full rebuild for content changes
+- **Webhooks**: GitHub push webhooks trigger content refresh via `/api/webhook` endpoint
+- **Polling**: Optional periodic content refresh via `SYNC_POLL_INTERVAL_MS`
+- **Git operations**: Uses `isomorphic-git` (pure JS, no git binary required)
+
+Packages involved: `@ever-works/adapters` (refresh), `@ever-works/core` (ContentCache), `@ever-works/sync` (orchestration), `@ever-works/astro-integration` (webhook endpoint)
 
 ## Common Commands
 

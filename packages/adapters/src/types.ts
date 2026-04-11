@@ -57,6 +57,22 @@ export interface DataAdapter {
      * Used when tools need direct filesystem access (e.g., Pagefind indexing).
      */
     getContentPath(): string;
+
+    /**
+     * Pull latest changes from the remote data source.
+     * For GitAdapter: git fetch + fast-forward merge.
+     * For FilesystemAdapter: checks file mtimes for changes.
+     * @returns `true` if content changed, `false` if already up-to-date
+     */
+    refresh(): Promise<boolean>;
+
+    /**
+     * Get the current HEAD reference for cheap change detection.
+     * For GitAdapter: returns the current commit SHA.
+     * For FilesystemAdapter: returns a hash of file mtimes.
+     * @returns Reference string, or null if unavailable
+     */
+    getHeadRef(): Promise<string | null>;
 }
 
 /** Configuration for data adapters */
@@ -72,6 +88,9 @@ export interface AdapterConfig {
 
     /** Local filesystem path (for filesystem adapter) */
     localPath?: string;
+
+    /** Clone depth for git (default: 1 for shallow clone) */
+    cloneDepth?: number;
 
     /** Additional adapter-specific options */
     [key: string]: unknown;

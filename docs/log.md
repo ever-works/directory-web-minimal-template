@@ -7,6 +7,94 @@ sidebar_label: "Change Log"
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-11 — Iteration 20: Content Sync, Caching, ISR, isomorphic-git
+
+### New Principle: R15 Specification First
+- Added R15 to AGENTS.md: "Always write specs and documentation BEFORE implementation code"
+
+### Rule R5 Updated: ISR by Default
+- R5 changed from "Static Output Only" to "ISR by Default, Static Opt-Out"
+- Default: `output: 'static'` with `@astrojs/vercel` adapter for ISR support
+- Opt-out: `ENABLE_ISR=false` for pure static (no adapter)
+- Astro 5 note: `output: 'hybrid'` removed in Astro 5 — `output: 'static'` now supports per-page opt-out via `prerender = false`
+
+### GitAdapter Rewrite: isomorphic-git
+- **`packages/adapters/src/git-adapter.ts`** — Full rewrite from shell `execFileSync('git', ...)` to `isomorphic-git`
+- `init()`: Uses `git.clone()` with `onAuth` callback for token auth
+- `refresh()`: `git.fetch()` + compare remote vs local HEAD + `git.fastForward()` — returns true if content changed
+- `getHeadRef()`: `git.resolveRef({ ref: 'HEAD' })` — returns commit SHA
+- No system git binary dependency — pure JavaScript
+- Added `isomorphic-git` dependency to `packages/adapters/package.json`
+
+### DataAdapter Interface Extended
+- **`packages/adapters/src/types.ts`** — Added REQUIRED methods: `refresh(): Promise<boolean>`, `getHeadRef(): Promise<string | null>`, `cloneDepth?: number` to AdapterConfig
+- **`packages/adapters/src/filesystem-adapter.ts`** — Added `refresh()` (mtime-based change detection) and `getHeadRef()` (mtime hash fingerprint)
+- Updated all 8 test mock adapters in `packages/core/src/__tests__/` to include new methods
+
+### New Package: @ever-works/sync
+- **`packages/sync/`** — New package for content synchronization orchestration
+- `SyncManager` — Polling, mutex, timeout, retry, event emitter
+- `WebhookHandler` — HMAC-SHA256 signature validation, GitHub push payload parsing
+- `DeployHookTrigger` — Triggers Vercel deploy hooks for static mode
+- `resolveSyncConfig()` — Resolves config from environment variables
+- 24 unit tests (3 suites) — all passing
+
+### New: ContentCache (packages/core)
+- **`packages/core/src/content-cache.ts`** — TTL-based content caching with deduplication
+- `get()` deduplicates concurrent loads (single inflight Promise)
+- `ttlMs: 0` = cache forever (backward compat for static mode)
+- `ttlMs > 0` = stale check on each get(), reload if expired
+- Exported `ContentCache`, `ContentCacheConfig`, `CacheStatus`
+
+### Astro Integration Updates
+- **`packages/astro-integration/src/integration.ts`** — Added `sync` config option with ISR + webhook support
+- **`packages/astro-integration/src/webhook-endpoint.ts`** — Astro API route for GitHub webhooks (`/api/webhook`)
+- **`packages/astro-integration/src/sync-registry.ts`** — Module-level singleton registry for SyncManager/ContentCache
+- Webhook endpoint validates signatures, parses push payloads, triggers sync or deploy hooks
+
+### App Integration
+- **`apps/web/src/lib/content.ts`** — Replaced `_cached` with `ContentCache` + `SyncManager`, registers with sync-registry
+- **`apps/sample-git/src/lib/content.ts`** — Same ContentCache + SyncManager pattern
+- Both `astro.config.ts` files updated: conditional Vercel adapter, sync config for webhook injection
+- Added `@astrojs/vercel` and `@ever-works/sync` dependencies
+
+### Documentation & Specs
+- **`.specify/features/content-sync.md`** — Full feature specification
+- **`docs/architecture/content-sync.md`** — Architecture documentation
+- **`docs/guides/content-sync.md`** — Setup guide for webhooks, polling, ISR
+- **`docs/questions.md`** — Q17 (ISR default mode), Q18 (isomorphic-git)
+- **`.env.example`** — 7 new sync-related environment variables
+- **`CLAUDE.md`** — Updated R5, added sync section
+- **`AGENTS.md`** — R5 updated, R15 added
+
+### New Environment Variables
+| Variable | Default | Purpose |
+|---|---|---|
+| `ENABLE_ISR` | `true` | Set to `false` for pure static output |
+| `CONTENT_CACHE_TTL_MS` | `300000` | Cache TTL (5 min) |
+| `SYNC_POLL_INTERVAL_MS` | `0` | Polling interval (disabled) |
+| `SYNC_TIMEOUT_MS` | `60000` | Sync timeout |
+| `SYNC_MAX_RETRIES` | `3` | Retry count |
+| `WEBHOOK_SECRET` | — | HMAC secret for webhooks |
+| `VERCEL_DEPLOY_HOOK_URL` | — | Deploy hook for static mode |
+
+### Verification
+- **TypeCheck**: 17/17 tasks, 0 errors
+- **Tests**: 12/12 suites passing (24 new sync tests)
+- **Build**: sample-basic builds 41 pages in 6.68s (static mode)
+- Backward compatible: `ENABLE_ISR=false` produces identical static output
+
+### Package Count
+- **Before**: 16 packages
+- **After**: 17 packages (+@ever-works/sync)
+
+### Next Steps (for next scheduled run)
+1. Write unit tests for ContentCache
+2. Write integration tests for webhook endpoint
+3. Test ISR mode end-to-end on Vercel
+4. Update SKILLS.md with content sync patterns
+5. Add ContentCache tests to core test suite
+
 ## 2026-04-11 — Iteration 19: Q12-Q16 Implementation, Docs Audit, Bug Fix
 
 ### Bug Fix: Item Loader Status Default

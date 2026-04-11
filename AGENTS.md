@@ -35,9 +35,10 @@ Every document, specification, code file, and decision MUST comply with these ru
 - No i18n (can be added as plugin later)
 - No rich text editor
 
-### R5: Static Output Only
-- Astro `output: 'static'` — no SSR, no server endpoints
-- All pages pre-rendered at build time
+### R5: ISR by Default, Static Opt-Out
+- Default: `output: 'hybrid'` with ISR enabled via `@astrojs/vercel`
+- All pages pre-rendered at build time; ISR handles on-demand regeneration when content changes
+- Opt-out: Set `ENABLE_ISR=false` for pure static output (`output: 'static'`)
 - No client-side data fetching for core content (hydration for interactions only)
 
 ### R6: Extreme Performance
@@ -93,6 +94,14 @@ Every document, specification, code file, and decision MUST comply with these ru
 ### R14: Convention Over Configuration
 - Good defaults for everything
 - Users can override via config when needed
+
+### R15: Specification First
+- Always write specs and documentation BEFORE implementation code
+- Every feature must have a `.specify/features/<name>.md` spec before coding starts
+- Architecture decisions documented in `docs/architecture/` before building
+- Guides written in `docs/guides/` alongside or before implementation
+- If a question arises during spec writing, add it to `docs/questions.md` with a `[DEFAULT]` choice
+- Cross-check: no PR / commit should introduce code without a matching spec
 - Prefer conventions that reduce boilerplate
 
 ## Working Process

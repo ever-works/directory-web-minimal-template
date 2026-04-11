@@ -16,6 +16,7 @@
     "dependencies": {
         "@astrojs/preact": "^4.0.0",
         "@astrojs/sitemap": "^3.3.0",
+        "@astrojs/vercel": "^8.0.0",
         "@ever-works/adapters": "workspace:*",
         "@ever-works/astro-integration": "workspace:*",
         "@ever-works/core": "workspace:*",
@@ -26,6 +27,7 @@
         "@ever-works/plugin-sitemap": "workspace:*",
         "@ever-works/plugin-sort": "workspace:*",
         "@ever-works/plugins": "workspace:*",
+        "@ever-works/sync": "workspace:*",
         "@ever-works/ui": "workspace:*",
         "@tailwindcss/vite": "^4.1.0",
         "astro": "^5.0.0",

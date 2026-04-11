@@ -21,6 +21,9 @@ export class FilesystemAdapter implements DataAdapter {
     /** Resolved absolute path to the content root directory. */
     private contentPath = '';
 
+    /** Snapshot of file mtimes from last refresh/init for change detection */
+    private mtimeSnapshot: Map<string, number> = new Map();
+
     /**
      * Initialize the adapter by validating the local path.
      * @param config - Must include `localPath` pointing to an existing directory.
@@ -52,6 +55,7 @@ export class FilesystemAdapter implements DataAdapter {
         }
 
         this.contentPath = resolved;
+        this.mtimeSnapshot = await this.captureSnapshot();
     }
 
     /**
@@ -149,6 +153,85 @@ export class FilesystemAdapter implements DataAdapter {
     getContentPath(): string {
         this.ensureInitialized();
         return this.contentPath;
+    }
+
+    /**
+     * Check for file changes by comparing mtimes against stored snapshot.
+     * @returns true if any files changed since last snapshot
+     */
+    async refresh(): Promise<boolean> {
+        this.ensureInitialized();
+        const current = await this.captureSnapshot();
+
+        // Compare against stored snapshot
+        let changed = false;
+        if (current.size !== this.mtimeSnapshot.size) {
+            changed = true;
+        } else {
+            for (const [path, mtime] of current) {
+                if (this.mtimeSnapshot.get(path) !== mtime) {
+                    changed = true;
+                    break;
+                }
+            }
+        }
+
+        this.mtimeSnapshot = current;
+        return changed;
+    }
+
+    /**
+     * Get a hash representing the current state of all files.
+     * Uses file mtimes to create a lightweight fingerprint.
+     * @returns Hash string, or null if not initialized
+     */
+    async getHeadRef(): Promise<string | null> {
+        this.ensureInitialized();
+        const snapshot = await this.captureSnapshot();
+        // Simple hash: join all path:mtime pairs and hash
+        const entries = [...snapshot.entries()]
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([path, mtime]) => `${path}:${mtime}`)
+            .join('|');
+
+        // Use a simple string hash (no crypto needed for fingerprinting)
+        let hash = 0;
+        for (let i = 0; i < entries.length; i++) {
+            const char = entries.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32-bit integer
+        }
+        return hash.toString(16);
+    }
+
+    /**
+     * Walk the content directory and capture all file mtimes.
+     */
+    private async captureSnapshot(): Promise<Map<string, number>> {
+        const snapshot = new Map<string, number>();
+        await this.walkDir(this.contentPath, snapshot);
+        return snapshot;
+    }
+
+    /**
+     * Recursively walk a directory and add file mtimes to the map.
+     */
+    private async walkDir(dir: string, snapshot: Map<string, number>): Promise<void> {
+        try {
+            const entries = await readdir(dir, { withFileTypes: true });
+            for (const entry of entries) {
+                const fullPath = resolve(dir, entry.name);
+                if (entry.isFile()) {
+                    const info = await stat(fullPath);
+                    const relPath = relative(this.contentPath, fullPath);
+                    snapshot.set(relPath, info.mtimeMs);
+                } else if (entry.isDirectory() && entry.name !== '.git' && entry.name !== 'node_modules') {
+                    await this.walkDir(fullPath, snapshot);
+                }
+            }
+        } catch {
+            // Directory may not exist yet, ignore
+        }
     }
 
     /**

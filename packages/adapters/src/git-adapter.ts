@@ -1,12 +1,14 @@
 /**
  * Git data adapter.
- * Clones a remote Git repository and delegates read operations
- * to a FilesystemAdapter pointing at the cloned directory.
+ * Clones a remote Git repository using isomorphic-git (pure JS, no git binary)
+ * and delegates read operations to a FilesystemAdapter pointing at the cloned directory.
  */
 
-import { execFileSync } from 'node:child_process';
+import * as fs from 'node:fs';
 import { resolve, join } from 'node:path';
 import { access, stat } from 'node:fs/promises';
+import * as git from 'isomorphic-git';
+import http from 'isomorphic-git/http/node';
 import { FilesystemAdapter } from './filesystem-adapter';
 import type { DataAdapter, AdapterConfig } from './types';
 
@@ -18,8 +20,7 @@ const CONTENT_DIR = '.content';
 
 /**
  * Data adapter that clones a Git repository and reads content from it.
- * Uses a shallow clone (`--depth 1 --single-branch`) for efficiency.
- *
+ * Uses isomorphic-git for all Git operations — no shell `git` binary required.
  * After cloning, all file operations are delegated to a {@link FilesystemAdapter}
  * pointed at the `.content/` directory.
  */
@@ -36,11 +37,20 @@ export class GitAdapter implements DataAdapter {
     /** Resolved absolute path to the content directory. */
     private contentPath = '';
 
+    /** Remote repository URL. */
+    private repository = '';
+
+    /** Branch name to track. */
+    private branch = DEFAULT_BRANCH;
+
+    /** Optional authentication token for private repositories. */
+    private token: string | undefined;
+
     /**
      * Initialize the adapter by cloning the repository.
      *
      * - If `.content/.git` already exists, the clone is skipped (idempotent).
-     * - Inserts `x-access-token:<token>` into HTTPS URLs when `config.token` is provided.
+     * - Authentication is handled via the `onAuth` callback (no token in URL).
      * - Uses `config.branch` (default: `'main'`).
      *
      * @param config - Must include `repository`. Optionally `token` and `branch`.
@@ -52,21 +62,107 @@ export class GitAdapter implements DataAdapter {
             throw new Error('GitAdapter requires "repository" in config.');
         }
 
-        const branch = typeof config.branch === 'string' && config.branch
+        this.repository = repository;
+        this.branch = typeof config.branch === 'string' && config.branch
             ? config.branch
             : DEFAULT_BRANCH;
-
+        this.token = config.token;
         this.contentPath = resolve(CONTENT_DIR);
 
         const alreadyCloned = await this.isAlreadyCloned();
         if (!alreadyCloned) {
-            const cloneUrl = this.buildCloneUrl(repository, config.token);
-            this.cloneRepository(cloneUrl, branch);
+            try {
+                await git.clone({
+                    fs,
+                    http,
+                    dir: this.contentPath,
+                    url: this.repository,
+                    ref: this.branch,
+                    singleBranch: true,
+                    depth: config.cloneDepth ?? 1,
+                    onAuth: () => this.getAuth(),
+                });
+            } catch (error) {
+                const safeMessage = error instanceof Error
+                    ? error.message
+                    : 'unknown error';
+                throw new Error(
+                    `GitAdapter: failed to clone repository: ${safeMessage}`,
+                );
+            }
         }
 
         // Delegate all read operations to a FilesystemAdapter
         this.fsAdapter = new FilesystemAdapter();
         await this.fsAdapter.init({ localPath: this.contentPath });
+    }
+
+    /**
+     * Pull latest changes from the remote repository.
+     * Performs a fetch followed by a fast-forward merge if new commits exist.
+     * @returns `true` if content changed, `false` if already up-to-date.
+     */
+    async refresh(): Promise<boolean> {
+        this.ensureInitialized();
+
+        const beforeRef = await this.getHeadRef();
+
+        try {
+            await git.fetch({
+                fs,
+                http,
+                dir: this.contentPath,
+                ref: this.branch,
+                singleBranch: true,
+                onAuth: () => this.getAuth(),
+            });
+
+            // Check if remote has new commits
+            const remoteRef = await git.resolveRef({
+                fs,
+                dir: this.contentPath,
+                ref: `refs/remotes/origin/${this.branch}`,
+            });
+
+            if (beforeRef === remoteRef) {
+                return false; // No changes
+            }
+
+            // Fast-forward to remote
+            await git.fastForward({
+                fs,
+                http,
+                dir: this.contentPath,
+                ref: this.branch,
+                onAuth: () => this.getAuth(),
+            });
+
+            return true;
+        } catch (error) {
+            const safeMessage = error instanceof Error
+                ? error.message
+                : 'unknown error';
+            throw new Error(
+                `GitAdapter: failed to refresh repository: ${safeMessage}`,
+            );
+        }
+    }
+
+    /**
+     * Get the current HEAD commit SHA for cheap change detection.
+     * @returns The current commit SHA string, or `null` if unavailable.
+     */
+    async getHeadRef(): Promise<string | null> {
+        this.ensureInitialized();
+        try {
+            return await git.resolveRef({
+                fs,
+                dir: this.contentPath,
+                ref: 'HEAD',
+            });
+        } catch {
+            return null;
+        }
     }
 
     /**
@@ -129,79 +225,13 @@ export class GitAdapter implements DataAdapter {
     }
 
     /**
-     * Build the clone URL, optionally inserting an access token for HTTPS URLs.
-     *
-     * Transforms `https://github.com/owner/repo.git` into
-     * `https://x-access-token:<token>@github.com/owner/repo.git`.
-     *
-     * @param repository - The base repository URL.
-     * @param token - Optional authentication token.
-     * @returns The final URL to pass to `git clone`.
+     * Build the authentication object for isomorphic-git's `onAuth` callback.
+     * Uses the `x-access-token` username convention for token-based HTTPS auth.
+     * @returns Auth credentials if a token is configured, otherwise `undefined`.
      */
-    private buildCloneUrl(
-        repository: string,
-        token: string | undefined,
-    ): string {
-        if (!token || typeof token !== 'string') {
-            return repository;
-        }
-
-        // Only inject token into HTTPS URLs
-        if (!repository.startsWith('https://')) {
-            return repository;
-        }
-
-        // Insert x-access-token:<token>@ after https://
-        return repository.replace(
-            'https://',
-            `https://x-access-token:${token}@`,
-        );
-    }
-
-    /**
-     * Validate that a branch name contains only safe characters.
-     * Prevents command injection via malicious branch names.
-     */
-    private static validateBranchName(branch: string): void {
-        if (!/^[\w./-]+$/.test(branch)) {
-            throw new Error(
-                `GitAdapter: invalid branch name "${branch}". Only alphanumeric, dots, slashes, hyphens, and underscores are allowed.`,
-            );
-        }
-    }
-
-    /**
-     * Execute the `git clone` command using execFileSync to prevent shell injection.
-     * Arguments are passed as an array, never interpolated into a shell string.
-     *
-     * @param url - The repository URL (possibly with embedded token).
-     * @param branch - The branch to clone.
-     * @throws If the git command fails.
-     */
-    private cloneRepository(url: string, branch: string): void {
-        GitAdapter.validateBranchName(branch);
-
-        try {
-            execFileSync('git', [
-                'clone',
-                '--depth', '1',
-                '--single-branch',
-                '--branch', branch,
-                url,
-                this.contentPath,
-            ], { stdio: 'pipe' });
-        } catch (error) {
-            // Strip any token from the error message to avoid leaking secrets
-            const safeMessage =
-                error instanceof Error
-                    ? error.message.replace(
-                          /x-access-token:[^@]+@/g,
-                          'x-access-token:***@',
-                      )
-                    : 'unknown error';
-            throw new Error(
-                `GitAdapter: failed to clone repository: ${safeMessage}`,
-            );
+    private getAuth(): { username: string; password?: string } | void {
+        if (this.token) {
+            return { username: 'x-access-token', password: this.token };
         }
     }
 
@@ -217,5 +247,17 @@ export class GitAdapter implements DataAdapter {
             );
         }
         return this.fsAdapter;
+    }
+
+    /**
+     * Guard that throws if the adapter has not been initialized.
+     * @throws If `init()` has not been called.
+     */
+    private ensureInitialized(): void {
+        if (!this.fsAdapter) {
+            throw new Error(
+                'GitAdapter: adapter not initialized. Call init() first.',
+            );
+        }
     }
 }

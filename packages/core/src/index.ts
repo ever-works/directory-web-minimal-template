@@ -45,3 +45,7 @@ export { loadPages, loadPage } from './loaders/page-loader';
 
 // Content reader
 export { loadContent } from './content-reader';
+
+// Content cache
+export { ContentCache } from './content-cache';
+export type { ContentCacheConfig, CacheStatus } from './content-cache';

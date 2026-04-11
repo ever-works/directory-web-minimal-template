@@ -4,7 +4,8 @@
     "description": "Astro integration that bridges the Ever Works plugin system into Astro's build lifecycle",
     "type": "module",
     "exports": {
-        ".": "./src/index.ts"
+        ".": "./src/index.ts",
+        "./webhook-endpoint": "./src/webhook-endpoint.ts"
     },
     "files": ["src"],
     "scripts": {
@@ -13,7 +14,8 @@
     },
     "dependencies": {
         "@ever-works/plugins": "workspace:*",
-        "@ever-works/core": "workspace:*"
+        "@ever-works/core": "workspace:*",
+        "@ever-works/sync": "workspace:*"
     },
     "devDependencies": {
         "astro": "^5.7.10",

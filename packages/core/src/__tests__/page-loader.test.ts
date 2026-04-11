@@ -13,6 +13,8 @@ function createMockAdapter(overrides: Partial<Omit<DataAdapter, 'id' | 'name'>> 
         listDirectories: vi.fn().mockResolvedValue([]),
         exists: vi.fn().mockResolvedValue(false),
         getContentPath: vi.fn().mockReturnValue('/mock/content'),
+        refresh: vi.fn().mockResolvedValue(false),
+        getHeadRef: vi.fn().mockResolvedValue(null),
         ...overrides,
     };
 }
