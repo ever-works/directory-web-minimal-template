@@ -1,3 +1,8 @@
+---
+title: "Data Layer"
+sidebar_label: "Data Layer"
+---
+
 # Data Layer Architecture
 
 ## Overview

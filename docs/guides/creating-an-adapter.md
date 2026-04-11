@@ -1,3 +1,8 @@
+---
+title: "Creating an Adapter"
+sidebar_label: "Creating an Adapter"
+---
+
 # Guide: Creating a Data Adapter
 
 > Step-by-step guide for creating a custom data source adapter.

@@ -1,3 +1,8 @@
+---
+title: "Troubleshooting"
+sidebar_label: "Troubleshooting"
+---
+
 # Troubleshooting
 
 Common issues and solutions when working with the minimal template.

@@ -1,3 +1,8 @@
+---
+title: "Phase 1: Foundation"
+sidebar_label: "Phase 1: Foundation"
+---
+
 # Phase 1: Foundation
 
 > Monorepo scaffold, core types, data layer, adapter system

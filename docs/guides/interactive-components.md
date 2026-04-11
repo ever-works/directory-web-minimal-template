@@ -1,3 +1,8 @@
+---
+title: "Interactive Components"
+sidebar_label: "Interactive Components"
+---
+
 # Interactive Components Guide
 
 > How to integrate Preact interactive islands into your directory site.

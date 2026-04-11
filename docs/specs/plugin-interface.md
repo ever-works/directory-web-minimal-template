@@ -1,3 +1,8 @@
+---
+title: "Plugin Interface"
+sidebar_label: "Plugin Interface"
+---
+
 # Plugin Interface Specification
 
 > Defines the contract that all plugins must implement.

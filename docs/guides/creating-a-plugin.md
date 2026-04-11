@@ -1,3 +1,8 @@
+---
+title: "Creating a Plugin"
+sidebar_label: "Creating a Plugin"
+---
+
 # Guide: Creating a Plugin
 
 > Step-by-step guide for creating a new plugin for the minimal directory template.

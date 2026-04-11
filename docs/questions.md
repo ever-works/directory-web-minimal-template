@@ -1,3 +1,8 @@
+---
+title: "Open Questions"
+sidebar_label: "Questions"
+---
+
 # Open Questions
 
 > Questions that need answers. Each has a `[DEFAULT]` choice that we proceed with unless overridden.

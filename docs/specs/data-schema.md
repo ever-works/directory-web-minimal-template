@@ -1,3 +1,8 @@
+---
+title: "Data Schema"
+sidebar_label: "Data Schema"
+---
+
 # Data Schema Specification
 
 > Defines all data types used in the minimal directory template.

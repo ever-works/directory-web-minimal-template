@@ -1,3 +1,8 @@
+---
+title: "Adapter System"
+sidebar_label: "Adapter System"
+---
+
 # Adapter System Architecture
 
 ## Overview

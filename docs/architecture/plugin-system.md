@@ -1,3 +1,8 @@
+---
+title: "Plugin System"
+sidebar_label: "Plugin System"
+---
+
 # Plugin System Architecture
 
 ## Overview

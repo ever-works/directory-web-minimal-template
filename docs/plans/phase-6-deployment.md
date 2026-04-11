@@ -1,3 +1,8 @@
+---
+title: "Phase 6: Deployment"
+sidebar_label: "Phase 6: Deployment"
+---
+
 # Phase 6: Deployment, CI/CD, Documentation
 
 > Production deployment pipeline, CI workflows, and documentation site

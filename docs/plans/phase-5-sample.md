@@ -1,3 +1,8 @@
+---
+title: "Phase 5: Samples"
+sidebar_label: "Phase 5: Samples"
+---
+
 # Phase 5: Sample Implementations
 
 > Reference implementations showing how AI builds from the template

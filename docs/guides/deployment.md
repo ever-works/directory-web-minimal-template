@@ -1,3 +1,8 @@
+---
+title: "Deployment"
+sidebar_label: "Deployment"
+---
+
 # Deployment
 
 How to deploy the minimal template to Vercel and other static hosts.

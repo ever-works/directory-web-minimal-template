@@ -1,0 +1,123 @@
+---
+/**
+ * BaseLayout — Styled root layout for the Time Tracking directory.
+ *
+ * Dark theme by default. Modern design with theme toggle, responsive navigation,
+ * BackToTop button, and full SEO integration via plugin-seo.
+ */
+import type { SiteConfig } from '@ever-works/core';
+import { generateMetaTags } from '@ever-works/plugin-seo';
+import type { PageMeta } from '@ever-works/plugin-seo';
+import ThemeToggle from '@ever-works/ui/preact/ThemeToggle';
+import BackToTop from '@ever-works/ui/preact/BackToTop';
+import '../styles/global.css';
+
+interface Props {
+    title: string;
+    description?: string;
+    config: SiteConfig;
+    canonicalUrl?: string;
+    ogImage?: string;
+    pageType?: 'website' | 'article' | 'product';
+}
+
+const { title, description, config, canonicalUrl, ogImage, pageType = 'website' } = Astro.props;
+const siteTitle = `${title} | ${config.company_name}`;
+const metaDescription = description || `${config.company_name} — Discover the best ${config.items_name.toLowerCase()}`;
+
+const pageMeta: PageMeta = {
+    title: siteTitle,
+    description: metaDescription,
+    url: canonicalUrl || Astro.url.href,
+    image: ogImage,
+    type: pageType,
+};
+
+const metaTags = generateMetaTags(pageMeta, {});
+---
+
+<!doctype html>
+<html lang="en" class="dark scroll-smooth">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="generator" content={Astro.generator} />
+        <title>{siteTitle}</title>
+
+        {metaTags.map((tag) => {
+            if (tag.key === 'property') {
+                return <meta property={tag.value} content={tag.content} />;
+            }
+            return <meta name={tag.value} content={tag.content} />;
+        })}
+
+        {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+        {config.logo?.favicon && <link rel="icon" href={config.logo.favicon} />}
+
+        <!-- Prevent flash of wrong theme (dark is default) -->
+        <script is:inline>
+            (function() {
+                var stored = localStorage.getItem('theme-preference');
+                if (stored === 'light') {
+                    document.documentElement.classList.remove('dark');
+                }
+            })();
+        </script>
+
+        <slot name="head" />
+    </head>
+    <body class="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100 antialiased">
+        <!-- Header -->
+        <header class="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-lg dark:border-gray-800 dark:bg-gray-950/80">
+            <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+                <a href="/" class="flex items-center gap-2 text-lg font-bold text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 transition-colors">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
+                    </svg>
+                    <span>{config.company_name}</span>
+                </a>
+                <nav class="flex items-center gap-1">
+                    <a href="/" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition-colors">
+                        Home
+                    </a>
+                    <a href="/categories" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition-colors">
+                        Categories
+                    </a>
+                    <a href="/tags" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition-colors">
+                        Tags
+                    </a>
+                    <a href="/collections" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition-colors">
+                        Collections
+                    </a>
+                    <a href="/comparisons" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition-colors">
+                        Comparisons
+                    </a>
+                    <!-- Theme Toggle (Preact island) -->
+                    <ThemeToggle client:load />
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+            <slot />
+        </main>
+
+        <!-- Footer -->
+        <footer class="border-t border-gray-200 dark:border-gray-800 mt-16">
+            <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+                <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        &copy; {config.copyright_year} {config.company_name}. Built with Ever Works.
+                    </p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500">
+                        Generated by AI from the minimal directory template.
+                    </p>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Back to Top (Preact island) -->
+        <BackToTop client:load showAfterPx={400} />
+    </body>
+</html>

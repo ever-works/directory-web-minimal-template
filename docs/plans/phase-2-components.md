@@ -1,3 +1,8 @@
+---
+title: "Phase 2: Components"
+sidebar_label: "Phase 2: Components"
+---
+
 # Phase 2: Headless UI Components
 
 > Unstyled, composable building blocks for directory websites

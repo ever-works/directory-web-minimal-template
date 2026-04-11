@@ -1,3 +1,8 @@
+---
+title: "Phase 5: Sample Detail"
+sidebar_label: "Phase 5: Detail"
+---
+
 # Phase 5: Sample Basic — Detailed Implementation Plan
 
 > Concrete tasks, file paths, and code patterns for building the `apps/sample-basic/` reference implementation.

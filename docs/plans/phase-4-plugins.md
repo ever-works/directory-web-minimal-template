@@ -1,3 +1,8 @@
+---
+title: "Phase 4: Plugins"
+sidebar_label: "Phase 4: Plugins"
+---
+
 # Phase 4: Built-in Plugins
 
 > Core plugins that ship with the template

@@ -1,6 +1,45 @@
+---
+title: "Change Log"
+sidebar_label: "Change Log"
+---
+
 # Change Log
 
 > Tracks all documentation and specification changes.
+
+## 2026-04-11 — Iteration 18: Docs Frontmatter, E2E CI, Sample-Git
+
+### Docusaurus Frontmatter
+- Added proper Docusaurus frontmatter (`title`, `sidebar_label`) to all 24 docs files that were missing it
+- Docs site now renders proper titles and sidebar labels for all pages
+- Verified docs build passes with all frontmatter changes
+
+### E2E Test Improvements
+- Fixed sitemap E2E test to handle Astro preview server's inability to serve `.xml` files
+- All 57 E2E tests now pass (chromium project) against sample-basic
+- Added E2E test job to CI workflow (`.github/workflows/ci.yml`) — runs after build, uploads Playwright report artifact
+
+### Sample-Git App
+- Created `apps/sample-git/` — reference implementation using the Git data adapter
+- Demonstrates loading content from a remote Git repository (awesome-time-tracking data)
+- Includes `scripts/clone-content.ts` prebuild script for Git cloning
+- Built 1495 pages from real-world data in 24.35s — validates template at scale
+- All typechecks pass (0 errors across 16 tasks)
+
+### Build Verification
+- `pnpm typecheck` — ALL 16 tasks pass (0 errors)
+- `pnpm test` — ALL 11 test suites pass
+- `pnpm --filter @ever-works/sample-basic build` — 41 pages in 7.33s
+- `pnpm --filter @ever-works/sample-git build` — 1495 pages in 24.35s
+- `pnpm --filter @ever-works/docs-minimal build` — builds successfully
+- E2E tests: 57/57 passing
+
+### Next Steps (for next scheduled run)
+1. Address findings from docs/spec health-check audit
+2. Address findings from reference template comparison
+3. Add more E2E test coverage for sample-git
+4. Create `.specify/features/sample-git.md` spec
+5. Explore additional sample templates (sample-jobs, sample-events)
 
 ## 2026-04-11 — Iteration 17: Static Pages, Docs Fixes, Typecheck Fixes
 

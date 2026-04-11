@@ -1,0 +1,61 @@
+---
+/**
+ * Comparisons Index — Overview of all item comparisons.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getContent } from '../lib/content';
+
+const { comparisons, config } = await getContent();
+---
+
+<BaseLayout title="Comparisons" description={`Side-by-side comparisons of ${config.items_name.toLowerCase()}`} config={config}>
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Comparisons</h1>
+        <p class="mt-2 text-gray-600 dark:text-gray-400">Side-by-side comparisons of {config.items_name.toLowerCase()}</p>
+    </div>
+
+    {comparisons.length === 0 ? (
+        <div class="rounded-xl border-2 border-dashed border-gray-300 p-12 text-center dark:border-gray-700">
+            <p class="text-gray-500 dark:text-gray-400">No comparisons available yet.</p>
+        </div>
+    ) : (
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {comparisons.map((comp) => (
+                <a
+                    href={`/comparison/${comp.slug}`}
+                    class="group rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:border-brand-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-900 dark:hover:border-brand-600"
+                >
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 dark:bg-brand-950 group-hover:bg-brand-100 dark:group-hover:bg-brand-900 transition-colors">
+                            <svg class="h-5 w-5 text-brand-600 dark:text-brand-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                            </svg>
+                        </div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors line-clamp-1">{comp.title}</h2>
+                    </div>
+
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">{comp.item_a_name}</span>
+                        <span class="text-xs font-bold text-gray-400 dark:text-gray-500">vs</span>
+                        <span class="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">{comp.item_b_name}</span>
+                    </div>
+
+                    {comp.summary && (
+                        <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-3">{comp.summary}</p>
+                    )}
+
+                    {comp.verdict_winner && (
+                        <span class:list={[
+                            "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+                            comp.verdict_winner === 'tie'
+                                ? "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                                : "bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-400"
+                        ]}>
+                            {comp.verdict_winner === 'item_a' ? comp.item_a_name : comp.verdict_winner === 'item_b' ? comp.item_b_name : 'Tie'}
+                        </span>
+                    )}
+                </a>
+            ))}
+        </div>
+    )}
+</BaseLayout>

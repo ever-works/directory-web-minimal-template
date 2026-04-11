@@ -1,3 +1,8 @@
+---
+title: "Adapter Interface"
+sidebar_label: "Adapter Interface"
+---
+
 # Adapter Interface Specification
 
 > Defines the contract for data source adapters.

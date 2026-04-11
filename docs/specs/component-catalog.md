@@ -1,3 +1,8 @@
+---
+title: "Component Catalog"
+sidebar_label: "Component Catalog"
+---
+
 # Component Catalog Specification
 
 > Complete catalog of all headless UI components in `@ever-works/ui`.

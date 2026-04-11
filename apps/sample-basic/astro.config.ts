@@ -3,7 +3,7 @@ import preact from '@astrojs/preact';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import { everWorksIntegration } from '@ever-works/astro-integration';
-import { getPluginRunner, getContent } from './src/lib/content.js';
+import { getPluginRunner, getContent } from './src/lib/content';
 
 /**
  * Sample Basic — React UI Components Directory
@@ -33,6 +33,10 @@ export default defineConfig({
         ],
         optimizeDeps: {
             include: ['preact', 'yaml'],
+        },
+        // Bundle workspace packages through Vite instead of Node's ESM resolver
+        ssr: {
+            noExternal: [/^@ever-works\//],
         },
     },
 });

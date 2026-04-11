@@ -1,3 +1,8 @@
+---
+title: "Component System"
+sidebar_label: "Component System"
+---
+
 # Component System Architecture
 
 ## Overview

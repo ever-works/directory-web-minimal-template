@@ -1,3 +1,8 @@
+---
+title: "Phase 3: Web App"
+sidebar_label: "Phase 3: Web App"
+---
+
 # Phase 3: Astro Web Application
 
 > The core Astro app with pages, layouts, and routing

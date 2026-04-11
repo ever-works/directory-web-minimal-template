@@ -1,3 +1,8 @@
+---
+title: "Building from Template"
+sidebar_label: "Building from Template"
+---
+
 # Guide: Building a Directory Website from the Template
 
 > How an AI agent (or developer) builds a complete directory website using this template.
