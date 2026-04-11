@@ -170,6 +170,7 @@ interface CategoryData {
     id: string;
     name: string;
     icon_url?: string;
+    image_url?: string;
 }
 ```
 

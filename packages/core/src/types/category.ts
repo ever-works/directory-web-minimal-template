@@ -13,6 +13,9 @@ export interface CategoryData {
 
     /** Optional URL to category icon */
     icon_url?: string;
+
+    /** Optional URL to category image (used in some themes for card backgrounds) */
+    image_url?: string;
 }
 
 /** Category with computed item count */

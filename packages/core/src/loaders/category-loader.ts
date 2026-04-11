@@ -39,6 +39,7 @@ export async function loadCategories(adapter: DataAdapter): Promise<CategoryData
                     id: entry['id'] as string,
                     name: entry['name'] as string,
                     ...(typeof entry['icon_url'] === 'string' ? { icon_url: entry['icon_url'] } : {}),
+                    ...(typeof entry['image_url'] === 'string' ? { image_url: entry['image_url'] } : {}),
                 }));
         } catch (error) {
             console.warn(`[core] Failed to load ${path}:`, error);

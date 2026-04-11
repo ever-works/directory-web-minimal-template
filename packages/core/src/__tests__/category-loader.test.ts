@@ -21,6 +21,7 @@ const validCategoriesYaml = `
 - id: dev-tools
   name: Developer Tools
   icon_url: https://example.com/dev.png
+  image_url: https://example.com/dev-bg.jpg
 - id: productivity
   name: Productivity
 `;
@@ -53,6 +54,7 @@ describe('loadCategories', () => {
             id: 'dev-tools',
             name: 'Developer Tools',
             icon_url: 'https://example.com/dev.png',
+            image_url: 'https://example.com/dev-bg.jpg',
         });
         expect(categories[1]).toEqual({
             id: 'productivity',
