@@ -20,13 +20,13 @@ test.describe('SEO', () => {
 
     test('should have JSON-LD structured data on home page', async ({ page }) => {
         await page.goto('/');
-        const jsonLd = page.locator('script[type="application/ld+json"]');
+        const jsonLd = page.locator('script[type="application/ld+json"]').first();
         await expect(jsonLd).toBeAttached();
     });
 
     test('should have JSON-LD structured data on item page', async ({ page }) => {
         await page.goto('/item/sample-item/');
-        const jsonLd = page.locator('script[type="application/ld+json"]');
+        const jsonLd = page.locator('script[type="application/ld+json"]').first();
         await expect(jsonLd).toBeAttached();
     });
 

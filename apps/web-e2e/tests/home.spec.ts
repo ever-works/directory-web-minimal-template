@@ -15,7 +15,7 @@ test.describe('Home Page', () => {
         await page.goto('/');
         const header = page.locator('[data-component="site-header"]');
         await expect(header).toBeVisible();
-        await expect(header.locator('a[href="/"]')).toBeVisible();
+        await expect(header.locator('[data-part="logo-link"]')).toBeVisible();
         await expect(header.locator('a[href="/categories"]')).toBeVisible();
         await expect(header.locator('a[href="/tags"]')).toBeVisible();
     });

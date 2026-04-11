@@ -82,9 +82,14 @@ export class PluginRunner {
 
             const ctx = this.buildContext(plugin.id, context);
             try {
-                current = await plugin.hooks.onDataLoaded(current, ctx);
+                const result = await plugin.hooks.onDataLoaded(current, ctx);
+                if (result === undefined || result === null) {
+                    ctx.log.error('onDataLoaded returned null/undefined — using previous data unchanged');
+                } else {
+                    current = result;
+                }
             } catch (err: unknown) {
-                ctx.log.error(`onDataLoaded failed: ${errorMessage(err)}`);
+                ctx.log.error(`onDataLoaded failed: ${errorMessage(err)} — using previous data unchanged`);
             }
         }
 

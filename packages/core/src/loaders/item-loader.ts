@@ -42,17 +42,19 @@ async function parseItem(adapter: DataAdapter, slug: string): Promise<ItemData |
             description: typeof data['description'] === 'string' ? data['description'] : '',
             source_url: typeof data['source_url'] === 'string' ? data['source_url'] : '',
             category: Array.isArray(data['category'])
-                ? (data['category'] as string[])
+                ? data['category'].filter((c): c is string => typeof c === 'string')
                 : typeof data['category'] === 'string'
                     ? data['category']
                     : '',
-            tags: Array.isArray(data['tags']) ? (data['tags'] as string[]) : [],
+            tags: Array.isArray(data['tags'])
+                ? data['tags'].filter((t): t is string => typeof t === 'string')
+                : [],
             updated_at: typeof data['updated_at'] === 'string' ? data['updated_at'] : '',
             status: isValidStatus(data['status']) ? data['status'] : 'draft',
         };
 
         if (Array.isArray(data['collections'])) {
-            item.collections = data['collections'] as string[];
+            item.collections = data['collections'].filter((c): c is string => typeof c === 'string');
         }
         if (typeof data['featured'] === 'boolean') {
             item.featured = data['featured'];

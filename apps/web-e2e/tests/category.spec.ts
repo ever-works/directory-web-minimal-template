@@ -18,8 +18,8 @@ test.describe('Categories', () => {
 
     test('should display items in category page', async ({ page }) => {
         await page.goto('/category/sample-category/');
-        const listing = page.locator('[data-component="item-listing"]');
-        await expect(listing).toBeVisible();
+        const grid = page.locator('[data-component="item-grid"]');
+        await expect(grid).toBeVisible();
     });
 
     test('should link from categories index to category page', async ({ page }) => {
@@ -40,6 +40,6 @@ test.describe('Tags', () => {
 
     test('should render individual tag page', async ({ page }) => {
         await page.goto('/tag/sample-tag/');
-        await expect(page).toHaveTitle(/sample-tag/i);
+        await expect(page).toHaveTitle(/sample.tag/i);
     });
 });

@@ -255,7 +255,7 @@ See `SKILLS.md` for detailed step-by-step guides.
 | Route | File | Description |
 |-------|------|-------------|
 | `/` | `index.astro` | Home page with hero, categories, item grid |
-| `/items/page/[page]` | `page/[page].astro` | Paginated item listing |
+| `/page/[page]` | `page/[page].astro` | Paginated item listing |
 | `/item/[slug]` | `item/[slug].astro` | Item detail page |
 | `/categories` | `categories.astro` | Categories index |
 | `/category/[slug]` | `category/[slug].astro` | Items by category |

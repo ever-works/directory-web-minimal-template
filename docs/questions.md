@@ -139,3 +139,18 @@
 - D) Plain Astro — Build custom docs pages
 
 **Default choice**: **Starlight** — Built on Astro (consistent toolchain), excellent for docs, great search, minimal config. Avoids adding React/Vue just for docs.
+
+---
+
+## Q11: Interactive Component Integration in Web Template
+
+**Context**: The UI package includes 5 Preact interactive components (SearchInput, FilterBar, SortSelect, BackToTop, ThemeToggle) but the `apps/web` template pages don't use them. The `apps/web` template is intentionally a blank canvas, but should at least demonstrate interactive component wiring.
+
+**Options**:
+- **A) Keep web template blank, demo in sample-basic only** — AI agents wire them in per project `[DEFAULT]`
+- B) Wire all interactive components into the web template — Pre-built interactive experience
+- C) Wire search only, leave filters/sort for AI — Search is fundamental, rest is customizable
+
+**Default choice**: **Keep web template blank, demo in sample-basic** — The web template's purpose is to be an intentionally blank canvas. The sample-basic should demonstrate all interactive components as a reference. AI agents can then copy the patterns.
+
+**Action needed**: Integrate SearchInput, FilterBar, and SortSelect into `apps/sample-basic` pages to demonstrate proper usage.

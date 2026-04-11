@@ -45,7 +45,9 @@ export async function loadCollections(adapter: DataAdapter): Promise<CollectionD
                 name: entry['name'] as string,
                 description: typeof entry['description'] === 'string' ? entry['description'] : '',
                 ...(typeof entry['icon_url'] === 'string' ? { icon_url: entry['icon_url'] } : {}),
-                ...(Array.isArray(entry['items']) ? { items: entry['items'] as string[] } : {}),
+                ...(Array.isArray(entry['items'])
+                    ? { items: entry['items'].filter((s): s is string => typeof s === 'string') }
+                    : {}),
                 ...(typeof entry['isActive'] === 'boolean' ? { isActive: entry['isActive'] } : {}),
                 ...(typeof entry['created_at'] === 'string' ? { created_at: entry['created_at'] } : {}),
                 ...(typeof entry['updated_at'] === 'string' ? { updated_at: entry['updated_at'] } : {}),

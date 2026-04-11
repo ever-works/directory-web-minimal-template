@@ -183,7 +183,9 @@ export default definePlugins([
 ]);
 ```
 
-## Built-in Plugins (Planned)
+## Built-in Plugins
+
+### Implemented
 
 | Plugin | Type | Description |
 |--------|------|-------------|
@@ -192,10 +194,14 @@ export default definePlugins([
 | `plugin-pagination` | UI | Standard and infinite scroll pagination |
 | `plugin-seo` | Build | Meta tags, JSON-LD, Open Graph |
 | `plugin-sitemap` | Build | XML sitemap generation |
-| `plugin-rss` | Build | RSS feed generation |
-| `plugin-comparison` | UI + Page | Item comparison views |
-| `plugin-breadcrumbs` | UI | Breadcrumb navigation |
 | `plugin-sort` | UI + Data | Sort controls (name, date, featured) |
+
+### Future (Not Yet Implemented)
+
+| Plugin | Type | Description |
+|--------|------|-------------|
+| `plugin-rss` | Build | RSS feed generation |
+| `plugin-breadcrumbs` | UI | Breadcrumb navigation (currently a UI component) |
 
 ## Plugin Development Guide
 
