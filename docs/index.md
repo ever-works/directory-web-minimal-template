@@ -1,12 +1,12 @@
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-11 (Iteration 11: Breadcrumbs integration, E2E expansion, CI tests)
+> Updated: 2026-04-11 (Iteration 12: Unit test expansion, docs health check)
 
 ## Root Documents
 
 - [CLAUDE.md](../CLAUDE.md) — Claude Code instructions, project overview, commands
-- [AGENTS.md](../AGENTS.md) — AI agent rules (R1-R14), working process, data contracts, available pages/components/plugins
+- [AGENTS.md](../AGENTS.md) — AI agent rules (R1-R14 under Mandatory Rules), working process, data contracts, available pages/components/plugins
 - [SKILLS.md](../SKILLS.md) — Step-by-step AI agent skills for building directory sites
 - [README.md](../README.md) — Project README
 

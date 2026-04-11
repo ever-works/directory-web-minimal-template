@@ -18,6 +18,7 @@
 8. [Reference: Data Contracts](#reference-data-contracts)
 9. [Reference: Content Directory Structure](#reference-content-directory-structure)
 10. [Reference: Component Attribute Map](#reference-component-attribute-map)
+11. [Quick Reference: Common Tasks](#quick-reference-common-tasks)
 
 ---
 
@@ -31,7 +32,7 @@ Read these files in order to understand constraints:
 
 ```
 CLAUDE.md     -- Architecture overview, critical rules, monorepo structure
-AGENTS.md     -- Mandatory rules R1-R11, working process, data contracts
+AGENTS.md     -- Mandatory rules R1-R14, working process, data contracts
 ```
 
 Key constraints to internalize:

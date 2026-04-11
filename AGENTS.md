@@ -77,6 +77,24 @@ Every document, specification, code file, and decision MUST comply with these ru
 - Refactoring and reorganization is fine
 - If something seems wrong, improve it — don't delete it
 
+### R12: Monorepo Structure
+- This is a pnpm workspaces + Turborepo monorepo
+- Apps live in `apps/` — each is a deployable application
+- Packages live in `packages/` — shared libraries, plugins, adapters, UI
+- Everything that can be a package SHOULD be a package
+- Keep packages small and focused (single responsibility)
+
+### R13: Exhaustive Documentation
+- Be exhaustive in documentation — do NOT summarize
+- All specs, plans, architecture docs must be thorough enough for AI agents to work autonomously
+- If something is not clear or has multiple options, add it to `docs/questions.md`
+- Every new package/feature gets JSDoc on all public exports
+
+### R14: Convention Over Configuration
+- Good defaults for everything
+- Users can override via config when needed
+- Prefer conventions that reduce boilerplate
+
 ## Working Process
 
 ### Before Starting Any Task
@@ -201,24 +219,6 @@ interface SiteConfig {
 }
 ```
 
-### R12: Monorepo Structure
-- This is a pnpm workspaces + Turborepo monorepo
-- Apps live in `apps/` — each is a deployable application
-- Packages live in `packages/` — shared libraries, plugins, adapters, UI
-- Everything that can be a package SHOULD be a package
-- Keep packages small and focused (single responsibility)
-
-### R13: Exhaustive Documentation
-- Be exhaustive in documentation — do NOT summarize
-- All specs, plans, architecture docs must be thorough enough for AI agents to work autonomously
-- If something is not clear or has multiple options, add it to `docs/questions.md`
-- Every new package/feature gets JSDoc on all public exports
-
-### R14: Convention Over Configuration
-- Good defaults for everything
-- Users can override via config when needed
-- Prefer conventions that reduce boilerplate
-
 ## Cross-Check Checklist
 
 Before creating or modifying ANY file, verify:
@@ -236,6 +236,7 @@ Before creating or modifying ANY file, verify:
 - [ ] Not removing, only improving? (R11)
 - [ ] Proper monorepo structure? (R12)
 - [ ] Exhaustive documentation? (R13)
+- [ ] Convention over configuration? Good defaults? (R14)
 
 ## Skills for AI Agents
 

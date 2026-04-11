@@ -296,6 +296,42 @@ interface ComparisonTableProps {
 }
 ```
 
+### SEO
+
+**File**: `packages/ui/src/astro/SEO.astro`
+**Purpose**: Renders essential meta tags, Open Graph, Twitter Card, and JSON-LD structured data. Should be placed inside the `<head>` element.
+
+```typescript
+interface SEOProps {
+    title: string;
+    description?: string;
+    canonicalUrl?: string;
+    ogImage?: string;
+    ogType?: 'website' | 'article';  // default: 'website'
+    siteName?: string;
+    noindex?: boolean;               // default: false
+    jsonLd?: Record<string, unknown>;
+}
+```
+
+**HTML structure**:
+```html
+<title>{title}</title>
+<meta name="description" content="{description}" />
+<link rel="canonical" href="{canonicalUrl}" />
+<meta property="og:title" content="{title}" />
+<meta property="og:description" content="{description}" />
+<meta property="og:type" content="{ogType}" />
+<meta property="og:url" content="{canonicalUrl}" />
+<meta property="og:image" content="{ogImage}" />
+<meta property="og:site_name" content="{siteName}" />
+<meta name="twitter:card" content="summary_large_image|summary" />
+<meta name="twitter:title" content="{title}" />
+<meta name="twitter:description" content="{description}" />
+<meta name="twitter:image" content="{ogImage}" />
+<script type="application/ld+json">{jsonLd}</script>
+```
+
 ---
 
 ## Interactive Components (Preact)

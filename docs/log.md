@@ -2,6 +2,68 @@
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-11 — Iteration 12: Unit Test Expansion, Docs Health Check
+
+### Unit Test Expansion (92 new tests, 5 packages)
+
+- **plugin-filters** (27 tests) — `src/__tests__/filter-items.test.ts`
+  - Category filtering (string & array categories, OR logic)
+  - Tag filtering (single, multiple, OR logic)
+  - Search filtering (name, description, case-insensitive, whitespace)
+  - Combined filters (AND logic between groups)
+  - Edge cases (empty items, no matches)
+  - Created `vitest.config.ts`, added test script & vitest devDep
+
+- **plugin-seo** (19 tests) — `src/__tests__/meta.test.ts` (12), `src/__tests__/json-ld.test.ts` (7)
+  - Meta tag generation (title template, fallbacks, OG, Twitter Card)
+  - JSON-LD generation (WebSite, ItemList with 1-indexed positions, Product)
+  - Created `vitest.config.ts`, added test script & vitest devDep
+
+- **plugin-sort** (9 tests) — `src/__tests__/sort-items.test.ts`
+  - Sort by name (asc/desc, locale-aware)
+  - Sort by updated_at (date sort, asc/desc)
+  - Sort by featured (featured-first, alphabetical tiebreak)
+  - Immutability check, empty/single arrays
+  - Created `vitest.config.ts`, added test script & vitest devDep
+
+- **plugin-pagination** (16 tests) — `src/__tests__/paginate.test.ts`
+  - paginate(): page slicing, clamping, metadata (hasPrev/hasNext/prevPage/nextPage)
+  - generatePagePaths(): static paths generation, maxPages cap, string params
+  - RangeError on invalid perPage, empty items edge case
+  - Created `vitest.config.ts`, added test script & vitest devDep
+
+- **adapters** (23 tests) — `src/__tests__/filesystem-adapter.test.ts`
+  - Init validation (missing path, non-existent, file-not-dir, success)
+  - Pre-init guards (all methods throw)
+  - readFile, listFiles, listDirectories, exists
+  - Path traversal protection
+  - Integration-style tests with real temp directories
+  - Created `vitest.config.ts`, added test script & vitest devDep
+
+- **Total unit tests**: 113 passing across 8 test suites (was 41 across 3)
+
+### Documentation Health Check & Fixes
+
+- **AGENTS.md** — Moved R12-R14 from Data Contracts section to Mandatory Rules section for consistency and discoverability
+- **AGENTS.md** — Added R14 (Convention Over Configuration) to Cross-Check Checklist (was missing)
+- **SKILLS.md** — Updated rule range reference from R1-R11 to R1-R14
+- **SKILLS.md** — Added "Quick Reference: Common Tasks" to Table of Contents (section existed but wasn't in TOC)
+- **docs/specs/component-catalog.md** — Added SEO.astro component documentation (was missing from catalog despite existing in codebase). Catalog now documents all 17 Astro + 5 Preact components.
+- **docs/index.md** — Clarified AGENTS.md description to note rules are "under Mandatory Rules"
+
+### Build Verification
+- `pnpm typecheck` — ALL 13 tasks pass (0 errors)
+- `pnpm test` — 8 test suites, 113+ unit tests passed (was 3 suites / 41 tests)
+- `pnpm build` — 3 apps built successfully
+
+### Next Steps (for next scheduled run)
+1. Add unit tests for plugin-sitemap and plugin-search packages
+2. Consider adding integration tests for the plugin pipeline (end-to-end data flow)
+3. Create additional sample templates (sample-jobs or sample-events)
+4. Integrate Pagefind for static search
+5. Add performance benchmarks to CI
+6. Document .specify/features/testing.md spec with new test infrastructure details
+
 ## 2026-04-11 — Iteration 11: Breadcrumbs Integration, E2E Expansion, CI Tests
 
 ### Breadcrumbs Plugin Integration (sample-basic)
