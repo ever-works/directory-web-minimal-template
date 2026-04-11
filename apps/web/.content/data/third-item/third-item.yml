@@ -1,0 +1,8 @@
+name: "Third Item"
+description: "A third sample item to demonstrate multiple items in listings."
+source_url: "https://example.com/third"
+category: "sample-category"
+tags: ["sample-tag"]
+updated_at: "2026-03-01 08:30"
+status: "approved"
+featured: false

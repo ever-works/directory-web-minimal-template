@@ -201,6 +201,42 @@ interface SiteConfig {
 }
 ```
 
+### R12: Monorepo Structure
+- This is a pnpm workspaces + Turborepo monorepo
+- Apps live in `apps/` — each is a deployable application
+- Packages live in `packages/` — shared libraries, plugins, adapters, UI
+- Everything that can be a package SHOULD be a package
+- Keep packages small and focused (single responsibility)
+
+### R13: Exhaustive Documentation
+- Be exhaustive in documentation — do NOT summarize
+- All specs, plans, architecture docs must be thorough enough for AI agents to work autonomously
+- If something is not clear or has multiple options, add it to `docs/questions.md`
+- Every new package/feature gets JSDoc on all public exports
+
+### R14: Convention Over Configuration
+- Good defaults for everything
+- Users can override via config when needed
+- Prefer conventions that reduce boilerplate
+
+## Cross-Check Checklist
+
+Before creating or modifying ANY file, verify:
+
+- [ ] TypeScript only? (R1)
+- [ ] Is this a plugin or should it be? (R2)
+- [ ] Git-first data? No DB? (R3)
+- [ ] No advanced features (auth, payments, geo)? (R4)
+- [ ] Static output only? (R5)
+- [ ] Performance-optimal? No unnecessary deps? (R6)
+- [ ] Modular and replaceable? (R7)
+- [ ] Clear naming, JSDoc, data contracts? (R8)
+- [ ] Spec/plan exists before implementation? (R9)
+- [ ] Using existing popular library if available? (R10)
+- [ ] Not removing, only improving? (R11)
+- [ ] Proper monorepo structure? (R12)
+- [ ] Exhaustive documentation? (R13)
+
 ## Skills for AI Agents
 
 When building a directory website from this template, an AI agent should:
@@ -212,4 +248,42 @@ When building a directory website from this template, an AI agent should:
 5. **Add plugins** — Enable search, filtering, comparison, etc.
 6. **Build & deploy** — Static build, deploy to Vercel
 
-See `SKILLS.md` (when created) for detailed step-by-step guides.
+See `SKILLS.md` for detailed step-by-step guides.
+
+## Available Pages (apps/web)
+
+| Route | File | Description |
+|-------|------|-------------|
+| `/` | `index.astro` | Home page with hero, categories, item grid |
+| `/items/page/[page]` | `page/[page].astro` | Paginated item listing |
+| `/item/[slug]` | `item/[slug].astro` | Item detail page |
+| `/categories` | `categories.astro` | Categories index |
+| `/category/[slug]` | `category/[slug].astro` | Items by category |
+| `/tags` | `tags.astro` | Tags index |
+| `/tag/[slug]` | `tag/[slug].astro` | Items by tag |
+| `/collections` | `collections.astro` | Collections index |
+| `/collection/[slug]` | `collection/[slug].astro` | Items in collection |
+| `/comparisons` | `comparisons.astro` | Comparisons index |
+| `/comparison/[slug]` | `comparison/[slug].astro` | Comparison detail |
+| `/404` | `404.astro` | Not found page |
+
+## Available UI Components (packages/ui)
+
+### Static (Astro)
+`ItemCard`, `ItemGrid`, `ItemList`, `ItemDetail`, `CategoryList`, `CategoryBadge`,
+`TagList`, `TagBadge`, `CollectionCard`, `ComparisonTable`, `Breadcrumbs`, `Pagination`,
+`SiteHeader`, `SiteFooter`, `Hero`, `EmptyState`, `SEO`
+
+### Interactive (Preact islands)
+`SearchInput`, `FilterBar`, `SortSelect`, `BackToTop`, `ThemeToggle`
+
+## Available Plugins (packages/plugin-*)
+
+| Plugin | Purpose |
+|--------|---------|
+| `plugin-seo` | Meta tags, Open Graph, JSON-LD |
+| `plugin-pagination` | Paginate item arrays |
+| `plugin-filters` | Client-side category/tag filtering |
+| `plugin-search` | Static search via Pagefind |
+| `plugin-sort` | Sort items by name, date, featured |
+| `plugin-sitemap` | XML sitemap generation |

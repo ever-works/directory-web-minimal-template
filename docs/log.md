@@ -252,3 +252,35 @@
 3. Run E2E tests against built site
 4. Template selection documentation — Phase 6.5
 5. Review and polish SKILLS.md content
+
+## 2026-04-11 — Iteration 5: Collections, Comparisons, Documentation
+
+### New Pages (apps/web)
+- Created `pages/collections.astro` — Collections index page listing all active collections
+- Created `pages/collection/[slug].astro` — Collection detail page showing items in a collection
+- Created `pages/comparisons.astro` — Comparisons index page listing all item comparisons
+- Updated `layouts/BaseLayout.astro` — Added Collections and Comparisons to navigation
+
+### Enhanced Sample Data (apps/web/.content/)
+- Added `data/another-tool/another-tool.yml` — second sample item for testing pagination
+- Added `data/third-item/third-item.yml` — third sample item for testing
+- Updated `collections.yml` — expanded from 1 to 2 collections, updated item references
+- Created `comparisons/sample-vs-another/sample-vs-another.yml` — sample comparison with dimensions and scores
+
+### Documentation Updates
+- Updated `AGENTS.md` — Added rules R12 (Monorepo Structure), R13 (Exhaustive Documentation), R14 (Convention Over Configuration); Added cross-check checklist; Added available pages table; Added available UI components and plugins reference
+- Updated `docs/index.md` — Updated date, improved descriptions
+- Updated `docs/log.md` — Added this entry
+
+### Summary
+- **Web app now has all 12 planned page routes** (was missing collections, comparisons index)
+- **Sample data expanded** from 1 item to 3 items + 2 collections + 1 comparison
+- **AGENTS.md now has 14 rules** with cross-check checklist and complete component/page reference
+- **Status: All planned pages implemented. Template is feature-complete for core directory functionality.**
+
+### Next Steps (for next scheduled run)
+1. Set up docs site with Starlight content
+2. Verify build passes with new pages
+3. Create additional sample templates (sample-jobs, sample-events)
+4. Run E2E tests against built site
+5. Consider adding more sample data items for richer testing

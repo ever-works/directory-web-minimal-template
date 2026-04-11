@@ -1,0 +1,8 @@
+name: "Another Tool"
+description: "A second sample directory item for testing pagination and filtering."
+source_url: "https://example.com/another"
+category: "sample-category"
+tags: ["sample-tag"]
+updated_at: "2026-02-15 10:00"
+status: "approved"
+featured: false

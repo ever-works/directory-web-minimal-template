@@ -1,0 +1,48 @@
+---
+/**
+ * Comparisons Index Page — Lists all available item comparisons.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getContent } from '../lib/content';
+
+const { comparisons, config } = await getContent();
+---
+
+<BaseLayout title="Comparisons" config={config}>
+    <nav data-component="breadcrumbs">
+        <a href="/">Home</a>
+        <span data-part="separator">/</span>
+        <span data-part="current">Comparisons</span>
+    </nav>
+
+    <section data-component="comparisons-page">
+        <h1 data-part="heading">Comparisons</h1>
+
+        {comparisons.length === 0 ? (
+            <p data-component="empty-state">No comparisons available yet.</p>
+        ) : (
+            <div data-part="grid">
+                {comparisons.map((comp) => (
+                    <article data-component="comparison-card">
+                        <h2 data-part="title">
+                            <a href={`/comparison/${comp.slug}`}>{comp.title}</a>
+                        </h2>
+                        <div data-part="contestants">
+                            <span data-part="item-a">{comp.item_a_name}</span>
+                            <span data-part="vs">vs</span>
+                            <span data-part="item-b">{comp.item_b_name}</span>
+                        </div>
+                        {comp.summary && (
+                            <p data-part="summary">{comp.summary}</p>
+                        )}
+                        {comp.verdict_winner && (
+                            <span data-part="verdict-winner" data-winner={comp.verdict_winner}>
+                                Winner: {comp.verdict_winner === 'item_a' ? comp.item_a_name : comp.verdict_winner === 'item_b' ? comp.item_b_name : 'Tie'}
+                            </span>
+                        )}
+                    </article>
+                ))}
+            </div>
+        )}
+    </section>
+</BaseLayout>

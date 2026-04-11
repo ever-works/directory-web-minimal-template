@@ -1,0 +1,23 @@
+title: "Sample Item vs Another Tool"
+item_a_slug: "sample-item"
+item_b_slug: "another-tool"
+item_a_name: "Sample Item"
+item_b_name: "Another Tool"
+category: "sample-category"
+summary: "A comparison between two sample directory items."
+verdict: "Both items serve different purposes and are excellent choices."
+verdict_winner: "tie"
+dimensions:
+  - name: "Ease of Use"
+    item_a_summary: "Very intuitive interface"
+    item_b_summary: "Simple but effective"
+    item_a_score: 8
+    item_b_score: 7
+    winner: "item_a"
+  - name: "Features"
+    item_a_summary: "Full-featured suite"
+    item_b_summary: "Focused feature set"
+    item_a_score: 7
+    item_b_score: 8
+    winner: "item_b"
+generated_at: "2026-03-15"

@@ -1,0 +1,15 @@
+- id: "sample-collection"
+  slug: "sample-collection"
+  name: "Sample Collection"
+  description: "A curated collection of sample directory items."
+  icon_url: "📦"
+  items: ["sample-item", "another-tool", "third-item"]
+  isActive: true
+
+- id: "featured-picks"
+  slug: "featured-picks"
+  name: "Featured Picks"
+  description: "Hand-picked featured items from the directory."
+  icon_url: "⭐"
+  items: ["sample-item"]
+  isActive: true

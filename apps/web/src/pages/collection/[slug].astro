@@ -1,0 +1,89 @@
+---
+/**
+ * Collection Detail Page — Lists all items in a specific collection.
+ *
+ * Uses getStaticPaths to generate one page per active collection at build time.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getContent } from '../../lib/content';
+import type { CollectionData } from '@ever-works/core';
+
+export async function getStaticPaths() {
+    const { collections } = await getContent();
+    return collections
+        .filter((c) => c.isActive !== false)
+        .map((collection) => ({
+            params: { slug: collection.slug },
+            props: { collection },
+        }));
+}
+
+interface Props {
+    collection: CollectionData;
+}
+
+const { collection } = Astro.props;
+const { items, config } = await getContent();
+
+// Filter items that belong to this collection
+const collectionItems = collection.items
+    ? items.filter((item) => collection.items!.includes(item.slug))
+    : [];
+---
+
+<BaseLayout
+    title={collection.name}
+    description={collection.description || `Browse items in the ${collection.name} collection`}
+    config={config}
+>
+    <nav data-component="breadcrumbs">
+        <a href="/">Home</a>
+        <span data-part="separator">/</span>
+        <a href="/collections">Collections</a>
+        <span data-part="separator">/</span>
+        <span data-part="current">{collection.name}</span>
+    </nav>
+
+    <section data-component="collection-page">
+        <header data-part="header">
+            {collection.icon_url && (
+                <span data-part="icon">{collection.icon_url}</span>
+            )}
+            <h1 data-part="heading">{collection.name}</h1>
+            {collection.description && (
+                <p data-part="description">{collection.description}</p>
+            )}
+            <span data-part="count">
+                {collectionItems.length} {collectionItems.length === 1 ? config.item_name : config.items_name}
+            </span>
+        </header>
+
+        {collectionItems.length === 0 ? (
+            <p data-component="empty-state">No {config.items_name.toLowerCase()} in this collection.</p>
+        ) : (
+            <div data-part="grid">
+                {collectionItems.map((item) => (
+                    <article data-component="item-card" data-featured={item.featured ? '' : undefined}>
+                        {item.icon_url && (
+                            <img
+                                src={item.icon_url}
+                                alt={`${item.name} icon`}
+                                data-part="icon"
+                                loading="lazy"
+                            />
+                        )}
+                        <h3 data-part="name">
+                            <a href={`/item/${item.slug}`}>{item.name}</a>
+                        </h3>
+                        {item.description && (
+                            <p data-part="description">{item.description}</p>
+                        )}
+                        <span data-part="category">
+                            {Array.isArray(item.category) ? item.category[0] : item.category}
+                        </span>
+                    </article>
+                ))}
+            </div>
+        )}
+    </section>
+</BaseLayout>
