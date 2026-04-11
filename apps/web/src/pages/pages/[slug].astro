@@ -1,0 +1,46 @@
+---
+/**
+ * Static Page — Renders a markdown page from `.content/pages/<slug>.md`.
+ *
+ * Uses getStaticPaths to generate one page per content page at build time.
+ * Pages are standalone content like "About", "Privacy Policy", etc.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getContent } from '../../lib/content';
+import type { PageData } from '@ever-works/core';
+import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
+
+export async function getStaticPaths() {
+    const { pages } = await getContent();
+    return pages.map((page) => ({
+        params: { slug: page.slug },
+        props: { page },
+    }));
+}
+
+interface Props {
+    page: PageData;
+}
+
+const { page } = Astro.props;
+const { config } = await getContent();
+
+const breadcrumbItems = [
+    { label: 'Home', href: '/' },
+    { label: page.title },
+];
+---
+
+<BaseLayout
+    title={page.title}
+    description={page.description}
+    config={config}
+>
+    <Breadcrumbs items={breadcrumbItems} />
+
+    <article class="prose max-w-none">
+        <h1>{page.title}</h1>
+        {page.description && <p class="lead">{page.description}</p>}
+        <Fragment set:html={page.content} />
+    </article>
+</BaseLayout>

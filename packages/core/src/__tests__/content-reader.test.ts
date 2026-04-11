@@ -134,6 +134,9 @@ describe('loadContent', () => {
 
         // Comparisons (empty in this test)
         expect(content.comparisons).toEqual([]);
+
+        // Pages (no pages/ directory in this mock)
+        expect(content.pages).toEqual([]);
     });
 
     it('should return empty content when all loaders fail', async () => {
@@ -151,6 +154,7 @@ describe('loadContent', () => {
         expect(content.tags).toEqual([]);
         expect(content.collections).toEqual([]);
         expect(content.comparisons).toEqual([]);
+        expect(content.pages).toEqual([]);
         expect(content.total).toBe(0);
     });
 

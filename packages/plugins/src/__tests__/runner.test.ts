@@ -22,6 +22,7 @@ function createTestContentData(): ContentData {
         tags: [],
         collections: [],
         comparisons: [],
+        pages: [],
         config: createTestConfig(),
         total: 0,
     };

@@ -235,6 +235,17 @@ interface ComparisonDimension {
 }
 ```
 
+### Page (from `.content/pages/<slug>.md`)
+```typescript
+interface PageData {
+    slug: string;
+    title: string;
+    description?: string;
+    content: string; // markdown body
+    [key: string]: unknown; // additional frontmatter fields
+}
+```
+
 ### Config (from `.content/config.yml`)
 ```typescript
 interface SiteConfig {
@@ -306,6 +317,7 @@ See `SKILLS.md` for detailed step-by-step guides.
 | `/collection/[slug]` | `collection/[slug].astro` | Items in collection |
 | `/comparisons` | `comparisons.astro` | Comparisons index |
 | `/comparison/[slug]` | `comparison/[slug].astro` | Comparison detail |
+| `/pages/[slug]` | `pages/[slug].astro` | Static content page (from `.content/pages/`) |
 | `/404` | `404.astro` | Not found page |
 
 ## Available UI Components (packages/ui)
