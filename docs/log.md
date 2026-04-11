@@ -2,6 +2,26 @@
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-11 — Iteration 7: Security Hardening (Code Audit Fixes)
+
+### Critical Fixes
+- **git-adapter: Command injection prevention** — Replaced `execSync` with string interpolation to `execFileSync` with args array. Added `validateBranchName()` that rejects branch names with shell metacharacters. Prevents arbitrary command execution via malicious branch names or URLs.
+- **create-adapter: Fallback config bug** — Fixed `createAdapter()` to use `resolveAdapterConfig()` when no explicit config provided, ensuring env var defaults are always applied. Previously the fallback case created a FilesystemAdapter without proper config.
+
+### Moderate Fixes
+- **filesystem-adapter: Path traversal protection** — Added `safePath()` method that validates all resolved paths stay within the content root directory. All file/directory operations (`readFile`, `listFiles`, `listDirectories`, `exists`) now use `safePath()` instead of raw `join()`. Prevents `../../etc/passwd`-style path traversal attacks.
+- **content.ts: Type-safe contentPath** — Replaced unsafe `(adapterConfig.localPath as string)` cast with `adapter.getContentPath()` in both `apps/web` and `apps/sample-basic`. The adapter knows its content path authoritatively; the config cast could return undefined.
+
+### Build Verification
+- `pnpm typecheck` — ALL 12 tasks pass (0 errors)
+- `pnpm build` — ALL 3 apps build successfully
+
+### Next Steps (for next scheduled run)
+1. Add comparison YAML data to sample-basic content
+2. Run E2E tests
+3. Consider adding input validation for comparison/collection data loaders
+4. Review plugin error handling (silent data loss on hook failure)
+
 ## 2026-04-11 — Iteration 6: UI Package Integration, Docs Polish, Content Gaps
 
 ### Web App Refactoring (apps/web)
