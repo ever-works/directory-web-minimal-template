@@ -18,10 +18,11 @@ Vitest-based unit testing alongside the existing Playwright E2E tests. Provides 
 4. `packages/core` has tests for item-loader, config-loader, category-loader, tag-loader, collection-loader, comparison-loader, content-reader
 5. `packages/adapters` has tests for filesystem-adapter, create-adapter (factory + config resolution)
 6. `packages/plugins` has tests for PluginRunner lifecycle
-7. `packages/plugin-*` each have tests for their core logic
+7. `packages/plugin-*` each have tests for their core logic (all plugin packages covered)
 8. Tests use `vi.mock()` for filesystem/IO mocking
 9. All tests pass in CI (add to CI workflow)
-10. Total test coverage: 216+ unit tests across 16 test files, 8 packages
+10. Total test coverage: 268 unit tests across 19 test files, 10 packages
+11. Plugin pipeline integration tests validate end-to-end data flow, chaining, error handling, ordering, and context propagation
 
 ## Technical Design
 
@@ -61,11 +62,14 @@ packages/core/src/__tests__/content-reader.test.ts     — 3 tests
 packages/adapters/src/__tests__/filesystem-adapter.test.ts — 23 tests
 packages/adapters/src/__tests__/create-adapter.test.ts — 14 tests
 packages/plugins/src/__tests__/runner.test.ts          — 19 tests
+packages/plugins/src/__tests__/integration.test.ts     — 20 tests
 packages/plugin-seo/src/__tests__/*.test.ts            — 19 tests
 packages/plugin-pagination/src/__tests__/*.test.ts     — 16 tests
 packages/plugin-filters/src/__tests__/*.test.ts        — 27 tests
 packages/plugin-breadcrumbs/src/__tests__/*.test.ts    — 22 tests
 packages/plugin-sort/src/__tests__/*.test.ts           — 9 tests
+packages/plugin-search/src/__tests__/plugin.test.ts    — 18 tests
+packages/plugin-sitemap/src/__tests__/plugin.test.ts   — 14 tests
 ```
 
 ## Dependencies

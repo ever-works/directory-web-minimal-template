@@ -2,6 +2,70 @@
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-11 — Iteration 15: Complete Test Coverage, Plugin Pipeline Integration Tests
+
+### Overview
+Achieved full test coverage across all testable packages. Added unit tests for the two remaining untested plugins (plugin-search, plugin-sitemap) and comprehensive integration tests for the plugin pipeline (chaining, error handling, ordering, enable/disable, context propagation).
+
+### New Test Files
+
+- **plugin-search** (18 tests) — `src/__tests__/plugin.test.ts`
+  - Plugin creation/metadata (id, name, version, description)
+  - Hook exposure (onInit + onAfterBuild present, onDataLoaded + onBeforeBuild absent)
+  - Configuration defaults (bundlePath=/pagefind, language=en, indexFields=[name, description])
+  - Config resolution with user overrides (custom bundlePath, language, indexFields, partial merging)
+  - onInit hook: logs initialization message
+  - onAfterBuild success: Pagefind CLI invocation via npx, correct args, stdout/stderr debug logging
+  - onAfterBuild failure: catches errors, logs warnings, handles non-Error thrown values
+  - Barrel exports: re-exports searchPlugin from index
+
+- **plugin-sitemap** (14 tests) — `src/__tests__/plugin.test.ts`
+  - Plugin metadata (id, name, version, description)
+  - Hook presence (onInit exists and is callable)
+  - Default configuration (changefreq=weekly, priority=0.7, empty exclude list)
+  - User overrides for each option individually and combined
+  - Partial overrides preserve defaults for unset fields
+  - Edge cases: empty exclude array, undefined options, independent plugin instances
+
+- **plugins integration** (20 tests) — `src/__tests__/integration.test.ts`
+  - Full plugin pipeline: definePlugins -> PluginRunner -> runDataLoaded with mock data
+  - Complete lifecycle: onInit -> onDataLoaded -> onBeforeBuild -> onAfterBuild
+  - Multiple plugins chaining: filter + sort + pagination in sequence
+  - Plugin error handling: throwing plugins don't crash pipeline, null returns preserve data, onInit errors don't stop subsequent plugins
+  - Plugin ordering: dependency-resolved execution, original order preserved without deps, dependent plugins see dependency data
+  - Plugin enable/disable: omitted plugins don't execute, hook-less plugins skip, partial hooks only run in relevant phases
+  - Empty plugin list: data passes through unchanged (same reference)
+  - Plugin context: config/contentPath/outDir passed correctly, scoped logger with 4 methods, plugins map contains all registered plugins, each plugin gets distinct context, consumer plugins can look up dependencies
+
+### Files Modified
+
+- `packages/plugin-search/package.json` — Added `test` script and vitest devDependency
+- `packages/plugin-sitemap/package.json` — Added `test` script and vitest devDependency
+
+### New Config Files
+
+- `packages/plugin-search/vitest.config.ts`
+- `packages/plugin-sitemap/vitest.config.ts`
+
+### TypeScript Fix
+
+- Fixed `plugin-search` test file: removed unused import (`PluginLogger`), eliminated non-null assertions (`!`) with safe `getHooks()` helper pattern, properly typed mock references
+
+### Verification
+
+- **TypeCheck**: 13 tasks, 0 errors (including plugin-search test file)
+- **Unit Tests**: 268 passing (10 packages) — up from 216
+  - adapters: 37 | core: 67 | plugins: 39 (19 runner + 20 integration) | plugin-filters: 27 | plugin-breadcrumbs: 22 | plugin-sitemap: 14 | plugin-seo: 19 | plugin-sort: 9 | plugin-pagination: 16 | plugin-search: 18
+- **Build**: 56 pages (15 web + 41 sample-basic) + docs site
+- **E2E Tests**: 114 passing (unchanged from Iteration 14)
+
+### Project Status
+
+- **268 unit tests** + **114 E2E tests** = **382 total tests**, all passing
+- **13 typecheck tasks**, 0 errors
+- **All testable packages now have unit tests** — only ui (Astro/Preact components, better suited for E2E), eslint-config, and tsconfig (config-only) lack unit tests
+- Full plugin pipeline integration tested end-to-end
+
 ## 2026-04-11 — Iteration 14: fulldev/ui Integration
 
 ### Overview
