@@ -4,7 +4,7 @@
  */
 
 import { readFile, readdir, stat, access } from 'node:fs/promises';
-import { resolve, join } from 'node:path';
+import { resolve, relative } from 'node:path';
 import type { DataAdapter, AdapterConfig } from './types.js';
 
 /**
@@ -62,7 +62,7 @@ export class FilesystemAdapter implements DataAdapter {
      */
     async readFile(relativePath: string): Promise<string> {
         this.ensureInitialized();
-        const fullPath = join(this.contentPath, relativePath);
+        const fullPath = this.safePath(relativePath);
         try {
             return await readFile(fullPath, 'utf-8');
         } catch (error) {
@@ -82,7 +82,7 @@ export class FilesystemAdapter implements DataAdapter {
      */
     async listFiles(relativeDir: string): Promise<string[]> {
         this.ensureInitialized();
-        const fullPath = join(this.contentPath, relativeDir);
+        const fullPath = this.safePath(relativeDir);
 
         let entries;
         try {
@@ -108,7 +108,7 @@ export class FilesystemAdapter implements DataAdapter {
      */
     async listDirectories(relativeDir: string): Promise<string[]> {
         this.ensureInitialized();
-        const fullPath = join(this.contentPath, relativeDir);
+        const fullPath = this.safePath(relativeDir);
 
         let entries;
         try {
@@ -133,7 +133,7 @@ export class FilesystemAdapter implements DataAdapter {
      */
     async exists(relativePath: string): Promise<boolean> {
         this.ensureInitialized();
-        const fullPath = join(this.contentPath, relativePath);
+        const fullPath = this.safePath(relativePath);
         try {
             await access(fullPath);
             return true;
@@ -161,5 +161,27 @@ export class FilesystemAdapter implements DataAdapter {
                 'FilesystemAdapter: adapter not initialized. Call init() first.',
             );
         }
+    }
+
+    /**
+     * Resolve a relative path within the content root and validate it doesn't escape.
+     * Prevents path traversal attacks (e.g., `../../etc/passwd`).
+     *
+     * @param relativePath - Path relative to the content root.
+     * @returns The resolved absolute path.
+     * @throws If the resolved path is outside the content root.
+     */
+    private safePath(relativePath: string): string {
+        const fullPath = resolve(this.contentPath, relativePath);
+        const rel = relative(this.contentPath, fullPath);
+        if (rel.startsWith('..') || resolve(fullPath) !== fullPath.replace(/[\\/]+$/, '')) {
+            // Extra check: relative path must not escape content root
+            if (rel.startsWith('..')) {
+                throw new Error(
+                    `FilesystemAdapter: path traversal detected in "${relativePath}". Path must stay within content root.`,
+                );
+            }
+        }
+        return fullPath;
     }
 }

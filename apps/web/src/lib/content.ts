@@ -47,7 +47,7 @@ export async function getContent(): Promise<ContentData> {
     // Build the base plugin context
     const baseContext = {
         config: data.config,
-        contentPath: (adapterConfig.localPath as string) ?? '.content',
+        contentPath: adapter.getContentPath(),
         outDir: 'dist',
     };
 

@@ -13,44 +13,33 @@ const DEFAULT_CONTENT_DIR = '.content';
 /**
  * Create a data adapter based on the provided configuration.
  *
+ * **Important**: Pass a resolved config from {@link resolveAdapterConfig} to ensure
+ * environment variables and defaults are already merged. This function only inspects
+ * `localPath` and `repository` on the provided config — it does NOT re-read env vars.
+ *
  * Resolution order:
  * 1. If `config.localPath` is set, returns a {@link FilesystemAdapter}.
  * 2. If `config.repository` is set, returns a {@link GitAdapter}.
- * 3. If the `CONTENT_PATH` env var is set, returns a {@link FilesystemAdapter} with that path.
- * 4. If the `DATA_REPOSITORY` env var is set, returns a {@link GitAdapter} with that URL
- *    (also reads `GH_TOKEN` and `GITHUB_BRANCH` from env).
- * 5. Fallback: returns a {@link FilesystemAdapter} pointing at `.content/`.
+ * 3. Fallback: returns a {@link FilesystemAdapter} (caller must pass config with `localPath`
+ *    to `init()` for this to work — use `resolveAdapterConfig()` first).
  *
- * @param config - Optional adapter configuration. When omitted, environment
- *   variables and defaults are used.
- * @returns A {@link DataAdapter} instance (not yet initialized -- call `init()` before use).
+ * @param config - Adapter configuration (use {@link resolveAdapterConfig} to resolve env vars first).
+ * @returns A {@link DataAdapter} instance (not yet initialized — call `init(config)` before use).
  */
 export function createAdapter(config?: AdapterConfig): DataAdapter {
-    const resolved = config ?? {};
+    const resolved = config ?? resolveAdapterConfig();
 
-    // 1. Explicit localPath in config
+    // 1. localPath present → filesystem
     if (resolved.localPath) {
         return new FilesystemAdapter();
     }
 
-    // 2. Explicit repository in config
+    // 2. repository present → git
     if (resolved.repository) {
         return new GitAdapter();
     }
 
-    // 3. CONTENT_PATH environment variable
-    const envContentPath = process.env['CONTENT_PATH'];
-    if (envContentPath) {
-        return new FilesystemAdapter();
-    }
-
-    // 4. DATA_REPOSITORY environment variable
-    const envRepository = process.env['DATA_REPOSITORY'];
-    if (envRepository) {
-        return new GitAdapter();
-    }
-
-    // 5. Fallback: filesystem adapter with default .content/ directory
+    // 3. Fallback: filesystem (resolveAdapterConfig will have set localPath to DEFAULT_CONTENT_DIR)
     return new FilesystemAdapter();
 }
 

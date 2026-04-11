@@ -24,7 +24,7 @@ export async function getContent(): Promise<ContentData> {
 
     const baseContext = {
         config: data.config,
-        contentPath: (adapterConfig.localPath as string) ?? '.content',
+        contentPath: adapter.getContentPath(),
         outDir: 'dist',
     };
 

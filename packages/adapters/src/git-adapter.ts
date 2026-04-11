@@ -4,7 +4,7 @@
  * to a FilesystemAdapter pointing at the cloned directory.
  */
 
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { resolve, join } from 'node:path';
 import { access, stat } from 'node:fs/promises';
 import { FilesystemAdapter } from './filesystem-adapter.js';
@@ -159,17 +159,37 @@ export class GitAdapter implements DataAdapter {
     }
 
     /**
-     * Execute the `git clone` command.
+     * Validate that a branch name contains only safe characters.
+     * Prevents command injection via malicious branch names.
+     */
+    private static validateBranchName(branch: string): void {
+        if (!/^[\w./-]+$/.test(branch)) {
+            throw new Error(
+                `GitAdapter: invalid branch name "${branch}". Only alphanumeric, dots, slashes, hyphens, and underscores are allowed.`,
+            );
+        }
+    }
+
+    /**
+     * Execute the `git clone` command using execFileSync to prevent shell injection.
+     * Arguments are passed as an array, never interpolated into a shell string.
+     *
      * @param url - The repository URL (possibly with embedded token).
      * @param branch - The branch to clone.
      * @throws If the git command fails.
      */
     private cloneRepository(url: string, branch: string): void {
+        GitAdapter.validateBranchName(branch);
+
         try {
-            execSync(
-                `git clone --depth 1 --single-branch --branch ${branch} ${url} ${this.contentPath}`,
-                { stdio: 'pipe' },
-            );
+            execFileSync('git', [
+                'clone',
+                '--depth', '1',
+                '--single-branch',
+                '--branch', branch,
+                url,
+                this.contentPath,
+            ], { stdio: 'pipe' });
         } catch (error) {
             // Strip any token from the error message to avoid leaking secrets
             const safeMessage =
