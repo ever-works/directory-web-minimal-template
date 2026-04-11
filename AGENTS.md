@@ -159,8 +159,14 @@ interface ItemData {
     collections?: string[];
     featured?: boolean;
     icon_url?: string;
+    brand?: string;
+    brand_logo_url?: string;
+    images?: string[];
+    publisher?: string;
     updated_at: string;
     status: 'draft' | 'pending' | 'approved' | 'rejected';
+    markdown?: string;
+    [key: string]: unknown; // pass-through for additional YAML fields
 }
 ```
 
@@ -192,7 +198,10 @@ interface CollectionData {
     description: string;
     icon_url?: string;
     items?: string[];
+    item_count?: number;
     isActive?: boolean;
+    created_at?: string;
+    updated_at?: string;
 }
 ```
 

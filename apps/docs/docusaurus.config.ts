@@ -90,7 +90,11 @@ const config: Config = {
 			'classic',
 			/** @type {import('@docusaurus/preset-classic').Options} */
 			{
-				blog: false,
+				blog: {
+				showReadingTime: true,
+				blogSidebarCount: 'ALL',
+				blogSidebarTitle: 'All Posts'
+			},
 				docs: false,
 				theme: {
 					customCss: './src/css/custom.css'
@@ -123,6 +127,7 @@ const config: Config = {
 						label: 'Home'
 					},
 					{ to: '/help', label: 'Help', position: 'left' },
+					{ to: '/blog', label: 'Blog', position: 'left' },
 					{
 						href: 'https://github.com/ever-works',
 						label: 'GitHub',

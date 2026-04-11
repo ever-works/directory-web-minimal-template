@@ -133,12 +133,12 @@
 **Context**: `apps/docs/` needs a documentation framework. The full template uses Docusaurus.
 
 **Options**:
-- **A) Starlight (Astro)** — Astro-native docs framework, consistent with main app `[DEFAULT]`
-- B) Docusaurus — Same as full template, React-based
+- A) Starlight (Astro) — Astro-native docs framework, consistent with main app
+- **B) Docusaurus** — Same as full template, React-based, proven ecosystem `[IMPLEMENTED]`
 - C) VitePress — Vue-based, fast
 - D) Plain Astro — Build custom docs pages
 
-**Default choice**: **Starlight** — Built on Astro (consistent toolchain), excellent for docs, great search, minimal config. Avoids adding React/Vue just for docs.
+**Implemented choice**: **Docusaurus** — Matches the full template's docs framework, providing consistency across the Ever Works ecosystem. Proven ecosystem with search, versioning, and blog support. Already implemented and working.
 
 ---
 

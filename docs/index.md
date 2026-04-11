@@ -11,10 +11,13 @@ slug: /
 
 ## Root Documents
 
-- [CLAUDE.md](../CLAUDE.md) — Claude Code instructions, project overview, commands
-- [AGENTS.md](../AGENTS.md) — AI agent rules (R1-R14 under Mandatory Rules), working process, data contracts, available pages/components/plugins
-- [SKILLS.md](../SKILLS.md) — Step-by-step AI agent skills for building directory sites
-- [README.md](../README.md) — Project README
+> These files live at the repository root and are not part of the Docusaurus docs site.
+> View them on GitHub or in the cloned repository.
+
+- **CLAUDE.md** — Claude Code instructions, project overview, commands ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/CLAUDE.md))
+- **AGENTS.md** — AI agent rules (R1-R14 under Mandatory Rules), working process, data contracts, available pages/components/plugins ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/AGENTS.md))
+- **SKILLS.md** — Step-by-step AI agent skills for building directory sites ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/SKILLS.md))
+- **README.md** — Project README ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/README.md))
 
 ## Architecture
 
@@ -43,15 +46,18 @@ slug: /
 
 ## Spec Kit (.specify/)
 
-- [../.specify/project.md](../.specify/project.md) — Project specification (goals, non-goals, tech stack, timeline)
-- [../.specify/features/data-layer.md](../.specify/features/data-layer.md) — Data layer feature spec
-- [../.specify/features/plugin-system.md](../.specify/features/plugin-system.md) — Plugin system feature spec
-- [../.specify/features/ui-components.md](../.specify/features/ui-components.md) — UI components feature spec
-- [../.specify/features/web-app.md](../.specify/features/web-app.md) — Web app feature spec (all page routes)
-- [../.specify/features/plugins-phase4.md](../.specify/features/plugins-phase4.md) — Phase 4 built-in plugins detailed spec
-- [../.specify/features/sample-basic.md](../.specify/features/sample-basic.md) — Sample basic implementation spec
-- [../.specify/features/plugin-breadcrumbs.md](../.specify/features/plugin-breadcrumbs.md) — Breadcrumbs plugin spec
-- [../.specify/features/testing.md](../.specify/features/testing.md) — Unit testing infrastructure spec
+> These files live in the `.specify/` directory at the repository root.
+> View them on GitHub or in the cloned repository.
+
+- **project.md** — Project specification (goals, non-goals, tech stack, timeline) ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/project.md))
+- **features/data-layer.md** — Data layer feature spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/data-layer.md))
+- **features/plugin-system.md** — Plugin system feature spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/plugin-system.md))
+- **features/ui-components.md** — UI components feature spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/ui-components.md))
+- **features/web-app.md** — Web app feature spec (all page routes) ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/web-app.md))
+- **features/plugins-phase4.md** — Phase 4 built-in plugins detailed spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/plugins-phase4.md))
+- **features/sample-basic.md** — Sample basic implementation spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/sample-basic.md))
+- **features/plugin-breadcrumbs.md** — Breadcrumbs plugin spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/plugin-breadcrumbs.md))
+- **features/testing.md** — Unit testing infrastructure spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/testing.md))
 
 ## Guides
 

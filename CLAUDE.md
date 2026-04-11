@@ -22,7 +22,7 @@ This is a **minimal, static-rendered Astro template** for AI-generated directory
 ├── apps/
 │   ├── web/              — Astro static site (core template)
 │   ├── web-e2e/          — Playwright E2E tests
-│   ├── docs/             — Starlight (Astro) documentation site
+│   ├── docs/             — Docusaurus documentation site
 │   └── sample-basic/     — Reference implementation (AI-generated from template)
 ├── packages/
 │   ├── core/             — Data layer, content reader, types, schemas

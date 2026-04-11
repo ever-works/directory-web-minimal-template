@@ -60,9 +60,9 @@ export function FooterLinks({ columns }: FooterLinksProps): React.ReactElement {
               if (/^\/?getting-started\/getting-started\/?$/.test(rawUrl)) {
                 url = "/getting-started";
               }
-              // Normalize architecture overview links to the canonical /architecture
-              if (/^\/?architecture(\/overview)?\/?$/.test(rawUrl)) {
-                url = "/architecture";
+              // Normalize architecture overview links to the canonical /architecture/overview
+              if (/^\/?architecture\/?$/.test(rawUrl)) {
+                url = "/architecture/overview";
               }
 
               return (
