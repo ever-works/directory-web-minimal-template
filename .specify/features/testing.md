@@ -15,10 +15,13 @@ Vitest-based unit testing alongside the existing Playwright E2E tests. Provides 
 1. Vitest installed as root devDependency
 2. `pnpm test` runs all unit tests via Turborepo
 3. Each package with testable logic has a `vitest.config.ts` and `test` script
-4. `packages/core` has tests for item-loader, config-loader, category-loader
-5. `packages/plugins` has tests for PluginRunner lifecycle
-6. Tests use `vi.mock()` for filesystem/IO mocking
-7. All tests pass in CI (add to CI workflow)
+4. `packages/core` has tests for item-loader, config-loader, category-loader, tag-loader, collection-loader, comparison-loader, content-reader
+5. `packages/adapters` has tests for filesystem-adapter, create-adapter (factory + config resolution)
+6. `packages/plugins` has tests for PluginRunner lifecycle
+7. `packages/plugin-*` each have tests for their core logic
+8. Tests use `vi.mock()` for filesystem/IO mocking
+9. All tests pass in CI (add to CI workflow)
+10. Total test coverage: 216+ unit tests across 16 test files, 8 packages
 
 ## Technical Design
 
@@ -48,9 +51,21 @@ export default defineConfig({ test: { globals: true } });
 
 Tests live next to source files in `__tests__/` directories:
 ```
-packages/core/src/__tests__/item-loader.test.ts
-packages/core/src/__tests__/config-loader.test.ts
-packages/plugins/src/__tests__/runner.test.ts
+packages/core/src/__tests__/item-loader.test.ts       — 13 tests
+packages/core/src/__tests__/config-loader.test.ts      — 8 tests
+packages/core/src/__tests__/category-loader.test.ts    — 8 tests
+packages/core/src/__tests__/tag-loader.test.ts         — 9 tests
+packages/core/src/__tests__/collection-loader.test.ts  — 11 tests
+packages/core/src/__tests__/comparison-loader.test.ts  — 15 tests
+packages/core/src/__tests__/content-reader.test.ts     — 3 tests
+packages/adapters/src/__tests__/filesystem-adapter.test.ts — 23 tests
+packages/adapters/src/__tests__/create-adapter.test.ts — 14 tests
+packages/plugins/src/__tests__/runner.test.ts          — 19 tests
+packages/plugin-seo/src/__tests__/*.test.ts            — 19 tests
+packages/plugin-pagination/src/__tests__/*.test.ts     — 16 tests
+packages/plugin-filters/src/__tests__/*.test.ts        — 27 tests
+packages/plugin-breadcrumbs/src/__tests__/*.test.ts    — 22 tests
+packages/plugin-sort/src/__tests__/*.test.ts           — 9 tests
 ```
 
 ## Dependencies

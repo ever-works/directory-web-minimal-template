@@ -195,6 +195,36 @@ interface CollectionData {
 }
 ```
 
+### Comparison (from `.content/comparisons/<slug>/<slug>.yml`)
+```typescript
+interface ComparisonData {
+    id: string;
+    slug: string;
+    title: string;
+    item_a_slug: string;
+    item_b_slug: string;
+    item_a_name: string;
+    item_b_name: string;
+    category?: string;
+    summary?: string;
+    verdict?: string;
+    verdict_winner?: 'item_a' | 'item_b' | 'tie';
+    dimensions?: ComparisonDimension[];
+    generated_at?: string;
+    sources?: string[];
+    content?: string; // from companion .md file
+}
+
+interface ComparisonDimension {
+    name: string;
+    item_a_summary?: string;
+    item_b_summary?: string;
+    item_a_score?: number;
+    item_b_score?: number;
+    winner?: 'item_a' | 'item_b' | 'tie';
+}
+```
+
 ### Config (from `.content/config.yml`)
 ```typescript
 interface SiteConfig {

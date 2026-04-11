@@ -2,6 +2,34 @@
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-11 — Iteration 13: Comprehensive Test Coverage, Docs Audit
+
+### New Unit Tests (packages/core)
+- Created `category-loader.test.ts` — 8 tests (load, fallback path, missing files, filtering, empty YAML)
+- Created `tag-loader.test.ts` — 9 tests (load active, filter inactive, missing files, filtering, empty)
+- Created `collection-loader.test.ts` — 11 tests (load active, filter inactive, slug defaults, optional fields, item filtering)
+- Created `comparison-loader.test.ts` — 15 tests (load all, parse dimensions, markdown content, missing fields, verdict_winner validation)
+- Created `content-reader.test.ts` — 3 tests (full orchestration, empty content, multi-category counts)
+
+### New Unit Tests (packages/adapters)
+- Created `create-adapter.test.ts` — 14 tests (resolveAdapterConfig env vars, factory adapter selection, priority rules)
+
+### Documentation Updates
+- Updated `.specify/features/testing.md` — Updated acceptance criteria (7→10 items), expanded test locations with counts
+- Updated `AGENTS.md` — Added ComparisonData and ComparisonDimension data contracts
+- Updated `docs/log.md` — This entry
+
+### Test Summary
+- **Total: 216 unit tests** across 16 test files, 8 packages — all passing
+- **TypeCheck: 13 tasks, 0 errors**
+- **Build: 56 static pages** (15 web + 41 sample-basic)
+
+### Next Steps
+1. Review reference template data compatibility findings
+2. Fix E2E test infrastructure if needed
+3. Consider additional hardening / lint improvements
+4. Commit and push
+
 ## 2026-04-11 — Iteration 12: Unit Test Expansion, Docs Health Check
 
 ### Unit Test Expansion (92 new tests, 5 packages)
