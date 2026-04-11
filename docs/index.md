@@ -1,3 +1,9 @@
+---
+title: Documentation Index
+sidebar_label: Home
+slug: /
+---
+
 # Documentation Index
 
 > Complete index of all documentation in this repository.
