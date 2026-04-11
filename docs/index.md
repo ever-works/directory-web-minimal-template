@@ -1,7 +1,7 @@
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-11 (Iteration 15: Complete test coverage, plugin pipeline integration tests)
+> Updated: 2026-04-11 (Iteration 16: Astro integration for plugin build hooks, Pagefind E2E, docs audit)
 
 ## Root Documents
 

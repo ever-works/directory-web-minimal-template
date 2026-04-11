@@ -31,6 +31,7 @@ function createMockContent(): ContentData {
             items_name: 'Items',
             item_name: 'Item',
         } as SiteConfig,
+        total: 0,
     };
 }
 

@@ -301,8 +301,8 @@ See `SKILLS.md` for detailed step-by-step guides.
 
 ## Available UI Components (packages/ui)
 
-### Primitives (from fulldev/ui — `src/primitives/`)
-Low-level, styled Astro components from [fulldev/ui](https://github.com/fulldotdev/ui). These are the building blocks:
+### Primitives (inspired by fulldev/ui — `src/primitives/`)
+Low-level, styled components inspired by [fulldev/ui](https://github.com/fulldotdev/ui) patterns, implemented locally. These are the building blocks:
 - **Badge** — Labels, tags, status indicators (variants: default, secondary, outline, ghost, destructive, link)
 - **Button** — Polymorphic button/link (variants: default, outline, secondary, ghost, destructive, link)
 - **Card** — Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, CardAction
@@ -314,7 +314,7 @@ Low-level, styled Astro components from [fulldev/ui](https://github.com/fulldotd
 Import: `import Badge from '@ever-works/ui/primitives/badge/Badge.astro'`
 
 ### Directory Wrappers (Astro — `src/astro/`)
-Directory-specific components that compose fulldev/ui primitives with domain types:
+Directory-specific components that compose primitive components with domain types:
 `ItemCard`, `ItemGrid`, `ItemList`, `ItemDetail`, `CategoryList`, `CategoryBadge`,
 `TagList`, `TagBadge`, `CollectionCard`, `ComparisonTable`, `Breadcrumbs`, `Pagination`,
 `SiteHeader`, `SiteFooter`, `Hero`, `EmptyState`, `SEO`

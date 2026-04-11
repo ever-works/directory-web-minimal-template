@@ -23,6 +23,9 @@ export interface CollectionData {
     /** Item slugs that belong to this collection */
     items?: string[];
 
+    /** Number of items in this collection (from YAML or computed) */
+    item_count?: number;
+
     /** Whether this collection is active and visible */
     isActive?: boolean;
 

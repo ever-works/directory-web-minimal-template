@@ -35,6 +35,18 @@ export interface ItemData {
     /** URL to the item's icon or logo image */
     icon_url?: string;
 
+    /** Brand name associated with the item */
+    brand?: string;
+
+    /** URL to the brand's logo image */
+    brand_logo_url?: string;
+
+    /** Array of screenshot/image URLs for the item */
+    images?: string[];
+
+    /** Publisher name for display */
+    publisher?: string;
+
     /** Last update timestamp in 'yyyy-MM-dd HH:mm' format */
     updated_at: string;
 

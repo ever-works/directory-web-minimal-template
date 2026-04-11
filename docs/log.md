@@ -2,6 +2,68 @@
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-11 — Iteration 16: Astro Integration for Plugin Build Hooks, Pagefind E2E, Docs Audit
+
+### Overview
+Created `@ever-works/astro-integration` package that bridges the plugin system's `onBeforeBuild` and `onAfterBuild` lifecycle hooks into Astro's build pipeline. This fixes a critical gap where Pagefind search indexing (and any future post-build plugins) never ran because the plugin runner's build hooks were never called outside of tests. Also conducted comprehensive audits of documentation and reference template data compatibility, fixing 8 documentation errors and adding 4 typed data fields.
+
+### New Package: @ever-works/astro-integration
+
+- **`packages/astro-integration/src/integration.ts`** — Astro integration that calls `PluginRunner.runBeforeBuild()` via `astro:build:start` and `PluginRunner.runAfterBuild()` via `astro:build:done`. Uses `fileURLToPath` for correct path handling on Windows (spaces, drive letters).
+- **`packages/astro-integration/src/index.ts`** — Public API: exports `everWorksIntegration` function and `EverWorksIntegrationOptions` type.
+- **`packages/astro-integration/src/__tests__/integration.test.ts`** — 9 unit tests covering: AstroIntegration interface, hook presence, runBeforeBuild/runAfterBuild execution, outDir path normalization, custom/default contentPath, error handling for both hooks.
+- **`packages/astro-integration/vitest.config.ts`** — Vitest config.
+- **`packages/astro-integration/package.json`** — Package manifest with astro peer dependency.
+- **`packages/astro-integration/tsconfig.json`** — TypeScript config extending shared base.
+
+### Pagefind Search Fix
+
+- **Fixed `packages/plugin-search/src/plugin.ts`** — Changed from `execFile` with `shell: true` (triggered Node.js DEP0190 deprecation) to `exec` with quoted path arguments. Properly handles spaces in directory paths.
+- **Added `pagefind` ^1.5.0 as devDependency** to both `apps/web` and `apps/sample-basic`.
+- **Pagefind index now generates on every build** — Confirmed index files created in `dist/pagefind/` with search JS, CSS, fragments, and metadata.
+
+### Astro Config Updates
+
+- **`apps/web/astro.config.ts`** — Added `everWorksIntegration` import and configuration, connecting `getPluginRunner()` and `getContent()`.
+- **`apps/sample-basic/astro.config.ts`** — Same integration added.
+
+### Documentation Audit Fixes (8 issues)
+
+1. **CLAUDE.md** — Fixed `apps/docs/` description from "Docusaurus" to "Starlight (Astro)". Added `plugin-*/` and `astro-integration/` to monorepo tree.
+2. **docs/architecture/component-system.md** — Removed phantom `ItemCardInteractive` component that didn't exist. Added missing `SEO` component to Static Components table. Counts now correct: 17 Astro + 5 Preact.
+3. **docs/architecture/plugin-system.md** — Moved `plugin-breadcrumbs` from "Future (Not Yet Implemented)" to the implemented plugins table. Fixed plugin config path.
+4. **docs/guides/creating-a-plugin.md** — Fixed plugin config path from `apps/web/plugins.config.ts` to `apps/web/src/lib/plugins.config.ts`.
+5. **docs/guides/building-from-template.md** — Same path fix.
+6. **docs/guides/troubleshooting.md** — Same path fix.
+7. **AGENTS.md** — Changed primitives description from "from fulldev/ui" (misleading — no dependency exists) to "inspired by fulldev/ui patterns, implemented locally".
+
+### Data Type Enhancements (Reference Template Compatibility)
+
+- **`packages/core/src/types/item.ts`** — Added 4 typed fields from reference template's actual YAML data: `brand`, `brand_logo_url`, `images`, `publisher`. These fields exist in production data repos but were only caught by the `[key: string]: unknown` catch-all.
+- **`packages/core/src/types/collection.ts`** — Added `item_count` field (present in reference template's `collections.yml`).
+
+### Test Updates
+
+- **`packages/plugin-search/src/__tests__/plugin.test.ts`** — Updated mock from `execFile` to `exec` to match implementation change. All 18 tests passing.
+- **`packages/astro-integration/src/__tests__/integration.test.ts`** — New, 9 tests. Uses platform-aware file URLs for Windows compatibility.
+
+### Verification
+
+- **TypeCheck**: 14 tasks, 0 errors (up from 13 — new astro-integration package)
+- **Unit Tests**: 277 passing across 11 packages (up from 268 — 9 new astro-integration tests)
+  - adapters: 37 | core: 67 | plugins: 39 | plugin-filters: 27 | plugin-breadcrumbs: 22 | plugin-sitemap: 14 | plugin-seo: 19 | plugin-sort: 9 | plugin-pagination: 16 | plugin-search: 18 | astro-integration: 9
+- **Build**: 56 pages (15 web + 41 sample-basic) + 19 docs — Pagefind indexing confirmed for both apps
+- **E2E Tests**: 114 passing (unchanged)
+
+### Project Status
+
+- **277 unit tests** + **114 E2E tests** = **391 total tests**, all passing
+- **14 typecheck tasks**, 0 errors
+- **Pagefind search indexing now runs on every build** — was never called before this iteration
+- **8 documentation errors fixed** across 7 files
+- **5 new data type fields** for reference template compatibility
+- **New package** `@ever-works/astro-integration` bridging plugin lifecycle into Astro build
+
 ## 2026-04-11 — Iteration 15: Complete Test Coverage, Plugin Pipeline Integration Tests
 
 ### Overview
