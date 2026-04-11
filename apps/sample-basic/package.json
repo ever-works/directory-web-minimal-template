@@ -14,6 +14,7 @@
     "dependencies": {
         "@astrojs/preact": "^4.0.0",
         "@astrojs/sitemap": "^3.3.0",
+        "@ever-works/astro-integration": "workspace:*",
         "@ever-works/core": "workspace:*",
         "@ever-works/plugins": "workspace:*",
         "@ever-works/adapters": "workspace:*",
@@ -34,6 +35,7 @@
     "devDependencies": {
         "@astrojs/check": "^0.9.0",
         "@ever-works/tsconfig": "workspace:*",
+        "pagefind": "^1.5.0",
         "typescript": "^5.7.0"
     }
 }

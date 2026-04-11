@@ -42,6 +42,9 @@ importers:
       '@ever-works/adapters':
         specifier: workspace:*
         version: link:../../packages/adapters
+      '@ever-works/astro-integration':
+        specifier: workspace:*
+        version: link:../../packages/astro-integration
       '@ever-works/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -94,6 +97,9 @@ importers:
       '@ever-works/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
+      pagefind:
+        specifier: ^1.5.0
+        version: 1.5.0
       typescript:
         specifier: ^5.7.0
         version: 5.9.3
@@ -109,6 +115,9 @@ importers:
       '@ever-works/adapters':
         specifier: workspace:*
         version: link:../../packages/adapters
+      '@ever-works/astro-integration':
+        specifier: workspace:*
+        version: link:../../packages/astro-integration
       '@ever-works/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -161,6 +170,9 @@ importers:
       '@ever-works/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
+      pagefind:
+        specifier: ^1.5.0
+        version: 1.5.0
       tsx:
         specifier: ^4.19.0
         version: 4.21.0
@@ -194,6 +206,25 @@ importers:
       vitest:
         specifier: ^4.1.4
         version: 4.1.4(@types/node@22.19.17)(vite@6.4.2(@types/node@22.19.17)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/astro-integration:
+    dependencies:
+      '@ever-works/core':
+        specifier: workspace:*
+        version: link:../core
+      '@ever-works/plugins':
+        specifier: workspace:*
+        version: link:../plugins
+    devDependencies:
+      astro:
+        specifier: ^5.7.10
+        version: 5.18.1(@types/node@24.12.2)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.1.4
+        version: 4.1.4(@types/node@24.12.2)(vite@6.4.2(@types/node@24.12.2)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/core:
     dependencies:

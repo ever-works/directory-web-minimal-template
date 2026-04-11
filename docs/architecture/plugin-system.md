@@ -153,7 +153,7 @@ Examples: `plugin-seo`, `plugin-sitemap`, `plugin-rss`
 
 ## Plugin Configuration
 
-Plugins are registered in `apps/web/plugins.config.ts`:
+Plugins are registered in `apps/web/src/lib/plugins.config.ts`:
 
 ```typescript
 import { definePlugins } from '@ever-works/plugins';
@@ -196,12 +196,13 @@ export default definePlugins([
 | `plugin-sitemap` | Build | XML sitemap generation |
 | `plugin-sort` | UI + Data | Sort controls (name, date, featured) |
 
+| `plugin-breadcrumbs` | UI + Data | Breadcrumb navigation with structured data |
+
 ### Future (Not Yet Implemented)
 
 | Plugin | Type | Description |
 |--------|------|-------------|
 | `plugin-rss` | Build | RSS feed generation |
-| `plugin-breadcrumbs` | UI | Breadcrumb navigation (currently a UI component) |
 
 ## Plugin Development Guide
 

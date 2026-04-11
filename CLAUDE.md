@@ -22,12 +22,14 @@ This is a **minimal, static-rendered Astro template** for AI-generated directory
 ├── apps/
 │   ├── web/              — Astro static site (core template)
 │   ├── web-e2e/          — Playwright E2E tests
-│   ├── docs/             — Docusaurus documentation site
+│   ├── docs/             — Starlight (Astro) documentation site
 │   └── sample-basic/     — Reference implementation (AI-generated from template)
 ├── packages/
 │   ├── core/             — Data layer, content reader, types, schemas
 │   ├── ui/               — Headless UI components (unstyled building blocks)
-│   ├── plugins/          — Plugin system + built-in plugins
+│   ├── plugins/          — Plugin system (runner, types, define-plugins)
+│   ├── plugin-*/         — Built-in plugins (search, filters, pagination, seo, sitemap, sort, breadcrumbs)
+│   ├── astro-integration/— Astro integration for plugin build lifecycle hooks
 │   ├── adapters/         — Data source adapters (git, filesystem, etc.)
 │   ├── tsconfig/         — Shared TypeScript configurations
 │   └── eslint-config/    — Shared ESLint configuration

@@ -5,14 +5,14 @@
  * Runs the Pagefind CLI after Astro generates static HTML output.
  */
 
-import { execFile } from 'node:child_process';
+import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
 
 import type { Plugin } from '@ever-works/plugins';
 
 import type { ResolvedSearchConfig, SearchPluginOptions } from './types.js';
 
-const execFileAsync = promisify(execFile);
+const execAsync = promisify(exec);
 
 /** Default values for search plugin options */
 const DEFAULTS: ResolvedSearchConfig = {
@@ -75,10 +75,9 @@ export function searchPlugin(options: SearchPluginOptions = {}): Plugin {
                 context.log.info(`Running Pagefind on output directory: ${context.outDir}`);
 
                 try {
-                    const { stdout, stderr } = await execFileAsync(
-                        'npx',
-                        ['pagefind', '--site', context.outDir],
-                        { shell: true },
+                    // Use quoted path to handle spaces in directory names
+                    const { stdout, stderr } = await execAsync(
+                        `npx pagefind --site "${context.outDir}"`,
                     );
 
                     if (stderr) {

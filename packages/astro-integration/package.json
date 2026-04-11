@@ -1,0 +1,26 @@
+{
+    "name": "@ever-works/astro-integration",
+    "version": "0.1.0",
+    "description": "Astro integration that bridges the Ever Works plugin system into Astro's build lifecycle",
+    "type": "module",
+    "exports": {
+        ".": "./src/index.ts"
+    },
+    "files": ["src"],
+    "scripts": {
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run"
+    },
+    "dependencies": {
+        "@ever-works/plugins": "workspace:*",
+        "@ever-works/core": "workspace:*"
+    },
+    "devDependencies": {
+        "astro": "^5.7.10",
+        "typescript": "^5.8.3",
+        "vitest": "^4.1.4"
+    },
+    "peerDependencies": {
+        "astro": "^5.0.0"
+    }
+}

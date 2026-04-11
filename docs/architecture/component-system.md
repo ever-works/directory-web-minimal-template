@@ -36,6 +36,7 @@ These render at build time with zero client-side JavaScript:
 | `Hero` | Hero section | `title, subtitle?, cta?` |
 | `EmptyState` | No results message | `message: string` |
 | `ComparisonTable` | Side-by-side comparison | `comparison: ComparisonData` |
+| `SEO` | Meta tags, JSON-LD, Open Graph | `title, description, config, ...` |
 
 ### Interactive Components (Preact `.tsx`)
 
@@ -46,7 +47,6 @@ These hydrate as Astro islands for client-side interactivity:
 | `SearchInput` | Text search with debounce | `client:load` |
 | `FilterBar` | Category/tag filter controls | `client:visible` |
 | `SortSelect` | Sort order dropdown | `client:visible` |
-| `ItemCardInteractive` | Card with hover/click effects | `client:visible` |
 | `BackToTop` | Scroll-to-top button | `client:idle` |
 | `ThemeToggle` | Dark/light mode toggle | `client:load` |
 

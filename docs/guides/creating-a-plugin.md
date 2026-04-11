@@ -93,7 +93,7 @@ export function myFeaturePlugin(options: MyFeatureOptions = {}): Plugin {
 
 ## Step 3: Register the Plugin
 
-Add to `apps/web/plugins.config.ts`:
+Add to `apps/web/src/lib/plugins.config.ts`:
 
 ```typescript
 import { definePlugins } from '@ever-works/plugins';

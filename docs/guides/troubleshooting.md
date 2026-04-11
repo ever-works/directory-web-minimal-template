@@ -103,7 +103,7 @@ A plugin is enabled but its feature does not appear on the site.
 
 **Solution**:
 
-1. Check `apps/web/plugins.config.ts` — verify the plugin is listed in the `definePlugins` array:
+1. Check `apps/web/src/lib/plugins.config.ts` — verify the plugin is listed in the `definePlugins` array:
    ```typescript
    import { definePlugins } from '@ever-works/plugins';
    import { searchPlugin } from '@ever-works/plugin-search';

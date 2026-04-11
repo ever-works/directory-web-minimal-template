@@ -33,23 +33,21 @@ function getHooks(plugin: ReturnType<typeof searchPlugin>) {
 // ---- Mock child_process ----
 
 vi.mock('node:child_process', () => {
-    const execFileMock = vi.fn(
+    const execMock = vi.fn(
         (
             _cmd: string,
-            _args: string[],
-            _opts: unknown,
             cb: (err: Error | null, result: { stdout: string; stderr: string }) => void,
         ) => {
             cb(null, { stdout: 'Indexed 42 pages', stderr: '' });
         },
     );
-    return { execFile: execFileMock };
+    return { exec: execMock };
 });
 
 // Import the mocked module so we can inspect calls
-import { execFile } from 'node:child_process';
+import { exec } from 'node:child_process';
 
-const execFileMock = execFile as unknown as ReturnType<typeof vi.fn>;
+const execMock = exec as unknown as ReturnType<typeof vi.fn>;
 
 beforeEach(() => {
     vi.clearAllMocks();
@@ -190,12 +188,11 @@ describe('searchPlugin — onAfterBuild hook (success)', () => {
 
         await onAfterBuild(ctx);
 
-        expect(execFile).toHaveBeenCalledTimes(1);
+        expect(exec).toHaveBeenCalledTimes(1);
 
-        const [cmd, args, opts] = execFileMock.mock.calls[0] as [string, string[], Record<string, unknown>];
-        expect(cmd).toBe('npx');
-        expect(args).toEqual(['pagefind', '--site', '/project/dist']);
-        expect(opts).toEqual(expect.objectContaining({ shell: true }));
+        const [cmd] = execMock.mock.calls[0] as [string];
+        expect(cmd).toContain('npx pagefind');
+        expect(cmd).toContain('/project/dist');
     });
 
     it('logs start and success messages', async () => {
@@ -227,11 +224,9 @@ describe('searchPlugin — onAfterBuild hook (success)', () => {
 
     it('logs stderr as debug when present', async () => {
         // Override the mock to return stderr content
-        execFileMock.mockImplementationOnce(
+        execMock.mockImplementationOnce(
             (
                 _cmd: string,
-                _args: string[],
-                _opts: unknown,
                 cb: (err: Error | null, result: { stdout: string; stderr: string }) => void,
             ) => {
                 cb(null, { stdout: '', stderr: 'Some warning output' });
@@ -251,11 +246,9 @@ describe('searchPlugin — onAfterBuild hook (success)', () => {
 
 describe('searchPlugin — onAfterBuild hook (failure)', () => {
     it('catches errors and logs a warning instead of throwing', async () => {
-        execFileMock.mockImplementationOnce(
+        execMock.mockImplementationOnce(
             (
                 _cmd: string,
-                _args: string[],
-                _opts: unknown,
                 cb: (err: Error | null, result: { stdout: string; stderr: string }) => void,
             ) => {
                 cb(new Error('pagefind not found'), { stdout: '', stderr: '' });
@@ -274,11 +267,9 @@ describe('searchPlugin — onAfterBuild hook (failure)', () => {
     });
 
     it('handles non-Error thrown values gracefully', async () => {
-        execFileMock.mockImplementationOnce(
+        execMock.mockImplementationOnce(
             (
                 _cmd: string,
-                _args: string[],
-                _opts: unknown,
                 cb: (err: unknown) => void,
             ) => {
                 cb('string error');

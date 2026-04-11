@@ -35,7 +35,7 @@ Based on the data:
 
 ### Step 3: Configure Plugins
 
-Edit `apps/web/plugins.config.ts`:
+Edit `apps/web/src/lib/plugins.config.ts`:
 
 ```typescript
 import { definePlugins } from '@ever-works/plugins';
