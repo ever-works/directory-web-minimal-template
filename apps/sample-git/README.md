@@ -24,10 +24,12 @@ A working directory website for **Time Tracking tools**, loading 3,200+ items fr
 
 ## How It Works
 
-1. `predev`/`prebuild` script runs `scripts/clone-content.ts`
-2. The script clones the data repository into `.content/` (shallow clone, single branch)
-3. Astro reads `.content/` via the same `@ever-works/core` loader pipeline
-4. Pages are statically generated at build time
+1. `content.ts` passes default repo/branch config to the `GitAdapter` from `@ever-works/adapters`
+2. On first request, `GitAdapter.init()` clones the data repository into `.content/` (shallow clone, single branch, idempotent)
+3. All read operations are delegated to the `FilesystemAdapter` pointing at `.content/`
+4. Astro statically generates all pages at build time
+
+**No prebuild script needed** — the adapter handles cloning automatically.
 
 ## Environment Variables
 
@@ -51,7 +53,7 @@ pnpm exec turbo run dev --filter=@ever-works/sample-git
 pnpm dev
 ```
 
-The prebuild script will automatically clone the data repository on first run.
+The GitAdapter will automatically clone the data repository on first request.
 
 ## Building
 
