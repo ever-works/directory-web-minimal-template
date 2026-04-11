@@ -175,7 +175,7 @@ sidebar_label: "Questions"
 
 **Default choice**: **Extend SiteConfig** — Custom navigation items (`custom_header`, `custom_footer`) and homepage settings (`hero_title`, `hero_description`, `search_enabled`) are essential for any directory. The `[key: string]: unknown` pass-through already allows arbitrary fields, but explicit typing improves the AI developer experience.
 
-**Action needed**: Add typed fields to SiteConfig in `packages/core/src/types/config.ts` for custom_header, custom_footer, custom_hero, and homepage settings.
+**Status**: DONE — Added `NavLinkItem`, `HomepageConfig` interfaces and `custom_header`, `custom_footer`, `homepage` fields to SiteConfig. Also extended SettingsConfig with `collections_enabled`, `comparisons_enabled`, `featured_enabled`.
 
 ---
 
@@ -190,6 +190,8 @@ sidebar_label: "Questions"
 
 **Default choice**: **Add FeaturedBadge and FeaturedSection to `@ever-works/ui`** — Small addition with high value. AI can style the badge. The template already filters by `featured` status.
 
+**Status**: DONE — Created `FeaturedBadge.astro` and `FeaturedSection.astro` in `packages/ui/src/astro/`.
+
 ---
 
 ## Q14: Layout Variants (Grid/List/Masonry)
@@ -202,6 +204,8 @@ sidebar_label: "Questions"
 - C) Add as a plugin (plugin-layouts) — Most modular
 
 **Default choice**: **Add LayoutSwitcher** — Multiple listing layouts are expected in directory sites. A Preact island LayoutSwitcher + CSS-only layout variants keeps it lightweight.
+
+**Status**: DONE — Created `LayoutSwitcher.tsx` in `packages/ui/src/preact/`. Supports grid, list, compact modes with localStorage persistence.
 
 ---
 
@@ -216,6 +220,8 @@ sidebar_label: "Questions"
 
 **Default choice**: **Decompose into sub-components** — Individual sub-components let AI customize each part independently. Each becomes a separate Astro component in `packages/ui/src/astro/`.
 
+**Status**: DONE — Created ItemContent, ItemMetadata, ItemCTA, ShareButton, SimilarItems in `packages/ui/src/astro/`.
+
 ---
 
 ## Q16: Item Markdown Content Rendering
@@ -228,3 +234,5 @@ sidebar_label: "Questions"
 - C) Leave for AI — each project may want different markdown styling
 
 **Default choice**: **Add ItemContent component** — Use Astro's built-in `set:html` with a markdown-to-HTML library (already available via the content pipeline). Essential for rich item descriptions.
+
+**Status**: DONE — Created `ItemContent.astro` in `packages/ui/src/astro/`. Uses Astro's `set:html` directive for trusted HTML content rendering.

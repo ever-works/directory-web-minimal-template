@@ -23,7 +23,8 @@ This is a **minimal, static-rendered Astro template** for AI-generated directory
 │   ├── web/              — Astro static site (core template)
 │   ├── web-e2e/          — Playwright E2E tests
 │   ├── docs/             — Docusaurus documentation site
-│   └── sample-basic/     — Reference implementation (AI-generated from template)
+│   ├── sample-basic/     — Reference implementation (React UI Components directory)
+│   └── sample-git/       — Reference implementation using Git data adapter (1495 pages)
 ├── packages/
 │   ├── core/             — Data layer, content reader, types, schemas
 │   ├── ui/               — Headless UI components (unstyled building blocks)

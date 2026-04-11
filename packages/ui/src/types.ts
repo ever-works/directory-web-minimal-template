@@ -210,3 +210,18 @@ export interface BackToTopProps {
 export interface ThemeToggleProps {
     class?: string;
 }
+
+export type LayoutMode = 'grid' | 'list' | 'compact';
+
+export interface LayoutSwitcherProps {
+    /** Available layout modes */
+    modes?: LayoutMode[];
+    /** Currently selected mode */
+    selected?: LayoutMode;
+    /** Callback when mode changes */
+    onChange?: (mode: LayoutMode) => void;
+    /** localStorage key for persistence (set to empty string to disable) */
+    persistKey?: string;
+    /** HTML class attribute */
+    class?: string;
+}

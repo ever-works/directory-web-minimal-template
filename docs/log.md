@@ -7,6 +7,69 @@ sidebar_label: "Change Log"
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-11 — Iteration 19: Q12-Q16 Implementation, Docs Audit, Bug Fix
+
+### Bug Fix: Item Loader Status Default
+- Fixed `packages/core/src/loaders/item-loader.ts` — invalid status values now default to `'draft'` instead of `'approved'`
+- Previously, items with unknown/invalid status were auto-approved, which is a security concern
+- Test `should default status to draft when status is invalid` now passes
+
+### Q12: SiteConfig Extension
+- **`packages/core/src/types/config.ts`** — Added `NavLinkItem` interface (label, href, external)
+- Added `HomepageConfig` interface (hero_title, hero_description, search_enabled, default_view, default_sort)
+- Added `custom_header?: NavLinkItem[]` and `custom_footer?: NavLinkItem[]` to SiteConfig
+- Added `homepage?: HomepageConfig` to SiteConfig
+- Extended `SettingsConfig` with `collections_enabled`, `comparisons_enabled`, `featured_enabled`
+- Updated `packages/core/src/types/index.ts` and `packages/core/src/index.ts` to export new types
+
+### Q13: FeaturedBadge and FeaturedSection Components
+- **`packages/ui/src/astro/FeaturedBadge.astro`** — Badge indicating an item is featured (star icon + label)
+- **`packages/ui/src/astro/FeaturedSection.astro`** — Section displaying featured items in a grid (configurable limit)
+- Added `FeaturedBadgeProps` and `FeaturedSectionProps` to `packages/ui/src/types.ts`
+
+### Q14: LayoutSwitcher Preact Component
+- **`packages/ui/src/preact/LayoutSwitcher.tsx`** — Client-side layout mode toggle (grid, list, compact)
+- Persists selection in localStorage, uses ARIA radiogroup pattern
+- Added `LayoutMode` type and `LayoutSwitcherProps` to `packages/ui/src/types.ts`
+
+### Q15: Item Detail Decomposition
+- **`packages/ui/src/astro/ItemContent.astro`** — Renders pre-processed HTML content via `set:html`
+- **`packages/ui/src/astro/ItemMetadata.astro`** — Displays categories, tags, timestamps
+- **`packages/ui/src/astro/ItemCTA.astro`** — Call-to-action button linking to source URL
+- **`packages/ui/src/astro/ShareButton.astro`** — Share button (Twitter/X share link)
+- **`packages/ui/src/astro/SimilarItems.astro`** — Section displaying related items grid
+- Added corresponding prop interfaces to `packages/ui/src/types.ts`
+
+### Q16: ItemContent Component
+- Implemented as part of Q15 decomposition above
+- Uses Astro's `set:html` directive for trusted markdown-rendered HTML
+
+### Docs/Spec Health-Check Audit
+- **`docs/specs/component-catalog.md`** — Added 8 new component specifications (FeaturedBadge, FeaturedSection, ItemContent, ItemMetadata, ItemCTA, ShareButton, SimilarItems, LayoutSwitcher)
+- **`CLAUDE.md`** — Updated monorepo structure to include `apps/sample-git/`
+- **`AGENTS.md`** — Updated component lists to include all 24 Astro + 6 Preact components
+- **`docs/questions.md`** — Added `[DONE]` status markers to Q12-Q16
+- **`docs/index.md`** — Added reference to `.specify/features/sample-git.md`
+
+### New Spec: Sample-Git Feature
+- **`.specify/features/sample-git.md`** — Feature specification for the Git data adapter reference implementation
+
+### Component Count
+- **Before**: 17 Astro + 5 Preact = 22 components
+- **After**: 24 Astro + 6 Preact = 30 components
+
+### Verification
+- **TypeCheck**: 16 tasks, 0 errors
+- **Unit Tests**: All 11 suites passing (78 core + others)
+- No build-breaking changes
+
+### Next Steps (for next scheduled run)
+1. Write unit tests for new components (types validation)
+2. Integrate new components into sample-basic (FeaturedSection, LayoutSwitcher, ItemContent sub-components)
+3. Update SKILLS.md to document new components and patterns
+4. Consider additional sample templates (sample-jobs, sample-events)
+5. Explore plugin for markdown processing (unified/remark/rehype pipeline)
+
 ## 2026-04-11 — Iteration 18: Docs Frontmatter, E2E CI, Sample-Git
 
 ### Docusaurus Frontmatter
