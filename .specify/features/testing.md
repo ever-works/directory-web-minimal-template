@@ -1,0 +1,58 @@
+# Feature: Unit Testing Infrastructure
+
+## Description
+
+Vitest-based unit testing alongside the existing Playwright E2E tests. Provides fast feedback loops for testing data loaders, plugin logic, and pure utility functions without spinning up a dev server.
+
+## User Stories
+
+- As a **developer**, I want to run unit tests for core data loaders to verify YAML parsing and type validation.
+- As a **developer**, I want to test plugin lifecycle hooks in isolation.
+- As an **AI agent**, I want tests that confirm data contracts so I can detect breaking changes early.
+
+## Acceptance Criteria
+
+1. Vitest installed as root devDependency
+2. `pnpm test` runs all unit tests via Turborepo
+3. Each package with testable logic has a `vitest.config.ts` and `test` script
+4. `packages/core` has tests for item-loader, config-loader, category-loader
+5. `packages/plugins` has tests for PluginRunner lifecycle
+6. Tests use `vi.mock()` for filesystem/IO mocking
+7. All tests pass in CI (add to CI workflow)
+
+## Technical Design
+
+### Test Framework
+
+- **Vitest** — Fast, Vite-native, compatible with our TypeScript-first approach
+- **vitest/globals** — No import needed for `describe`, `it`, `expect`
+- **vi.mock()** — Mock filesystem reads for loader tests
+
+### Configuration
+
+Root `turbo.json` task:
+```json
+"test": {
+    "dependsOn": ["^build"],
+    "cache": true
+}
+```
+
+Per-package `vitest.config.ts`:
+```typescript
+import { defineConfig } from 'vitest/config';
+export default defineConfig({ test: { globals: true } });
+```
+
+### Test Locations
+
+Tests live next to source files in `__tests__/` directories:
+```
+packages/core/src/__tests__/item-loader.test.ts
+packages/core/src/__tests__/config-loader.test.ts
+packages/plugins/src/__tests__/runner.test.ts
+```
+
+## Dependencies
+
+- `vitest` ^3.x (devDependency at root)

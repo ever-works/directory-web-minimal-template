@@ -2,6 +2,59 @@
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-11 — Iteration 10: Testing Infrastructure, Plugin-Breadcrumbs, Deployment Docs
+
+### Unit Testing Infrastructure (Vitest)
+- **Added `vitest` ^4.1.4** as root devDependency
+- **Added `"test"` script** to root package.json (`turbo run test`)
+- **Added `"test"` task** to turbo.json with `dependsOn: ["^build"]` and caching
+- **Created `packages/core/vitest.config.ts`** — Vitest config with globals enabled
+- **Created `packages/core/src/__tests__/item-loader.test.ts`** — 13 tests for item loading (YAML parsing, filtering, slug generation, error handling)
+- **Created `packages/core/src/__tests__/config-loader.test.ts`** — 8 tests for config loading (default values, field validation)
+- **Created `packages/plugins/vitest.config.ts`** — Vitest config for plugins package
+- **Created `packages/plugins/src/__tests__/runner.test.ts`** — Tests for PluginRunner and definePlugins (lifecycle, dependency resolution, error handling)
+- **Result: 2 test files, 21 tests, all passing**
+
+### Plugin-Breadcrumbs Package
+- **Created `packages/plugin-breadcrumbs/`** — New plugin (6 files)
+  - `package.json` — Package config following plugin-seo pattern
+  - `tsconfig.json` — Extends shared base config
+  - `src/types.ts` — `BreadcrumbEntry`, `BreadcrumbMap`, `BreadcrumbsPluginOptions`
+  - `src/generator.ts` — Pure `generateBreadcrumbs()` function for all 12 page types
+  - `src/plugin.ts` — `breadcrumbsPlugin()` factory with `onDataLoaded` hook
+  - `src/index.ts` — Barrel exports
+- **Typecheck passes** — Uses `cat.id` (not `cat.slug`) per `CategoryWithCount` type
+
+### Deployment & Troubleshooting Documentation
+- **Created `docs/guides/deployment.md`** — Deployment guide (Vercel, GitHub Actions, env vars, custom domains)
+- **Created `docs/guides/troubleshooting.md`** — Troubleshooting guide (common issues, solutions)
+- **Created Starlight versions** — `apps/docs/src/content/docs/guides/deployment.md` and `troubleshooting.md`
+- **Updated `apps/docs/astro.config.ts`** — Added Deployment and Troubleshooting to sidebar
+- **Docs site now builds 19 pages** (up from 17)
+
+### Spec & Documentation Health-Check
+- **Fixed `.specify/features/web-app.md`** — Routes updated to match actual implementation (e.g., `/items/[slug]` → `/item/[slug]`, added `/404`)
+- **Updated `.specify/project.md`** — Phase 7 marked complete, Phase 8 added; Testing row updated to include Vitest
+- **Created `.specify/features/plugin-breadcrumbs.md`** — Breadcrumbs plugin feature spec
+- **Created `.specify/features/testing.md`** — Unit testing infrastructure feature spec
+- **Updated `AGENTS.md`** — Added plugin-breadcrumbs to available plugins table
+- **Updated `CLAUDE.md`** — Added `pnpm test` command and safe operations
+- **Updated `docs/index.md`** — Added new guides and specs to index
+
+### Build Verification
+- `pnpm typecheck` — ALL 13 tasks pass (0 errors, up from 12 — new plugin-breadcrumbs package)
+- `pnpm test` — 2 test files, 21 tests passed (new Vitest suite)
+- `pnpm build` — 3 apps built (web: 8 pages, sample-basic: 41 pages, docs: 19 pages)
+- `pnpm test:e2e` — 54 E2E tests passed (27 desktop + 27 mobile)
+
+### Next Steps (for next scheduled run)
+1. Add breadcrumbs plugin to sample-basic plugins.config.ts and wire into pages
+2. Add unit tests for plugin-breadcrumbs generator function
+3. Create additional sample templates (sample-jobs, sample-events)
+4. Add E2E tests for collections and comparisons pages
+5. Consider Pagefind integration for static search
+6. Update CI workflow to include unit tests
+
 ## 2026-04-11 — Iteration 9: Interactive Component Integration & Dark Mode
 
 ### Interactive Component Integration (apps/sample-basic)

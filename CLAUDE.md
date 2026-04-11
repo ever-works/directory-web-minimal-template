@@ -83,7 +83,8 @@ pnpm dev:docs             # Start only the docs site
 pnpm build                # Build all apps
 pnpm lint                 # Lint all packages
 pnpm typecheck            # Type-check all packages
-pnpm test:e2e             # Run E2E tests
+pnpm test                 # Run all unit tests (Vitest)
+pnpm test:e2e             # Run E2E tests (Playwright)
 pnpm clean                # Clean all build artifacts
 ```
 
@@ -113,6 +114,7 @@ These commands are always safe to run:
 - `pnpm build`
 - `pnpm lint`
 - `pnpm typecheck`
+- `pnpm test`
 - `pnpm test:e2e`
 - `pnpm clean`
 

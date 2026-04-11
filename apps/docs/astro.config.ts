@@ -39,6 +39,8 @@ export default defineConfig({
                         { label: 'Creating a Plugin', link: '/guides/creating-a-plugin/' },
                         { label: 'Creating an Adapter', link: '/guides/creating-an-adapter/' },
                         { label: 'Interactive Components', link: '/guides/interactive-components/' },
+                        { label: 'Deployment', link: '/guides/deployment/' },
+                        { label: 'Troubleshooting', link: '/guides/troubleshooting/' },
                     ],
                 },
                 {

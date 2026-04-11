@@ -15,11 +15,13 @@
         "test:e2e": "turbo run test:e2e",
         "clean": "turbo run clean",
         "format": "prettier --write \"**/*.{ts,tsx,js,jsx,md,json}\"",
+        "test": "turbo run test",
         "typecheck": "turbo run typecheck"
     },
     "devDependencies": {
         "prettier": "^3.5.0",
-        "turbo": "^2.5.0"
+        "turbo": "^2.5.0",
+        "vitest": "^4.1.4"
     },
     "prettier": {
         "useTabs": false,
@@ -30,7 +32,10 @@
         "trailingComma": "none",
         "overrides": [
             {
-                "files": ["*.yml", "*.yaml"],
+                "files": [
+                    "*.yml",
+                    "*.yaml"
+                ],
                 "options": {
                     "tabWidth": 2
                 }

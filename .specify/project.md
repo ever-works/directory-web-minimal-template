@@ -35,7 +35,7 @@ A minimal, static-rendered Astro template for AI-generated directory websites. L
 | Data | YAML files in Git repositories |
 | Package Manager | pnpm 10 |
 | Deployment | Vercel (via GitHub Actions) |
-| Testing | Playwright (E2E) |
+| Testing | Playwright (E2E), Vitest (unit) |
 | Docs | Starlight (Astro-based) |
 
 ## Architecture
@@ -63,4 +63,5 @@ A minimal, static-rendered Astro template for AI-generated directory websites. L
 | Phase 4 | Built-in plugins (SEO, pagination, filters, search, sort, sitemap) | Complete |
 | Phase 5 | Sample implementation (React UI Components directory) | Complete |
 | Phase 6 | Deployment, CI/CD, docs site, E2E tests | Complete |
-| Phase 7 | Polish: UI package usage, docs quality, content gaps | In Progress |
+| Phase 7 | Polish: UI package usage, docs quality, interactive components | Complete |
+| Phase 8 | Testing infrastructure, plugin-breadcrumbs, deployment docs | In Progress |

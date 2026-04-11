@@ -10,6 +10,7 @@
         "./types": "./src/types/index.ts"
     },
     "scripts": {
+        "test": "vitest run",
         "typecheck": "tsc --noEmit",
         "clean": "rm -rf dist"
     },

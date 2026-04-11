@@ -289,3 +289,4 @@ See `SKILLS.md` for detailed step-by-step guides.
 | `plugin-search` | Static search via Pagefind |
 | `plugin-sort` | Sort items by name, date, featured |
 | `plugin-sitemap` | XML sitemap generation |
+| `plugin-breadcrumbs` | Auto-generate breadcrumb trails for all page types |

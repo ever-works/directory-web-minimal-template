@@ -18,16 +18,16 @@ The core Astro application that assembles components, loads data, and generates 
 ## Acceptance Criteria
 
 1. Home page renders with hero, featured items, and category list
-2. `/items/` lists all approved items with pagination
-3. `/items/[slug]` renders full item detail
-4. `/categories/` lists all categories with item counts
-5. `/categories/[slug]` lists items in that category
-6. `/tags/` lists all active tags
-7. `/tags/[slug]` lists items with that tag
-8. `/collections/` lists all active collections
-9. `/collections/[slug]` lists items in that collection
-10. `/comparisons/` lists all comparisons
-11. `/comparisons/[slug]` renders comparison detail
+2. `/page/[page]` lists all approved items with pagination
+3. `/item/[slug]` renders full item detail
+4. `/categories` lists all categories with item counts
+5. `/category/[slug]` lists items in that category
+6. `/tags` lists all active tags
+7. `/tag/[slug]` lists items with that tag
+8. `/collections` lists all active collections
+9. `/collection/[slug]` lists items in that collection
+10. `/comparisons` lists all comparisons
+11. `/comparison/[slug]` renders comparison detail
 12. 404 page for unknown routes
 13. Build generates fully static HTML (no SSR)
 14. All pages pass basic accessibility checks
@@ -35,19 +35,20 @@ The core Astro application that assembles components, loads data, and generates 
 
 ## Pages
 
-| Route | Template | Data |
-|-------|----------|------|
-| `/` | Home | config, featured items, categories |
-| `/items/` | Listing | all items (paginated) |
-| `/items/[slug]` | Detail | single item |
-| `/categories/` | Listing | categories with counts |
-| `/categories/[slug]` | Listing | items by category |
-| `/tags/` | Listing | tags with counts |
-| `/tags/[slug]` | Listing | items by tag |
-| `/collections/` | Listing | collections |
-| `/collections/[slug]` | Listing | items in collection |
-| `/comparisons/` | Listing | comparisons |
-| `/comparisons/[slug]` | Detail | comparison data |
+| Route | File | Data |
+|-------|------|------|
+| `/` | `index.astro` | config, featured items, categories |
+| `/page/[page]` | `page/[page].astro` | all items (paginated) |
+| `/item/[slug]` | `item/[slug].astro` | single item detail |
+| `/categories` | `categories.astro` | categories with counts |
+| `/category/[slug]` | `category/[slug].astro` | items by category |
+| `/tags` | `tags.astro` | tags with counts |
+| `/tag/[slug]` | `tag/[slug].astro` | items by tag |
+| `/collections` | `collections.astro` | collections |
+| `/collection/[slug]` | `collection/[slug].astro` | items in collection |
+| `/comparisons` | `comparisons.astro` | comparisons |
+| `/comparison/[slug]` | `comparison/[slug].astro` | comparison data |
+| `/404` | `404.astro` | not found page |
 
 ## Technical Design
 
