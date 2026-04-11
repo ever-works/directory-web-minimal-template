@@ -1,0 +1,30 @@
+---
+/**
+ * ShareButton — Share button for items.
+ * Uses a simple copy-to-clipboard link (no JS required for basic version).
+ *
+ * @example
+ * ```astro
+ * <ShareButton url="https://example.com/item/foo" title="Foo Tool" />
+ * ```
+ */
+import type { ShareButtonProps } from '../types.js';
+import Button from '../primitives/button/Button.astro';
+
+type Props = ShareButtonProps;
+
+const { url, title, class: className, ...attrs } = Astro.props;
+---
+
+<Button
+    as="a"
+    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`}
+    class={className}
+    data-component="share-button"
+    rel="noopener noreferrer"
+    target="_blank"
+    variant="outline"
+    {...attrs}
+>
+    Share
+</Button>

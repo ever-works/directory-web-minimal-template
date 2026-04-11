@@ -1,0 +1,20 @@
+---
+/**
+ * ItemContent — Renders pre-processed HTML content (from markdown).
+ * Uses Astro's set:html for safe rendering of trusted content.
+ *
+ * @example
+ * ```astro
+ * <ItemContent content={compiledHtml} />
+ * ```
+ */
+import type { ItemContentProps } from '../types.js';
+
+type Props = ItemContentProps;
+
+const { content, class: className, ...attrs } = Astro.props;
+---
+
+{content && (
+    <div class:list={["prose dark:prose-invert max-w-none", className]} data-component="item-content" {...attrs} set:html={content} />
+)}

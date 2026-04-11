@@ -1,57 +1,72 @@
-# Sample: React UI Components Directory
+# Sample: Time Tracking Directory (Git Data)
 
-> A reference implementation built by AI from the minimal template.
-> Demonstrates the full AI workflow from blank template to styled directory website.
+> A reference implementation demonstrating the **Git data adapter**.
+> Loads real-world content from a remote Git repository at build time.
 
 ## What This Is
 
-A working directory website for **React UI Components**, showcasing 12 component libraries across 8 categories and 10 tags. Built using:
+A working directory website for **Time Tracking tools**, loading 3,200+ items from the [awesome-time-tracking-data](https://github.com/ever-works/awesome-time-tracking-data) repository. This sample demonstrates:
 
-- The `@ever-works/web-minimal` template as the starting point
-- `SKILLS.md` and `AGENTS.md` for AI guidance
-- Claude Code (Opus 4.6) as the AI agent
+- **Git-backed content** — Data is cloned from a remote Git repo at build time (no local `.content/` folder checked in)
+- **Dark-first theme** — shadcn/ui-inspired dark palette using zinc-based oklch colors
+- **Large dataset handling** — Pagination, collapsible sections, and lazy loading for 3,200+ items
 
 ## Features
 
-- **12 React component libraries** — Radix UI, Headless UI, React Aria, shadcn/ui, Chakra UI, Ant Design, Material UI, Mantine, React Hook Form, TanStack Table, Framer Motion, React Spring
-- **8 categories** — Form Components, Data Display, Navigation, Layout, Feedback, Animation, Headless, Full Suite
-- **10 tags** — TypeScript, Accessible, Headless, Open Source, Tailwind CSS, and more
-- **35 static pages** — Home, item details, category listings, tag listings, pagination
-- **Modern Tailwind CSS design** — Clean, responsive, dark mode ready
+- **3,200+ items** from the awesome-time-tracking-data repository
+- **100+ categories** and **200+ tags** with collapsible "show more" sections
+- **Pagination** — 12 items per page with page navigation
+- **Featured items** — Highlighted with amber badges and distinct card styling
+- **Markdown rendering** — Item descriptions rendered with `marked`
+- **Dark mode by default** — shadcn/ui dark theme
 - **SEO optimized** — Meta tags, Open Graph, JSON-LD structured data, sitemap
-- **Extreme performance** — Fully static, zero unnecessary JS, ~3s build time
+- **Fully static** — Zero runtime JS except interactive Preact islands
 
-## How It Was Built
+## How It Works
 
-1. AI read `AGENTS.md` and `CLAUDE.md` to understand the template rules
-2. AI created sample content data in `.content/` (config, categories, tags, items)
-3. AI copied the template structure and configured plugins
-4. AI applied Tailwind CSS styling to all headless components
-5. AI built and verified — 35 pages, 0 errors, 3.07s build time
+1. `predev`/`prebuild` script runs `scripts/clone-content.ts`
+2. The script clones the data repository into `.content/` (shallow clone, single branch)
+3. Astro reads `.content/` via the same `@ever-works/core` loader pipeline
+4. Pages are statically generated at build time
 
-## Prompt Used
+## Environment Variables
 
-```
-Implement a basic directory website for React UI Components using the
-ever-works minimal template. The directory should show all React component
-libraries with categories, tags, search, and a clean modern design with
-Tailwind CSS. Support dark and light modes. Make it fully static and
-deployable to Vercel.
-```
+| Variable | Default | Description |
+|---|---|---|
+| `DATA_REPOSITORY` | `https://github.com/ever-works/awesome-time-tracking-data` | Git HTTPS URL for the data repository |
+| `GITHUB_BRANCH` | `master` | Branch to clone |
+| `GH_TOKEN` | — | GitHub PAT for private repos (optional) |
+| `CONTENT_PATH` | — | Skip clone, use local path instead |
 
 ## Running Locally
 
 ```bash
 # From monorepo root
-pnpm dev --filter @ever-works/sample-basic
+pnpm run dev:sample-git
+
+# Or via turbo
+pnpm exec turbo run dev --filter=@ever-works/sample-git
 
 # Or from this directory
 pnpm dev
 ```
 
+The prebuild script will automatically clone the data repository on first run.
+
 ## Building
 
 ```bash
-pnpm --filter @ever-works/sample-basic build
-# Output: apps/sample-basic/dist/ (35 static pages)
+pnpm --filter @ever-works/sample-git build
+# Output: apps/sample-git/dist/
 ```
+
+## Customizing
+
+To use a different data repository, create a `.env` file:
+
+```env
+DATA_REPOSITORY=https://github.com/your-org/your-data-repo
+GITHUB_BRANCH=main
+```
+
+Or set environment variables directly in your CI/CD pipeline.

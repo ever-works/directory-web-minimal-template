@@ -54,8 +54,9 @@ pnpm dev:web
 apps/
   web/              Astro static site (core template)
   web-e2e/          Playwright E2E tests
-  docs/             Starlight documentation site
-  sample-basic/     Reference implementation (AI-generated)
+  docs/             Docusaurus documentation site
+  sample-basic/     Reference: React UI Components (hardcoded data)
+  sample-git/       Reference: Time Tracking (Git data adapter)
 
 packages/
   core/             Data layer, types, content reader
@@ -79,11 +80,19 @@ packages/
 | `pnpm dev` | Start all dev servers |
 | `pnpm dev:web` | Start only the web app |
 | `pnpm dev:docs` | Start only the docs site |
+| `pnpm run dev:sample-git` | Start the Git-backed sample |
 | `pnpm build` | Build all apps |
 | `pnpm lint` | Lint all packages |
 | `pnpm typecheck` | Type-check all packages |
 | `pnpm test:e2e` | Run E2E tests |
 | `pnpm clean` | Clean all build artifacts |
+
+## Samples
+
+| Sample | Port | Description |
+|--------|------|-------------|
+| `sample-basic` | 4323 | Hardcoded React UI Components directory (12 items). Demonstrates the basics. |
+| `sample-git` | 4324 | Time Tracking directory (**3,200+ items**) loaded from a remote Git repository. Dark theme, pagination, collapsible sections. |
 
 ## For AI Agents
 

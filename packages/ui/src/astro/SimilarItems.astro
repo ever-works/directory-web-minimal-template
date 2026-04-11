@@ -1,0 +1,27 @@
+---
+/**
+ * SimilarItems — Section displaying related items.
+ *
+ * @example
+ * ```astro
+ * <SimilarItems items={relatedItems} heading="You might also like" />
+ * ```
+ */
+import type { SimilarItemsProps } from '../types.js';
+import ItemCard from './ItemCard.astro';
+
+type Props = SimilarItemsProps;
+
+const { items, heading = 'Similar Items', class: className, ...attrs } = Astro.props;
+---
+
+{items.length > 0 && (
+    <section class={className} data-component="similar-items" {...attrs}>
+        <h2 data-part="heading" class="mb-4 text-lg font-semibold">{heading}</h2>
+        <div data-part="grid" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {items.map((item) => (
+                <ItemCard item={item} showDescription={false} />
+            ))}
+        </div>
+    </section>
+)}

@@ -7,6 +7,36 @@
  * this minimal template doesn't support them.
  */
 
+/** Navigation link item for custom header/footer */
+export interface NavLinkItem {
+    /** Display text */
+    label: string;
+
+    /** URL or path */
+    href: string;
+
+    /** Whether to open in new tab */
+    external?: boolean;
+}
+
+/** Homepage display configuration */
+export interface HomepageConfig {
+    /** Hero section title override */
+    hero_title?: string;
+
+    /** Hero section description override */
+    hero_description?: string;
+
+    /** Whether search is shown on homepage */
+    search_enabled?: boolean;
+
+    /** Default listing view mode */
+    default_view?: 'grid' | 'list';
+
+    /** Default sort order */
+    default_sort?: 'name-asc' | 'name-desc' | 'date-desc' | 'featured';
+}
+
 /** Site-wide configuration */
 export interface SiteConfig {
     /** Company or site name */
@@ -32,6 +62,15 @@ export interface SiteConfig {
 
     /** Feature toggles */
     settings?: SettingsConfig;
+
+    /** Custom navigation items for the header */
+    custom_header?: NavLinkItem[];
+
+    /** Custom navigation items for the footer */
+    custom_footer?: NavLinkItem[];
+
+    /** Homepage display settings */
+    homepage?: HomepageConfig;
 
     /**
      * Pass-through for additional config fields.
@@ -69,6 +108,15 @@ export interface SettingsConfig {
 
     /** Whether tag navigation is enabled */
     tags_enabled?: boolean;
+
+    /** Whether collections are enabled */
+    collections_enabled?: boolean;
+
+    /** Whether comparisons are enabled */
+    comparisons_enabled?: boolean;
+
+    /** Whether featured items section is shown */
+    featured_enabled?: boolean;
 
     /**
      * Pass-through for additional settings.

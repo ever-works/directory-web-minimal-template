@@ -5,7 +5,8 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getContent } from '../lib/content';
 
-const { categories, config } = await getContent();
+const { categories: allCategories, config } = await getContent();
+const categories = allCategories.filter((cat) => cat.count > 0);
 ---
 
 <BaseLayout title="Categories" description={`Browse all categories of ${config.items_name.toLowerCase()}`} config={config}>
@@ -28,7 +29,7 @@ const { categories, config } = await getContent();
                     </div>
                     <div>
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">{cat.name}</h2>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{cat.count} {cat.count === 1 ? 'library' : 'libraries'}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{cat.count} {cat.count === 1 ? 'item' : 'items'}</p>
                     </div>
                 </div>
             </a>

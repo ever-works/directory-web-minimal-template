@@ -1,0 +1,22 @@
+---
+/**
+ * FeaturedBadge — Simple badge indicating an item is featured.
+ *
+ * @example
+ * ```astro
+ * <FeaturedBadge />
+ * <FeaturedBadge label="Top Pick" />
+ * ```
+ */
+import type { FeaturedBadgeProps } from '../types.js';
+import Badge from '../primitives/badge/Badge.astro';
+
+type Props = FeaturedBadgeProps;
+
+const { label = 'Featured', class: className, ...attrs } = Astro.props;
+---
+
+<Badge variant="default" class={className} data-component="featured-badge" {...attrs}>
+    <span data-part="icon" aria-hidden="true">★</span>
+    <span data-part="label">{label}</span>
+</Badge>

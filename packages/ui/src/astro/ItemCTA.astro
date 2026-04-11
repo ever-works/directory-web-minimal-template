@@ -1,0 +1,21 @@
+---
+/**
+ * ItemCTA — Call-to-action button linking to the item's source URL.
+ *
+ * @example
+ * ```astro
+ * <ItemCTA href="https://example.com" />
+ * <ItemCTA href="https://example.com" label="Learn More" />
+ * ```
+ */
+import type { ItemCTAProps } from '../types.js';
+import Button from '../primitives/button/Button.astro';
+
+type Props = ItemCTAProps;
+
+const { href, label = 'Visit Website', class: className, ...attrs } = Astro.props;
+---
+
+<Button as="a" href={href} class={className} data-component="item-cta" rel="noopener noreferrer" target="_blank" {...attrs}>
+    {label} &rarr;
+</Button>

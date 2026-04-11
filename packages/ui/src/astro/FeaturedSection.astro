@@ -1,0 +1,28 @@
+---
+/**
+ * FeaturedSection — Section displaying featured items in a grid.
+ *
+ * @example
+ * ```astro
+ * <FeaturedSection items={featuredItems} heading="Top Picks" limit={3} />
+ * ```
+ */
+import type { FeaturedSectionProps } from '../types.js';
+import ItemCard from './ItemCard.astro';
+
+type Props = FeaturedSectionProps;
+
+const { items, heading = 'Featured', limit = 6, class: className, ...attrs } = Astro.props;
+const displayItems = items.slice(0, limit);
+---
+
+{displayItems.length > 0 && (
+    <section class={className} data-component="featured-section" {...attrs}>
+        <h2 data-part="heading" class="mb-4 text-xl font-semibold">{heading}</h2>
+        <div data-part="grid" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {displayItems.map((item) => (
+                <ItemCard item={item} />
+            ))}
+        </div>
+    </section>
+)}

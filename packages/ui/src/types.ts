@@ -128,6 +128,52 @@ export interface ComparisonTableProps extends BaseComponentProps {
     showScores?: boolean;
 }
 
+// ─── Featured Components ─────────────────────────────────────
+
+export interface FeaturedBadgeProps extends BaseComponentProps {
+    /** Label text for the badge */
+    label?: string;
+}
+
+export interface FeaturedSectionProps extends BaseComponentProps {
+    /** Items to display (already filtered to featured=true) */
+    items: ItemData[];
+    /** Section heading */
+    heading?: string;
+    /** Maximum items to show */
+    limit?: number;
+}
+
+// ─── Item Detail Sub-components ──────────────────────────────
+
+export interface ItemContentProps extends BaseComponentProps {
+    /** HTML content to render (pre-processed markdown) */
+    content: string;
+}
+
+export interface ItemMetadataProps extends BaseComponentProps {
+    item: ItemData;
+}
+
+export interface ItemCTAProps extends BaseComponentProps {
+    /** URL to link to */
+    href: string;
+    /** Button text */
+    label?: string;
+}
+
+export interface ShareButtonProps extends BaseComponentProps {
+    /** URL to share */
+    url: string;
+    /** Title for sharing */
+    title: string;
+}
+
+export interface SimilarItemsProps extends BaseComponentProps {
+    items: ItemData[];
+    heading?: string;
+}
+
 // ─── Interactive Components (Preact) ─────────────────────────
 
 export type SortOption = 'name-asc' | 'name-desc' | 'date-asc' | 'date-desc' | 'featured';

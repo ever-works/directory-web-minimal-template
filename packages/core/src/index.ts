@@ -29,6 +29,8 @@ export type {
     LogoConfig,
     PaginationConfig,
     SettingsConfig,
+    NavLinkItem,
+    HomepageConfig,
     ContentData
 } from './types/index';
 

@@ -31,14 +31,14 @@ function main(): void {
         return;
     }
 
-    const repo = process.env.DATA_REPOSITORY;
+    const repo = process.env.DATA_REPOSITORY || 'https://github.com/ever-works/awesome-time-tracking-data';
     if (!repo) {
         console.warn('[clone-content] DATA_REPOSITORY not set. Creating empty .content/ directory.');
         mkdirSync(CONTENT_DIR, { recursive: true });
         return;
     }
 
-    const branch = process.env.GITHUB_BRANCH || 'main';
+    const branch = process.env.GITHUB_BRANCH || 'master';
     const token = process.env.GH_TOKEN;
 
     // Build the clone URL with auth token if provided

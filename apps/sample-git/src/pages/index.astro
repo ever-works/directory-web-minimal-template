@@ -1,9 +1,9 @@
 ---
 /**
- * Home Page — React UI Components Directory
+ * Home Page — Time Tracking Directory (Git Data)
  *
- * Hero section, category grid, and interactive item browser
- * demonstrating SearchInput, FilterBar, SortSelect integration.
+ * Thin hero banner and a single interactive ItemBrowser Preact island
+ * that includes collapsible categories/tags, search, sort, and pagination.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getContent } from '../lib/content';
@@ -11,7 +11,6 @@ import { generateJsonLd } from '@ever-works/plugin-seo';
 import ItemBrowser from '../components/ItemBrowser';
 
 const { items, categories, tags, config } = await getContent();
-const featuredItems = items.filter((i) => i.featured);
 
 const jsonLd = generateJsonLd('WebSite', {
     type: 'WebSite',
@@ -31,15 +30,14 @@ const browserItems = items.map((item) => ({
     updated_at: item.updated_at,
 }));
 
-const browserCategories = categories.map((cat) => ({
-    id: cat.id,
-    name: cat.name,
-}));
+// Filter out categories and tags with no items, include counts
+const activeCategories = categories
+    .filter((cat) => cat.count > 0)
+    .map((cat) => ({ id: cat.id, name: cat.name, count: cat.count }));
 
-const browserTags = tags.map((tag) => ({
-    id: tag.id,
-    name: tag.name,
-}));
+const activeTags = tags
+    .filter((tag) => tag.count > 0)
+    .map((tag) => ({ id: tag.id, name: tag.name, count: tag.count }));
 ---
 
 <BaseLayout title="Home" config={config}>
@@ -48,88 +46,25 @@ const browserTags = tags.map((tag) => ({
     </Fragment>
 
     <!-- Hero -->
-    <section class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-600 to-brand-800 px-6 py-16 text-center text-white sm:px-12 sm:py-24 mb-12">
+    <section class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-600 to-brand-800 px-6 py-4 text-center text-white sm:px-10 sm:py-5 mb-10">
         <div class="relative z-10">
-            <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-                {config.company_name}
+            <h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl">
+                Ever Works Demo
             </h1>
-            <p class="mx-auto mt-4 max-w-2xl text-lg text-brand-100 sm:text-xl">
+            <p class="mx-auto mt-2 max-w-2xl text-sm text-brand-100 sm:text-base">
                 Discover and compare {items.length} {items.length === 1 ? config.item_name.toLowerCase() : config.items_name.toLowerCase()} for your next project.
             </p>
         </div>
         <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyem0wLTMwVjBoLTJ2NGgyem0tMzAgMGg0VjBINnY0em0wIDMwdjJoNHYtMkg2eiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
     </section>
 
-    <!-- Categories -->
-    {categories.length > 0 && (
-        <section class="mb-12">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Categories</h2>
-            <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-                {categories.map((cat) => (
-                    <a
-                        href={`/category/${cat.id}`}
-                        class="group flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-brand-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-900 dark:hover:border-brand-600"
-                    >
-                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-950 dark:text-brand-400 group-hover:bg-brand-100 dark:group-hover:bg-brand-900 transition-colors">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">{cat.name}</span>
-                            <span class="block text-xs text-gray-500 dark:text-gray-400">{cat.count} {cat.count === 1 ? 'library' : 'libraries'}</span>
-                        </div>
-                    </a>
-                ))}
-            </div>
-        </section>
-    )}
-
-    <!-- Featured -->
-    {featuredItems.length > 0 && (
-        <section class="mb-12">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Featured</h2>
-            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {featuredItems.map((item) => (
-                    <a
-                        href={`/item/${item.slug}`}
-                        class="group relative rounded-xl border border-brand-200 bg-brand-50/50 p-6 transition-all hover:border-brand-300 hover:shadow-lg dark:border-brand-800 dark:bg-brand-950/30 dark:hover:border-brand-700"
-                    >
-                        <div class="absolute right-4 top-4">
-                            <span class="inline-flex items-center rounded-full bg-brand-100 px-2.5 py-0.5 text-xs font-medium text-brand-700 dark:bg-brand-900 dark:text-brand-300">
-                                Featured
-                            </span>
-                        </div>
-                        <div class="flex items-start gap-4">
-                            {item.icon_url && (
-                                <img src={item.icon_url} alt="" class="h-12 w-12 rounded-lg object-contain" loading="lazy" />
-                            )}
-                            <div class="min-w-0">
-                                <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
-                                    {item.name}
-                                </h3>
-                                {item.description && (
-                                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{item.description}</p>
-                                )}
-                            </div>
-                        </div>
-                    </a>
-                ))}
-            </div>
-        </section>
-    )}
-
-    <!-- Interactive Item Browser (Preact island with search, filter, sort) -->
-    <section>
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-            Browse All {config.items_name}
-        </h2>
-        <ItemBrowser
-            client:load
-            items={browserItems}
-            categories={browserCategories}
-            tags={browserTags}
-            itemsName={config.items_name}
-        />
-    </section>
+    <!-- Single interactive island: categories, tags, search, sort, items, pagination -->
+    <ItemBrowser
+        client:load
+        items={browserItems}
+        categories={activeCategories}
+        tags={activeTags}
+        itemsName={config.items_name}
+        perPage={12}
+    />
 </BaseLayout>

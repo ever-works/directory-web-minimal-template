@@ -5,7 +5,8 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getContent } from '../lib/content';
 
-const { tags, config } = await getContent();
+const { tags: allTags, config } = await getContent();
+const tags = allTags.filter((tag) => tag.count > 0);
 ---
 
 <BaseLayout title="Tags" description={`Browse all tags for ${config.items_name.toLowerCase()}`} config={config}>

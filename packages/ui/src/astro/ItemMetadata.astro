@@ -1,0 +1,35 @@
+---
+/**
+ * ItemMetadata — Displays categories, tags, and timestamps for an item.
+ *
+ * @example
+ * ```astro
+ * <ItemMetadata item={item} />
+ * ```
+ */
+import type { ItemMetadataProps } from '../types.js';
+import Badge from '../primitives/badge/Badge.astro';
+
+type Props = ItemMetadataProps;
+
+const { item, class: className, ...attrs } = Astro.props;
+const categories = Array.isArray(item.category) ? item.category : item.category ? [item.category] : [];
+---
+
+<div class:list={["flex flex-wrap items-center gap-2", className]} data-component="item-metadata" {...attrs}>
+    {categories.map((cat) => (
+        <Badge as="a" href={`/category/${cat}`} variant="outline" data-part="category">
+            {cat}
+        </Badge>
+    ))}
+    {item.tags?.length > 0 && item.tags.map((tag) => (
+        <Badge as="a" href={`/tag/${tag}`} variant="secondary" data-part="tag">
+            {tag}
+        </Badge>
+    ))}
+    {item.updated_at && (
+        <time data-part="updated-at" datetime={item.updated_at} class="text-xs text-muted-foreground">
+            Updated: {item.updated_at}
+        </time>
+    )}
+</div>

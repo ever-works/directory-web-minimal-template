@@ -11,6 +11,7 @@
         "dev": "turbo run dev",
         "dev:web": "turbo run dev --filter=@ever-works/web-minimal",
         "dev:docs": "turbo run dev --filter=@ever-works/docs-minimal",
+        "dev:sample-git": "turbo run dev --filter=@ever-works/sample-git",
         "lint": "turbo run lint",
         "test:e2e": "turbo run test:e2e",
         "clean": "turbo run clean",
