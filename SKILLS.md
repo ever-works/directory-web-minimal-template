@@ -57,7 +57,7 @@ apps/sample-basic/     -- Reference implementation (React UI Components director
 apps/sample-jobs/      -- Reference implementation (Remote Tech Jobs directory)
 apps/sample-events/    -- Reference implementation (Tech Events directory, teal, port 4325)
 apps/sample-real-estate/ -- Reference implementation (Property Listings directory, amber, port 4326)
-apps/sample-git/       -- Reference implementation using Git data adapter (1495 pages)
+apps/sample-git/       -- Reference implementation using Git data adapter (3200+ items)
 packages/core/         -- Data types and loaders (do not modify)
 packages/ui/           -- Headless components (import, do not modify)
 packages/plugins/      -- Plugin system (do not modify)
@@ -370,7 +370,11 @@ interface ContentData {
 | `pages/categories.astro` | `/categories` | All categories list |
 | `pages/tag/[slug].astro` | `/tag/typescript` | Items filtered by tag |
 | `pages/tags.astro` | `/tags` | All tags list |
+| `pages/collections.astro` | `/collections` | All collections list |
+| `pages/collection/[slug].astro` | `/collection/featured-picks` | Items in a collection |
+| `pages/comparisons.astro` | `/comparisons` | All comparisons list |
 | `pages/comparison/[slug].astro` | `/comparison/a-vs-b` | Side-by-side comparison |
+| `pages/pages/[slug].astro` | `/pages/about` | Static content page (from `.content/pages/`) |
 | `pages/404.astro` | (any 404) | Not found page |
 
 ---
@@ -1267,6 +1271,14 @@ interface ItemData {
     featured?: boolean;
     /** URL to the item's icon or logo image */
     icon_url?: string;
+    /** Brand name associated with the item */
+    brand?: string;
+    /** URL to the brand's logo image */
+    brand_logo_url?: string;
+    /** Array of screenshot/image URLs for the item */
+    images?: string[];
+    /** Publisher name for display */
+    publisher?: string;
     /** Last update timestamp in 'yyyy-MM-dd HH:mm' format */
     updated_at: string;
     /** Approval status. Only 'approved' items are shown publicly. */
@@ -1392,6 +1404,20 @@ Source: `packages/core/src/types/config.ts`
 Parsed from: `.content/config.yml`
 
 ```typescript
+interface NavLinkItem {
+    label: string;
+    href: string;
+    external?: boolean;
+}
+
+interface HomepageConfig {
+    hero_title?: string;
+    hero_description?: string;
+    search_enabled?: boolean;
+    default_view?: 'grid' | 'list';
+    default_sort?: 'name-asc' | 'name-desc' | 'date-desc' | 'featured';
+}
+
 interface SiteConfig {
     /** Company or site name */
     company_name: string;
@@ -1409,6 +1435,12 @@ interface SiteConfig {
     pagination?: PaginationConfig;
     /** Feature toggles */
     settings?: SettingsConfig;
+    /** Custom navigation items for the header */
+    custom_header?: NavLinkItem[];
+    /** Custom navigation items for the footer */
+    custom_footer?: NavLinkItem[];
+    /** Homepage display settings */
+    homepage?: HomepageConfig;
     /** Pass-through for additional config fields */
     [key: string]: unknown;
 }
@@ -1427,6 +1459,9 @@ interface PaginationConfig {
 interface SettingsConfig {
     categories_enabled?: boolean;
     tags_enabled?: boolean;
+    collections_enabled?: boolean;
+    comparisons_enabled?: boolean;
+    featured_enabled?: boolean;
     [key: string]: unknown;
 }
 ```

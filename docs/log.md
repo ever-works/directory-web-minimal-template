@@ -40,6 +40,13 @@ sidebar_label: "Change Log"
 - **Docs health**: Clean — no drift or broken references
 - **TypeScript 6 held**: @astrojs/check requires TS ^5.0.0 — upgrade deferred until Astro tooling supports TS 6
 
+### Docs Drift Fixes (from audit agent findings)
+- **AGENTS.md** — Fixed stale SiteConfig: added `NavLinkItem`, `HomepageConfig` interfaces, `custom_header`, `custom_footer`, `homepage` fields, and 3 missing settings flags (`collections_enabled`, `comparisons_enabled`, `featured_enabled`) plus `[key: string]: unknown` pass-through
+- **SKILLS.md page table** — Added 4 missing routes: `/collections`, `/collection/[slug]`, `/comparisons`, `/pages/[slug]` (was 9 routes, now 13 — matching AGENTS.md and actual code)
+- **SKILLS.md SiteConfig reference** — Same fix as AGENTS.md: added `NavLinkItem`, `HomepageConfig`, new SiteConfig fields, expanded `SettingsConfig`
+- **SKILLS.md ItemData reference** — Added 4 missing fields: `brand`, `brand_logo_url`, `images`, `publisher` (were present in Skill 3 section but missing from Reference section)
+- **SKILLS.md sample-git description** — Fixed "1495 pages" to "3200+ items" (consistent with CLAUDE.md)
+
 ### Next Steps (for next scheduled run)
 1. Consider upgrading TypeScript when @astrojs/check supports v6
 2. Set up Docusaurus docs site content (Starlight alternative or fill existing Docusaurus)

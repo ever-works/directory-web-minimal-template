@@ -257,6 +257,20 @@ interface PageData {
 
 ### Config (from `.content/config.yml`)
 ```typescript
+interface NavLinkItem {
+    label: string;
+    href: string;
+    external?: boolean;
+}
+
+interface HomepageConfig {
+    hero_title?: string;
+    hero_description?: string;
+    search_enabled?: boolean;
+    default_view?: 'grid' | 'list';
+    default_sort?: 'name-asc' | 'name-desc' | 'date-desc' | 'featured';
+}
+
 interface SiteConfig {
     company_name: string;
     item_name: string;
@@ -275,7 +289,15 @@ interface SiteConfig {
     settings?: {
         categories_enabled?: boolean;
         tags_enabled?: boolean;
+        collections_enabled?: boolean;
+        comparisons_enabled?: boolean;
+        featured_enabled?: boolean;
+        [key: string]: unknown;
     };
+    custom_header?: NavLinkItem[];
+    custom_footer?: NavLinkItem[];
+    homepage?: HomepageConfig;
+    [key: string]: unknown;
 }
 ```
 
