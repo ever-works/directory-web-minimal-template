@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-11 (Iteration 22: sample-jobs, sync tests, docs fixes)
+> Updated: 2026-04-12 (Iteration 23: E2E verified, docs health-check, sample-events spec)
 
 ## Root Documents
 
@@ -18,6 +18,10 @@ slug: /
 - **AGENTS.md** — AI agent rules (R1-R15 under Mandatory Rules), working process, data contracts, available pages/components/plugins ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/AGENTS.md))
 - **SKILLS.md** — Step-by-step AI agent skills for building directory sites ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/SKILLS.md))
 - **README.md** — Project README ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/README.md))
+
+## Overview
+
+- [overview.md](overview.md) — Project overview, philosophy, tech stack, quick start
 
 ## Architecture
 
@@ -37,13 +41,14 @@ slug: /
 - [plans/phase-5-sample.md](plans/phase-5-sample.md) — Phase 5: Sample implementations
 - [plans/phase-5-sample-detail.md](plans/phase-5-sample-detail.md) — Phase 5: Detailed implementation plan for sample-basic
 - [plans/phase-6-deployment.md](plans/phase-6-deployment.md) — Phase 6: Deployment, CI/CD, docs site
+- [plans/phase-7-sample-events.md](plans/phase-7-sample-events.md) — Phase 7: Sample events/conferences directory
 
 ## Specifications
 
 - [specs/data-schema.md](specs/data-schema.md) — Data schema specification (Item, Category, Tag, Collection, Comparison, Config)
 - [specs/plugin-interface.md](specs/plugin-interface.md) — Plugin interface contract (hooks, context, lifecycle)
 - [specs/adapter-interface.md](specs/adapter-interface.md) — Adapter interface contract (DataAdapter, AdapterConfig)
-- [specs/component-catalog.md](specs/component-catalog.md) — Component catalog specification (24 Astro + 7 Preact)
+- [specs/component-catalog.md](specs/component-catalog.md) — Component catalog specification (24 Astro + 8 Preact + 14 primitives)
 
 ## Spec Kit (.specify/)
 
@@ -63,6 +68,7 @@ slug: /
 - **features/sample-git.md** — Sample Git reference implementation spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/sample-git.md))
 - **features/content-sync.md** — Content sync, caching & ISR spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/content-sync.md))
 - **features/sample-jobs.md** — Sample Jobs (job board directory) spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/sample-jobs.md))
+- **features/sample-events.md** — Sample Events (conferences/meetups directory) spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/sample-events.md))
 
 ## Guides
 

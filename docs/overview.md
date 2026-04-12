@@ -17,7 +17,7 @@ This template is an **intentionally blank canvas** with headless, composable bui
 - **Static-first**: Astro 5 with fully static output (`output: 'static'`), no SSR
 - **Plugin architecture**: Almost every feature is a plugin that can be enabled/disabled
 - **Git-first data**: Content stored in YAML files within Git repositories
-- **Headless components**: 17 Astro + 5 Preact unstyled building blocks
+- **Headless components**: 24 Astro + 8 Preact unstyled building blocks + 14 primitive components
 - **AI-optimized**: Clear naming, inline docs, explicit data contracts
 - **Extreme performance**: Zero unnecessary JS, Astro islands architecture
 
@@ -50,20 +50,27 @@ pnpm dev
 ```
 /
 ├── apps/
-│   ├── web/           — Astro static site (core template)
-│   ├── web-e2e/       — Playwright E2E tests
-│   ├── docs/          — This documentation site
-│   └── sample-basic/  — Reference implementation
+│   ├── web/              — Astro static site (core template)
+│   ├── web-e2e/          — Playwright E2E tests
+│   ├── docs/             — Docusaurus documentation site
+│   ├── sample-basic/     — Reference implementation (React UI Components directory)
+│   ├── sample-git/       — Git adapter reference (1495 pages)
+│   └── sample-jobs/      — Job board directory sample
 ├── packages/
-│   ├── core/          — Data layer, content reader, types
-│   ├── ui/            — Headless UI components
-│   ├── plugins/       — Plugin system
-│   ├── adapters/      — Data source adapters
-│   ├── plugin-seo/    — SEO plugin
-│   ├── plugin-pagination/ — Pagination plugin
-│   ├── plugin-filters/    — Filters plugin
-│   ├── plugin-search/     — Search plugin (Pagefind)
-│   ├── plugin-sort/       — Sort plugin
-│   └── plugin-sitemap/    — Sitemap plugin
-└── docs/              — Documentation source
+│   ├── core/             — Data layer, content reader, types, schemas
+│   ├── ui/               — Headless UI components (24 Astro + 8 Preact + 14 primitives)
+│   ├── plugins/          — Plugin system (runner, types, define-plugins)
+│   ├── adapters/         — Data source adapters (git, filesystem)
+│   ├── astro-integration/— Astro integration for plugin build lifecycle
+│   ├── sync/             — Content synchronization (webhooks, polling, ISR)
+│   ├── plugin-seo/       — SEO plugin (meta tags, JSON-LD)
+│   ├── plugin-pagination/— Pagination plugin
+│   ├── plugin-filters/   — Filters plugin
+│   ├── plugin-search/    — Search plugin (Pagefind)
+│   ├── plugin-sort/      — Sort plugin
+│   ├── plugin-sitemap/   — Sitemap plugin
+│   ├── plugin-breadcrumbs/— Breadcrumbs plugin
+│   ├── tsconfig/         — Shared TypeScript configurations
+│   └── eslint-config/    — Shared ESLint configuration
+└── docs/                 — Documentation source (Markdown)
 ```

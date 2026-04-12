@@ -7,6 +7,53 @@ sidebar_label: "Change Log"
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-12 — Iteration 23: E2E Verified, Docs Health-Check, Sample-Events Spec
+
+### Project Health Assessment
+- **Build**: All 5 apps build successfully (web, sample-basic, sample-git, sample-jobs, docs) — cached in 1.13s
+- **Typecheck**: 18/18 tasks pass with 0 errors
+- **Unit tests**: 12/12 suites pass (all cached)
+- **E2E tests**: 57/57 pass on Chromium (19.8s) — covers home, items, categories, tags, collections, comparisons, navigation, pagination, SEO
+
+### Docs Health-Check
+- Audited all references in `docs/index.md` — 28 docs files + 13 .specify files verified
+- Found 1 unlisted file: `docs/overview.md` — added to index under new "Overview" section
+- Updated `docs/overview.md` — fixed stale component count (was "17 Astro + 5 Preact", now "24 Astro + 8 Preact + 14 primitives")
+- Updated monorepo structure in overview to include sample-git, sample-jobs, sync, astro-integration, plugin-breadcrumbs
+- Fixed component catalog count in index.md (was "24 Astro + 7 Preact", now "24 Astro + 8 Preact + 14 primitives")
+- No broken cross-references found
+
+### Sample Events Specification
+- Created `.specify/features/sample-events.md` (729 lines) — tech events/conferences directory spec
+  - 10 sample events: React Summit, Next.js Conf, AI Dev Summit, KubeCon Europe, React Meetup SF, MLOps Workshop, GitHub Universe, Mobile Dev Camp, Open Source Hackathon, Cloud Native Hackathon
+  - 4 categories: Conference, Meetup, Workshop, Hackathon
+  - 10 tags: AI, Web, Mobile, DevOps, Cloud, Open Source, Beginner Friendly, Networking, Hands-On, Keynote
+  - 2 collections: "Must-Attend 2026", "Free Events"
+  - 2 comparisons: react-summit-vs-next-conf, ai-dev-summit-vs-mlops-workshop
+  - Event-specific meta fields: date_start, date_end, location, format, price, speakers, attendees
+- Created `docs/plans/phase-7-sample-events.md` (757 lines) — 7-task implementation plan
+
+### Documentation Updates
+- Updated `docs/index.md` — added Overview section, phase-7 plan, sample-events spec entry
+- Updated `docs/overview.md` — corrected component counts and monorepo structure
+- Updated `docs/log.md` — this entry
+
+### Summary
+- **All builds, types, unit tests, and E2E tests passing** — project is healthy
+- **57 E2E tests verified** on Chromium (home, items, categories, tags, collections, comparisons, navigation, pagination, SEO)
+- **Docs fully aligned** — all referenced files exist, no broken links, stale data corrected
+- **sample-events spec complete** — ready for implementation in future iteration
+- **Component catalog complete**: 24 Astro + 8 Preact + 14 primitive components
+
+### Next Steps (for next scheduled run)
+1. Implement sample-events app (Phase 7) — scaffold, content data, pages, styling
+2. Run E2E tests on mobile viewport (currently only testing Chromium desktop)
+3. Create sample-real-estate spec
+4. Review and enhance SKILLS.md with sample-events-specific skills
+5. Consider docs site deployment to GitHub Pages
+
+---
+
 ## 2026-04-11 — Iteration 22: sample-jobs, Sync Tests, Docs Fixes
 
 ### Typecheck Fix
