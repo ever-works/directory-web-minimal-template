@@ -1,5 +1,5 @@
 /**
- * Plugin configuration for the React UI Components directory.
+ * Plugin configuration for the Time Tracking directory (Git data adapter).
  */
 
 import { definePlugins } from '@ever-works/plugins';
