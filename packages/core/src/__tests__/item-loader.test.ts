@@ -203,7 +203,7 @@ describe('loadItem', () => {
         expect(item!.slug).toBe('my-custom-slug');
     });
 
-    it('should default status to draft when status is invalid', async () => {
+    it('should default status to approved when status is invalid', async () => {
         const yaml = `
 name: Bad Status Tool
 description: Invalid status
@@ -213,10 +213,12 @@ status: unknown
             readFile: vi.fn().mockResolvedValue(yaml),
         });
 
-        // status defaults to 'draft', which is not 'approved', so loadItem returns null
+        // status defaults to 'approved' when missing or invalid
+        // This ensures real-world data repos without explicit status work out-of-the-box
         const item = await loadItem(adapter, 'bad-status');
 
-        expect(item).toBeNull();
+        expect(item).not.toBeNull();
+        expect(item!.status).toBe('approved');
     });
 
     it('should parse optional fields (featured, icon_url, collections, markdown)', async () => {

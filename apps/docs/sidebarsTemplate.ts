@@ -37,6 +37,7 @@ const sidebars: SidebarsConfig = {
         "specs/data-schema",
         "specs/plugin-interface",
         "specs/adapter-interface",
+        "specs/component-catalog",
       ],
     },
     {

@@ -51,7 +51,7 @@ This is a **minimal, static-rendered Astro template** for AI-generated directory
 2. **No database** — All data comes from Git repos via YAML files
 3. **No auth** — No user accounts, sessions, or authentication
 4. **No payments** — No billing, subscriptions, or payment providers
-5. **ISR by default** — `output: 'hybrid'` with ISR via `@astrojs/vercel`. Opt out with `ENABLE_ISR=false` for pure static.
+5. **ISR by default** — `output: 'static'` with Vercel adapter for ISR. Opt out with `ENABLE_ISR=false` for pure static.
 6. **Plugin everything** — Almost every feature must be a plugin. Core should be minimal.
 7. **Git-first data** — Default data storage is Git repos. No DB, no custom storage.
 8. **Extreme performance** — Every decision optimizes for speed

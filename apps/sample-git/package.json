@@ -5,9 +5,9 @@
     "type": "module",
     "description": "Reference implementation: a Time Tracking directory using the Git data adapter to load content from a remote repository.",
     "scripts": {
-        "dev": "astro dev --port 4324",
+        "dev": "astro dev --port 4327",
         "build": "astro build",
-        "preview": "astro preview --port 4324",
+        "preview": "astro preview --port 4327",
         "typecheck": "astro check && tsc --noEmit",
         "clean": "rm -rf dist .astro .content"
     },

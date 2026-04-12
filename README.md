@@ -92,14 +92,14 @@ packages/
 | Sample | Port | Description |
 |--------|------|-------------|
 | `sample-basic` | 4323 | Hardcoded React UI Components directory (12 items). Demonstrates the basics. |
-| `sample-git` | 4324 | Time Tracking directory (**3,200+ items**) loaded from a remote Git repository. Dark theme, pagination, collapsible sections. |
+| `sample-git` | 4327 | Time Tracking directory (**3,200+ items**) loaded from a remote Git repository. Dark theme, pagination, collapsible sections. |
 
 ## For AI Agents
 
 Read these files before working on this codebase:
 
 1. **`CLAUDE.md`** — Project overview, rules, and commands
-2. **`AGENTS.md`** — Mandatory rules (R1-R14), working process, data contracts
+2. **`AGENTS.md`** — Mandatory rules (R1-R15), working process, data contracts
 3. **`SKILLS.md`** — Step-by-step skills for building directory sites
 4. **`docs/questions.md`** — Open design decisions with default choices
 5. **`.specify/`** — Feature specifications

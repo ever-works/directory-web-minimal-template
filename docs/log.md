@@ -7,6 +7,58 @@ sidebar_label: "Change Log"
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-12 — Iteration 28: sample-git E2E, Item-Loader Fix, Docs Drift Fixes
+
+### Bug Fix: Item-Loader Default Status
+- **packages/core/src/loaders/item-loader.ts**: Changed default status from `'draft'` to `'approved'` when items have no explicit `status` field. This was preventing 3264 items in the time-tracking data repo from being rendered. Real-world data repos typically don't include status fields, so defaulting to approved is the practical choice.
+- **packages/core/src/__tests__/item-loader.test.ts**: Updated test to match new default (was: expect null; now: expect approved item)
+
+### E2E Tests: sample-git (29 tests)
+- Created `tests/git/git-home.spec.ts` — 7 tests (title, hero, header, footer, ItemBrowser listing, item count, category sidebar)
+- Created `tests/git/git-item.spec.ts` — 7 tests (title, heading, breadcrumbs, source URL, tags, markdown content, related items)
+- Created `tests/git/git-categories.spec.ts` — 6 tests (categories index, category counts, category page, items in category, tags index, tag page)
+- Created `tests/git/git-comparisons.spec.ts` — 5 tests (comparisons index, links, detail page, table, breadcrumbs)
+- Created `tests/git/git-pagination.spec.ts` — 4 tests (home pagination, page 2 route, pagination nav, items on page 2)
+
+### Playwright Config Updates
+- Added 2 new projects: `git-chromium`, `git-mobile` (port 4327)
+- Added 1 new webServer: sample-git (port 4327)
+- Updated existing project testIgnore to exclude `**/git/**`
+- Total test count: **~400 tests** (was 370)
+
+### Port Conflict Fix
+- **apps/sample-git/package.json**: Changed dev/preview port from 4324 to 4327 (was conflicting with sample-jobs)
+- **README.md**: Updated port reference
+
+### Documentation Drift Fixes
+- **CLAUDE.md**: Fixed Rule 5 — was `output: 'hybrid'`, now correctly says `output: 'static'` with Vercel adapter for ISR
+- **SKILLS.md**: Fixed rule reference from "R1-R14" to "R1-R15"; fixed output mode description to mention ISR
+- **AGENTS.md**: Fixed working process rule reference from "R1-R14" to "R1-R15"
+- **README.md**: Fixed rule reference from "R1-R14" to "R1-R15"
+- **docs/overview.md**: Fixed component counts (was "7 primitive + 5 shadcn", now "22 primitives")
+- **docs/index.md**: Added missing `specs/component-catalog.md` entry
+- **apps/docs/sidebarsTemplate.ts**: Added `specs/component-catalog` to Specifications sidebar
+
+### CI Workflow Updates
+- **.github/workflows/ci.yml**: Updated E2E job to explicitly run all 4 sample projects (chromium, events-chromium, jobs-chromium, re-chromium). sample-git skipped in CI since its data requires cloning from GitHub.
+
+### Verification Summary
+- `pnpm build` — 7/7 tasks pass (sample-git now builds 5030 pages with items)
+- `pnpm typecheck` — 20/20 tasks pass (0 errors)
+- `pnpm lint` — 9/9 tasks pass
+- `pnpm test` — 12/12 unit test tasks pass
+- E2E tests — sample-basic 57/57, sample-git 29/29 pass
+- Docs site (Docusaurus) — builds successfully
+
+### Next Steps (for next scheduled run)
+1. Run full E2E suite including events, jobs, real-estate to verify no regressions
+2. Add Docusaurus docs site content pages (custom pages, better landing page)
+3. Review and improve SKILLS.md completeness (verify all component examples)
+4. Consider adding visual regression testing
+5. Explore adding a GitHub Actions job for sample-git E2E (requires data repo access)
+
+---
+
 ## 2026-04-12 — Iteration 27: E2E Coverage Expansion, Docs Sidebar Fixes
 
 ### E2E Tests: sample-jobs (54 tests)

@@ -32,12 +32,12 @@ Read these files in order to understand constraints:
 
 ```
 CLAUDE.md     -- Architecture overview, critical rules, monorepo structure
-AGENTS.md     -- Mandatory rules R1-R14, working process, data contracts
+AGENTS.md     -- Mandatory rules R1-R15, working process, data contracts
 ```
 
 Key constraints to internalize:
 - TypeScript only (no JS/Python source files)
-- Static output only (`output: 'static'`, no SSR)
+- Static output with ISR (`output: 'static'` + Vercel adapter for ISR by default; set `ENABLE_ISR=false` for pure static)
 - Plugin architecture -- almost every feature is a plugin
 - Git-first data -- YAML files in `.content/` directories, no database
 

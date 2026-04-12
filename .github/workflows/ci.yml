@@ -87,8 +87,20 @@ jobs:
         run: npx playwright install --with-deps chromium
         working-directory: apps/web-e2e
 
-      - name: Run E2E tests
+      - name: Run E2E tests (sample-basic)
         run: npx playwright test --project=chromium
+        working-directory: apps/web-e2e
+
+      - name: Run E2E tests (sample-events)
+        run: npx playwright test --project=events-chromium
+        working-directory: apps/web-e2e
+
+      - name: Run E2E tests (sample-jobs)
+        run: npx playwright test --project=jobs-chromium
+        working-directory: apps/web-e2e
+
+      - name: Run E2E tests (sample-real-estate)
+        run: npx playwright test --project=re-chromium
         working-directory: apps/web-e2e
 
       - name: Upload test results

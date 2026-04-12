@@ -9,6 +9,7 @@ import { defineConfig, devices } from '@playwright/test';
  *   - events-chromium / events-mobile → sample-events on port 4325
  *   - jobs-chromium / jobs-mobile   → sample-jobs on port 4324
  *   - re-chromium / re-mobile       → sample-real-estate on port 4326
+ *   - git-chromium / git-mobile     → sample-git on port 4327
  */
 export default defineConfig({
     testDir: './tests',
@@ -27,7 +28,7 @@ export default defineConfig({
         {
             name: 'chromium',
             testDir: './tests',
-            testIgnore: ['**/events/**', '**/jobs/**', '**/real-estate/**'],
+            testIgnore: ['**/events/**', '**/jobs/**', '**/real-estate/**', '**/git/**'],
             use: {
                 ...devices['Desktop Chrome'],
                 baseURL: 'http://localhost:4323',
@@ -36,7 +37,7 @@ export default defineConfig({
         {
             name: 'mobile',
             testDir: './tests',
-            testIgnore: ['**/events/**', '**/jobs/**', '**/real-estate/**'],
+            testIgnore: ['**/events/**', '**/jobs/**', '**/real-estate/**', '**/git/**'],
             use: {
                 ...devices['iPhone 14'],
                 baseURL: 'http://localhost:4323',
@@ -96,6 +97,23 @@ export default defineConfig({
                 baseURL: 'http://localhost:4326',
             },
         },
+        // ── sample-git ────────────────────────────────────
+        {
+            name: 'git-chromium',
+            testDir: './tests/git',
+            use: {
+                ...devices['Desktop Chrome'],
+                baseURL: 'http://localhost:4327',
+            },
+        },
+        {
+            name: 'git-mobile',
+            testDir: './tests/git',
+            use: {
+                ...devices['iPhone 14'],
+                baseURL: 'http://localhost:4327',
+            },
+        },
     ],
 
     webServer: [
@@ -117,6 +135,11 @@ export default defineConfig({
         {
             command: 'pnpm --filter @ever-works/sample-real-estate preview',
             port: 4326,
+            reuseExistingServer: !process.env.CI,
+        },
+        {
+            command: 'pnpm --filter @ever-works/sample-git preview',
+            port: 4327,
             reuseExistingServer: !process.env.CI,
         },
     ],

@@ -110,7 +110,7 @@ Every document, specification, code file, and decision MUST comply with these ru
 1. Check current state: read `docs/log.md` for recent changes
 2. Check specs: read relevant `.specify/` specs
 3. Check questions: read `docs/questions.md` for open decisions
-4. Check rules: verify task aligns with R1-R14 above
+4. Check rules: verify task aligns with R1-R15 above
 
 ### When Creating New Features
 1. Write spec in `.specify/` folder first
