@@ -53,7 +53,11 @@ Verify the monorepo structure:
 
 ```
 apps/web/              -- The Astro site you will customize
-apps/sample-basic/     -- Reference implementation to study
+apps/sample-basic/     -- Reference implementation (React UI Components directory)
+apps/sample-jobs/      -- Reference implementation (Remote Tech Jobs directory)
+apps/sample-events/    -- Reference implementation (Tech Events directory, teal, port 4325)
+apps/sample-real-estate/ -- Reference implementation (Property Listings directory, amber, port 4326)
+apps/sample-git/       -- Reference implementation using Git data adapter (1495 pages)
 packages/core/         -- Data types and loaders (do not modify)
 packages/ui/           -- Headless components (import, do not modify)
 packages/plugins/      -- Plugin system (do not modify)
@@ -79,6 +83,9 @@ GITHUB_BRANCH=main
 
 ```env
 CONTENT_PATH=../../apps/sample-basic/.content
+# Or use a vertical-specific sample:
+# CONTENT_PATH=../../apps/sample-events/.content
+# CONTENT_PATH=../../apps/sample-real-estate/.content
 ```
 
 **Option C: Default fallback**
@@ -114,7 +121,13 @@ console.log(`Categories: ${categories.map(c => c.name).join(', ')}`);
 console.log(`Tags: ${tags.map(t => t.name).join(', ')}`);
 ```
 
-Study the `apps/sample-basic/.content/` directory for the YAML format:
+Study any sample app's `.content/` directory for the YAML format. Each sample demonstrates a different vertical:
+
+- `apps/sample-basic/.content/` -- React UI Components (general-purpose reference)
+- `apps/sample-events/.content/` -- Tech Events/Conferences (event-specific meta fields)
+- `apps/sample-real-estate/.content/` -- Property Listings (real-estate-specific meta fields)
+
+Basic structure (from `apps/sample-basic/.content/`):
 
 ```
 .content/
@@ -1519,6 +1532,50 @@ featured: true
 icon_url: "https://ui.shadcn.com/favicon.ico"
 ```
 
+### Vertical-specific meta fields
+
+The `ItemData` interface allows arbitrary extra fields via `[key: string]: unknown`. The convention for vertical-specific data is to use a `meta` object. This keeps custom fields namespaced and makes them easy to access in templates via `item.meta`.
+
+**Events directory** (`apps/sample-events`):
+
+```yaml
+meta:
+  date_start: "2026-06-12"
+  date_end: "2026-06-13"
+  location: "Amsterdam, Netherlands"
+  format: "Hybrid"           # In-Person | Virtual | Hybrid
+  price: "$599"
+  speakers: "Kent C. Dodds, Sara Vieira, Mark Erikson"
+  attendees: "2000+"
+```
+
+**Real estate directory** (`apps/sample-real-estate`):
+
+```yaml
+meta:
+  price: "$485,000"
+  bedrooms: "1"
+  bathrooms: "1"
+  sqft: "1,200"
+  location: "Portland, OR"
+  year_built: "1920 (renovated 2024)"
+  lot_size: "N/A"
+  mls_number: "DP-2026-001"
+```
+
+Access meta fields in Astro templates:
+
+```astro
+{item.meta?.date_start && (
+    <span data-part="date">{item.meta.date_start}</span>
+)}
+{item.meta?.price && (
+    <span data-part="price">{item.meta.price}</span>
+)}
+```
+
+When building a new vertical, define your own `meta` fields following this pattern. The core data layer passes them through unchanged.
+
 ---
 
 ## Reference: Component Attribute Map
@@ -1623,5 +1680,8 @@ These are importable from `@ever-works/ui/astro/*` and can be used instead of in
 | Add interactive search | Import from `@ever-works/ui/preact/SearchInput` |
 | Change data source | Set `DATA_REPOSITORY` or `CONTENT_PATH` env var |
 | Create a new plugin | Add package to `packages/plugin-<name>/` |
+| Study a sample vertical | `apps/sample-basic/`, `sample-events/`, `sample-real-estate/` |
+| Run sample-events dev server | `cd apps/sample-events && pnpm dev` (port 4325) |
+| Run sample-real-estate dev server | `cd apps/sample-real-estate && pnpm dev` (port 4326) |
 | Build for production | `pnpm build` from monorepo root |
 | Preview production build | `cd apps/web && pnpm preview` |

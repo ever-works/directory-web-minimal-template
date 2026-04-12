@@ -26,7 +26,8 @@ This is a **minimal, static-rendered Astro template** for AI-generated directory
 │   ├── sample-basic/     — Reference implementation (React UI Components directory)
 │   ├── sample-git/       — Reference implementation using Git data adapter (1495 pages)
 │   ├── sample-jobs/      — Reference implementation (Remote Tech Jobs directory)
-│   └── sample-events/    — Reference implementation (Tech Events directory)
+│   ├── sample-events/    — Reference implementation (Tech Events directory)
+│   └── sample-real-estate/ — Reference implementation (Property Listings directory)
 ├── packages/
 │   ├── core/             — Data layer, content reader, types, schemas
 │   ├── ui/               — Headless UI components (unstyled building blocks)

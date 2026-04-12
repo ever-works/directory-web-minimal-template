@@ -1,0 +1,61 @@
+---
+/**
+ * Tag Page — Lists all properties with a specific tag.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BreadcrumbNav from '../../components/BreadcrumbNav.astro';
+import { getContent } from '../../lib/content';
+import type { ItemData, TagData } from '@ever-works/core';
+
+export async function getStaticPaths() {
+    const { tags, items } = await getContent();
+    return tags.map((tag) => {
+        const tagItems = items.filter((item) => item.tags?.includes(tag.id));
+        return {
+            params: { slug: tag.id },
+            props: { tag, items: tagItems },
+        };
+    });
+}
+
+interface Props {
+    tag: TagData;
+    items: ItemData[];
+}
+
+const { tag, items } = Astro.props;
+const { config } = await getContent();
+---
+
+<BaseLayout title={tag.name} description={`Browse ${items.length} ${config.items_name.toLowerCase()} tagged with ${tag.name}`} config={config}>
+    <BreadcrumbNav path={Astro.url.pathname} />
+
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+            <span class="text-brand-600 dark:text-brand-400">#</span> {tag.name}
+        </h1>
+        <p class="mt-2 text-gray-600 dark:text-gray-400">{items.length} {items.length === 1 ? config.item_name.toLowerCase() : config.items_name.toLowerCase()}</p>
+    </div>
+
+    {items.length === 0 ? (
+        <div class="rounded-xl border-2 border-dashed border-gray-300 p-12 text-center dark:border-gray-700">
+            <p class="text-gray-500 dark:text-gray-400">No {config.items_name.toLowerCase()} with this tag yet.</p>
+        </div>
+    ) : (
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {items.map((item) => (
+                <a
+                    href={`/item/${item.slug}`}
+                    class="group flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-gray-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-900 dark:hover:border-gray-600"
+                >
+                    <div class="min-w-0">
+                        <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">{item.name}</h3>
+                        {item.description && (
+                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{item.description}</p>
+                        )}
+                    </div>
+                </a>
+            ))}
+        </div>
+    )}
+</BaseLayout>

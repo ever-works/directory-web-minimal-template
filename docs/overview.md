@@ -56,7 +56,8 @@ pnpm dev
 │   ├── sample-basic/     — Reference implementation (React UI Components directory)
 │   ├── sample-git/       — Git adapter reference (1495 pages)
 │   ├── sample-jobs/      — Job board directory sample
-│   └── sample-events/    — Tech events directory sample
+│   ├── sample-events/    — Tech events directory sample
+│   └── sample-real-estate/ — Property listings directory sample
 ├── packages/
 │   ├── core/             — Data layer, content reader, types, schemas
 │   ├── ui/               — Headless UI components (24 Astro + 7 Preact + 22 primitives)

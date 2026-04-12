@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-12 (Iteration 24: sample-events app, sample-real-estate spec, docs health-check)
+> Updated: 2026-04-12 (Iteration 25: sample-real-estate app, E2E tests for events, phase-8 plan)
 
 ## Root Documents
 
@@ -42,6 +42,7 @@ slug: /
 - [plans/phase-5-sample-detail.md](plans/phase-5-sample-detail.md) — Phase 5: Detailed implementation plan for sample-basic
 - [plans/phase-6-deployment.md](plans/phase-6-deployment.md) — Phase 6: Deployment, CI/CD, docs site
 - [plans/phase-7-sample-events.md](plans/phase-7-sample-events.md) — Phase 7: Sample events/conferences directory
+- [plans/phase-8-sample-real-estate.md](plans/phase-8-sample-real-estate.md) — Phase 8: Sample real estate/property listings directory
 
 ## Specifications
 

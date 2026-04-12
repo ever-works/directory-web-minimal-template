@@ -1,0 +1,78 @@
+---
+/**
+ * Paginated Listing — Paginated view of all properties.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getContent } from '../../lib/content';
+import { paginate, generatePagePaths } from '@ever-works/plugin-pagination';
+
+export async function getStaticPaths() {
+    const { items, config } = await getContent();
+    const perPage = config.pagination?.itemsPerPage ?? 12;
+    return generatePagePaths(items.length, perPage);
+}
+
+interface Props {
+    currentPage: number;
+    totalPages: number;
+}
+
+const { currentPage: page } = Astro.props;
+const { items, config } = await getContent();
+const perPage = config.pagination?.itemsPerPage ?? 12;
+const pagination = paginate(items, { page, perPage });
+---
+
+<BaseLayout title={`Page ${page}`} description={`Browse ${config.items_name.toLowerCase()} — page ${page}`} config={config}>
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">All {config.items_name}</h1>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">Page {page} of {pagination.totalPages}</p>
+        </div>
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {pagination.items.map((item) => (
+            <a
+                href={`/item/${item.slug}`}
+                class="group flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-gray-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-900 dark:hover:border-gray-600"
+            >
+                <div class="min-w-0">
+                    <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">{item.name}</h3>
+                    {item.description && (
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{item.description}</p>
+                    )}
+                </div>
+            </a>
+        ))}
+    </div>
+
+    <!-- Pagination Nav -->
+    <nav class="mt-8 flex items-center justify-center gap-2">
+        {pagination.hasPrev && (
+            <a
+                href={page === 2 ? '/' : `/page/${page - 1}`}
+                class="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors"
+            >
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+                Previous
+            </a>
+        )}
+        <span class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+            {page} / {pagination.totalPages}
+        </span>
+        {pagination.hasNext && (
+            <a
+                href={`/page/${page + 1}`}
+                class="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors"
+            >
+                Next
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+            </a>
+        )}
+    </nav>
+</BaseLayout>

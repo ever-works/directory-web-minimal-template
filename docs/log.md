@@ -7,6 +7,66 @@ sidebar_label: "Change Log"
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-12 — Iteration 25: Sample-Real-Estate App, E2E Tests for Events, Phase-8 Plan
+
+### New App: sample-real-estate (Property Listings Directory)
+- **`apps/sample-real-estate/`** — New vertical-specific sample: a property listings directory
+- 10 property items: Downtown Loft, Suburban Family Home, Waterfront Penthouse, Craftsman Bungalow, Modern Office Space, Coworking Retail Unit, Lake House Retreat, Development Parcel, Micro Studio, Farmland Acreage
+- 4 categories: Apartment, House, Commercial, Land
+- 10 tags: Downtown, Suburban, Waterfront, Garden, Parking, Furnished, Pet-Friendly, New Build, Investment, Luxury
+- 2 collections: "Under $500K", "Luxury Collection"
+- 2 comparisons: downtown-loft-vs-suburban-house, office-space-vs-coworking (with full dimensions + scores)
+- 2 static pages: About, Contact
+- Property-specific metadata rendered in item detail: price, bedrooms, bathrooms, sqft, location, year_built, lot_size, mls_number
+- Amber brand color palette (vs indigo for sample-basic, blue for sample-jobs, teal for sample-events)
+- 37 static pages generated
+- All 7 built-in plugins enabled (including breadcrumbs)
+- Port 4326
+
+### New E2E Tests: sample-events
+- **`apps/web-e2e/tests/events/`** — 5 test files covering events-specific functionality:
+  - `events-home.spec.ts` — Hero, featured events, category links, navigation
+  - `events-item.spec.ts` — Event detail with metadata (date, location, format, price, speakers, attendees)
+  - `events-categories.spec.ts` — 4 categories and tags index
+  - `events-collections.spec.ts` — 2 collections with item counts
+  - `events-comparisons.spec.ts` — Comparison pages with dimension tables
+- Updated `playwright.config.ts` — Added `events-chromium` and `events-mobile` projects targeting port 4325
+
+### New Plan: Phase 8
+- **`docs/plans/phase-8-sample-real-estate.md`** — Detailed implementation plan for sample-real-estate
+  - 7 tasks: scaffold, content data, plugin config, styled layouts, pages, build verification, CI
+  - Success criteria, file counts, key differences from other samples
+
+### Documentation Updates
+- **`CLAUDE.md`** — Added sample-real-estate to monorepo structure
+- **`docs/index.md`** — Added phase-8 plan entry, updated iteration marker
+- **`docs/overview.md`** — Added sample-real-estate to monorepo structure
+- **`SKILLS.md`** — Added sample-events and sample-real-estate references, vertical-specific meta fields documentation
+
+### CI Workflow
+- **`.github/workflows/ci.yml`** — Added sample-real-estate build to E2E job
+
+### Build Verification
+- `pnpm typecheck` — ALL 20 tasks pass (0 errors), including new sample-real-estate
+- `pnpm build` — ALL 7 apps build successfully (37 pages for sample-real-estate)
+- **7 sample apps now**: web, sample-basic, sample-git, sample-jobs, sample-events, sample-real-estate (+ docs)
+
+### Summary
+- **sample-real-estate fully implemented and building** — 37 static pages, all features working
+- **E2E tests for sample-events complete** — 5 test files covering events-specific functionality
+- **Phase-8 plan documented** — full implementation plan for sample-real-estate
+- **SKILLS.md enhanced** — vertical-specific meta field documentation, all sample apps referenced
+- **Docs fully aligned** — all references updated, monorepo structure current
+
+### Next Steps (for next scheduled run)
+1. Run E2E tests for sample-events to verify they pass
+2. Add E2E tests for sample-real-estate
+3. Consider creating sample-saas or sample-restaurants spec
+4. Git commit all changes
+5. Deploy verification (ensure CI pipeline works end-to-end)
+
+---
+
 ## 2026-04-12 — Iteration 24: Sample-Events App, Sample-Real-Estate Spec, Docs Health-Check
 
 ### New App: sample-events (Tech Events Directory)

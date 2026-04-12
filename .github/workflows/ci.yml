@@ -78,6 +78,11 @@ jobs:
         env:
           SITE_URL: https://tech-events.example.com
 
+      - name: Build sample-real-estate
+        run: pnpm --filter @ever-works/sample-real-estate build
+        env:
+          SITE_URL: https://dream-properties.example.com
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
         working-directory: apps/web-e2e

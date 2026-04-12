@@ -1,0 +1,75 @@
+---
+/**
+ * Collection Detail Page — Lists all properties in a specific collection.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BreadcrumbNav from '../../components/BreadcrumbNav.astro';
+import { getContent } from '../../lib/content';
+import type { CollectionData } from '@ever-works/core';
+
+export async function getStaticPaths() {
+    const { collections } = await getContent();
+    return collections
+        .filter((c) => c.isActive !== false)
+        .map((collection) => ({
+            params: { slug: collection.slug },
+            props: { collection },
+        }));
+}
+
+interface Props {
+    collection: CollectionData;
+}
+
+const { collection } = Astro.props;
+const { items, config } = await getContent();
+
+const collectionItems = collection.items
+    ? items.filter((item) => collection.items!.includes(item.slug))
+    : [];
+---
+
+<BaseLayout
+    title={collection.name}
+    description={collection.description || `Browse properties in the ${collection.name} collection`}
+    config={config}
+>
+    <BreadcrumbNav path={Astro.url.pathname} />
+
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{collection.name}</h1>
+        {collection.description && (
+            <p class="mt-1 text-gray-600 dark:text-gray-400">{collection.description}</p>
+        )}
+        <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
+            {collectionItems.length} {collectionItems.length === 1 ? config.item_name.toLowerCase() : config.items_name.toLowerCase()}
+        </p>
+    </div>
+
+    {collectionItems.length === 0 ? (
+        <div class="rounded-xl border-2 border-dashed border-gray-300 p-12 text-center dark:border-gray-700">
+            <p class="text-gray-500 dark:text-gray-400">No {config.items_name.toLowerCase()} in this collection yet.</p>
+        </div>
+    ) : (
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {collectionItems.map((item) => (
+                <a
+                    href={`/item/${item.slug}`}
+                    class="group flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-gray-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-900 dark:hover:border-gray-600"
+                >
+                    <div class="min-w-0">
+                        <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">{item.name}</h3>
+                        {item.description && (
+                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{item.description}</p>
+                        )}
+                        <div class="mt-2 flex flex-wrap gap-1">
+                            {item.tags?.slice(0, 3).map((tag) => (
+                                <span class="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400">{tag}</span>
+                            ))}
+                        </div>
+                    </div>
+                </a>
+            ))}
+        </div>
+    )}
+</BaseLayout>

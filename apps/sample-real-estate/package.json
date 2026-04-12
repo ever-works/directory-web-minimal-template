@@ -1,0 +1,41 @@
+{
+    "name": "@ever-works/sample-real-estate",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "description": "Reference implementation: a property listings directory built by AI from the minimal template.",
+    "scripts": {
+        "dev": "astro dev --port 4326",
+        "build": "astro build",
+        "preview": "astro preview --port 4326",
+        "typecheck": "astro check && tsc --noEmit",
+        "clean": "rm -rf dist .astro"
+    },
+    "dependencies": {
+        "@astrojs/preact": "^4.0.0",
+        "@astrojs/sitemap": "^3.3.0",
+        "@ever-works/astro-integration": "workspace:*",
+        "@ever-works/core": "workspace:*",
+        "@ever-works/plugins": "workspace:*",
+        "@ever-works/adapters": "workspace:*",
+        "@ever-works/ui": "workspace:*",
+        "@ever-works/plugin-seo": "workspace:*",
+        "@ever-works/plugin-pagination": "workspace:*",
+        "@ever-works/plugin-filters": "workspace:*",
+        "@ever-works/plugin-search": "workspace:*",
+        "@ever-works/plugin-sort": "workspace:*",
+        "@ever-works/plugin-breadcrumbs": "workspace:*",
+        "@ever-works/plugin-sitemap": "workspace:*",
+        "@tailwindcss/vite": "^4.1.0",
+        "astro": "^5.0.0",
+        "preact": "^10.25.0",
+        "tailwindcss": "^4.1.0",
+        "yaml": "^2.7.0"
+    },
+    "devDependencies": {
+        "@astrojs/check": "^0.9.0",
+        "@ever-works/tsconfig": "workspace:*",
+        "pagefind": "^1.5.0",
+        "typescript": "^5.7.0"
+    }
+}
