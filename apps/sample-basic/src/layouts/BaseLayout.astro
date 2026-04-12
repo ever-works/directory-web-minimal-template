@@ -10,6 +10,7 @@ import { generateMetaTags } from '@ever-works/plugin-seo';
 import type { PageMeta } from '@ever-works/plugin-seo';
 import ThemeToggle from '@ever-works/ui/preact/ThemeToggle';
 import BackToTop from '@ever-works/ui/preact/BackToTop';
+import MobileMenu from '@ever-works/ui/preact/MobileMenu';
 import '../styles/global.css';
 
 interface Props {
@@ -67,39 +68,58 @@ const metaTags = generateMetaTags(pageMeta, {});
         <slot name="head" />
     </head>
     <body class="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100 antialiased">
+        <!-- Skip to content (keyboard a11y) -->
+        <a
+            href="#main-content"
+            class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-white focus:dark:bg-gray-900 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-gray-900 focus:dark:text-gray-100 focus:shadow-lg focus:ring-2 focus:ring-brand-500 focus:outline-none"
+        >
+            Skip to content
+        </a>
+
         <!-- Header -->
         <header class="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-lg dark:border-gray-800 dark:bg-gray-950/80">
             <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
                 <a href="/" class="flex items-center gap-2 text-lg font-bold text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 transition-colors">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
                     </svg>
                     <span>{config.company_name}</span>
                 </a>
-                <nav class="flex items-center gap-1">
-                    <a href="/" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition-colors">
-                        Home
-                    </a>
-                    <a href="/categories" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition-colors">
-                        Categories
-                    </a>
-                    <a href="/tags" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition-colors">
-                        Tags
-                    </a>
-                    <a href="/collections" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition-colors">
-                        Collections
-                    </a>
-                    <a href="/comparisons" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition-colors">
-                        Comparisons
-                    </a>
+                <div class="flex items-center gap-1">
+                    <!-- Desktop nav (hidden on mobile) -->
+                    <nav class="hidden md:flex items-center gap-1" aria-label="Main navigation">
+                        <a href="/" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition-colors">
+                            Home
+                        </a>
+                        <a href="/categories" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition-colors">
+                            Categories
+                        </a>
+                        <a href="/tags" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition-colors">
+                            Tags
+                        </a>
+                        <a href="/collections" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition-colors">
+                            Collections
+                        </a>
+                        <a href="/comparisons" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition-colors">
+                            Comparisons
+                        </a>
+                    </nav>
                     <!-- Theme Toggle (Preact island) -->
                     <ThemeToggle client:load />
-                </nav>
+                    <!-- Mobile hamburger menu (Preact island) -->
+                    <MobileMenu client:load items={[
+                        { label: 'Home', href: '/' },
+                        { label: 'Categories', href: '/categories' },
+                        { label: 'Tags', href: '/tags' },
+                        { label: 'Collections', href: '/collections' },
+                        { label: 'Comparisons', href: '/comparisons' },
+                    ]} />
+                </div>
             </div>
         </header>
 
         <!-- Main Content -->
-        <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <main id="main-content" class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
             <slot />
         </main>
 

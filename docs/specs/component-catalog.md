@@ -226,7 +226,9 @@ interface PaginationProps {
 ### SiteHeader
 
 **File**: `packages/ui/src/astro/SiteHeader.astro`
-**Slots**: `logo`, `nav`, `actions`
+**Slots**: `default` (actions area — place MobileMenu, ThemeToggle, etc.)
+
+Renders a skip-to-content link (`<a href="#main-content">`) before the header for keyboard navigation. Desktop nav links are hidden on mobile (`hidden md:block`). Use the `MobileMenu` Preact island in the actions slot for responsive mobile navigation.
 
 ```typescript
 interface NavItem {
@@ -241,6 +243,8 @@ interface SiteHeaderProps {
     class?: string;
 }
 ```
+
+**A11y features**: Skip-to-content link, `aria-label="Main navigation"` on desktop nav, `aria-current="page"` on active items, responsive desktop/mobile nav split.
 
 ---
 
@@ -448,6 +452,44 @@ interface LayoutSwitcherProps {
   <button data-part="mode-button" data-mode="list" role="radio" aria-checked="false">
     <svg><!-- list icon --></svg>
   </button>
+</div>
+```
+
+---
+
+### MobileMenu
+
+**File**: `packages/ui/src/preact/MobileMenu.tsx`
+**Hydration**: `client:load`
+**Purpose**: Responsive hamburger menu for mobile navigation. Shows a toggle button (hidden on `md:` and above) that opens a slide-down nav panel. Handles Escape to close, body scroll lock, and click-outside dismiss.
+
+```typescript
+interface MobileMenuNavItem {
+    label: string;
+    href: string;
+}
+
+interface MobileMenuProps {
+    items?: MobileMenuNavItem[];
+    class?: string;
+}
+```
+
+**HTML structure**:
+```html
+<div data-component="mobile-menu" class="md:hidden">
+  <button data-part="toggle" aria-expanded="false" aria-controls="mobile-nav-panel" aria-label="Open menu">
+    <svg><!-- hamburger or X icon --></svg>
+  </button>
+  <!-- When open: -->
+  <div id="mobile-nav-panel" role="navigation" aria-label="Mobile navigation" data-part="panel">
+    <nav>
+      <ul>
+        <li><a data-part="nav-link" href="/">Home</a></li>
+        ...
+      </ul>
+    </nav>
+  </div>
 </div>
 ```
 

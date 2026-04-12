@@ -1707,6 +1707,7 @@ These are importable from `@ever-works/ui/astro/*` and can be used instead of in
 | `@ever-works/ui/preact/ItemBrowser` | `ItemBrowserProps` |
 | `@ever-works/ui/preact/BackToTop` | `BackToTopProps` |
 | `@ever-works/ui/preact/ThemeToggle` | `ThemeToggleProps` |
+| `@ever-works/ui/preact/MobileMenu` | `MobileMenuProps` |
 
 ### Primitive Components (from fulldev/ui)
 

@@ -7,6 +7,64 @@ sidebar_label: "Change Log"
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-13 — Iteration 35: Skip-to-Content, Mobile Menu, A11y E2E Tests
+
+### Accessibility: Skip-to-Content Link
+- **`packages/ui/src/astro/SiteHeader.astro`** — Added skip-to-content link (`<a href="#main-content">Skip to content</a>`) before the header. Uses `sr-only` with `focus:not-sr-only` for keyboard-only visibility. Styled with ring focus indicator and shadow.
+- **`apps/web/src/layouts/BaseLayout.astro`** — Added `id="main-content"` to `<main>` tag for skip-link target
+- **`apps/sample-basic/src/layouts/BaseLayout.astro`** — Added skip-to-content link and `id="main-content"` to main tag
+- **`apps/sample-jobs/src/layouts/BaseLayout.astro`** — Same skip-to-content and main-content id additions
+- **`apps/sample-events/src/layouts/BaseLayout.astro`** — Same additions
+- **`apps/sample-real-estate/src/layouts/BaseLayout.astro`** — Same additions
+- **`apps/sample-git/src/layouts/BaseLayout.astro`** — Same additions
+
+### Accessibility: Mobile Hamburger Menu
+- **`packages/ui/src/preact/MobileMenu.tsx`** — NEW: Responsive hamburger menu Preact island. Features: hamburger/X toggle button, slide-down nav panel, Escape to close, body scroll lock, click-outside dismiss, `aria-expanded`, `aria-controls`, `aria-label` attributes
+- **`packages/ui/src/types.ts`** — Added `MobileMenuNavItem` and `MobileMenuProps` interfaces
+- **`packages/ui/package.json`** — Added `./preact/MobileMenu` export
+- **`packages/ui/src/astro/SiteHeader.astro`** — Desktop nav now `hidden md:block` to show only on desktop. MobileMenu placed in actions slot.
+- All 6 sample app layouts updated: desktop nav wrapped in `hidden md:flex`, MobileMenu added with `client:load`
+- Added `aria-hidden="true"` to decorative SVGs in sample app headers
+
+### E2E Test Enhancements
+- **`apps/web-e2e/tests/a11y.spec.ts`** — NEW: 4 accessibility tests (skip-to-content link, main-content landmark, navigation landmark, aria-labels)
+- **`apps/web-e2e/tests/mobile-menu.spec.ts`** — NEW: 5 mobile-only tests (hamburger visible, panel opens, nav links visible, navigation works, Escape closes)
+- **`apps/web-e2e/tests/home.spec.ts`** — Updated "should have site header with navigation" to handle mobile viewport (checks for hamburger button instead of desktop nav links)
+- **`apps/web-e2e/tests/navigation.spec.ts`** — Updated "navigate to categories" and "navigate to tags" tests to open mobile menu first on mobile viewports
+- Total E2E tests: ~227 (was ~218), chromium: 70, mobile: 70 (5 skipped desktop-only)
+
+### Dependency Updates
+- **`@types/node`** — Updated to latest in adapters, core, sync packages
+- **`@easyops-cn/docusaurus-search-local`** — Updated to 0.55.1 in docs app
+
+### Pagefind Analysis
+- Confirmed Pagefind JS bundle (~427KB) is NOT in the critical path — generated at build time, loaded on-demand only when consumer integrates Pagefind UI. No lazy-loading change needed.
+
+### Docs Health Check
+- All 33+ docs files in `docs/index.md` verified to exist on disk
+- All 15 `.specify/` spec files verified
+- Verified all 24 Astro + 8 Preact components match `docs/specs/component-catalog.md`
+- Updated component count from "7 Preact" to "8 Preact" in README.md, docs/overview.md
+- Updated E2E test count from ~218 to ~227 in README.md
+- Added MobileMenu to `docs/specs/component-catalog.md`, `AGENTS.md`, `SKILLS.md`
+- Updated SiteHeader documentation with skip-to-content and responsive nav behavior
+
+### Build Verification
+- `pnpm typecheck` — ALL 20 tasks pass (0 errors)
+- `pnpm lint` — ALL 9 tasks pass
+- `pnpm build` — ALL 7 apps build successfully:
+  - web (15 pages), sample-basic (42 pages), sample-jobs (36 pages)
+  - sample-events (37 pages), sample-real-estate (37 pages)
+  - sample-git (5030 pages), docs site
+- E2E tests: 135 passed, 5 skipped (chromium + mobile projects for sample-basic)
+
+### Next Steps (for next scheduled run)
+1. Consider upgrading TypeScript when @astrojs/check supports v6
+2. Run full E2E suite across all 5 sample projects (events, jobs, real-estate, git)
+3. Add E2E tests for mobile menu in other sample app projects
+4. Consider adding JSON-LD to category/tag listing pages (ItemList schema)
+5. Consider adding responsive hamburger menu E2E tests for all sample apps
+
 ## 2026-04-13 — Iteration 34: Accessibility Audit, Performance Audit, Docs Health Check
 
 ### Accessibility Improvements (7 components)

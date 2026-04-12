@@ -18,6 +18,14 @@ const logoSrc = config.logo?.logo_image;
 const logoSrcDark = config.logo?.logo_image_dark;
 ---
 
+<a
+    href="#main-content"
+    class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground focus:shadow-lg focus:ring-2 focus:ring-ring focus:outline-none"
+    data-component="skip-to-content"
+>
+    Skip to content
+</a>
+
 <header
     class:list={["sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-lg", className]}
     data-component="site-header"
@@ -40,7 +48,7 @@ const logoSrcDark = config.logo?.logo_image_dark;
         </div>
 
         {nav.length > 0 && (
-            <nav data-part="nav" aria-label="Main navigation">
+            <nav data-part="nav" aria-label="Main navigation" class="hidden md:block">
                 <ul data-part="nav-list" class="flex items-center gap-1">
                     {nav.map((item) => (
                         <li data-part="nav-item" data-active={item.isActive ? '' : undefined}>

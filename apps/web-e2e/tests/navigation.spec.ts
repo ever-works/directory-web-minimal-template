@@ -7,16 +7,27 @@ import { test, expect } from '@playwright/test';
  */
 
 test.describe('Navigation', () => {
-    test('should navigate to categories page', async ({ page }) => {
+    test('should navigate to categories page', async ({ page, isMobile }) => {
         await page.goto('/');
-        await page.click('a[href="/categories"]');
+        if (isMobile) {
+            // Open mobile menu first
+            await page.locator('[data-component="mobile-menu"] button').click();
+            await page.locator('#mobile-nav-panel a[href="/categories"]').click();
+        } else {
+            await page.click('a[href="/categories"]');
+        }
         await expect(page).toHaveURL(/\/categories/);
         await expect(page).toHaveTitle(/Categories/);
     });
 
-    test('should navigate to tags page', async ({ page }) => {
+    test('should navigate to tags page', async ({ page, isMobile }) => {
         await page.goto('/');
-        await page.click('a[href="/tags"]');
+        if (isMobile) {
+            await page.locator('[data-component="mobile-menu"] button').click();
+            await page.locator('#mobile-nav-panel a[href="/tags"]').click();
+        } else {
+            await page.click('a[href="/tags"]');
+        }
         await expect(page).toHaveURL(/\/tags/);
         await expect(page).toHaveTitle(/Tags/);
     });

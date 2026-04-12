@@ -16,7 +16,8 @@
         "./preact/BackToTop": "./src/preact/BackToTop.tsx",
         "./preact/ThemeToggle": "./src/preact/ThemeToggle.tsx",
         "./preact/LayoutSwitcher": "./src/preact/LayoutSwitcher.tsx",
-        "./preact/ItemBrowser": "./src/preact/ItemBrowser.tsx"
+        "./preact/ItemBrowser": "./src/preact/ItemBrowser.tsx",
+        "./preact/MobileMenu": "./src/preact/MobileMenu.tsx"
     },
     "scripts": {
         "typecheck": "tsc --noEmit",

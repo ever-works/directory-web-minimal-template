@@ -581,7 +581,7 @@ importers:
         specifier: workspace:*
         version: link:../tsconfig
       '@types/node':
-        specifier: ^22.0.0
+        specifier: ^22.19.17
         version: 22.19.17
       typescript:
         specifier: ^5.7.0
@@ -625,7 +625,7 @@ importers:
         specifier: workspace:*
         version: link:../tsconfig
       '@types/node':
-        specifier: ^22.0.0
+        specifier: ^22.19.17
         version: 22.19.17
       typescript:
         specifier: ^5.7.0
@@ -820,7 +820,7 @@ importers:
         specifier: workspace:*
         version: link:../tsconfig
       '@types/node':
-        specifier: ^22.0.0
+        specifier: ^22.19.17
         version: 22.19.17
       typescript:
         specifier: ^5.7.0

@@ -53,7 +53,7 @@ pnpm dev:web
 ```
 apps/
   web/                Astro static site (core template)
-  web-e2e/            Playwright E2E tests (~218 tests across 5 sample projects)
+  web-e2e/            Playwright E2E tests (~227 tests across 5 sample projects)
   docs/               Docusaurus documentation site
   sample-basic/       Reference: React UI Components (hardcoded data)
   sample-jobs/        Reference: Remote Tech Jobs directory
@@ -63,7 +63,7 @@ apps/
 
 packages/
   core/               Data layer, types, content reader
-  ui/                 Headless UI components (24 Astro + 7 Preact + 22 primitives + 5 shadcn-style)
+  ui/                 Headless UI components (24 Astro + 8 Preact + 22 primitives + 5 shadcn-style)
   plugins/            Plugin system (runner, lifecycle hooks)
   adapters/           Data source adapters (git, filesystem)
   astro-integration/  Astro integration for plugin build lifecycle

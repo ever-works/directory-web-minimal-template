@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-13 (Iteration 34: accessibility audit, performance audit, docs health check)
+> Updated: 2026-04-13 (Iteration 35: skip-to-content, mobile hamburger menu, a11y E2E tests)
 
 ## Root Documents
 

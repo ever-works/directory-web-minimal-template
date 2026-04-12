@@ -11,6 +11,7 @@ import { generateMetaTags } from '@ever-works/plugin-seo';
 import type { PageMeta } from '@ever-works/plugin-seo';
 import SiteHeader from '@ever-works/ui/astro/SiteHeader.astro';
 import SiteFooter from '@ever-works/ui/astro/SiteFooter.astro';
+import MobileMenu from '@ever-works/ui/preact/MobileMenu';
 import '../styles/global.css';
 
 interface Props {
@@ -86,9 +87,11 @@ const footerLinks: NavLinkItem[] = config.custom_footer ?? [];
         <slot name="head" />
     </head>
     <body data-component="body">
-        <SiteHeader config={config} nav={navItems} />
+        <SiteHeader config={config} nav={navItems}>
+            <MobileMenu client:load items={navItems} />
+        </SiteHeader>
 
-        <main data-component="main">
+        <main id="main-content" data-component="main">
             <slot />
         </main>
 

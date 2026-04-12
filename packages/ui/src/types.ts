@@ -249,3 +249,15 @@ export interface LayoutSwitcherProps {
     /** HTML class attribute */
     class?: string;
 }
+
+export interface MobileMenuNavItem {
+    label: string;
+    href: string;
+}
+
+export interface MobileMenuProps {
+    /** Navigation items to display */
+    items?: MobileMenuNavItem[];
+    /** HTML class attribute */
+    class?: string;
+}
