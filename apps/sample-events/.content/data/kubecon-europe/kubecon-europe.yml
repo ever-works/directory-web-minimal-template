@@ -1,0 +1,16 @@
+name: "KubeCon Europe"
+description: "The Cloud Native Computing Foundation's flagship event for Kubernetes and cloud-native technologies. Features hundreds of sessions on containers, service mesh, and platform engineering."
+source_url: "https://events.linuxfoundation.org/kubecon-cloudnativecon-europe"
+category: "conference"
+tags: ["devops", "cloud", "open-source", "networking"]
+updated_at: "2026-01-18 10:00"
+status: "approved"
+featured: true
+meta:
+  date_start: "2026-03-17"
+  date_end: "2026-03-20"
+  location: "London, UK"
+  format: "In-Person"
+  price: "$1,100"
+  speakers: "Kelsey Hightower, Liz Rice, Tim Hockin"
+  attendees: "12000+"

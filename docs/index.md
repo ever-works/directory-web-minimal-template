@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-12 (Iteration 23: E2E verified, docs health-check, sample-events spec)
+> Updated: 2026-04-12 (Iteration 24: sample-events app, sample-real-estate spec, docs health-check)
 
 ## Root Documents
 
@@ -48,7 +48,7 @@ slug: /
 - [specs/data-schema.md](specs/data-schema.md) — Data schema specification (Item, Category, Tag, Collection, Comparison, Config)
 - [specs/plugin-interface.md](specs/plugin-interface.md) — Plugin interface contract (hooks, context, lifecycle)
 - [specs/adapter-interface.md](specs/adapter-interface.md) — Adapter interface contract (DataAdapter, AdapterConfig)
-- [specs/component-catalog.md](specs/component-catalog.md) — Component catalog specification (24 Astro + 8 Preact + 14 primitives)
+- [specs/component-catalog.md](specs/component-catalog.md) — Component catalog specification (24 Astro + 7 Preact + 22 primitives)
 
 ## Spec Kit (.specify/)
 
@@ -69,6 +69,7 @@ slug: /
 - **features/content-sync.md** — Content sync, caching & ISR spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/content-sync.md))
 - **features/sample-jobs.md** — Sample Jobs (job board directory) spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/sample-jobs.md))
 - **features/sample-events.md** — Sample Events (conferences/meetups directory) spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/sample-events.md))
+- **features/sample-real-estate.md** — Sample Real Estate (property listings directory) spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/sample-real-estate.md))
 
 ## Guides
 

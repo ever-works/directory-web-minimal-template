@@ -1,0 +1,34 @@
+title: "AI Dev Summit vs MLOps Workshop"
+item_a_slug: "ai-dev-summit"
+item_b_slug: "mlops-workshop"
+item_a_name: "AI Dev Summit"
+item_b_name: "MLOps Workshop"
+summary: "A large-scale AI conference compared to an intensive hands-on workshop — different formats for learning AI and ML."
+verdict: "Choose AI Dev Summit for breadth and networking across the AI landscape. Choose MLOps Workshop for deep, practical skills in deploying ML systems. They complement each other well."
+verdict_winner: "tie"
+dimensions:
+  - name: "Hands-On Learning"
+    item_a_summary: "Some workshops available but primarily talk-based"
+    item_b_summary: "Entirely hands-on with live coding and lab exercises"
+    item_a_score: 6
+    item_b_score: 10
+    winner: "item_b"
+  - name: "Topic Breadth"
+    item_a_summary: "Covers LLMs, AI agents, code generation, and production ML"
+    item_b_summary: "Focused specifically on MLOps tooling and deployment"
+    item_a_score: 9
+    item_b_score: 5
+    winner: "item_a"
+  - name: "Networking"
+    item_a_summary: "3,000+ attendees, excellent for meeting AI practitioners"
+    item_b_summary: "100 attendees, intimate but small network"
+    item_a_score: 9
+    item_b_score: 6
+    winner: "item_a"
+  - name: "Cost Effectiveness"
+    item_a_summary: "$899 for three days of content"
+    item_b_summary: "$450 for two days of intensive hands-on training"
+    item_a_score: 7
+    item_b_score: 8
+    winner: "item_b"
+generated_at: "2026-04-12"

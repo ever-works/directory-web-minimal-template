@@ -1,0 +1,13 @@
+company_name: "Tech Events"
+item_name: "Event"
+items_name: "Events"
+copyright_year: 2026
+app_url: "https://tech-events.example.com"
+
+pagination:
+  type: "standard"
+  itemsPerPage: 12
+
+settings:
+  categories_enabled: true
+  tags_enabled: true

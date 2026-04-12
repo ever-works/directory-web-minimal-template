@@ -1,0 +1,15 @@
+- id: "conference"
+  name: "Conference"
+  description: "Multi-day industry conferences with keynotes, tracks, and networking"
+
+- id: "meetup"
+  name: "Meetup"
+  description: "Local community gatherings for talks, demos, and socializing"
+
+- id: "workshop"
+  name: "Workshop"
+  description: "Hands-on training sessions focused on practical skills"
+
+- id: "hackathon"
+  name: "Hackathon"
+  description: "Competitive coding events where teams build projects in a fixed timeframe"

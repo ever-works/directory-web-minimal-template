@@ -1,0 +1,49 @@
+- id: "ai"
+  name: "AI"
+  description: "Artificial intelligence, machine learning, and deep learning topics"
+  isActive: true
+
+- id: "web"
+  name: "Web"
+  description: "Frontend, backend, and full-stack web development"
+  isActive: true
+
+- id: "mobile"
+  name: "Mobile"
+  description: "iOS, Android, React Native, and cross-platform mobile development"
+  isActive: true
+
+- id: "devops"
+  name: "DevOps"
+  description: "CI/CD, infrastructure, containers, and platform engineering"
+  isActive: true
+
+- id: "cloud"
+  name: "Cloud"
+  description: "Cloud platforms, serverless, and distributed systems"
+  isActive: true
+
+- id: "open-source"
+  name: "Open Source"
+  description: "Open-source projects, communities, and contributions"
+  isActive: true
+
+- id: "beginner-friendly"
+  name: "Beginner Friendly"
+  description: "Accessible to newcomers with introductory-level content"
+  isActive: true
+
+- id: "networking"
+  name: "Networking"
+  description: "Strong emphasis on professional networking and community building"
+  isActive: true
+
+- id: "hands-on"
+  name: "Hands-On"
+  description: "Interactive sessions with live coding or lab exercises"
+  isActive: true
+
+- id: "keynote"
+  name: "Keynote"
+  description: "Features notable keynote speakers from the industry"
+  isActive: true

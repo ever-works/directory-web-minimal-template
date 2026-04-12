@@ -1,0 +1,16 @@
+name: "Next.js Conf"
+description: "Vercel's annual conference dedicated to Next.js and the future of web development. Free virtual event with live demos, announcements, and community showcases."
+source_url: "https://nextjs.org/conf"
+category: "conference"
+tags: ["web", "keynote", "beginner-friendly"]
+updated_at: "2026-02-15 10:00"
+status: "approved"
+featured: true
+meta:
+  date_start: "2026-10-22"
+  date_end: "2026-10-22"
+  location: "Virtual"
+  format: "Online"
+  price: "Free"
+  speakers: "Guillermo Rauch, Lee Robinson, Delba de Oliveira"
+  attendees: "50000+"

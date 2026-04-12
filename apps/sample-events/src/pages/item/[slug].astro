@@ -1,0 +1,197 @@
+---
+/**
+ * Item Detail Page — Full details for an event.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BreadcrumbNav from '../../components/BreadcrumbNav.astro';
+import { getContent } from '../../lib/content';
+import { generateJsonLd } from '@ever-works/plugin-seo';
+import type { ItemData } from '@ever-works/core';
+
+export async function getStaticPaths() {
+    const { items } = await getContent();
+    return items.map((item) => ({
+        params: { slug: item.slug },
+        props: { item },
+    }));
+}
+
+const { item } = Astro.props as { item: ItemData };
+const { config, items, categories, tags } = await getContent();
+
+/** Event-specific metadata — cast from the YAML pass-through `meta` field. */
+const meta = (item.meta ?? {}) as Record<string, string | undefined>;
+
+const primaryCategory: string | undefined = Array.isArray(item.category) ? item.category[0] : item.category;
+const relatedItems = primaryCategory
+    ? items
+        .filter((i) => {
+            if (i.slug === item.slug) return false;
+            const cats = Array.isArray(i.category) ? i.category : [i.category];
+            return cats.includes(primaryCategory);
+        })
+        .slice(0, 4)
+    : [];
+
+const categoryData = categories.find((c) => c.id === primaryCategory);
+const itemTags = tags.filter((t) => item.tags?.includes(t.id));
+
+const jsonLd = generateJsonLd('Product', {
+    type: 'Product',
+    name: item.name,
+    description: item.description,
+    url: item.source_url,
+});
+---
+
+<BaseLayout
+    title={item.name}
+    description={item.description}
+    config={config}
+    pageType="product"
+>
+    <Fragment slot="head">
+        <script is:inline type="application/ld+json" set:html={jsonLd} />
+    </Fragment>
+
+    <!-- Breadcrumbs (from plugin) -->
+    <BreadcrumbNav path={Astro.url.pathname} />
+
+    <!-- Item Header -->
+    <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900 sm:p-8 mb-8">
+        <div class="flex flex-col gap-6 sm:flex-row sm:items-start">
+            <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-3 mb-3">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{item.name}</h1>
+                    {item.featured && (
+                        <span class="inline-flex items-center rounded-full bg-brand-100 px-3 py-1 text-xs font-medium text-brand-700 dark:bg-brand-900 dark:text-brand-300">
+                            Featured
+                        </span>
+                    )}
+                </div>
+                {item.description && (
+                    <p class="text-lg text-gray-600 dark:text-gray-300 mb-4">{item.description}</p>
+                )}
+                <div class="flex flex-wrap items-center gap-4">
+                    {item.source_url && (
+                        <a
+                            href={item.source_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-brand-700 transition-colors"
+                        >
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                            </svg>
+                            Visit Website
+                        </a>
+                    )}
+                    {categoryData && (
+                        <a href={`/category/${categoryData.id}`} class="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition-colors">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
+                            </svg>
+                            {categoryData.name}
+                        </a>
+                    )}
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Meta (dates, location, price, speakers) -->
+        {Object.keys(meta).length > 0 && (
+            <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {meta.date_start && (
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Date</dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                            {meta.date_start}{meta.date_end && meta.date_end !== meta.date_start ? ` — ${meta.date_end}` : ''}
+                        </dd>
+                    </div>
+                )}
+                {meta.location && (
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Location</dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{meta.location}</dd>
+                    </div>
+                )}
+                {meta.format && (
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Format</dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{meta.format}</dd>
+                    </div>
+                )}
+                {meta.price && (
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Price</dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{meta.price}</dd>
+                    </div>
+                )}
+                {meta.speakers && (
+                    <div class="sm:col-span-2">
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Speakers</dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{meta.speakers}</dd>
+                    </div>
+                )}
+                {meta.attendees && (
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Attendees</dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{meta.attendees}</dd>
+                    </div>
+                )}
+            </div>
+        )}
+
+        <!-- Tags -->
+        {itemTags.length > 0 && (
+            <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex flex-wrap gap-2">
+                    {itemTags.map((tag) => (
+                        <a
+                            href={`/tag/${tag.id}`}
+                            class="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-sm text-gray-700 hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-brand-600 dark:hover:bg-brand-950 dark:hover:text-brand-400 transition-colors"
+                        >
+                            {tag.name}
+                        </a>
+                    ))}
+                </div>
+            </div>
+        )}
+
+        {item.updated_at && (
+            <p class="mt-4 text-xs text-gray-400 dark:text-gray-500">
+                Last updated: {item.updated_at}
+            </p>
+        )}
+    </div>
+
+    <!-- Content -->
+    {item.markdown && (
+        <div class="prose prose-gray dark:prose-invert max-w-none mb-8 rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-900 sm:p-8">
+            <Fragment set:html={item.markdown} />
+        </div>
+    )}
+
+    <!-- Related Items -->
+    {relatedItems.length > 0 && (
+        <section>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Related {config.items_name}</h2>
+            <div class="grid gap-4 sm:grid-cols-2">
+                {relatedItems.map((related) => (
+                    <a
+                        href={`/item/${related.slug}`}
+                        class="group flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-gray-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-900 dark:hover:border-gray-600"
+                    >
+                        <div class="min-w-0">
+                            <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">{related.name}</h3>
+                            {related.description && (
+                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2">{related.description}</p>
+                            )}
+                        </div>
+                    </a>
+                ))}
+            </div>
+        </section>
+    )}
+</BaseLayout>

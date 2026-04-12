@@ -1,0 +1,103 @@
+---
+/**
+ * Comparison Detail Page — Side-by-side comparison of two events.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BreadcrumbNav from '../../components/BreadcrumbNav.astro';
+import { getContent } from '../../lib/content';
+import type { ComparisonData } from '@ever-works/core';
+
+export async function getStaticPaths() {
+    const { comparisons } = await getContent();
+    return comparisons.map((comp) => ({
+        params: { slug: comp.slug },
+        props: { comparison: comp },
+    }));
+}
+
+interface Props {
+    comparison: ComparisonData;
+}
+
+const { comparison } = Astro.props;
+const { config } = await getContent();
+---
+
+<BaseLayout
+    title={comparison.title}
+    description={comparison.summary || `Compare ${comparison.item_a_name} vs ${comparison.item_b_name}`}
+    config={config}
+>
+    <BreadcrumbNav path={Astro.url.pathname} />
+
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{comparison.title}</h1>
+        {comparison.summary && (
+            <p class="mt-2 text-gray-600 dark:text-gray-400 max-w-3xl">{comparison.summary}</p>
+        )}
+    </div>
+
+    <!-- Contestants -->
+    <div class="mb-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+        <a
+            href={`/item/${comparison.item_a_slug}`}
+            class="flex-1 max-w-xs rounded-xl border border-gray-200 bg-white p-5 text-center shadow-sm transition-all hover:border-brand-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-900 dark:hover:border-brand-600"
+        >
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">{comparison.item_a_name}</h2>
+        </a>
+        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-sm font-bold text-gray-500 dark:bg-gray-800 dark:text-gray-400">vs</span>
+        <a
+            href={`/item/${comparison.item_b_slug}`}
+            class="flex-1 max-w-xs rounded-xl border border-gray-200 bg-white p-5 text-center shadow-sm transition-all hover:border-brand-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-900 dark:hover:border-brand-600"
+        >
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">{comparison.item_b_name}</h2>
+        </a>
+    </div>
+
+    <!-- Dimensions Table -->
+    {comparison.dimensions && comparison.dimensions.length > 0 && (
+        <div class="mb-8 overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900">
+                        <th class="px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white">Dimension</th>
+                        <th class="px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white">{comparison.item_a_name}</th>
+                        <th class="px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white">{comparison.item_b_name}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    {comparison.dimensions.map((dim) => (
+                        <tr class="bg-white dark:bg-gray-950">
+                            <td class="px-4 py-3">
+                                <span class="font-medium text-gray-900 dark:text-white">{dim.name}</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                {dim.item_a_summary && (
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">{dim.item_a_summary}</p>
+                                )}
+                            </td>
+                            <td class="px-4 py-3">
+                                {dim.item_b_summary && (
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">{dim.item_b_summary}</p>
+                                )}
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    )}
+
+    <!-- Verdict -->
+    {comparison.verdict && (
+        <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+            <h3 class="mb-2 text-lg font-bold text-gray-900 dark:text-white">Verdict</h3>
+            <p class="text-gray-600 dark:text-gray-400">{comparison.verdict}</p>
+        </div>
+    )}
+
+    <!-- Markdown Content -->
+    {comparison.content && (
+        <div class="mt-8 prose prose-gray dark:prose-invert max-w-none" set:html={comparison.content} />
+    )}
+</BaseLayout>

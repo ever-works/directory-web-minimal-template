@@ -1,0 +1,16 @@
+name: "AI Dev Summit"
+description: "A three-day conference exploring the intersection of AI and software development. Covers LLMs, AI agents, code generation, and production ML systems."
+source_url: "https://aidevsummit.example.com"
+category: "conference"
+tags: ["ai", "cloud", "keynote", "networking"]
+updated_at: "2026-01-20 10:00"
+status: "approved"
+featured: true
+meta:
+  date_start: "2026-09-08"
+  date_end: "2026-09-10"
+  location: "San Francisco, CA"
+  format: "In-Person"
+  price: "$899"
+  speakers: "Andrej Karpathy, Swyx, Simon Willison"
+  attendees: "3000+"

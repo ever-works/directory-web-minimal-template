@@ -1,0 +1,16 @@
+name: "MLOps Workshop"
+description: "An intensive two-day workshop on deploying and monitoring machine learning models in production. Covers model serving, feature stores, experiment tracking, and CI/CD for ML pipelines."
+source_url: "https://mlopsworkshop.example.com"
+category: "workshop"
+tags: ["ai", "devops", "hands-on", "cloud"]
+updated_at: "2026-01-25 10:00"
+status: "approved"
+featured: false
+meta:
+  date_start: "2026-05-19"
+  date_end: "2026-05-20"
+  location: "New York, NY"
+  format: "In-Person"
+  price: "$450"
+  speakers: "Chip Huyen, Shreya Shankar"
+  attendees: "100"

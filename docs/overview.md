@@ -55,10 +55,11 @@ pnpm dev
 │   ├── docs/             — Docusaurus documentation site
 │   ├── sample-basic/     — Reference implementation (React UI Components directory)
 │   ├── sample-git/       — Git adapter reference (1495 pages)
-│   └── sample-jobs/      — Job board directory sample
+│   ├── sample-jobs/      — Job board directory sample
+│   └── sample-events/    — Tech events directory sample
 ├── packages/
 │   ├── core/             — Data layer, content reader, types, schemas
-│   ├── ui/               — Headless UI components (24 Astro + 8 Preact + 14 primitives)
+│   ├── ui/               — Headless UI components (24 Astro + 7 Preact + 22 primitives)
 │   ├── plugins/          — Plugin system (runner, types, define-plugins)
 │   ├── adapters/         — Data source adapters (git, filesystem)
 │   ├── astro-integration/— Astro integration for plugin build lifecycle

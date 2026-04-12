@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+/*
+ * Custom design tokens for the Tech Events directory.
+ * Uses Tailwind CSS v4 with @theme for custom tokens.
+ * Teal accent color to differentiate from sample-basic (indigo) and sample-jobs (blue).
+ */
+
+@theme {
+    --color-brand-50: #f0fdfa;
+    --color-brand-100: #ccfbf1;
+    --color-brand-200: #99f6e4;
+    --color-brand-300: #5eead4;
+    --color-brand-400: #2dd4bf;
+    --color-brand-500: #14b8a6;
+    --color-brand-600: #0d9488;
+    --color-brand-700: #0f766e;
+    --color-brand-800: #115e59;
+    --color-brand-900: #134e4a;
+    --color-brand-950: #042f2e;
+}
+
+/*
+ * Dark mode via ThemeToggle component — sets data-theme="dark" on <html>.
+ * Override Tailwind's default dark variant to use data-theme attribute.
+ */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+html {
+    color-scheme: light dark;
+}
+
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+/*
+ * Headless component styling — targets data-component and data-part attributes
+ * emitted by @ever-works/ui Preact components.
+ */
+
+/* SearchInput */
+[data-component="search-input"] {
+    @apply relative flex items-center;
+}
+
+[data-component="search-input"] [data-part="input"] {
+    @apply w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 placeholder-gray-400 shadow-sm transition-colors focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500 dark:focus:border-brand-400;
+}
+
+[data-component="search-input"] [data-part="clear"] {
+    @apply absolute right-2 rounded-md px-2 py-1 text-xs text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors;
+}
+
+/* FilterBar */
+[data-component="filter-bar"] [data-part="legend"] {
+    @apply text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2;
+}
+
+[data-component="filter-bar"] [data-part="category-options"],
+[data-component="filter-bar"] [data-part="tag-options"] {
+    @apply flex flex-wrap gap-2;
+}
+
+[data-component="filter-bar"] [data-part="category-option"],
+[data-component="filter-bar"] [data-part="tag-option"] {
+    @apply rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600 transition-all hover:border-brand-300 hover:text-brand-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:border-brand-500 dark:hover:text-brand-400 cursor-pointer;
+}
+
+[data-component="filter-bar"] [data-part="category-option"][data-selected],
+[data-component="filter-bar"] [data-part="tag-option"][data-selected] {
+    @apply border-brand-500 bg-brand-50 text-brand-700 dark:border-brand-400 dark:bg-brand-950 dark:text-brand-300;
+}
+
+[data-component="filter-bar"] [data-part="clear-all"] {
+    @apply mt-2 text-xs text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-pointer transition-colors;
+}
+
+[data-component="filter-bar"] fieldset {
+    @apply border-none p-0 m-0;
+}
+
+/* SortSelect */
+[data-component="sort-select"] {
+    @apply flex items-center gap-2;
+}
+
+[data-component="sort-select"] [data-part="label"] {
+    @apply text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap;
+}
+
+[data-component="sort-select"] [data-part="select"] {
+    @apply rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm transition-colors focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:focus:border-brand-400;
+}
+
+/* BackToTop */
+[data-component="back-to-top"] {
+    @apply fixed bottom-6 right-6 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-brand-600 text-white shadow-lg transition-all hover:bg-brand-700 hover:shadow-xl dark:bg-brand-500 dark:hover:bg-brand-400;
+}
+
+[data-component="back-to-top"] [data-part="label"] {
+    @apply sr-only;
+}
+
+/* ThemeToggle */
+[data-component="theme-toggle"] {
+    @apply rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200;
+}
+
+[data-component="theme-toggle"] [data-part="label"] {
+    @apply sr-only;
+}

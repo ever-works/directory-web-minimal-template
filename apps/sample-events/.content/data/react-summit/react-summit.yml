@@ -1,0 +1,16 @@
+name: "React Summit"
+description: "The largest React conference worldwide. Two days of talks, networking, and workshops covering React, Next.js, and the broader ecosystem. Held in Amsterdam with a hybrid online option."
+source_url: "https://reactsummit.com"
+category: "conference"
+tags: ["web", "keynote", "networking"]
+updated_at: "2026-02-10 10:00"
+status: "approved"
+featured: true
+meta:
+  date_start: "2026-06-12"
+  date_end: "2026-06-13"
+  location: "Amsterdam, Netherlands"
+  format: "Hybrid"
+  price: "$599"
+  speakers: "Kent C. Dodds, Sara Vieira, Mark Erikson"
+  attendees: "2000+"

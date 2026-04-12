@@ -7,6 +7,64 @@ sidebar_label: "Change Log"
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-12 — Iteration 24: Sample-Events App, Sample-Real-Estate Spec, Docs Health-Check
+
+### New App: sample-events (Tech Events Directory)
+- **`apps/sample-events/`** — New vertical-specific sample: a tech events/conferences directory
+- 10 event items: React Summit, Next.js Conf, AI Dev Summit, KubeCon Europe, React Meetup SF, MLOps Workshop, GitHub Universe, Mobile Dev Camp, Open Source Hackathon, Cloud Native Hackathon
+- 4 categories: Conference, Meetup, Workshop, Hackathon
+- 10 tags: AI, Web, Mobile, DevOps, Cloud, Open Source, Beginner Friendly, Networking, Hands-On, Keynote
+- 2 collections: "Must-Attend 2026", "Free Events"
+- 2 comparisons: react-summit-vs-next-conf, ai-dev-summit-vs-mlops-workshop (with full dimensions + scores)
+- 2 static pages: About, Submit
+- Event-specific metadata rendered in item detail: date_start, date_end, location, format, price, speakers, attendees
+- Teal brand color palette (vs indigo for sample-basic, blue for sample-jobs)
+- 37 static pages generated
+- All 7 built-in plugins enabled (including breadcrumbs)
+- Port 4325
+
+### New Spec: sample-real-estate
+- **`.specify/features/sample-real-estate.md`** — Property listings directory spec
+  - 10 sample properties: Downtown Loft, Suburban Family Home, Waterfront Penthouse, Craftsman Bungalow, Modern Office, Coworking Retail, Lake House, Development Parcel, Micro Studio, Farmland
+  - 4 categories: Apartment, House, Commercial, Land
+  - 10 tags: Downtown, Suburban, Waterfront, Garden, Parking, Furnished, Pet-Friendly, New Build, Investment, Luxury
+  - 2 collections: "Under $500K", "Luxury Collection"
+  - 2 comparisons: downtown-loft-vs-suburban-house, office-space-vs-coworking
+  - Property-specific meta fields: price, bedrooms, bathrooms, sqft, location, year_built, lot_size, mls_number
+  - Amber brand color palette
+  - Port 4326
+
+### CI Workflow
+- **`.github/workflows/ci.yml`** — Added sample-events build to E2E job
+
+### Documentation Health-Check
+- **`docs/index.md`** — Added sample-real-estate spec entry, updated iteration marker, fixed component count (was "8 Preact", now "7 Preact"; was "14 primitives", now "22 primitives")
+- **`docs/overview.md`** — Added sample-events to monorepo structure, fixed component count
+- **`CLAUDE.md`** — Added sample-jobs and sample-events to monorepo structure (were missing)
+- All 30 referenced docs files verified to exist on disk
+- All 15 .specify files verified to exist on disk (14 + 1 new sample-real-estate)
+
+### Build Verification
+- `pnpm typecheck` — ALL 19 tasks pass (0 errors), including new sample-events
+- `pnpm test` — ALL 12 test suites pass
+- `pnpm --filter @ever-works/sample-events build` — 37 pages built in 5.67s
+- Verified all key pages: 10 items, 4 categories, 10 tags, 2 collections, 2 comparisons, 2 static pages, home, 404
+
+### Summary
+- **sample-events fully implemented and building** — 37 static pages, all features working
+- **sample-real-estate spec complete** — ready for implementation in future iteration
+- **Docs fully aligned** — all references verified, stale counts corrected, monorepo structure updated
+- **6 sample apps now**: web, sample-basic, sample-git, sample-jobs, sample-events, (+ docs)
+
+### Next Steps (for next scheduled run)
+1. Implement sample-real-estate app
+2. Add E2E Playwright tests for sample-events
+3. Create phase-8 implementation plan for sample-real-estate
+4. Consider creating sample-saas or sample-restaurants spec
+5. Enhance SKILLS.md with sample-events and sample-real-estate references
+
+---
+
 ## 2026-04-12 — Iteration 23: E2E Verified, Docs Health-Check, Sample-Events Spec
 
 ### Project Health Assessment

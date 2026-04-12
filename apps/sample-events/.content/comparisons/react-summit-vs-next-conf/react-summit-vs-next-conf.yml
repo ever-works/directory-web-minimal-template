@@ -1,0 +1,34 @@
+title: "React Summit vs Next.js Conf"
+item_a_slug: "react-summit"
+item_b_slug: "next-conf"
+item_a_name: "React Summit"
+item_b_name: "Next.js Conf"
+summary: "Comparing two premier React ecosystem conferences — a large in-person summit versus a free virtual event."
+verdict: "Both are essential for React developers. React Summit offers deep networking and hands-on workshops in Amsterdam, while Next.js Conf provides free access to cutting-edge announcements and the largest virtual audience in the ecosystem."
+verdict_winner: "tie"
+dimensions:
+  - name: "Audience Size"
+    item_a_summary: "2,000+ attendees, intimate but international crowd"
+    item_b_summary: "50,000+ virtual attendees, massive global reach"
+    item_a_score: 7
+    item_b_score: 10
+    winner: "item_b"
+  - name: "Cost"
+    item_a_summary: "$599 ticket price plus travel and accommodation"
+    item_b_summary: "Completely free, no travel needed"
+    item_a_score: 5
+    item_b_score: 10
+    winner: "item_b"
+  - name: "Networking"
+    item_a_summary: "Excellent in-person networking, hallway track, after-parties"
+    item_b_summary: "Virtual chat and community channels only"
+    item_a_score: 9
+    item_b_score: 5
+    winner: "item_a"
+  - name: "Content Depth"
+    item_a_summary: "Multi-track with workshops, deep dives, and hands-on sessions"
+    item_b_summary: "Single-track keynotes and demos, focused on announcements"
+    item_a_score: 9
+    item_b_score: 7
+    winner: "item_a"
+generated_at: "2026-04-12"

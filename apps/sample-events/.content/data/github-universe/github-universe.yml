@@ -1,0 +1,16 @@
+name: "GitHub Universe"
+description: "GitHub's annual flagship conference showcasing the latest in developer tools, AI-powered coding, open-source collaboration, and DevOps workflows."
+source_url: "https://githubuniverse.com"
+category: "conference"
+tags: ["devops", "open-source", "ai", "keynote"]
+updated_at: "2026-02-05 10:00"
+status: "approved"
+featured: false
+meta:
+  date_start: "2026-11-04"
+  date_end: "2026-11-05"
+  location: "San Francisco, CA"
+  format: "Hybrid"
+  price: "$350"
+  speakers: "Thomas Dohmke, Neha Batra, Devon Zuegel"
+  attendees: "5000+"

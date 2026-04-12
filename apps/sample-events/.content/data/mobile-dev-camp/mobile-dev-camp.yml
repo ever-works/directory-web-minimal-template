@@ -1,0 +1,16 @@
+name: "Mobile Dev Camp"
+description: "A weekend workshop covering cross-platform mobile development with React Native and Flutter. Build a complete app from scratch with guidance from experienced instructors."
+source_url: "https://mobiledevcamp.example.com"
+category: "workshop"
+tags: ["mobile", "hands-on", "beginner-friendly"]
+updated_at: "2026-01-30 10:00"
+status: "approved"
+featured: false
+meta:
+  date_start: "2026-07-11"
+  date_end: "2026-07-12"
+  location: "Austin, TX"
+  format: "In-Person"
+  price: "$250"
+  speakers: "William Candillon, Fernando Rojo"
+  attendees: "60"

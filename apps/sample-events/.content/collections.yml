@@ -1,0 +1,17 @@
+- id: "must-attend-2026"
+  name: "Must-Attend 2026"
+  description: "The most anticipated tech events of 2026 that every developer should consider attending."
+  items:
+    - "react-summit"
+    - "next-conf"
+    - "ai-dev-summit"
+    - "kubecon-europe"
+    - "github-universe"
+
+- id: "free-events"
+  name: "Free Events"
+  description: "High-quality tech events that are completely free to attend, either in-person or virtually."
+  items:
+    - "next-conf"
+    - "react-meetup-sf"
+    - "open-source-hackathon"

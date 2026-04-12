@@ -1,0 +1,16 @@
+name: "Cloud Native Hackathon"
+description: "Build and deploy cloud-native applications in 36 hours. Teams compete to create the most innovative solution using Kubernetes, serverless, and modern cloud services. Prizes for top three teams."
+source_url: "https://cloudnativehack.example.com"
+category: "hackathon"
+tags: ["cloud", "devops", "hands-on", "networking"]
+updated_at: "2026-02-12 10:00"
+status: "approved"
+featured: false
+meta:
+  date_start: "2026-04-25"
+  date_end: "2026-04-27"
+  location: "Seattle, WA"
+  format: "In-Person"
+  price: "$50"
+  speakers: "Judges from AWS, Google Cloud, Azure"
+  attendees: "200"
