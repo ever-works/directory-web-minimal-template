@@ -85,7 +85,9 @@ Override component styling using `class` props and Tailwind:
 
 ```astro
 ---
-import { ItemCard, ItemGrid, Hero } from '@ever-works/ui';
+import ItemCard from '@ever-works/ui/astro/ItemCard.astro';
+import ItemGrid from '@ever-works/ui/astro/ItemGrid.astro';
+import Hero from '@ever-works/ui/astro/Hero.astro';
 ---
 <Hero
     title="Discover Amazing Tools"

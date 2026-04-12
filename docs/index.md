@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-12 (Iteration 29: component catalog primitives, docs health audit)
+> Updated: 2026-04-12 (Iteration 30: Getting Started tutorial, customization guide, docs health audit)
 
 ## Root Documents
 
@@ -75,13 +75,15 @@ slug: /
 
 ## Guides
 
+- [guides/quickstart.md](guides/quickstart.md) — Quick start guide for getting up and running
+- [guides/getting-started.md](guides/getting-started.md) — Step-by-step tutorial: build a full directory site from scratch
+- [guides/building-from-template.md](guides/building-from-template.md) — How AI builds a site from template
+- [guides/customizing.md](guides/customizing.md) — Customize theming, layouts, components, plugins, and data fields
 - [guides/creating-a-plugin.md](guides/creating-a-plugin.md) — How to create a plugin
 - [guides/creating-an-adapter.md](guides/creating-an-adapter.md) — How to create a data adapter
-- [guides/building-from-template.md](guides/building-from-template.md) — How AI builds a site from template
 - [guides/interactive-components.md](guides/interactive-components.md) — How to use Preact interactive islands (search, filter, sort, theme, back-to-top)
-- [guides/quickstart.md](guides/quickstart.md) — Quick start guide for getting up and running
-- [guides/deployment.md](guides/deployment.md) — How to deploy to Vercel and other static hosts
 - [guides/content-sync.md](guides/content-sync.md) — Content sync setup (webhooks, polling, ISR)
+- [guides/deployment.md](guides/deployment.md) — How to deploy to Vercel and other static hosts
 - [guides/troubleshooting.md](guides/troubleshooting.md) — Common issues and solutions
 
 ## Reference

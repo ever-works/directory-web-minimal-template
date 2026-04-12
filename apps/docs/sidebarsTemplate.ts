@@ -21,7 +21,9 @@ const sidebars: SidebarsConfig = {
       label: "Guides",
       items: [
         "guides/quickstart",
+        "guides/getting-started",
         "guides/building-from-template",
+        "guides/customizing",
         "guides/creating-a-plugin",
         "guides/creating-an-adapter",
         "guides/interactive-components",

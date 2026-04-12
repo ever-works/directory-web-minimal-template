@@ -9,7 +9,7 @@ sidebar_label: "Interactive Components"
 
 ## Available Components
 
-The `@ever-works/ui` package includes 5 Preact components that run as Astro Islands:
+The `@ever-works/ui` package includes 7 Preact components that run as Astro Islands:
 
 | Component | Import Path | Purpose |
 |-----------|------------|---------|
@@ -18,6 +18,8 @@ The `@ever-works/ui` package includes 5 Preact components that run as Astro Isla
 | `SortSelect` | `@ever-works/ui/preact/SortSelect` | Sort dropdown |
 | `ThemeToggle` | `@ever-works/ui/preact/ThemeToggle` | Dark/light mode toggle |
 | `BackToTop` | `@ever-works/ui/preact/BackToTop` | Scroll-to-top button |
+| `LayoutSwitcher` | `@ever-works/ui/preact/LayoutSwitcher` | Grid/list/compact view toggle |
+| `ItemBrowser` | `@ever-works/ui/preact/ItemBrowser` | Composed search + filter + sort island |
 
 ## Standalone Components
 

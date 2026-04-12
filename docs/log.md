@@ -7,6 +7,36 @@ sidebar_label: "Change Log"
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-12 — Iteration 30: Getting Started Tutorial, Customization Guide, Docs Polish
+
+### New Guides
+- **docs/guides/getting-started.md** — Comprehensive step-by-step tutorial for building a "Dev Tools Directory" from scratch. Covers: project setup, content creation, page customization, Tailwind styling, interactive components, plugins, and deployment to Vercel. (~1234 lines)
+- **docs/guides/customizing.md** — In-depth customization guide covering: Tailwind CSS theming (colors, fonts, spacing, dark mode), layout modifications, page customization, custom components (Astro + Preact islands), plugin configuration, custom CSS patterns, and custom data fields. (~907 lines)
+
+### Sidebar & Index Updates
+- Updated `apps/docs/sidebarsTemplate.ts` — Added "Getting Started" and "Customization" to Guides category, positioned after Quickstart and before Building from Template
+- Updated `docs/index.md` — Added both new guides to the Guides section, reordered guides logically (quickstart → getting-started → building → customizing → creating-plugin → creating-adapter → interactive → content-sync → deployment → troubleshooting). Added missing `creating-a-plugin.md` and `creating-an-adapter.md` entries that were absent from the index.
+
+### Questions Status Updates
+- Updated Q17 (ISR as Default) — Changed status from "IMPLEMENTING" to "DONE" (Astro config confirmed)
+- Updated Q18 (isomorphic-git) — Changed status from "IMPLEMENTING" to "DONE" (GitAdapter confirmed using isomorphic-git)
+
+### Verification Summary
+- `pnpm build` — 7/7 tasks pass (all cached)
+- `pnpm typecheck` — 20/20 tasks pass (0 errors)
+- `pnpm lint` — 9/9 tasks pass
+- `pnpm test` — 12/12 unit test tasks pass
+- Docs site (`@ever-works/docs-minimal`) builds successfully
+
+### Next Steps (for next scheduled run)
+1. Run full E2E suite to verify no regressions
+2. Add visual regression testing setup
+3. Review and polish Getting Started tutorial code examples
+4. Consider adding a "Creating a Sample App" guide
+5. Explore auto-generating API reference docs from TypeScript types
+
+---
+
 ## 2026-04-12 — Iteration 29: Component Catalog Primitives, Docs Health Audit
 
 ### Component Catalog: Primitives Section Added

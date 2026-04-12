@@ -287,7 +287,7 @@ Before creating or modifying ANY file, verify:
 - [ ] Is this a plugin or should it be? (R2)
 - [ ] Git-first data? No DB? (R3)
 - [ ] No advanced features (auth, payments, geo)? (R4)
-- [ ] Static output only? (R5)
+- [ ] ISR by default, static opt-out? (R5)
 - [ ] Performance-optimal? No unnecessary deps? (R6)
 - [ ] Modular and replaceable? (R7)
 - [ ] Clear naming, JSDoc, data contracts? (R8)
@@ -357,6 +357,12 @@ Import: `import ItemCard from '@ever-works/ui/astro/ItemCard.astro'`
 `SearchInput`, `FilterBar`, `SortSelect`, `BackToTop`, `ThemeToggle`, `LayoutSwitcher`, `ItemBrowser`
 
 **Usage pattern**: Standalone components (ThemeToggle, BackToTop) go directly in layouts. Data-driven components (SearchInput, FilterBar, SortSelect) should be composed into a Preact island (e.g., `ItemBrowser.tsx`) that manages client-side filtering state. See `apps/sample-basic/src/components/ItemBrowser.tsx` for a reference implementation and `docs/guides/interactive-components.md` for the full guide.
+
+### Preact Utility Components (shadcn-style — `src/components/ui/`)
+Used inside Preact islands (e.g., `ItemBrowser`, `FilterBar`). Not for Astro components — use primitives instead.
+`Badge`, `Button`, `Input`, `Label`, `Select`
+
+Import: `import { Button } from '@ever-works/ui/components/ui/button'`
 
 ### Utility
 - `cn()` from `@ever-works/ui/lib/utils` — Tailwind class merging (clsx + tailwind-merge)

@@ -88,7 +88,7 @@ interface AdapterConfig {
 
 ## Built-in Adapters
 
-### GitAdapter (`@ever-works/adapter-git`)
+### GitAdapter (`@ever-works/adapters`)
 
 Clones a Git repository at build time using `git clone`.
 
@@ -103,7 +103,7 @@ Clones a Git repository at build time using `git clone`.
 - Skips clone if `.content/.git` already exists (idempotent)
 - Content path: `<project-root>/.content/`
 
-### FilesystemAdapter (`@ever-works/adapter-filesystem`)
+### FilesystemAdapter (`@ever-works/adapters`)
 
 Reads from a local directory. For development only.
 
@@ -118,9 +118,7 @@ Reads from a local directory. For development only.
 ## Adapter Factory
 
 ```typescript
-import { GitAdapter } from '@ever-works/adapter-git';
-import { FilesystemAdapter } from '@ever-works/adapter-filesystem';
-import type { DataAdapter } from '@ever-works/adapters';
+import { GitAdapter, FilesystemAdapter, type DataAdapter } from '@ever-works/adapters';
 
 /**
  * Create the appropriate data adapter based on environment.

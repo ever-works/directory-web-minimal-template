@@ -10,7 +10,7 @@ This template is an **intentionally blank canvas** with headless, composable bui
 
 ## Features
 
-- **Astro 6** with fully static output (no SSR)
+- **Astro 6** with static output and optional ISR via `@astrojs/vercel`
 - **Plugin architecture** — almost every feature is a plugin
 - **Git-first data** — content stored in separate Git repos (YAML)
 - **Headless UI components** — unstyled building blocks for AI to style
@@ -24,7 +24,7 @@ This template is an **intentionally blank canvas** with headless, composable bui
 - No authentication / user accounts
 - No database
 - No payments / billing
-- No server-side rendering
+- No traditional SSR (ISR supported via Vercel adapter)
 - No geo / maps
 - No CRM integrations
 
@@ -63,7 +63,7 @@ apps/
 
 packages/
   core/               Data layer, types, content reader
-  ui/                 Headless UI components (24 Astro + 7 Preact + 22 primitives)
+  ui/                 Headless UI components (24 Astro + 7 Preact + 22 primitives + 5 shadcn-style)
   plugins/            Plugin system (runner, lifecycle hooks)
   adapters/           Data source adapters (git, filesystem)
   astro-integration/  Astro integration for plugin build lifecycle

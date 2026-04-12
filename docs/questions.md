@@ -249,7 +249,7 @@ sidebar_label: "Questions"
 
 **Default choice**: **ISR enabled by default** — ISR is the expected behavior for directory sites that pull content from external repos. Pages are still pre-rendered at build time; ISR just enables on-demand regeneration when content changes. Pure static fallback via `ENABLE_ISR=false`.
 
-**Status**: IMPLEMENTING — Rule R5 updated to "ISR by Default, Static Opt-Out".
+**Status**: DONE — Rule R5 updated to "ISR by Default, Static Opt-Out". Astro config uses `output: 'static'` with Vercel adapter for ISR; `ENABLE_ISR=false` disables the adapter.
 
 ---
 
@@ -264,4 +264,4 @@ sidebar_label: "Questions"
 
 **Default choice**: **isomorphic-git** — Pure JavaScript, works in any Node.js environment including serverless. Already proven in the full Next.js template. Supports clone, fetch, pull, resolveRef for change detection. No system dependency on git binary.
 
-**Status**: IMPLEMENTING — Rewriting GitAdapter to use isomorphic-git.
+**Status**: DONE — GitAdapter rewritten to use isomorphic-git. Pure JS clone, fetch, pull operations. No system `git` binary required.

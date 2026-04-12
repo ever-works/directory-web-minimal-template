@@ -82,7 +82,7 @@ interface AdapterConfig {
 The default adapter. Clones a Git repository at build time.
 
 ```typescript
-import { GitAdapter } from '@ever-works/adapter-git';
+import { GitAdapter } from '@ever-works/adapters';
 
 const adapter = new GitAdapter();
 await adapter.init({
@@ -103,7 +103,7 @@ await adapter.init({
 For local development. Points to a directory on disk.
 
 ```typescript
-import { FilesystemAdapter } from '@ever-works/adapter-filesystem';
+import { FilesystemAdapter } from '@ever-works/adapters';
 
 const adapter = new FilesystemAdapter();
 await adapter.init({
