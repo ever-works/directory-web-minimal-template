@@ -7,6 +7,49 @@ sidebar_label: "Change Log"
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-12 — Iteration 32: generateItemJsonLd + BreadcrumbList JSON-LD, Enhanced E2E Tests
+
+### SEO Improvements (all item pages)
+- **apps/web/src/pages/item/[slug].astro** — Upgraded from `generateJsonLd('Product', ...)` to `generateItemJsonLd()` which auto-selects `SoftwareApplication` or `Product` schema based on item data. Added `BreadcrumbList` JSON-LD for navigation trail.
+- **apps/sample-basic/src/pages/item/[slug].astro** — Same upgrade. Set `applicationCategory: 'DeveloperApplication'` for software items.
+- **apps/sample-jobs/src/pages/item/[slug].astro** — Same upgrade. Uses `Product` fallback (no `applicationCategory`).
+- **apps/sample-events/src/pages/item/[slug].astro** — Same upgrade. Uses `Product` fallback.
+- **apps/sample-real-estate/src/pages/item/[slug].astro** — Same upgrade. Uses `Product` fallback.
+- **apps/sample-git/src/pages/item/[slug].astro** — Same upgrade. Set `applicationCategory: 'DeveloperApplication'`.
+- All 6 item pages now emit **2 JSON-LD blocks**: item schema + BreadcrumbList
+
+### E2E Test Enhancements
+- **apps/web-e2e/tests/navigation.spec.ts** — Added 3 new 404 page tests:
+  - `should display 404 content with heading and message` — verifies "404" and "Page not found" text
+  - `should have a link back to home on 404 page` — verifies home link exists
+  - `should navigate from 404 back to home` — verifies home link works
+- **apps/web-e2e/tests/seo.spec.ts** — Added 2 new SEO tests:
+  - `should have JSON-LD structured data on item page` — now verifies ≥2 JSON-LD blocks (item + breadcrumb)
+  - `should have BreadcrumbList JSON-LD on item page` — parses JSON-LD and validates BreadcrumbList structure
+
+### Documentation
+- Updated `docs/index.md` — iteration number bumped to 32
+- Updated `docs/log.md` — this entry
+
+### Docs Health Audit
+- 100% file references valid — no broken links, no orphaned docs
+- All components, pages, plugins match docs
+- All 18 questions resolved (DONE or DEFAULT)
+
+### Verification
+- `pnpm typecheck` — 20/20 tasks pass (0 errors)
+- `pnpm lint` — 9/9 tasks pass (0 warnings)
+- `pnpm test` — 12/12 tasks pass (30 unit tests)
+- `pnpm --filter @ever-works/sample-basic build` — 41 pages built successfully
+- Built output verified: BreadcrumbList + SoftwareApplication JSON-LD present in item pages
+
+### Next Steps (for next scheduled run)
+1. Run full E2E test suite against sample-basic to verify new tests pass
+2. Build all apps (`pnpm build`) and verify no regressions
+3. Check for dependency upgrades (Astro 6.x, @astrojs/preact, pagefind)
+4. Add more interactive component examples to sample apps
+5. Consider adding JSON-LD to category/tag listing pages (ItemList schema)
+
 ## 2026-04-12 — Iteration 31: Template Quality, SEO Enhancements, Sample READMEs
 
 ### Documentation

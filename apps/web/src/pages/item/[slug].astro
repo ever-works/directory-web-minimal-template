@@ -7,7 +7,7 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getContent } from '../../lib/content';
-import { generateJsonLd } from '@ever-works/plugin-seo';
+import { generateItemJsonLd, generateJsonLd } from '@ever-works/plugin-seo';
 import type { ItemData } from '@ever-works/core';
 import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
 import ItemDetail from '@ever-works/ui/astro/ItemDetail.astro';
@@ -42,16 +42,26 @@ const relatedItems = primaryCategory
 // Resolve category name for breadcrumbs
 const categoryData = categories.find((c) => c.id === primaryCategory);
 
-// JSON-LD for the item
-const jsonLd = generateJsonLd('Product', {
-    type: 'Product',
+// JSON-LD for the item (auto-selects SoftwareApplication or Product)
+const jsonLd = generateItemJsonLd({
     name: item.name,
     description: item.description,
-    url: item.source_url,
+    url: item.source_url ?? '',
     image: item.icon_url,
 });
 
-// Breadcrumb items
+// BreadcrumbList JSON-LD for navigation trail
+const siteUrl = config.site_url ?? '';
+const breadcrumbLd = generateJsonLd('BreadcrumbList', {
+    type: 'BreadcrumbList',
+    items: [
+        { name: 'Home', url: `${siteUrl}/` },
+        ...(categoryData ? [{ name: categoryData.name, url: `${siteUrl}/category/${categoryData.id}` }] : []),
+        { name: item.name, url: `${siteUrl}/item/${item.slug}` },
+    ],
+});
+
+// Breadcrumb items for UI component
 const breadcrumbItems = [
     { label: 'Home', href: '/' },
     ...(categoryData ? [{ label: categoryData.name, href: `/category/${categoryData.id}` }] : []),
@@ -67,6 +77,7 @@ const breadcrumbItems = [
 >
     <Fragment slot="head">
         <script is:inline type="application/ld+json" set:html={jsonLd} />
+        <script is:inline type="application/ld+json" set:html={breadcrumbLd} />
     </Fragment>
 
     <Breadcrumbs items={breadcrumbItems} />

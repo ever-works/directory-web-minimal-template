@@ -32,4 +32,23 @@ test.describe('Navigation', () => {
         const response = await page.goto('/this-route-does-not-exist/');
         expect(response?.status()).toBe(404);
     });
+
+    test('should display 404 content with heading and message', async ({ page }) => {
+        await page.goto('/this-route-does-not-exist/');
+        await expect(page.getByText('404')).toBeVisible();
+        await expect(page.getByText('Page not found')).toBeVisible();
+    });
+
+    test('should have a link back to home on 404 page', async ({ page }) => {
+        await page.goto('/this-route-does-not-exist/');
+        const homeLink = page.locator('a[href="/"]');
+        await expect(homeLink).toBeVisible();
+    });
+
+    test('should navigate from 404 back to home', async ({ page }) => {
+        await page.goto('/this-route-does-not-exist/');
+        const homeLink = page.locator('a[href="/"]').first();
+        await homeLink.click();
+        await expect(page).toHaveURL('/');
+    });
 });

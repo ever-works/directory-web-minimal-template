@@ -27,8 +27,29 @@ test.describe('SEO', () => {
 
     test('should have JSON-LD structured data on item page', async ({ page }) => {
         await page.goto('/item/radix-ui/');
-        const jsonLd = page.locator('script[type="application/ld+json"]').first();
-        await expect(jsonLd).toBeAttached();
+        const jsonLdScripts = page.locator('script[type="application/ld+json"]');
+        // Should have at least 2 JSON-LD blocks: item (Product/SoftwareApplication) + BreadcrumbList
+        const count = await jsonLdScripts.count();
+        expect(count).toBeGreaterThanOrEqual(2);
+    });
+
+    test('should have BreadcrumbList JSON-LD on item page', async ({ page }) => {
+        await page.goto('/item/radix-ui/');
+        const jsonLdScripts = page.locator('script[type="application/ld+json"]');
+        const count = await jsonLdScripts.count();
+
+        let foundBreadcrumb = false;
+        for (let i = 0; i < count; i++) {
+            const content = await jsonLdScripts.nth(i).textContent();
+            if (content && content.includes('BreadcrumbList')) {
+                foundBreadcrumb = true;
+                const parsed = JSON.parse(content);
+                expect(parsed['@type']).toBe('BreadcrumbList');
+                expect(parsed['itemListElement'].length).toBeGreaterThanOrEqual(2);
+                break;
+            }
+        }
+        expect(foundBreadcrumb).toBe(true);
     });
 
     test('should serve sitemap', async ({ page, request }) => {
