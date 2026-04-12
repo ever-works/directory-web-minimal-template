@@ -7,6 +7,52 @@ sidebar_label: "Change Log"
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-12 — Iteration 31: Template Quality, SEO Enhancements, Sample READMEs
+
+### Documentation
+- Added `apps/sample-jobs/README.md` — comprehensive README for the Remote Tech Jobs sample (98 lines)
+- Added `apps/sample-events/README.md` — comprehensive README for the Tech Events sample (102 lines)
+- Added `apps/sample-real-estate/README.md` — comprehensive README for the Property Listings sample (104 lines)
+- All 3 follow the same structure as `sample-basic/README.md`
+
+### Template Improvements (apps/web)
+- **BaseLayout.astro** — Navigation now reads from `config.custom_header` if available, falls back to default nav. Footer links read from `config.custom_footer`. Makes every directory customizable via config without code changes.
+- **404.astro** — Improved with large "404" visual indicator, two action buttons (Go Home, Browse Categories), centered layout with generous padding
+- **content.ts** — Added comprehensive error handling with helpful messages for missing data repo, auth failures, malformed YAML, and wrong branch
+- **index.astro** — Homepage now reads `config.homepage.hero_title` and `config.homepage.hero_description` with sensible fallbacks
+
+### SEO Plugin Enhancements (packages/plugin-seo)
+- Added `generateItemJsonLd()` — convenience helper for directory item pages, auto-selects SoftwareApplication or Product schema
+- Added `buildBreadcrumbList()` — generates BreadcrumbList JSON-LD for navigation trails
+- Added `buildSoftwareApplication()` — generates SoftwareApplication JSON-LD with offers and aggregateRating
+- Enhanced `buildWebSite()` — now supports SearchAction for sitelinks search box
+- Added 4 new TypeScript interfaces: `BreadcrumbEntry`, `BreadcrumbListInput`, `SoftwareApplicationInput`, `DirectoryItemInput`
+- Added 12 new unit tests (total: 30 tests, all passing)
+
+### Dependency Updates
+- Updated `pagefind` from 1.5.0 → 1.5.2 (patch)
+
+### Verification
+- `pnpm typecheck` — 20/20 tasks pass (0 errors)
+- `pnpm lint` — 9/9 tasks pass (0 warnings)
+- `pnpm test` — 12/12 tasks pass (30 unit tests)
+- `pnpm build` — 7/7 tasks pass (all apps build successfully)
+- E2E tests — 57/57 chromium tests pass against sample-basic
+- Docs health audit — 100% healthy (no missing files, broken links, or stale references)
+
+### Summary
+- **Template quality: IMPROVED** — config-driven nav/footer/hero, better 404, better error messages
+- **SEO: ENHANCED** — BreadcrumbList, SoftwareApplication, SearchAction, generateItemJsonLd
+- **Documentation: COMPLETE** — All 5 sample apps now have README files
+- **All checks: PASSING** — typecheck, lint, test, build, E2E
+
+### Next Steps (for next scheduled run)
+1. Wire `generateItemJsonLd` into sample app item pages for richer structured data
+2. Add E2E tests for the new 404 page improvements
+3. Consider upgrading @astrojs/preact to v5 (major version — needs testing)
+4. Explore TypeScript 6.0 compatibility
+5. Add more interactive component demos to sample apps
+
 ## 2026-04-12 — Iteration 30: Getting Started Tutorial, Customization Guide, Docs Polish
 
 ### New Guides

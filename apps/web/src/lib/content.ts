@@ -52,13 +52,44 @@ let _syncManager: SyncManager | null = null;
 
 /**
  * Get or create the adapter instance.
+ *
+ * Wraps adapter initialization with actionable error messages so
+ * developers know what to fix when the data repository is missing
+ * or misconfigured.
+ *
+ * @throws {Error} With guidance on setting DATA_REPOSITORY / GH_TOKEN env vars
  */
 async function getAdapter() {
 	if (_adapter) return _adapter;
 
-	const adapterConfig = resolveAdapterConfig();
-	_adapter = createAdapter(adapterConfig);
-	await _adapter.init(adapterConfig);
+	let adapterConfig;
+	try {
+		adapterConfig = resolveAdapterConfig();
+	} catch (err) {
+		throw new Error(
+			`[content] Failed to resolve adapter config. ` +
+			`Ensure the DATA_REPOSITORY environment variable is set to a valid GitHub repo URL ` +
+			`(e.g. "https://github.com/org/data-repo"). ` +
+			`For private repos, also set GH_TOKEN.\n` +
+			`Original error: ${err instanceof Error ? err.message : String(err)}`
+		);
+	}
+
+	try {
+		_adapter = createAdapter(adapterConfig);
+		await _adapter.init(adapterConfig);
+	} catch (err) {
+		_adapter = null;
+		throw new Error(
+			`[content] Failed to initialize data adapter. ` +
+			`Could not clone or access the data repository. Check that:\n` +
+			`  1. DATA_REPOSITORY points to a valid Git repo\n` +
+			`  2. GH_TOKEN is set for private repositories\n` +
+			`  3. GITHUB_BRANCH (default: "main") exists in the repo\n` +
+			`  4. The repo contains a config.yml at its root\n` +
+			`Original error: ${err instanceof Error ? err.message : String(err)}`
+		);
+	}
 
 	// Create sync manager for polling support
 	_syncManager = new SyncManager(_adapter, syncConfig);
@@ -91,11 +122,29 @@ async function getAdapter() {
  * Get all content from the data repository.
  * Uses ContentCache for TTL-based caching.
  * Runs the plugin pipeline (onInit, onDataLoaded) on first call.
+ *
+ * Wraps loading with error handling so malformed YAML files or
+ * missing content directories produce actionable developer messages
+ * instead of raw stack traces.
  */
 export async function getContent(): Promise<ContentData> {
 	return cache.get(async () => {
 		const adapter = await getAdapter();
-		let data = await loadContent(adapter);
+
+		let data: ContentData;
+		try {
+			data = await loadContent(adapter);
+		} catch (err) {
+			throw new Error(
+				`[content] Failed to load content from the data repository. ` +
+				`This usually means YAML files are malformed or required files are missing. Check that:\n` +
+				`  1. config.yml exists and is valid YAML\n` +
+				`  2. categories.yml, tags.yml are valid YAML arrays\n` +
+				`  3. Item files in data/<slug>/<slug>.yml are valid YAML\n` +
+				`  4. No syntax errors (tabs vs spaces, unclosed quotes, etc.)\n` +
+				`Original error: ${err instanceof Error ? err.message : String(err)}`
+			);
+		}
 
 		const baseContext = {
 			config: data.config,

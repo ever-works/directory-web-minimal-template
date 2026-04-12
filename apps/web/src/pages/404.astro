@@ -1,6 +1,9 @@
 ---
 /**
- * 404 Page — Shown when a page is not found.
+ * 404 Page — Shown when a requested page is not found.
+ *
+ * Provides a clear error message, a suggestion, and a prominent
+ * link back to the homepage so users can recover easily.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getContent } from '../lib/content';
@@ -9,12 +12,31 @@ import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
 const { config } = await getContent();
 ---
 
-<BaseLayout title="Not Found" config={config}>
-    <section data-component="not-found">
+<BaseLayout title="Page Not Found" config={config}>
+    <section data-component="not-found" class="flex flex-col items-center justify-center px-4 py-24 text-center">
+        <p class="text-6xl font-bold text-muted-foreground/30" aria-hidden="true">404</p>
+
         <EmptyState
             message="Page Not Found"
-            suggestion="The page you're looking for doesn't exist."
+            suggestion="The page you're looking for doesn't exist or may have been moved."
+            class="mt-4"
         />
-        <a href="/" data-part="home-link">Go back home</a>
+
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <a
+                href="/"
+                data-part="home-link"
+                class="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
+            >
+                Go back home
+            </a>
+            <a
+                href="/categories"
+                data-part="browse-link"
+                class="inline-flex h-10 items-center justify-center rounded-md border border-border bg-background px-4 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground"
+            >
+                Browse categories
+            </a>
+        </div>
     </section>
 </BaseLayout>

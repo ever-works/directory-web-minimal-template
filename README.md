@@ -53,7 +53,7 @@ pnpm dev:web
 ```
 apps/
   web/                Astro static site (core template)
-  web-e2e/            Playwright E2E tests (~400 tests)
+  web-e2e/            Playwright E2E tests (~214 tests)
   docs/               Docusaurus documentation site
   sample-basic/       Reference: React UI Components (hardcoded data)
   sample-jobs/        Reference: Remote Tech Jobs directory

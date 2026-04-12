@@ -18,6 +18,13 @@ import Pagination from '@ever-works/ui/astro/Pagination.astro';
 
 const { items, categories, config } = await getContent();
 
+/** Hero title: prefer config.homepage.hero_title, fall back to company name */
+const heroTitle = config.homepage?.hero_title ?? config.company_name;
+
+/** Hero subtitle: prefer config.homepage.hero_description, fall back to item count */
+const heroSubtitle = config.homepage?.hero_description
+    ?? `Browse ${items.length} ${items.length === 1 ? config.item_name : config.items_name}`;
+
 // Paginate items — page 1 of the full listing
 const perPage = config.pagination?.itemsPerPage ?? 12;
 const pagination = paginate(items, { page: 1, perPage });
@@ -37,8 +44,8 @@ const jsonLd = generateJsonLd('WebSite', {
     </Fragment>
 
     <Hero
-        title={config.company_name}
-        subtitle={`Browse ${items.length} ${items.length === 1 ? config.item_name : config.items_name}`}
+        title={heroTitle}
+        subtitle={heroSubtitle}
     />
 
     {categories.length > 0 && (

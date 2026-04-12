@@ -90,10 +90,15 @@ export interface MetaTag {
 // ---------------------------------------------------------------------------
 
 /** Supported JSON-LD schema types. */
-export type JsonLdType = 'WebSite' | 'ItemList' | 'Product';
+export type JsonLdType = 'WebSite' | 'ItemList' | 'Product' | 'BreadcrumbList' | 'SoftwareApplication';
 
 /** Input data for JSON-LD generation. Discriminated by {@link JsonLdType}. */
-export type JsonLdInput = WebSiteInput | ItemListInput | ProductInput;
+export type JsonLdInput =
+    | WebSiteInput
+    | ItemListInput
+    | ProductInput
+    | BreadcrumbListInput
+    | SoftwareApplicationInput;
 
 /** Data required to build a `WebSite` JSON-LD block. */
 export interface WebSiteInput {
@@ -107,6 +112,14 @@ export interface WebSiteInput {
 
     /** Short site description. */
     description?: string;
+
+    /**
+     * URL template for site search (enables sitelinks search box in Google).
+     * Use `{search_term_string}` as the query placeholder.
+     *
+     * @example "https://example.com/search?q={search_term_string}"
+     */
+    searchAction?: string;
 }
 
 /** A single item entry inside an `ItemList` JSON-LD block. */
@@ -141,4 +154,114 @@ export interface ProductInput {
 
     /** Image URL. */
     image?: string;
+}
+
+// ---------------------------------------------------------------------------
+// BreadcrumbList
+// ---------------------------------------------------------------------------
+
+/** A single breadcrumb entry inside a `BreadcrumbList` JSON-LD block. */
+export interface BreadcrumbEntry {
+    /** Display name for this breadcrumb segment. */
+    name: string;
+
+    /** Absolute URL for this breadcrumb segment. */
+    url: string;
+}
+
+/** Data required to build a `BreadcrumbList` JSON-LD block. */
+export interface BreadcrumbListInput {
+    type: 'BreadcrumbList';
+
+    /** Ordered breadcrumb trail from root to current page. */
+    items: BreadcrumbEntry[];
+}
+
+// ---------------------------------------------------------------------------
+// SoftwareApplication
+// ---------------------------------------------------------------------------
+
+/** Data required to build a `SoftwareApplication` JSON-LD block. */
+export interface SoftwareApplicationInput {
+    type: 'SoftwareApplication';
+
+    /** Application name. */
+    name: string;
+
+    /** Absolute URL to the application page. */
+    url: string;
+
+    /** Short description. */
+    description?: string;
+
+    /** Image / screenshot URL. */
+    image?: string;
+
+    /**
+     * Application category (e.g., `"DeveloperApplication"`, `"BusinessApplication"`).
+     * @see https://schema.org/applicationCategory
+     */
+    applicationCategory?: string;
+
+    /** Operating system requirement (e.g., `"Windows"`, `"macOS"`, `"Web"`). */
+    operatingSystem?: string;
+
+    /** Price of the application. Use `"0"` for free. */
+    price?: string;
+
+    /** ISO 4217 currency code (e.g., `"USD"`). Required when {@link price} is set. */
+    priceCurrency?: string;
+
+    /** Aggregate rating value (1-5). */
+    ratingValue?: number;
+
+    /** Total number of ratings. */
+    ratingCount?: number;
+}
+
+// ---------------------------------------------------------------------------
+// Directory item convenience input
+// ---------------------------------------------------------------------------
+
+/**
+ * Convenience input for {@link generateItemJsonLd}.
+ *
+ * Captures the fields common to directory items. The helper infers the
+ * best Schema.org type (`SoftwareApplication` when `applicationCategory`
+ * is present, `Product` otherwise) and builds the appropriate JSON-LD.
+ */
+export interface DirectoryItemInput {
+    /** Item name. */
+    name: string;
+
+    /** Absolute URL. */
+    url: string;
+
+    /** Short description. */
+    description?: string;
+
+    /** Image URL. */
+    image?: string;
+
+    /**
+     * Schema.org application category.
+     * When provided, the item is rendered as `SoftwareApplication` instead
+     * of `Product`.
+     */
+    applicationCategory?: string;
+
+    /** Operating system (for software items). */
+    operatingSystem?: string;
+
+    /** Price string. Use `"0"` for free. */
+    price?: string;
+
+    /** ISO 4217 currency code. */
+    priceCurrency?: string;
+
+    /** Aggregate rating value (1-5). */
+    ratingValue?: number;
+
+    /** Total number of ratings. */
+    ratingCount?: number;
 }

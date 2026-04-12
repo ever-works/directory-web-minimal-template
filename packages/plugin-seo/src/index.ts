@@ -28,7 +28,7 @@ export { seoPlugin } from './plugin';
 
 // Utility functions
 export { generateMetaTags } from './meta';
-export { generateJsonLd } from './json-ld';
+export { generateJsonLd, generateItemJsonLd } from './json-ld';
 
 // Types
 export type {
@@ -41,4 +41,8 @@ export type {
     ItemListInput,
     ItemListEntry,
     ProductInput,
+    BreadcrumbListInput,
+    BreadcrumbEntry,
+    SoftwareApplicationInput,
+    DirectoryItemInput,
 } from './types';

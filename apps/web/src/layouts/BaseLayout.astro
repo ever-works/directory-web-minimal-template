@@ -6,7 +6,7 @@
  * Integrates with plugin-seo for Open Graph and JSON-LD structured data.
  * Uses SiteHeader and SiteFooter from @ever-works/ui for consistent layout.
  */
-import type { SiteConfig } from '@ever-works/core';
+import type { SiteConfig, NavLinkItem } from '@ever-works/core';
 import { generateMetaTags } from '@ever-works/plugin-seo';
 import type { PageMeta } from '@ever-works/plugin-seo';
 import SiteHeader from '@ever-works/ui/astro/SiteHeader.astro';
@@ -43,13 +43,26 @@ const pageMeta: PageMeta = {
 
 const metaTags = generateMetaTags(pageMeta, {});
 
-const navItems = [
+/**
+ * Default nav items used when config.custom_header is not set.
+ * Sites can override via config.custom_header in config.yml.
+ */
+const defaultNavItems = [
     { label: 'Home', href: '/' },
     { label: 'Categories', href: '/categories' },
     { label: 'Tags', href: '/tags' },
     { label: 'Collections', href: '/collections' },
     { label: 'Comparisons', href: '/comparisons' },
 ];
+
+/** Resolve nav items: prefer config.custom_header, fall back to defaults */
+const navItems = (config.custom_header ?? defaultNavItems).map((item: NavLinkItem | { label: string; href: string }) => ({
+    label: item.label,
+    href: item.href,
+}));
+
+/** Footer links from config.custom_footer (empty if not configured) */
+const footerLinks: NavLinkItem[] = config.custom_footer ?? [];
 ---
 
 <!doctype html>
@@ -79,6 +92,24 @@ const navItems = [
             <slot />
         </main>
 
-        <SiteFooter config={config} />
+        <SiteFooter config={config}>
+            {footerLinks.length > 0 && (
+                <nav data-part="footer-nav" aria-label="Footer navigation">
+                    <ul class="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                        {footerLinks.map((link) => (
+                            <li>
+                                <a
+                                    href={link.href}
+                                    class="hover:text-foreground transition-colors"
+                                    {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                                >
+                                    {link.label}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </nav>
+            )}
+        </SiteFooter>
     </body>
 </html>
