@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-12 (Iteration 32: generateItemJsonLd + BreadcrumbList JSON-LD, enhanced E2E tests)
+> Updated: 2026-04-12 (Iteration 33: @astrojs/preact v5 upgrade, CI/CD sample-git fix, docs health audit)
 
 ## Root Documents
 

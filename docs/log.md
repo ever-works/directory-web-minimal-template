@@ -7,6 +7,48 @@ sidebar_label: "Change Log"
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-12 — Iteration 33: Dependency Upgrade, CI/CD Fix, Docs Health Audit
+
+### Dependency Upgrade
+- Upgraded `@astrojs/preact` from v4.1.3 to v5.1.1 across all 6 apps (web, sample-basic, sample-events, sample-jobs, sample-real-estate, sample-git)
+- v5 is compatible with existing Preact 10.x peer dependency — no breaking changes detected
+
+### CI/CD Fix
+- **`.github/workflows/ci.yml`** — Added missing `sample-git` build step and E2E test step (`git-chromium` project) to the CI pipeline. Previously, sample-git was tested locally but skipped in CI.
+
+### Developer Experience
+- Created `apps/web/.env.example` — Local env example for the web app, referencing the root `.env.example` for full documentation
+- Updated `README.md` — Fixed E2E test count from ~214 to ~218 (61 chromium + 157 other projects across 5 sample apps)
+
+### Docs Health Audit
+- Verified all files listed in `docs/index.md` exist on disk (all docs, specs, plans, guides)
+- Verified all 15 `.specify/` spec files exist
+- Verified all 24 Astro components + 7 Preact components documented in `docs/specs/component-catalog.md`
+- Verified all 13 page routes documented in `AGENTS.md`
+- Verified all 7 primitives, 5 shadcn-style Preact utility components match AGENTS.md references
+- No phantom files, broken references, or drift found
+
+### Build Verification
+- `pnpm typecheck` — ALL 20 tasks pass (0 errors)
+- `pnpm lint` — ALL 9 tasks pass
+- E2E tests — ALL 218 tests pass (61 sample-basic + 157 other projects)
+- Builds: web (15 pages), sample-basic (41 pages), sample-jobs (35 pages), sample-events (37 pages), sample-real-estate (37 pages), sample-git (built successfully)
+
+### Summary
+- **Dependency upgrade**: @astrojs/preact v4 → v5
+- **CI gap fixed**: sample-git now included in CI pipeline
+- **Docs health**: Clean — no drift or broken references
+- **TypeScript 6 held**: @astrojs/check requires TS ^5.0.0 — upgrade deferred until Astro tooling supports TS 6
+
+### Next Steps (for next scheduled run)
+1. Consider upgrading TypeScript when @astrojs/check supports v6
+2. Set up Docusaurus docs site content (Starlight alternative or fill existing Docusaurus)
+3. Performance audit — analyze bundle sizes across sample apps
+4. Accessibility audit on sample apps
+5. Review and improve interactive component patterns
+
+---
+
 ## 2026-04-12 — Iteration 32: generateItemJsonLd + BreadcrumbList JSON-LD, Enhanced E2E Tests
 
 ### SEO Improvements (all item pages)

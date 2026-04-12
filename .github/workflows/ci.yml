@@ -83,6 +83,11 @@ jobs:
         env:
           SITE_URL: https://dream-properties.example.com
 
+      - name: Build sample-git
+        run: pnpm --filter @ever-works/sample-git build
+        env:
+          SITE_URL: https://git-directory.example.com
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
         working-directory: apps/web-e2e
@@ -101,6 +106,10 @@ jobs:
 
       - name: Run E2E tests (sample-real-estate)
         run: npx playwright test --project=re-chromium
+        working-directory: apps/web-e2e
+
+      - name: Run E2E tests (sample-git)
+        run: npx playwright test --project=git-chromium
         working-directory: apps/web-e2e
 
       - name: Upload test results

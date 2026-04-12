@@ -12,7 +12,7 @@
         "clean": "rm -rf dist .astro .content"
     },
     "dependencies": {
-        "@astrojs/preact": "^4.1.0",
+        "@astrojs/preact": "^5.1.1",
         "@astrojs/sitemap": "^3.7.0",
         "@astrojs/vercel": "^10.0.0",
         "@ever-works/adapters": "workspace:*",
