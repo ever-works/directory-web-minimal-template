@@ -13,6 +13,7 @@ const sidebars: SidebarsConfig = {
         "architecture/plugin-system",
         "architecture/adapter-system",
         "architecture/component-system",
+        "architecture/content-sync",
       ],
     },
     {
@@ -24,6 +25,7 @@ const sidebars: SidebarsConfig = {
         "guides/creating-a-plugin",
         "guides/creating-an-adapter",
         "guides/interactive-components",
+        "guides/content-sync",
         "guides/deployment",
         "guides/troubleshooting",
       ],
@@ -35,7 +37,6 @@ const sidebars: SidebarsConfig = {
         "specs/data-schema",
         "specs/plugin-interface",
         "specs/adapter-interface",
-        "specs/component-catalog",
       ],
     },
     {
@@ -49,6 +50,16 @@ const sidebars: SidebarsConfig = {
         "plans/phase-5-sample",
         "plans/phase-5-sample-detail",
         "plans/phase-6-deployment",
+        "plans/phase-7-sample-events",
+        "plans/phase-8-sample-real-estate",
+      ],
+    },
+    {
+      type: "category",
+      label: "Reference",
+      items: [
+        "questions",
+        "log",
       ],
     },
   ],

@@ -7,6 +7,49 @@ sidebar_label: "Change Log"
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-12 — Iteration 27: E2E Coverage Expansion, Docs Sidebar Fixes
+
+### E2E Tests: sample-jobs (54 tests)
+- Created `tests/jobs/jobs-home.spec.ts` — 7 tests (title, hero, header, footer, featured, listing, categories)
+- Created `tests/jobs/jobs-item.spec.ts` — 6 tests (title, heading, breadcrumbs, source link, tags, junior role)
+- Created `tests/jobs/jobs-categories.spec.ts` — 5 tests (categories index, all categories, category page, tags index, tag page)
+- Created `tests/jobs/jobs-collections.spec.ts` — 3 tests (collections index, links, detail with items)
+- Created `tests/jobs/jobs-comparisons.spec.ts` — 4 tests (comparisons index, links, detail page, table, breadcrumbs)
+
+### E2E Tests: sample-real-estate (54 tests)
+- Created `tests/real-estate/re-home.spec.ts` — 7 tests (title, hero, header, footer, featured, listing, categories)
+- Created `tests/real-estate/re-item.spec.ts` — 7 tests (title, heading, breadcrumbs, tags, price metadata, location metadata, house variant)
+- Created `tests/real-estate/re-categories.spec.ts` — 5 tests (categories index, all categories, category page, tags index, tag page)
+- Created `tests/real-estate/re-collections.spec.ts` — 3 tests (collections index, links, detail with items)
+- Created `tests/real-estate/re-comparisons.spec.ts` — 5 tests (comparisons index, links, detail page, table, breadcrumbs)
+
+### Playwright Config Updates
+- Added 4 new projects: `jobs-chromium`, `jobs-mobile`, `re-chromium`, `re-mobile`
+- Added 2 new webServers: sample-jobs (port 4324), sample-real-estate (port 4326)
+- Updated existing project testIgnore to exclude `**/jobs/**` and `**/real-estate/**`
+- Total test count: **370 tests** (was 262)
+
+### Documentation Health Fixes
+- **AGENTS.md**: Added missing `ItemBrowser` to Preact components list
+- **docs/index.md**: Removed phantom `specs/component-catalog.md` entry; updated date
+- **sidebarsTemplate.ts**: Added `architecture/content-sync`, `guides/content-sync` to sidebar; removed phantom `specs/component-catalog`; added `plans/phase-7-sample-events`, `plans/phase-8-sample-real-estate`; added Reference category with `questions` and `log`
+
+### Verification Summary
+- `pnpm build` — 7/7 tasks pass
+- `pnpm typecheck` — 20/20 tasks pass (0 errors)
+- `pnpm lint` — 9/9 tasks pass
+- `pnpm test` — 12/12 unit test tasks pass
+- E2E tests — **370/370 pass** (108 new: 54 jobs + 54 real-estate)
+- Docs site (Docusaurus) — builds successfully
+
+### Next Steps (for next scheduled run)
+1. Add sample-specific E2E for sample-git (the largest sample, 1495 pages)
+2. Add Docusaurus docs site content pages (custom pages, better blog posts)
+3. Review SKILLS.md for completeness and accuracy
+4. Consider adding visual regression testing
+
+---
+
 ## 2026-04-12 — Iteration 26: ESLint, E2E Fixes, Docs Health
 
 ### ESLint Configuration

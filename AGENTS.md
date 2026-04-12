@@ -354,7 +354,7 @@ Directory-specific components that compose primitive components with domain type
 Import: `import ItemCard from '@ever-works/ui/astro/ItemCard.astro'`
 
 ### Interactive (Preact islands — `src/preact/`)
-`SearchInput`, `FilterBar`, `SortSelect`, `BackToTop`, `ThemeToggle`, `LayoutSwitcher`
+`SearchInput`, `FilterBar`, `SortSelect`, `BackToTop`, `ThemeToggle`, `LayoutSwitcher`, `ItemBrowser`
 
 **Usage pattern**: Standalone components (ThemeToggle, BackToTop) go directly in layouts. Data-driven components (SearchInput, FilterBar, SortSelect) should be composed into a Preact island (e.g., `ItemBrowser.tsx`) that manages client-side filtering state. See `apps/sample-basic/src/components/ItemBrowser.tsx` for a reference implementation and `docs/guides/interactive-components.md` for the full guide.
 

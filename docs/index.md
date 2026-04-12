@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-12 (Iteration 26: ESLint fixes, E2E test fixes, docs health audit)
+> Updated: 2026-04-12 (Iteration 27: docs health audit, component count fixes)
 
 ## Root Documents
 
@@ -49,7 +49,7 @@ slug: /
 - [specs/data-schema.md](specs/data-schema.md) — Data schema specification (Item, Category, Tag, Collection, Comparison, Config)
 - [specs/plugin-interface.md](specs/plugin-interface.md) — Plugin interface contract (hooks, context, lifecycle)
 - [specs/adapter-interface.md](specs/adapter-interface.md) — Adapter interface contract (DataAdapter, AdapterConfig)
-- [specs/component-catalog.md](specs/component-catalog.md) — Component catalog specification (24 Astro + 7 Preact + 7 primitives + 5 shadcn)
+
 
 ## Spec Kit (.specify/)
 

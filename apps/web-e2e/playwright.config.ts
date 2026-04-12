@@ -7,6 +7,8 @@ import { defineConfig, devices } from '@playwright/test';
  * Projects:
  *   - chromium / mobile            → sample-basic on port 4323
  *   - events-chromium / events-mobile → sample-events on port 4325
+ *   - jobs-chromium / jobs-mobile   → sample-jobs on port 4324
+ *   - re-chromium / re-mobile       → sample-real-estate on port 4326
  */
 export default defineConfig({
     testDir: './tests',
@@ -25,7 +27,7 @@ export default defineConfig({
         {
             name: 'chromium',
             testDir: './tests',
-            testIgnore: ['**/events/**'],
+            testIgnore: ['**/events/**', '**/jobs/**', '**/real-estate/**'],
             use: {
                 ...devices['Desktop Chrome'],
                 baseURL: 'http://localhost:4323',
@@ -34,7 +36,7 @@ export default defineConfig({
         {
             name: 'mobile',
             testDir: './tests',
-            testIgnore: ['**/events/**'],
+            testIgnore: ['**/events/**', '**/jobs/**', '**/real-estate/**'],
             use: {
                 ...devices['iPhone 14'],
                 baseURL: 'http://localhost:4323',
@@ -58,6 +60,42 @@ export default defineConfig({
                 baseURL: 'http://localhost:4325',
             },
         },
+
+        // ── sample-jobs ───────────────────────────────────
+        {
+            name: 'jobs-chromium',
+            testDir: './tests/jobs',
+            use: {
+                ...devices['Desktop Chrome'],
+                baseURL: 'http://localhost:4324',
+            },
+        },
+        {
+            name: 'jobs-mobile',
+            testDir: './tests/jobs',
+            use: {
+                ...devices['iPhone 14'],
+                baseURL: 'http://localhost:4324',
+            },
+        },
+
+        // ── sample-real-estate ────────────────────────────
+        {
+            name: 're-chromium',
+            testDir: './tests/real-estate',
+            use: {
+                ...devices['Desktop Chrome'],
+                baseURL: 'http://localhost:4326',
+            },
+        },
+        {
+            name: 're-mobile',
+            testDir: './tests/real-estate',
+            use: {
+                ...devices['iPhone 14'],
+                baseURL: 'http://localhost:4326',
+            },
+        },
     ],
 
     webServer: [
@@ -69,6 +107,16 @@ export default defineConfig({
         {
             command: 'pnpm --filter @ever-works/sample-events preview',
             port: 4325,
+            reuseExistingServer: !process.env.CI,
+        },
+        {
+            command: 'pnpm --filter @ever-works/sample-jobs preview',
+            port: 4324,
+            reuseExistingServer: !process.env.CI,
+        },
+        {
+            command: 'pnpm --filter @ever-works/sample-real-estate preview',
+            port: 4326,
             reuseExistingServer: !process.env.CI,
         },
     ],
