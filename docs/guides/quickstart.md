@@ -6,7 +6,7 @@ description: Get up and running with the Ever Works minimal directory template i
 
 ## Prerequisites
 
-- **Node.js** 20+ (24 LTS recommended)
+- **Node.js** 22+ (24 LTS recommended)
 - **pnpm** 10+
 - **Git** 2.30+
 

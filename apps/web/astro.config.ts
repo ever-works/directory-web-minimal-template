@@ -21,7 +21,7 @@ import { getPluginRunner, getContent } from './src/lib/content';
 const isISR = process.env['ENABLE_ISR'] !== 'false';
 
 export default defineConfig({
-	// In Astro 5, output: 'static' is the default and supports per-page opt-out
+	// In Astro 6, output: 'static' is the default and supports per-page opt-out
 	// via `export const prerender = false`. The Vercel adapter enables ISR
 	// for prerendered pages automatically.
 	// Set ENABLE_ISR=false to skip the Vercel adapter entirely (pure static).

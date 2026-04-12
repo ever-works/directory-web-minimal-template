@@ -29,13 +29,13 @@
         "tailwind-merge": "^3.0.0"
     },
     "peerDependencies": {
-        "astro": "^5.0.0",
+        "astro": "^6.0.0",
         "preact": "^10.0.0"
     },
     "devDependencies": {
         "@ever-works/tsconfig": "workspace:*",
-        "astro": "^5.0.0",
-        "preact": "^10.25.0",
+        "astro": "^6.0.0",
+        "preact": "^10.29.0",
         "typescript": "^5.7.0"
     }
 }

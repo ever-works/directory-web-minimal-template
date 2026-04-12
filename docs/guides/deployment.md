@@ -9,7 +9,7 @@ How to deploy the minimal template to Vercel and other static hosts.
 
 ## Prerequisites
 
-- **Node.js** 20+ (24 LTS recommended)
+- **Node.js** 22+ (24 LTS recommended)
 - **pnpm** 10+
 - A **Vercel** account (free tier works)
 - A **GitHub** repository with your template code

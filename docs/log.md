@@ -7,6 +7,44 @@ sidebar_label: "Change Log"
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-12 — Astro 6 Upgrade: Major Dependency Version Bump
+
+### Framework Upgrade: Astro 5 → Astro 6
+- **astro**: `^5.0.0` → `^6.0.0` (latest 6.1.5) — Redesigned dev server using Vite Environment API, built-in Fonts API, Content Security Policy API, Live Content Collections
+- **@astrojs/vercel**: `^8.0.0` → `^10.0.0` (latest 10.0.2) — Major version bump for Astro 6 compatibility
+- **@astrojs/preact**: `^4.0.0` → `^4.1.0` (latest 4.1.3) — Bug fixes, Astro 6 support
+- **@astrojs/sitemap**: `^3.3.0` → `^3.7.0` (latest 3.7.2) — Bug fixes and improvements
+- **preact**: `^10.25.0` → `^10.29.0` (latest 10.29.1) — Latest stable release
+- **@tailwindcss/vite**: `^4.1.0` → `^4.2.0` (latest 4.2.2)
+- **tailwindcss**: `^4.1.0` → `^4.2.0` (latest 4.2.2)
+- **Node.js**: `>=20.19.0` → `>=22.12.0` (Astro 6 requires Node 22+)
+- **Vite**: Managed internally by Astro 6 (ships with Vite 7)
+
+### Files Updated
+- **8 `package.json` files**: root, apps/web, apps/sample-basic, apps/sample-git, apps/sample-jobs, apps/sample-events, apps/sample-real-estate, packages/ui, packages/astro-integration
+- **Peer dependencies**: `packages/ui` and `packages/astro-integration` updated to `astro ^6.0.0`
+- **Config comments**: Updated "Astro 5" references to "Astro 6" in astro.config.ts files and integration.ts
+- **CLAUDE.md**: Framework description updated to "Astro 6"
+- **.specify/project.md**: Tech stack table updated
+- **README.md**: Updated features list
+- **docs/overview.md**: Updated features and tech stack
+- **docs/plans/phase-5,7,8**: All version references in code blocks updated
+- **.specify/features/sample-basic,sample-git,sample-events**: Dependency lists updated
+- **docs/guides/quickstart.md, deployment.md**: Node.js requirement updated to 22+
+- **apps/docs/package.json**: Node.js engine updated
+- **apps/docs/blog/2026-04-11-welcome.md**: Feature description updated
+
+### Breaking Changes Verified
+- No usage of removed `Astro.glob()` (project uses `import.meta.glob()` pattern)
+- No usage of removed `<ViewTransitions />` component
+- No usage of removed `emitESMImage()`
+- No legacy `astro:content` imports found
+- No `src/content/config.ts` (project uses its own YAML-based content layer)
+- All typechecks pass (0 errors across web, sample-basic, astro-integration)
+- Full build succeeds (sample-basic: 41 pages built in 7.58s)
+
+---
+
 ## 2026-04-12 — Iteration 25: Sample-Real-Estate App, E2E Tests for Events, Phase-8 Plan
 
 ### New App: sample-real-estate (Property Listings Directory)
@@ -256,7 +294,7 @@ sidebar_label: "Change Log"
 - R5 changed from "Static Output Only" to "ISR by Default, Static Opt-Out"
 - Default: `output: 'static'` with `@astrojs/vercel` adapter for ISR support
 - Opt-out: `ENABLE_ISR=false` for pure static (no adapter)
-- Astro 5 note: `output: 'hybrid'` removed in Astro 5 — `output: 'static'` now supports per-page opt-out via `prerender = false`
+- Astro 6 note: `output: 'hybrid'` removed in Astro 5 — `output: 'static'` now supports per-page opt-out via `prerender = false`
 
 ### GitAdapter Rewrite: isomorphic-git
 - **`packages/adapters/src/git-adapter.ts`** — Full rewrite from shell `execFileSync('git', ...)` to `isomorphic-git`
@@ -1043,7 +1081,7 @@ Replaced 14 hand-built headless Astro components with fulldev/ui primitives per 
   - `@ever-works/tsconfig` — Shared base and astro TypeScript configs
   - `@ever-works/eslint-config` — ESLint 9 flat config with TypeScript strict rules
 - Created all app stubs:
-  - `apps/web` — Astro 5 static site with config, env types, clone script
+  - `apps/web` — Astro 6 static site with config, env types, clone script
   - `apps/web-e2e` — Playwright test setup with initial test
   - `apps/docs` — Starlight documentation site config
   - `apps/sample-basic` — Reference implementation stub (Phase 5)
@@ -1218,7 +1256,7 @@ Replaced 14 hand-built headless Astro components with fulldev/ui primitives per 
   - `tags.yml` — 10 tags (TypeScript, Accessible, Headless, Open Source, Tailwind CSS, Styled Components, Unstyled, SSR Ready, React 19, Small Bundle)
   - `collections.yml` — 2 collections (Top Picks, Headless Libraries)
   - `data/` — 12 React component library items (Radix UI, Headless UI, React Aria, shadcn/ui, Chakra UI, Ant Design, Material UI, Mantine, React Hook Form, TanStack Table, Framer Motion, React Spring)
-- Created `astro.config.ts` — Astro 5 static config with Preact, Tailwind v4, sitemap
+- Created `astro.config.ts` — Astro 6 static config with Preact, Tailwind v4, sitemap
 - Created `tsconfig.json` — extends shared astro config
 - Created `src/env.d.ts` — Astro client types
 - Created `src/lib/content.ts` — cached content loading with plugin pipeline

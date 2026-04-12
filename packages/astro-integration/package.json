@@ -18,11 +18,11 @@
         "@ever-works/sync": "workspace:*"
     },
     "devDependencies": {
-        "astro": "^5.7.10",
+        "astro": "^6.0.0",
         "typescript": "^5.8.3",
         "vitest": "^4.1.4"
     },
     "peerDependencies": {
-        "astro": "^5.0.0"
+        "astro": "^6.0.0"
     }
 }

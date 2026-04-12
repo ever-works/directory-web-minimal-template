@@ -79,7 +79,7 @@ export function everWorksIntegration(options: EverWorksIntegrationOptions): Astr
 			'astro:config:setup': ({ injectRoute, config, logger }) => {
 				// Inject webhook API endpoint when sync.webhook is enabled
 				if (sync?.webhook) {
-					// In Astro 5 with Vercel adapter, endpoints with `prerender = false`
+					// In Astro 6 with Vercel adapter, endpoints with `prerender = false`
 					// become serverless functions even in static output mode
 					const hasAdapter = !!config.adapter;
 					if (!hasAdapter) {

@@ -44,8 +44,8 @@ Create the `apps/sample-events/` directory with proper config files, build tooli
         "clean": "rm -rf dist .astro"
     },
     "dependencies": {
-        "@astrojs/preact": "^4.0.0",
-        "@astrojs/sitemap": "^3.3.0",
+        "@astrojs/preact": "^4.1.0",
+        "@astrojs/sitemap": "^3.7.0",
         "@ever-works/adapters": "workspace:*",
         "@ever-works/core": "workspace:*",
         "@ever-works/plugin-breadcrumbs": "workspace:*",
@@ -57,10 +57,10 @@ Create the `apps/sample-events/` directory with proper config files, build tooli
         "@ever-works/plugin-sort": "workspace:*",
         "@ever-works/plugins": "workspace:*",
         "@ever-works/ui": "workspace:*",
-        "@tailwindcss/vite": "^4.1.0",
-        "astro": "^5.0.0",
-        "preact": "^10.25.0",
-        "tailwindcss": "^4.1.0",
+        "@tailwindcss/vite": "^4.2.0",
+        "astro": "^6.0.0",
+        "preact": "^10.29.0",
+        "tailwindcss": "^4.2.0",
         "yaml": "^2.7.0"
     },
     "devDependencies": {

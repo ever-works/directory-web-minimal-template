@@ -8,7 +8,7 @@ This is a **minimal, static-rendered Astro template** for AI-generated directory
 
 ## Architecture
 
-- **Framework**: Astro 5 with Vite, fully static rendering (`output: 'static'`), NO SSR
+- **Framework**: Astro 6 with Vite, fully static rendering (`output: 'static'`), NO SSR
 - **Language**: TypeScript everywhere — no JS, no Python
 - **Monorepo**: pnpm workspaces + Turborepo
 - **Data**: Git-first — data stored in separate Git repos (YAML files), NO database, NO auth

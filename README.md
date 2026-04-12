@@ -10,7 +10,7 @@ This template is an **intentionally blank canvas** with headless, composable bui
 
 ## Features
 
-- **Astro 5** with fully static output (no SSR)
+- **Astro 6** with fully static output (no SSR)
 - **Plugin architecture** — almost every feature is a plugin
 - **Git-first data** — content stored in separate Git repos (YAML)
 - **Headless UI components** — unstyled building blocks for AI to style

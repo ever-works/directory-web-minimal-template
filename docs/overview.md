@@ -14,7 +14,7 @@ This template is an **intentionally blank canvas** with headless, composable bui
 
 ## Key Features
 
-- **Static-first**: Astro 5 with fully static output (`output: 'static'`), no SSR
+- **Static-first**: Astro 6 with fully static output (`output: 'static'`), no SSR
 - **Plugin architecture**: Almost every feature is a plugin that can be enabled/disabled
 - **Git-first data**: Content stored in YAML files within Git repositories
 - **Headless components**: 24 Astro + 8 Preact unstyled building blocks + 14 primitive components
@@ -25,7 +25,7 @@ This template is an **intentionally blank canvas** with headless, composable bui
 
 | Layer | Technology |
 |-------|-----------|
-| Framework | Astro 5 (static output) |
+| Framework | Astro 6 (static output) |
 | Build | Vite + Turborepo |
 | Language | TypeScript (strict) |
 | Interactive Islands | Preact |

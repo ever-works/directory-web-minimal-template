@@ -26,7 +26,7 @@ A minimal, static-rendered Astro template for AI-generated directory websites. L
 
 | Layer | Technology |
 |-------|-----------|
-| Framework | Astro 5 (static output) |
+| Framework | Astro 6 (static output) |
 | Build | Vite + Turborepo |
 | Language | TypeScript (strict) |
 | Interactive Islands | Preact |

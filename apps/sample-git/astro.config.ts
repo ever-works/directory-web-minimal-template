@@ -19,7 +19,7 @@ import { getPluginRunner, getContent } from './src/lib/content';
 const isISR = process.env['ENABLE_ISR'] !== 'false';
 
 export default defineConfig({
-	// Astro 5: static output with Vercel adapter for ISR support
+	// Astro 6: static output with Vercel adapter for ISR support
 	output: 'static',
 	...(isISR ? { adapter: vercel() } : {}),
 	site: process.env.SITE_URL || 'https://time-tracking.example.com',
