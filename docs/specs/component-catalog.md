@@ -601,3 +601,39 @@ interface SimilarItemsProps {
   </div>
 </section>
 ```
+
+---
+
+### ItemBrowser
+
+**File**: `packages/ui/src/preact/ItemBrowser.tsx`
+**Purpose**: Composite Preact island combining FilterBar, SearchInput, SortSelect, LayoutSwitcher, and pagination into a single interactive browsing experience. Use as a single drop-in island for directory listing pages.
+**Type**: Interactive (Preact)
+
+```typescript
+interface ItemBrowserProps {
+    items: ItemData[];
+    categories?: CategoryData[];
+    tags?: TagData[];
+    itemsName?: string;        // default: "Items"
+    perPage?: number;          // default: 12
+    layoutModes?: LayoutMode[]; // default: ['grid', 'list']
+    initialLayout?: LayoutMode; // default: 'grid'
+    renderItem?: (item: ItemData, layout: LayoutMode) => preact.VNode;
+    class?: string;
+}
+```
+
+**HTML structure**:
+```html
+<div data-component="item-browser">
+  <fieldset data-part="categories">…</fieldset>
+  <fieldset data-part="tags">…</fieldset>
+  <div data-part="toolbar">
+    <SearchInput /><SortSelect /><LayoutSwitcher />
+  </div>
+  <div data-part="results-info">…</div>
+  <div data-part="item-list" data-layout="grid|list|compact">…</div>
+  <nav data-part="pagination">…</nav>
+</div>
+```

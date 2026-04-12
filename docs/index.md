@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-11 (Iteration 21: Tests, UI exports, docs health-check)
+> Updated: 2026-04-11 (Iteration 22: sample-jobs, sync tests, docs fixes)
 
 ## Root Documents
 
@@ -15,7 +15,7 @@ slug: /
 > View them on GitHub or in the cloned repository.
 
 - **CLAUDE.md** — Claude Code instructions, project overview, commands ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/CLAUDE.md))
-- **AGENTS.md** — AI agent rules (R1-R14 under Mandatory Rules), working process, data contracts, available pages/components/plugins ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/AGENTS.md))
+- **AGENTS.md** — AI agent rules (R1-R15 under Mandatory Rules), working process, data contracts, available pages/components/plugins ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/AGENTS.md))
 - **SKILLS.md** — Step-by-step AI agent skills for building directory sites ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/SKILLS.md))
 - **README.md** — Project README ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/README.md))
 
@@ -43,7 +43,7 @@ slug: /
 - [specs/data-schema.md](specs/data-schema.md) — Data schema specification (Item, Category, Tag, Collection, Comparison, Config)
 - [specs/plugin-interface.md](specs/plugin-interface.md) — Plugin interface contract (hooks, context, lifecycle)
 - [specs/adapter-interface.md](specs/adapter-interface.md) — Adapter interface contract (DataAdapter, AdapterConfig)
-- [specs/component-catalog.md](specs/component-catalog.md) — Component catalog specification (17 Astro + 5 Preact)
+- [specs/component-catalog.md](specs/component-catalog.md) — Component catalog specification (24 Astro + 7 Preact)
 
 ## Spec Kit (.specify/)
 
@@ -62,6 +62,7 @@ slug: /
 - **features/static-pages.md** — Static pages feature spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/static-pages.md))
 - **features/sample-git.md** — Sample Git reference implementation spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/sample-git.md))
 - **features/content-sync.md** — Content sync, caching & ISR spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/content-sync.md))
+- **features/sample-jobs.md** — Sample Jobs (job board directory) spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/sample-jobs.md))
 
 ## Guides
 
@@ -76,5 +77,5 @@ slug: /
 
 ## Reference
 
-- [questions.md](questions.md) — Open questions and decisions (Q1-Q11 with defaults)
+- [questions.md](questions.md) — Open questions and decisions (Q1-Q18 with defaults)
 - [log.md](log.md) — Change log (all iterations tracked)

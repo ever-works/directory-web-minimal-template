@@ -508,6 +508,7 @@ describe('GitAdapter', () => {
             vi.mocked(git.resolveRef).mockResolvedValue('same-sha');
             vi.mocked(git.fetch).mockImplementation(async (opts: any) => {
                 capturedOnAuth = opts.onAuth;
+                return { defaultBranch: 'main', fetchHead: 'same-sha', fetchHeadDescription: '', headers: {}, pruned: [] };
             });
 
             await adapter.refresh();

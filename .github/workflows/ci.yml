@@ -68,6 +68,11 @@ jobs:
         env:
           SITE_URL: https://react-components.example.com
 
+      - name: Build sample-jobs
+        run: pnpm --filter @ever-works/sample-jobs build
+        env:
+          SITE_URL: https://remote-tech-jobs.example.com
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
         working-directory: apps/web-e2e

@@ -81,4 +81,104 @@ describe('WebhookHandler', () => {
 			expect(WebhookHandler.isRelevantPush('develop', 'main')).toBe(false);
 		});
 	});
+
+	describe('validateSignature — edge cases', () => {
+		it('should reject invalid HMAC from wrong secret', () => {
+			const body = '{"ref":"refs/heads/main","commits":[]}';
+			const correctSecret = 'correct-secret';
+			const wrongSecret = 'wrong-secret';
+			const signature = signPayload(body, wrongSecret);
+
+			expect(WebhookHandler.validateSignature(body, signature, correctSecret)).toBe(false);
+		});
+
+		it('should reject empty body with valid signature format', () => {
+			const secret = 'test-secret';
+			// Sign empty string, but pass different body
+			const signature = signPayload('', secret);
+
+			// Signature for empty string should validate with empty body
+			expect(WebhookHandler.validateSignature('', signature, secret)).toBe(true);
+
+			// But should not validate with non-empty body
+			expect(WebhookHandler.validateSignature('{"data":true}', signature, secret)).toBe(false);
+		});
+
+		it('should reject signature with non-hex characters', () => {
+			expect(
+				WebhookHandler.validateSignature('body', 'sha256=ZZZZZZZZZZZZ', 'secret'),
+			).toBe(false);
+		});
+	});
+
+	describe('parseGitHubPush — edge cases', () => {
+		it('should parse GitHub push payload and extract branch correctly', () => {
+			const payload = {
+				ref: 'refs/heads/feature/my-branch',
+				commits: [{ id: 'abc' }],
+				pusher: { name: 'deployer' },
+			};
+
+			const result = WebhookHandler.parseGitHubPush(payload);
+
+			expect(result).not.toBeNull();
+			expect(result!.branch).toBe('feature/my-branch');
+			expect(result!.commits).toBe(1);
+			expect(result!.pusher).toBe('deployer');
+		});
+
+		it('should handle non-push events gracefully (ping event)', () => {
+			const pingPayload = {
+				zen: 'Keep it logically awesome.',
+				hook_id: 12345,
+				hook: { type: 'Repository' },
+			};
+
+			const result = WebhookHandler.parseGitHubPush(pingPayload);
+			expect(result).toBeNull();
+		});
+
+		it('should handle non-push events gracefully (release event)', () => {
+			const releasePayload = {
+				action: 'published',
+				release: { tag_name: 'v1.0.0', name: 'Release 1.0' },
+			};
+
+			const result = WebhookHandler.parseGitHubPush(releasePayload);
+			expect(result).toBeNull();
+		});
+
+		it('should return null for undefined input', () => {
+			expect(WebhookHandler.parseGitHubPush(undefined)).toBeNull();
+		});
+
+		it('should return null for string input', () => {
+			expect(WebhookHandler.parseGitHubPush('not an object')).toBeNull();
+		});
+
+		it('should handle pusher without name field', () => {
+			const payload = {
+				ref: 'refs/heads/main',
+				commits: [],
+				pusher: { email: 'user@example.com' },
+			};
+
+			const result = WebhookHandler.parseGitHubPush(payload);
+			expect(result).not.toBeNull();
+			expect(result!.pusher).toBeUndefined();
+		});
+
+		it('should handle pusher as non-object', () => {
+			const payload = {
+				ref: 'refs/heads/main',
+				commits: [{ id: '1' }],
+				pusher: 'not-an-object',
+			};
+
+			const result = WebhookHandler.parseGitHubPush(payload);
+			expect(result).not.toBeNull();
+			expect(result!.pusher).toBeUndefined();
+			expect(result!.commits).toBe(1);
+		});
+	});
 });

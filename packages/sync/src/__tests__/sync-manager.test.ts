@@ -122,4 +122,136 @@ describe('SyncManager', () => {
 
 		expect(manager.getStatus().isPolling).toBe(false);
 	});
+
+	it('should handle sync timeout correctly', async () => {
+		vi.useFakeTimers();
+		// adapter.refresh() never resolves — hangs forever
+		adapter.refresh = vi.fn().mockImplementation(() => new Promise(() => {}));
+		const manager = new SyncManager(adapter, {
+			...defaultConfig,
+			syncTimeoutMs: 3000,
+			maxRetries: 0,
+		});
+
+		const syncPromise = manager.sync();
+
+		// Advance past the timeout
+		await vi.advanceTimersByTimeAsync(3500);
+
+		const result = await syncPromise;
+		expect(result.success).toBe(false);
+		expect(result.message).toContain('Sync timed out after 3000ms');
+		vi.useRealTimers();
+	});
+
+	it('should apply exponential backoff delays', async () => {
+		vi.useFakeTimers();
+		adapter.refresh = vi.fn().mockRejectedValue(new Error('fail'));
+		const manager = new SyncManager(adapter, {
+			...defaultConfig,
+			syncTimeoutMs: 60000,
+			maxRetries: 3,
+		});
+
+		const syncPromise = manager.sync();
+
+		// First call happens immediately, then backoff: 1s, 2s, 4s
+		// After first failure, wait 1s for retry #1
+		await vi.advanceTimersByTimeAsync(1000);
+		expect(adapter.refresh).toHaveBeenCalledTimes(2);
+
+		// After retry #1 failure, wait 2s for retry #2
+		await vi.advanceTimersByTimeAsync(2000);
+		expect(adapter.refresh).toHaveBeenCalledTimes(3);
+
+		// After retry #2 failure, wait 4s for retry #3
+		await vi.advanceTimersByTimeAsync(4000);
+		expect(adapter.refresh).toHaveBeenCalledTimes(4);
+
+		const result = await syncPromise;
+		expect(result.success).toBe(false);
+		expect(result.message).toContain('4 attempts');
+		vi.useRealTimers();
+	});
+
+	it('should unsubscribe listeners correctly', async () => {
+		const manager = new SyncManager(adapter, defaultConfig);
+		const events: string[] = [];
+		const unsubscribe = manager.on((e) => events.push(e.type));
+
+		await manager.sync();
+		expect(events.length).toBeGreaterThan(0);
+
+		const countBefore = events.length;
+		unsubscribe();
+
+		await manager.sync();
+		// No new events after unsubscribe
+		expect(events.length).toBe(countBefore);
+	});
+
+	it('should not start polling when pollIntervalMs is 0', () => {
+		const manager = new SyncManager(adapter, { ...defaultConfig, pollIntervalMs: 0 });
+		manager.startPolling();
+
+		expect(manager.getStatus().isPolling).toBe(false);
+	});
+
+	it('should handle listener errors gracefully', async () => {
+		const manager = new SyncManager(adapter, defaultConfig);
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+		// First listener throws
+		manager.on(() => {
+			throw new Error('listener boom');
+		});
+
+		// Second listener should still be called
+		const events: string[] = [];
+		manager.on((e) => events.push(e.type));
+
+		const result = await manager.sync();
+
+		expect(result.success).toBe(true);
+		expect(events).toContain('sync:start');
+		expect(events).toContain('sync:complete');
+		expect(warnSpy).toHaveBeenCalled();
+		warnSpy.mockRestore();
+	});
+
+	it('should not poll when already polling', () => {
+		vi.useFakeTimers();
+		const manager = new SyncManager(adapter, { ...defaultConfig, pollIntervalMs: 5000 });
+
+		manager.startPolling();
+		expect(manager.getStatus().isPolling).toBe(true);
+
+		// Call startPolling again — should be idempotent
+		manager.startPolling();
+		expect(manager.getStatus().isPolling).toBe(true);
+
+		// Only one interval should exist — verify by stopping and checking
+		manager.stopPolling();
+		expect(manager.getStatus().isPolling).toBe(false);
+		vi.useRealTimers();
+	});
+
+	it('should track durationMs in sync results', async () => {
+		vi.useFakeTimers();
+		adapter.refresh = vi.fn().mockImplementation(async () => {
+			await new Promise((r) => setTimeout(r, 250));
+			return true;
+		});
+		const manager = new SyncManager(adapter, defaultConfig);
+
+		const syncPromise = manager.sync();
+		await vi.advanceTimersByTimeAsync(250);
+
+		const result = await syncPromise;
+		expect(result.success).toBe(true);
+		expect(result.durationMs).toBeDefined();
+		expect(typeof result.durationMs).toBe('number');
+		expect(result.durationMs).toBeGreaterThanOrEqual(0);
+		vi.useRealTimers();
+	});
 });

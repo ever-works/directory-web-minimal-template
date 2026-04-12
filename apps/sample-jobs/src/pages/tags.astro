@@ -1,0 +1,29 @@
+---
+/**
+ * Tags Index — Overview of all tags.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getContent } from '../lib/content';
+
+const { tags, config } = await getContent();
+---
+
+<BaseLayout title="Tags" description={`Browse all tags for ${config.items_name.toLowerCase()}`} config={config}>
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Tags</h1>
+        <p class="mt-2 text-gray-600 dark:text-gray-400">Filter {config.items_name.toLowerCase()} by tag</p>
+    </div>
+
+    <div class="flex flex-wrap gap-3">
+        {tags.map((tag) => (
+            <a
+                href={`/tag/${tag.id}`}
+                class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-all hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-brand-600 dark:hover:bg-brand-950 dark:hover:text-brand-400"
+            >
+                <span class="text-brand-500 dark:text-brand-400">#</span>
+                {tag.name}
+                <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500 dark:bg-gray-800 dark:text-gray-400">{tag.count}</span>
+            </a>
+        ))}
+    </div>
+</BaseLayout>

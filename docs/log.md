@@ -7,6 +7,49 @@ sidebar_label: "Change Log"
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-11 — Iteration 22: sample-jobs, Sync Tests, Docs Fixes
+
+### Typecheck Fix
+- **`packages/adapters/src/__tests__/git-adapter.test.ts`** — Fixed TS2345 error: `git.fetch` mock now returns proper `FetchResult` type instead of `void`
+
+### New App: sample-jobs (Job Board Directory)
+- **`apps/sample-jobs/`** — New vertical-specific sample: a remote tech jobs directory
+- 8 job listing items (Vercel, Linear, Cloudflare, Stripe, GitLab, Shopify, Notion, Figma)
+- 6 categories (engineering, design, product, marketing, data-science, devops)
+- 10 tags (remote, full-time, part-time, contract, senior, junior, mid-level, startup, enterprise, visa-sponsor)
+- 2 comparisons (vercel-vs-cloudflare, linear-vs-figma)
+- 2 collections (top-remote-engineering-jobs, design-and-product-roles)
+- 13 page routes (same structure as sample-basic)
+- Builds to 35 static pages
+- **`.specify/features/sample-jobs.md`** — Spec-kit specification
+
+### Sync Package Edge-Case Tests
+- **`packages/sync/src/__tests__/sync-manager.test.ts`** — Added 7 edge-case tests: timeout, exponential backoff, listener unsubscribe, listener error handling, polling idempotence, duration tracking, empty poll interval
+- **`packages/sync/src/__tests__/webhook-handler.test.ts`** — Added 4 edge-case tests: invalid HMAC, empty body, push payload parsing, non-push events
+- **`packages/sync/src/__tests__/deploy-hook.test.ts`** — Added 3 edge-case tests: network errors, empty URL, source info in request
+- Sync test count: 24 → 47 (96% increase)
+
+### CI Workflow
+- **`.github/workflows/ci.yml`** — Added sample-jobs build to E2E job
+
+### Documentation Health-Check
+- **`docs/index.md`** — Fixed AGENTS.md rule count (R1-R14 → R1-R15), component catalog count (17+5 → 24+7), questions count (Q1-Q11 → Q1-Q18), updated iteration marker
+- **`docs/specs/component-catalog.md`** — Added ItemBrowser composite component entry (was missing from catalog)
+- All 29+1=30 cataloged components verified to exist on disk
+- All docs, guides, specs, and .specify files verified — zero drift
+
+### Build Verification
+- `pnpm typecheck` — ALL 18 tasks pass (0 errors), including new sample-jobs
+- `pnpm test` — ALL 12 test suites pass (47 sync, 69 adapter, 67 plugin, etc.)
+- `pnpm build` — ALL 5 apps build (35 sample-basic, 35 sample-jobs, 1495 sample-git, 8 web, docs)
+
+### Next Steps (for next scheduled run)
+1. Create sample-events template (events/meetups directory)
+2. Add E2E Playwright tests for sample-jobs
+3. Create deployment guide for sample templates
+4. Add more comparisons and collections to sample-jobs
+5. Polish SKILLS.md with sample-jobs references
+
 ## 2026-04-11 — Iteration 21: Test Fixes, UI Exports, Docs Health-Check
 
 ### Test Fixes
