@@ -1640,6 +1640,13 @@ These are importable from `@ever-works/ui/astro/*` and can be used instead of in
 | `@ever-works/ui/astro/ItemGrid.astro` | Grid of item cards |
 | `@ever-works/ui/astro/ItemList.astro` | List of items |
 | `@ever-works/ui/astro/ItemDetail.astro` | Full item detail |
+| `@ever-works/ui/astro/ItemContent.astro` | Renders item markdown/HTML content |
+| `@ever-works/ui/astro/ItemMetadata.astro` | Category, tags, timestamp display |
+| `@ever-works/ui/astro/ItemCTA.astro` | Call-to-action button (source link) |
+| `@ever-works/ui/astro/ShareButton.astro` | Share button (Twitter/X) |
+| `@ever-works/ui/astro/SimilarItems.astro` | Related/similar items section |
+| `@ever-works/ui/astro/FeaturedBadge.astro` | Featured item badge |
+| `@ever-works/ui/astro/FeaturedSection.astro` | Featured items grid section |
 | `@ever-works/ui/astro/CategoryList.astro` | List of categories |
 | `@ever-works/ui/astro/CategoryBadge.astro` | Single category badge |
 | `@ever-works/ui/astro/TagList.astro` | List of tags |
@@ -1661,8 +1668,24 @@ These are importable from `@ever-works/ui/astro/*` and can be used instead of in
 | `@ever-works/ui/preact/SearchInput` | `SearchInputProps` |
 | `@ever-works/ui/preact/FilterBar` | `FilterBarProps` |
 | `@ever-works/ui/preact/SortSelect` | `SortSelectProps` |
+| `@ever-works/ui/preact/LayoutSwitcher` | `LayoutSwitcherProps` |
+| `@ever-works/ui/preact/ItemBrowser` | `ItemBrowserProps` |
 | `@ever-works/ui/preact/BackToTop` | `BackToTopProps` |
 | `@ever-works/ui/preact/ThemeToggle` | `ThemeToggleProps` |
+
+### Primitive Components (from fulldev/ui)
+
+Low-level composable building blocks. Use `data-slot` attributes (not `data-component`). See `docs/specs/component-catalog.md` for full reference.
+
+| Import Path | Components |
+|-------------|-----------|
+| `@ever-works/ui/primitives/avatar` | `Avatar`, `AvatarImage`, `AvatarFallback` |
+| `@ever-works/ui/primitives/badge` | `Badge` (variants: default, secondary, destructive, outline, ghost, link) |
+| `@ever-works/ui/primitives/button` | `Button` (variants + sizes, polymorphic `<a>` / `<button>`) |
+| `@ever-works/ui/primitives/card` | `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter`, `CardAction` |
+| `@ever-works/ui/primitives/empty` | `Empty`, `EmptyTitle`, `EmptyDescription` |
+| `@ever-works/ui/primitives/separator` | `Separator` (horizontal / vertical) |
+| `@ever-works/ui/primitives/table` | `Table`, `TableHeader`, `TableHead`, `TableBody`, `TableRow`, `TableCell` |
 
 ---
 
@@ -1680,8 +1703,11 @@ These are importable from `@ever-works/ui/astro/*` and can be used instead of in
 | Add interactive search | Import from `@ever-works/ui/preact/SearchInput` |
 | Change data source | Set `DATA_REPOSITORY` or `CONTENT_PATH` env var |
 | Create a new plugin | Add package to `packages/plugin-<name>/` |
-| Study a sample vertical | `apps/sample-basic/`, `sample-events/`, `sample-real-estate/` |
+| Study a sample vertical | `apps/sample-basic/`, `sample-jobs/`, `sample-events/`, `sample-real-estate/`, `sample-git/` |
+| Run sample-basic dev server | `cd apps/sample-basic && pnpm dev` (port 4322) |
+| Run sample-jobs dev server | `cd apps/sample-jobs && pnpm dev` (port 4324) |
 | Run sample-events dev server | `cd apps/sample-events && pnpm dev` (port 4325) |
 | Run sample-real-estate dev server | `cd apps/sample-real-estate && pnpm dev` (port 4326) |
+| Run sample-git dev server | `cd apps/sample-git && pnpm dev` (port 4327) |
 | Build for production | `pnpm build` from monorepo root |
 | Preview production build | `cd apps/web && pnpm preview` |

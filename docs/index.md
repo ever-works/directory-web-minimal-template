@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-12 (Iteration 28: sample-git E2E, item-loader fix, docs drift fixes)
+> Updated: 2026-04-12 (Iteration 29: component catalog primitives, docs health audit)
 
 ## Root Documents
 

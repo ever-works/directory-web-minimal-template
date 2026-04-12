@@ -7,6 +7,48 @@ sidebar_label: "Change Log"
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-12 — Iteration 29: Component Catalog Primitives, Docs Health Audit
+
+### Component Catalog: Primitives Section Added
+- **docs/specs/component-catalog.md**: Added complete Primitives section documenting all 22 primitive components from fulldev/ui:
+  - Avatar (Avatar, AvatarImage, AvatarFallback) — with size variants
+  - Badge — polymorphic with 6 variants (default, secondary, destructive, outline, ghost, link)
+  - Button — polymorphic `<a>`/`<button>` with 6 variants and 6 sizes
+  - Card (Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, CardAction)
+  - Empty (Empty, EmptyTitle, EmptyDescription)
+  - Separator — horizontal/vertical with decorative/semantic modes
+  - Table (Table, TableHeader, TableHead, TableBody, TableRow, TableCell)
+- Added Preact Utility Components section (5 shadcn-style TSX components)
+- Added Component Summary table with accurate counts: 24 Astro + 7 Preact + 22 Primitives + 5 Preact utilities = 58 total
+
+### SKILLS.md: Component Tables Updated
+- Added 7 missing Astro components to the Headless Astro Components table: ItemContent, ItemMetadata, ItemCTA, ShareButton, SimilarItems, FeaturedBadge, FeaturedSection
+- Added 2 missing Preact components: LayoutSwitcher, ItemBrowser
+- Added new Primitive Components reference table (7 component groups with import paths)
+- Updated Quick Reference table with all 5 sample app dev server ports
+
+### README.md: Major Drift Fixes
+- Updated monorepo structure: added missing apps (sample-jobs, sample-events, sample-real-estate) and packages (astro-integration, sync, plugin-breadcrumbs)
+- Fixed UI component counts: was "17 Astro + 5 Preact", now "24 Astro + 7 Preact + 22 primitives"
+- Updated Samples table: added sample-jobs (4324), sample-events (4325), sample-real-estate (4326) with descriptions
+- Added `pnpm test` command to Commands table
+- Added E2E test count (~400 tests) to web-e2e description
+
+### Verification Summary
+- `pnpm build` — 7/7 tasks pass (5030 pages for sample-git)
+- `pnpm typecheck` — 20/20 tasks pass (0 errors)
+- `pnpm lint` — 9/9 tasks pass
+- `pnpm test` — 12/12 unit test tasks pass
+
+### Next Steps (for next scheduled run)
+1. Run full E2E suite to verify no regressions
+2. Improve Docusaurus docs landing page and content pages
+3. Consider adding a "Getting Started" tutorial as a docs page
+4. Explore visual regression testing setup
+5. Review if any specs in .specify/ need updating to match current implementation
+
+---
+
 ## 2026-04-12 — Iteration 28: sample-git E2E, Item-Loader Fix, Docs Drift Fixes
 
 ### Bug Fix: Item-Loader Default Status

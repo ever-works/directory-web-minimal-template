@@ -52,25 +52,31 @@ pnpm dev:web
 
 ```
 apps/
-  web/              Astro static site (core template)
-  web-e2e/          Playwright E2E tests
-  docs/             Docusaurus documentation site
-  sample-basic/     Reference: React UI Components (hardcoded data)
-  sample-git/       Reference: Time Tracking (Git data adapter)
+  web/                Astro static site (core template)
+  web-e2e/            Playwright E2E tests (~400 tests)
+  docs/               Docusaurus documentation site
+  sample-basic/       Reference: React UI Components (hardcoded data)
+  sample-jobs/        Reference: Remote Tech Jobs directory
+  sample-events/      Reference: Tech Events/Conferences directory
+  sample-real-estate/ Reference: Property Listings directory
+  sample-git/         Reference: Time Tracking (Git data adapter, 3200+ items)
 
 packages/
-  core/             Data layer, types, content reader
-  ui/               Headless UI components (17 Astro + 5 Preact)
-  plugins/          Plugin system (runner, lifecycle hooks)
-  adapters/         Data source adapters (git, filesystem)
-  plugin-seo/       Meta tags, Open Graph, JSON-LD
-  plugin-pagination/ Paginate item arrays
-  plugin-filters/   Client-side category/tag filtering
-  plugin-search/    Static search via Pagefind
-  plugin-sort/      Sort items by name, date, featured
-  plugin-sitemap/   XML sitemap generation
-  tsconfig/         Shared TypeScript configurations
-  eslint-config/    Shared ESLint configuration
+  core/               Data layer, types, content reader
+  ui/                 Headless UI components (24 Astro + 7 Preact + 22 primitives)
+  plugins/            Plugin system (runner, lifecycle hooks)
+  adapters/           Data source adapters (git, filesystem)
+  astro-integration/  Astro integration for plugin build lifecycle
+  sync/               Content sync orchestration (webhooks, polling, ISR)
+  plugin-seo/         Meta tags, Open Graph, JSON-LD
+  plugin-pagination/  Paginate item arrays
+  plugin-filters/     Client-side category/tag filtering
+  plugin-search/      Static search via Pagefind
+  plugin-sort/        Sort items by name, date, featured
+  plugin-sitemap/     XML sitemap generation
+  plugin-breadcrumbs/ Auto-generate breadcrumb trails
+  tsconfig/           Shared TypeScript configurations
+  eslint-config/      Shared ESLint configuration
 ```
 
 ## Commands
@@ -80,19 +86,22 @@ packages/
 | `pnpm dev` | Start all dev servers |
 | `pnpm dev:web` | Start only the web app |
 | `pnpm dev:docs` | Start only the docs site |
-| `pnpm run dev:sample-git` | Start the Git-backed sample |
 | `pnpm build` | Build all apps |
 | `pnpm lint` | Lint all packages |
 | `pnpm typecheck` | Type-check all packages |
-| `pnpm test:e2e` | Run E2E tests |
+| `pnpm test` | Run all unit tests (Vitest) |
+| `pnpm test:e2e` | Run E2E tests (Playwright) |
 | `pnpm clean` | Clean all build artifacts |
 
 ## Samples
 
 | Sample | Port | Description |
 |--------|------|-------------|
-| `sample-basic` | 4323 | Hardcoded React UI Components directory (12 items). Demonstrates the basics. |
-| `sample-git` | 4327 | Time Tracking directory (**3,200+ items**) loaded from a remote Git repository. Dark theme, pagination, collapsible sections. |
+| `sample-basic` | 4323 | React UI Components directory (12 items, hardcoded data). Blue theme. |
+| `sample-jobs` | 4324 | Remote Tech Jobs directory. Green theme with job-specific meta fields. |
+| `sample-events` | 4325 | Tech Events/Conferences directory. Teal theme with event dates, locations. |
+| `sample-real-estate` | 4326 | Property Listings directory. Amber theme with price, bedrooms, sqft. |
+| `sample-git` | 4327 | Time Tracking directory (**3,200+ items**) loaded from a remote Git repository. Dark theme. |
 
 ## For AI Agents
 

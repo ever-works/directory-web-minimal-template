@@ -637,3 +637,228 @@ interface ItemBrowserProps {
   <nav data-part="pagination">…</nav>
 </div>
 ```
+
+---
+
+## Primitive Components (Astro)
+
+> Low-level, composable building blocks from [fulldev/ui](https://github.com/fulldotdev/ui). These use `data-slot` attributes (not `data-component`) and Tailwind CSS classes. They are designed to be composed together — e.g., Card + CardHeader + CardTitle + CardContent.
+
+### Avatar
+
+**Files**: `packages/ui/src/primitives/avatar/`
+**Components**: `Avatar.astro`, `AvatarImage.astro`, `AvatarFallback.astro`
+
+```typescript
+// Avatar.astro
+interface Props extends HTMLAttributes<"div"> {
+    size?: "default" | "sm" | "lg";  // default: "default"
+}
+
+// AvatarImage.astro — <img> inside Avatar
+interface Props extends HTMLAttributes<"img"> {}
+
+// AvatarFallback.astro — fallback content when image fails
+interface Props extends HTMLAttributes<"div"> {}
+```
+
+**Usage**:
+```astro
+<Avatar size="lg">
+    <AvatarImage src="/avatar.png" alt="User" />
+    <AvatarFallback>JD</AvatarFallback>
+</Avatar>
+```
+
+**Slots**: `data-slot="avatar"`, `data-slot="avatar-image"`, `data-slot="avatar-fallback"`
+
+---
+
+### Badge
+
+**Files**: `packages/ui/src/primitives/badge/`
+**Components**: `Badge.astro`, `badge-variants.ts`
+
+```typescript
+interface Props<Tag extends HTMLTag> extends Polymorphic<{ as: Tag }> {
+    variant?: "default" | "secondary" | "destructive" | "outline" | "ghost" | "link";
+}
+```
+
+**Usage**:
+```astro
+<Badge>Default</Badge>
+<Badge variant="secondary">Secondary</Badge>
+<Badge variant="destructive">Error</Badge>
+<Badge variant="outline">Outline</Badge>
+<Badge as="a" href="/tag/typescript">Linked Badge</Badge>
+```
+
+**Slot**: `data-slot="badge"`
+
+---
+
+### Button
+
+**Files**: `packages/ui/src/primitives/button/`
+**Components**: `Button.astro`, `button-variants.ts`
+
+```typescript
+interface Props<Tag extends HTMLTag = "button"> extends Polymorphic<{ as: Tag }> {
+    variant?: "default" | "outline" | "secondary" | "ghost" | "destructive" | "link";
+    size?: "default" | "xs" | "sm" | "lg" | "icon" | "icon-sm";
+}
+```
+
+Polymorphic: renders as `<a>` when `href` is provided, otherwise `<button>`.
+
+**Usage**:
+```astro
+<Button>Click me</Button>
+<Button variant="outline" size="sm">Small Outline</Button>
+<Button href="/about">Link Button</Button>
+<Button variant="ghost" size="icon"><svg>…</svg></Button>
+```
+
+**Slot**: `data-slot="button"`
+
+---
+
+### Card
+
+**Files**: `packages/ui/src/primitives/card/`
+**Components**: `Card.astro`, `CardHeader.astro`, `CardTitle.astro`, `CardDescription.astro`, `CardContent.astro`, `CardFooter.astro`, `CardAction.astro`
+
+```typescript
+// Card.astro
+interface Props extends HTMLAttributes<"div"> {
+    size?: "default" | "sm";  // default: "default"
+}
+
+// CardHeader, CardTitle, CardDescription, CardContent, CardFooter, CardAction
+// All extend HTMLAttributes<"div"> with no additional props (except CardAction which is a link)
+```
+
+**Usage**:
+```astro
+<Card>
+    <CardHeader>
+        <CardTitle>Item Name</CardTitle>
+        <CardDescription>Short description</CardDescription>
+        <CardAction href="/item/slug">View →</CardAction>
+    </CardHeader>
+    <CardContent>
+        <p>Card body content here.</p>
+    </CardContent>
+    <CardFooter>
+        <Badge>Tag</Badge>
+    </CardFooter>
+</Card>
+```
+
+**Slots**: `data-slot="card"`, `data-slot="card-header"`, `data-slot="card-title"`, `data-slot="card-description"`, `data-slot="card-content"`, `data-slot="card-footer"`, `data-slot="card-action"`
+
+---
+
+### Empty
+
+**Files**: `packages/ui/src/primitives/empty/`
+**Components**: `Empty.astro`, `EmptyTitle.astro`, `EmptyDescription.astro`
+
+```typescript
+// All extend HTMLAttributes<"div"> with no additional props
+```
+
+**Usage**:
+```astro
+<Empty>
+    <EmptyTitle>No items found</EmptyTitle>
+    <EmptyDescription>Try adjusting your search or filters.</EmptyDescription>
+</Empty>
+```
+
+**Slots**: `data-slot="empty"`, `data-slot="empty-title"`, `data-slot="empty-description"`
+
+---
+
+### Separator
+
+**Files**: `packages/ui/src/primitives/separator/`
+**Components**: `Separator.astro`
+
+```typescript
+interface Props extends HTMLAttributes<"div"> {
+    orientation?: "horizontal" | "vertical";  // default: "horizontal"
+    decorative?: boolean;                      // default: true
+}
+```
+
+**Usage**:
+```astro
+<Separator />
+<Separator orientation="vertical" />
+```
+
+**Slot**: `data-slot="separator"`, with `data-orientation`, `data-horizontal` / `data-vertical` attributes.
+
+---
+
+### Table
+
+**Files**: `packages/ui/src/primitives/table/`
+**Components**: `Table.astro`, `TableHeader.astro`, `TableHead.astro`, `TableBody.astro`, `TableRow.astro`, `TableCell.astro`
+
+```typescript
+// Table.astro wraps in a scrollable container
+// All sub-components extend their native HTML element attributes
+```
+
+**Usage**:
+```astro
+<Table>
+    <TableHeader>
+        <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Category</TableHead>
+            <TableHead>Status</TableHead>
+        </TableRow>
+    </TableHeader>
+    <TableBody>
+        <TableRow>
+            <TableCell>Shadcn UI</TableCell>
+            <TableCell>Full Suite</TableCell>
+            <TableCell><Badge>Active</Badge></TableCell>
+        </TableRow>
+    </TableBody>
+</Table>
+```
+
+**Slots**: `data-slot="table-container"`, `data-slot="table"`, `data-slot="table-header"`, `data-slot="table-head"`, `data-slot="table-body"`, `data-slot="table-row"`, `data-slot="table-cell"`
+
+---
+
+## Preact Utility Components (shadcn-style)
+
+> These are Preact (TSX) versions of common form elements, used inside interactive islands. Located in `packages/ui/src/components/ui/`.
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| `Badge` | `badge.tsx` | Preact badge with variant support |
+| `Button` | `button.tsx` | Preact button with variant support |
+| `Input` | `input.tsx` | Styled text input |
+| `Label` | `label.tsx` | Form label |
+| `Select` | `select.tsx` | Select dropdown |
+
+These are primarily used inside Preact islands (e.g., `ItemBrowser`, `FilterBar`) and should not be used in Astro components (use the Astro primitives instead).
+
+---
+
+## Component Summary
+
+| Category | Count | Location |
+|----------|-------|----------|
+| Astro (directory-specific) | 24 | `packages/ui/src/astro/` |
+| Preact (interactive islands) | 7 | `packages/ui/src/preact/` |
+| Primitive (Astro, from fulldev/ui) | 22 | `packages/ui/src/primitives/` |
+| Preact utilities (shadcn-style) | 5 | `packages/ui/src/components/ui/` |
+| **Total** | **58** | |
