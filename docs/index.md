@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-12 (Iteration 33: @astrojs/preact v5 upgrade, CI/CD sample-git fix, docs health audit)
+> Updated: 2026-04-13 (Iteration 34: accessibility audit, performance audit, docs health check)
 
 ## Root Documents
 

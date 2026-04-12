@@ -27,6 +27,16 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { cn } from '../lib/utils';
 
+/** Handle Enter/Space key activation for non-button elements */
+function handleKeyActivation(callback: () => void) {
+	return (e: KeyboardEvent) => {
+		if (e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			callback();
+		}
+	};
+}
+
 /** Sort items by the selected sort option. */
 function sortItems(items: ItemData[], sort: SortOption): ItemData[] {
 	const sorted = [...items];
@@ -212,6 +222,7 @@ export default function ItemBrowser({
 								data-part="tag-option"
 								data-selected={activeTags.includes(tag.id) ? '' : undefined}
 								onClick={() => handleTagClick(tag.id)}
+								onKeyDown={handleKeyActivation(() => handleTagClick(tag.id))}
 								aria-pressed={activeTags.includes(tag.id)}
 								role="button"
 								tabIndex={0}

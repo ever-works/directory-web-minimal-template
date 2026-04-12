@@ -31,11 +31,11 @@ const { comparison, showScores = true, class: className, ...attrs } = Astro.prop
     <Table data-part="table">
         <TableHeader>
             <TableRow>
-                <TableHead data-part="dimension-header">Dimension</TableHead>
-                <TableHead data-part="item-a-header">
+                <TableHead data-part="dimension-header" scope="col">Dimension</TableHead>
+                <TableHead data-part="item-a-header" scope="col">
                     <a href={`/item/${comparison.item_a_slug}`} class="hover:underline">{comparison.item_a_name}</a>
                 </TableHead>
-                <TableHead data-part="item-b-header">
+                <TableHead data-part="item-b-header" scope="col">
                     <a href={`/item/${comparison.item_b_slug}`} class="hover:underline">{comparison.item_b_name}</a>
                 </TableHead>
             </TableRow>

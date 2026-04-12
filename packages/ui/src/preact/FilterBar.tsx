@@ -21,6 +21,16 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { cn } from '../lib/utils';
 
+/** Handle Enter/Space key activation for non-button elements */
+function handleKeyActivation(callback: () => void) {
+  return (e: KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      callback();
+    }
+  };
+}
+
 export default function FilterBar({
   categories = [],
   tags = [],
@@ -112,6 +122,7 @@ export default function FilterBar({
                 data-part="tag-option"
                 data-selected={activeTags.includes(tag.id) ? '' : undefined}
                 onClick={() => handleTagClick(tag.id)}
+                onKeyDown={handleKeyActivation(() => handleTagClick(tag.id))}
                 aria-pressed={activeTags.includes(tag.id)}
                 role="button"
                 tabIndex={0}
@@ -144,6 +155,7 @@ export default function FilterBar({
             stroke-linecap="round"
             stroke-linejoin="round"
             className="mr-1"
+            aria-hidden="true"
           >
             <path d="M18 6 6 18" />
             <path d="m6 6 12 12" />

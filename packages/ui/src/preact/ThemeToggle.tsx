@@ -95,6 +95,7 @@ export default function ThemeToggle({ class: className }: ThemeToggleProps) {
           stroke-width="2"
           stroke-linecap="round"
           stroke-linejoin="round"
+          aria-hidden="true"
         >
           <circle cx="12" cy="12" r="4" />
           <path d="M12 2v2" />
@@ -118,6 +119,7 @@ export default function ThemeToggle({ class: className }: ThemeToggleProps) {
           stroke-width="2"
           stroke-linecap="round"
           stroke-linejoin="round"
+          aria-hidden="true"
         >
           <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
         </svg>

@@ -7,6 +7,50 @@ sidebar_label: "Change Log"
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-13 — Iteration 34: Accessibility Audit, Performance Audit, Docs Health Check
+
+### Accessibility Improvements (7 components)
+- **FilterBar.tsx** — Added `onKeyDown` handler with Enter/Space activation for Badge tag buttons (keyboard users could not activate tags)
+- **ItemBrowser.tsx** — Same keyboard activation fix for tag badges in the integrated browser component
+- **SearchInput.tsx** — Added `aria-hidden="true"` to decorative close (X) SVG icon
+- **FilterBar.tsx** — Added `aria-hidden="true"` to decorative clear filters SVG icon
+- **BackToTop.tsx** — Added `aria-hidden="true"` to decorative arrow SVG icon
+- **ThemeToggle.tsx** — Added `aria-hidden="true"` to both sun and moon decorative SVG icons
+- **LayoutSwitcher.tsx** — Added `aria-hidden="true"` to layout mode SVG icons
+- **ComparisonTable.astro** — Added `scope="col"` to all `<th>` header cells for screen reader table navigation
+
+### Performance Audit Results
+- **Web template (15 pages)**: 186KB HTML, 65KB app JS (excluding Pagefind), 8KB CSS — excellent
+- **Sample-basic (42 pages)**: 681KB HTML, 65KB app JS, 39KB CSS — good
+- **Largest app bundle**: `button.B8Djkcpz.js` at 29KB (shadcn/button + CVA + clsx) — acceptable
+- **Pagefind search**: ~427KB total (loaded on-demand, not in critical path) — expected
+- **Preact runtime**: 10KB (`preact.module`) + 8KB (`signals.module`) + 3KB (`hooks.module`) = 21KB — excellent for full interactivity
+- No bundle size issues found; all within performance budgets
+
+### Docs Health Check
+- Verified all 33 docs files listed in `docs/index.md` exist on disk
+- Verified all 15 `.specify/` spec files exist
+- Verified all 24 Astro components + 7 Preact components match `docs/specs/component-catalog.md`
+- No phantom files, broken references, or drift found
+
+### Build Verification
+- `pnpm typecheck` — ALL 20 tasks pass (0 errors)
+- `pnpm lint` — ALL 9 tasks pass
+- `pnpm build` — ALL 7 apps build successfully:
+  - web (15 pages), sample-basic (42 pages), sample-jobs (35 pages)
+  - sample-events (37 pages), sample-real-estate (37 pages)
+  - sample-git (5030 pages), docs site
+- Docusaurus docs site builds successfully with all content from `docs/` folder
+
+### Next Steps (for next scheduled run)
+1. Consider upgrading TypeScript when @astrojs/check supports v6
+2. Run E2E tests to verify a11y fixes don't break interactive flows
+3. Add skip-to-content link in SiteHeader for keyboard navigation
+4. Add mobile hamburger menu in SiteHeader (responsive a11y gap)
+5. Performance: Consider lazy-loading Pagefind only when search is used
+
+---
+
 ## 2026-04-12 — Iteration 33: Dependency Upgrade, CI/CD Fix, Docs Health Audit
 
 ### Dependency Upgrade
