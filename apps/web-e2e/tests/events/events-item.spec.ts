@@ -42,12 +42,12 @@ test.describe('Event Detail Page', () => {
 
     test('should display event location metadata', async ({ page }) => {
         await page.goto('/item/react-summit/');
-        await expect(page.getByText('Amsterdam')).toBeVisible();
+        await expect(page.locator('dd').getByText('Amsterdam, Netherlands')).toBeVisible();
     });
 
     test('should display event format metadata', async ({ page }) => {
         await page.goto('/item/react-summit/');
-        await expect(page.getByText('Hybrid')).toBeVisible();
+        await expect(page.locator('dd').getByText('Hybrid')).toBeVisible();
     });
 
     test('should display event price metadata', async ({ page }) => {
@@ -77,17 +77,17 @@ test.describe('Event Detail Page — Free Virtual Event', () => {
 
     test('should show free pricing', async ({ page }) => {
         await page.goto('/item/next-conf/');
-        await expect(page.getByText('Free')).toBeVisible();
+        await expect(page.locator('dd').getByText('Free')).toBeVisible();
     });
 
     test('should show online format', async ({ page }) => {
         await page.goto('/item/next-conf/');
-        await expect(page.getByText('Online')).toBeVisible();
+        await expect(page.locator('dd').getByText('Online')).toBeVisible();
     });
 
     test('should show virtual location', async ({ page }) => {
         await page.goto('/item/next-conf/');
-        await expect(page.getByText('Virtual')).toBeVisible();
+        await expect(page.locator('dd').getByText('Virtual')).toBeVisible();
     });
 });
 

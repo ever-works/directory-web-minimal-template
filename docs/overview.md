@@ -17,7 +17,7 @@ This template is an **intentionally blank canvas** with headless, composable bui
 - **Static-first**: Astro 6 with fully static output (`output: 'static'`), no SSR
 - **Plugin architecture**: Almost every feature is a plugin that can be enabled/disabled
 - **Git-first data**: Content stored in YAML files within Git repositories
-- **Headless components**: 24 Astro + 8 Preact unstyled building blocks + 14 primitive components
+- **Headless components**: 24 Astro + 7 Preact unstyled building blocks + 7 primitive + 5 shadcn components
 - **AI-optimized**: Clear naming, inline docs, explicit data contracts
 - **Extreme performance**: Zero unnecessary JS, Astro islands architecture
 
@@ -60,7 +60,7 @@ pnpm dev
 │   └── sample-real-estate/ — Property listings directory sample
 ├── packages/
 │   ├── core/             — Data layer, content reader, types, schemas
-│   ├── ui/               — Headless UI components (24 Astro + 7 Preact + 22 primitives)
+│   ├── ui/               — Headless UI components (24 Astro + 7 Preact + 7 primitives + 5 shadcn)
 │   ├── plugins/          — Plugin system (runner, types, define-plugins)
 │   ├── adapters/         — Data source adapters (git, filesystem)
 │   ├── astro-integration/— Astro integration for plugin build lifecycle

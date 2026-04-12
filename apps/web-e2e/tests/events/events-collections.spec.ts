@@ -45,8 +45,8 @@ test.describe('Events Collections Index', () => {
 
     test('should show item counts on collection cards', async ({ page }) => {
         await page.goto('/collections/');
-        await expect(page.getByText('5 items')).toBeVisible();
-        await expect(page.getByText('3 items')).toBeVisible();
+        await expect(page.getByText('5 events')).toBeVisible();
+        await expect(page.getByText('3 events')).toBeVisible();
     });
 
     test('should link each collection to /collection/{slug}', async ({ page }) => {

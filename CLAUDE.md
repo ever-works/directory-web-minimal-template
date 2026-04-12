@@ -8,7 +8,7 @@ This is a **minimal, static-rendered Astro template** for AI-generated directory
 
 ## Architecture
 
-- **Framework**: Astro 6 with Vite, fully static rendering (`output: 'static'`), NO SSR
+- **Framework**: Astro 6 with Vite, static rendering (`output: 'static'`), optional ISR via `@astrojs/vercel`
 - **Language**: TypeScript everywhere — no JS, no Python
 - **Monorepo**: pnpm workspaces + Turborepo
 - **Data**: Git-first — data stored in separate Git repos (YAML files), NO database, NO auth
@@ -35,6 +35,7 @@ This is a **minimal, static-rendered Astro template** for AI-generated directory
 │   ├── plugin-*/         — Built-in plugins (search, filters, pagination, seo, sitemap, sort, breadcrumbs)
 │   ├── astro-integration/— Astro integration for plugin build lifecycle hooks
 │   ├── adapters/         — Data source adapters (git, filesystem, etc.)
+│   ├── sync/             — Content sync orchestration (webhooks, polling, ISR)
 │   ├── tsconfig/         — Shared TypeScript configurations
 │   └── eslint-config/    — Shared ESLint configuration
 ├── docs/                 — Documentation content (Markdown)

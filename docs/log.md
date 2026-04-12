@@ -7,6 +7,39 @@ sidebar_label: "Change Log"
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-12 — Iteration 26: ESLint, E2E Fixes, Docs Health
+
+### ESLint Configuration
+- Created `eslint.config.js` for 8 packages missing it: `plugin-breadcrumbs`, `plugin-filters`, `plugin-pagination`, `plugin-search`, `plugin-seo`, `plugin-sitemap`, `plugin-sort`, `apps/web`
+- Each imports shared config from `@ever-works/eslint-config`
+- `pnpm lint` now passes (9/9 tasks successful)
+
+### E2E Test Fixes
+- Fixed 6 failing tests in `apps/web-e2e/tests/events/`
+- `events-item.spec.ts`: Fixed metadata locators — used `page.locator('dd').getByText(...)` for precise matching of location/format/pricing metadata within `<dd>` elements (avoids ambiguity with description text)
+- `events-collections.spec.ts`: Fixed item count text — test expected "5 items" but template renders "5 events" (domain-specific wording)
+- All 262 E2E tests now pass across 4 projects (chromium, mobile, events-chromium, events-mobile)
+
+### Documentation Health Fixes
+- **CLAUDE.md**: Fixed Architecture section — changed "NO SSR" to "optional ISR via `@astrojs/vercel`"; Added missing `sync/` package to monorepo structure tree
+- **docs/index.md**: Fixed component count (was "22 primitives", now "7 primitives + 5 shadcn")
+- **docs/overview.md**: Fixed component count in two places (was "8 Preact + 14 primitives", now "7 Preact + 7 primitives + 5 shadcn")
+
+### Verification Summary
+- `pnpm build` — 7/7 tasks pass
+- `pnpm typecheck` — 20/20 tasks pass (0 errors)
+- `pnpm lint` — 9/9 tasks pass
+- `pnpm test` — 12/12 unit test tasks pass
+- E2E tests — 262/262 pass
+
+### Next Steps (for next scheduled run)
+1. Set up docs site content (Starlight/Docusaurus) with actual docs pages
+2. Add E2E test projects for sample-jobs and sample-real-estate
+3. Review and polish SKILLS.md content
+4. Consider adding more sample data items for richer testing
+
+---
+
 ## 2026-04-12 — Astro 6 Upgrade: Major Dependency Version Bump
 
 ### Framework Upgrade: Astro 5 → Astro 6
