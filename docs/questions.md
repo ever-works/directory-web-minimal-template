@@ -265,3 +265,27 @@ sidebar_label: "Questions"
 **Default choice**: **isomorphic-git** — Pure JavaScript, works in any Node.js environment including serverless. Already proven in the full Next.js template. Supports clone, fetch, pull, resolveRef for change detection. No system dependency on git binary.
 
 **Status**: DONE — GitAdapter rewritten to use isomorphic-git. Pure JS clone, fetch, pull operations. No system `git` binary required.
+
+---
+
+## Q19: Code Quality Improvements — Iteration 44 Audit
+
+**Context**: A comprehensive code quality audit (iteration 44) identified several areas for improvement. These are tracked here for future work.
+
+**High priority items:**
+- A) **UI package has zero tests** — 39 component files but no test files. Add unit tests for Preact component logic (FilterBar, SortSelect, ItemBrowser, SearchInput) and utility functions (`cn`).
+- B) **Duplicated `sortItems` logic** — Each of the 5 sample apps and the UI package define their own `sortItems` function instead of importing from `@ever-works/plugin-sort`. Consider extracting a client-safe sort utility to `@ever-works/ui`.
+- C) **Double type assertion in BreadcrumbNav** — All 5 samples use `(data as unknown as Record<string, unknown>)._breadcrumbs`. Consider extending `ContentData` with an optional `_breadcrumbs` field or creating a `ContentDataWithBreadcrumbs` type.
+- D) **`ItemData` index signature weakens type safety** — `[key: string]: unknown` allows any property access without type errors. Consider moving pass-through to a dedicated `meta?: Record<string, unknown>` field.
+- E) **`LayoutSwitcher` component never used** — Exported from UI package but not imported by any app. Needs at least one usage example.
+
+**Medium priority items:**
+- F) **Unused public exports** — `FilesystemAdapter`, `GitAdapter`, `createPluginLogger`, `generateBreadcrumbs`, `filterItems`, `parseFiltersFromUrl`, `serializeFiltersToUrl`, `sortItems`, `loadComparison`, `loadItem`, `loadPage` are exported but never imported externally.
+- G) **Missing plugin.ts tests** — plugin-filters, plugin-breadcrumbs, plugin-sort, plugin-pagination, plugin-seo all have tests for their utilities but not for the plugin lifecycle (plugin.ts) files.
+- H) **Console.warn in core loaders** — 29 instances of `console.warn` in core loaders. Consider a structured logger utility with configurable verbosity.
+- I) **Sample apps don't use Astro UI components** — None of the 5 samples import Astro components from `@ever-works/ui/astro`. Only `apps/web` uses them.
+- J) **sample-git ItemBrowser diverges** — 476 lines vs ~230 in other samples with a custom lazy-loading pattern. Should document this as intentional for large datasets.
+
+**Default choice**: Items A-E are high priority for the next few iterations. F-J are nice-to-haves. Item B (sortItems dedup) and C (BreadcrumbNav types) are the best ROI improvements.
+
+**Status**: DOCUMENTED — tracking for future iterations.

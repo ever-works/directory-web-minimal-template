@@ -20,7 +20,7 @@ const { item } = Astro.props as { item: ItemData };
 const { config, items, categories, tags } = await getContent();
 
 /** Property-specific metadata — cast from the YAML pass-through `meta` field. */
-const meta = (item.meta ?? {}) as Record<string, string | undefined>;
+const meta = (typeof item.meta === 'object' && item.meta !== null ? item.meta : {}) as Record<string, string | undefined>;
 
 const primaryCategory: string | undefined = Array.isArray(item.category) ? item.category[0] : item.category;
 const relatedItems = primaryCategory

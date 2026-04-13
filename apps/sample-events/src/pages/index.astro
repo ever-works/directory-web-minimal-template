@@ -42,7 +42,7 @@ const browserTags = tags.map((tag) => ({
 
 // Helper to extract event-specific meta location for featured cards
 function getMetaLocation(item: typeof items[number]): string | undefined {
-    const m = item.meta as Record<string, string> | undefined;
+    const m = (typeof item.meta === 'object' && item.meta !== null ? item.meta : undefined) as Record<string, string> | undefined;
     return m?.location;
 }
 ---
