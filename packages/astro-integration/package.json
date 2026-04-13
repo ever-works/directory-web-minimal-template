@@ -20,7 +20,7 @@
         "@ever-works/sync": "workspace:*"
     },
     "devDependencies": {
-        "astro": "^6.1.5",
+        "astro": "^6.1.6",
         "typescript": "^5.9.3",
         "vitest": "^4.1.4"
     },

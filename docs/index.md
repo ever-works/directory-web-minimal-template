@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-13 (Iteration 41: Lighthouse CI, serialized props optimization, visual regression testing)
+> Updated: 2026-04-13 (Iteration 42: dependency upgrades, docs sidebar fix, project health audit)
 
 ## Root Documents
 

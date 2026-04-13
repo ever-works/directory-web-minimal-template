@@ -3,6 +3,32 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-13 — Iteration 42: Dependency Upgrades, Docs Sidebar Fix, Project Health Audit
+
+### Dependency Upgrades
+- Upgraded `astro` from 6.1.5 → 6.1.6 across all 8 apps (patch release)
+- Upgraded `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser` from 8.58.1 → 8.58.2
+- Skipped TypeScript 6.0 upgrade (major version with breaking changes — ecosystem not ready yet)
+
+### Docs Sidebar Fix
+- Fixed `apps/docs/sidebarsTemplate.ts` — Added missing `guides/performance-testing` guide to the sidebar (was added in iteration 41 but not wired into sidebar)
+
+### Project Spec Update
+- Updated `.specify/project.md` — Updated "Current State" section from iteration 40 → 42, Astro version 6.1.5 → 6.1.6
+
+### Build Verification
+- `pnpm typecheck` — ALL 20 tasks pass (0 errors)
+- `pnpm lint` — ALL 9 tasks pass
+- `pnpm test` — ALL 12 unit test suites pass (430 tests)
+- `pnpm build` — ALL 7 apps build successfully (5030 pages for sample-git)
+- E2E tests (chromium): 67 passed, 5 skipped (mobile-only tests)
+- Docs site (`@ever-works/docs-minimal`) builds successfully with updated sidebar
+
+### Summary
+- **Routine maintenance iteration**: dependency patch upgrades, docs sidebar drift fix, project health audit
+- **All checks pass**: typecheck, lint, unit tests, build, E2E, docs build
+- **No breaking changes introduced**
+
 ## 2026-04-13 — Iteration 41: Lighthouse CI, Visual Regression, Serialized Props Optimization
 
 ### Lighthouse CI Performance Testing

@@ -29,6 +29,7 @@ const sidebars: SidebarsConfig = {
         "guides/interactive-components",
         "guides/content-sync",
         "guides/deployment",
+        "guides/performance-testing",
         "guides/troubleshooting",
       ],
     },

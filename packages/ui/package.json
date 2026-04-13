@@ -35,7 +35,7 @@
     },
     "devDependencies": {
         "@ever-works/tsconfig": "workspace:*",
-        "astro": "^6.1.5",
+        "astro": "^6.1.6",
         "preact": "^10.29.1",
         "typescript": "^5.9.3"
     }
