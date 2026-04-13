@@ -85,6 +85,24 @@ This package reads from a `.content/` directory with this layout:
 
 This structure matches the full Next.js `directory-web-template` for compatibility.
 
+### Content caching
+
+```typescript
+import { ContentCache } from '@ever-works/core';
+import type { ContentCacheConfig } from '@ever-works/core';
+
+const cache = new ContentCache({
+    adapter,
+    ttlMs: 300_000,      // 5-minute TTL (default)
+    onRefresh: (content) => { /* rebuild pages */ },
+});
+
+const content = await cache.get();   // returns cached or freshly loaded content
+const status = cache.status();       // { state: 'fresh' | 'stale' | 'empty', lastRefresh, headRef }
+```
+
+`ContentCache` wraps `loadContent()` with TTL-based caching and adapter-level change detection (`getHeadRef()`). Used by the ISR integration to avoid redundant content loading.
+
 ## Key Design Decisions
 
 - **Adapter-based I/O** — All file reads go through `DataAdapter`, never direct `fs` calls. This makes the core testable and backend-agnostic.

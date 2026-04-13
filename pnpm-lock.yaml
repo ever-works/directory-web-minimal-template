@@ -45,8 +45,8 @@ importers:
         specifier: ^3.10.0
         version: 3.10.0(@algolia/client-search@5.50.1)(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@18.3.1))(@types/react@19.2.14)(lightningcss@1.32.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)(typescript@5.6.3)
       '@easyops-cn/docusaurus-search-local':
-        specifier: ^0.54.1
-        version: 0.54.1(@docusaurus/theme-common@3.10.0(@docusaurus/plugin-content-docs@3.10.0(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@18.3.1))(lightningcss@1.32.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@18.3.1))(@types/react@19.2.14)(lightningcss@1.32.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3)
+        specifier: ^0.55.1
+        version: 0.55.1(@docusaurus/theme-common@3.10.0(@docusaurus/plugin-content-docs@3.10.0(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@18.3.1))(lightningcss@1.32.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@18.3.1))(lightningcss@1.32.0)(open-ask-ai@0.7.3(@types/react@19.2.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3)
       '@mdx-js/react':
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.14)(react@18.3.1)
@@ -2360,13 +2360,17 @@ packages:
   '@easyops-cn/autocomplete.js@0.38.1':
     resolution: {integrity: sha512-drg76jS6syilOUmVNkyo1c7ZEBPcPuK+aJA7AksM5ZIIbV57DMHCywiCr+uHyv8BE5jUTU98j/H7gVrkHrWW3Q==}
 
-  '@easyops-cn/docusaurus-search-local@0.54.1':
-    resolution: {integrity: sha512-CexWCS1ktR7ZtvKWvbBhY7+NBRzQPVCAReBed6k5U9M2hdAARI3cK+NBUCegbd4F8VV54Re1HpIb2+GZwl8zEQ==}
+  '@easyops-cn/docusaurus-search-local@0.55.1':
+    resolution: {integrity: sha512-jmBKj1J+tajqNrCvECwKCQYTWwHVZDGApy8lLOYEPe+Dm0/f3Ccdw8BP5/OHNpltr7WDNY2roQXn+TWn2f1kig==}
     engines: {node: '>=12'}
     peerDependencies:
       '@docusaurus/theme-common': ^2 || ^3
+      open-ask-ai: ^0.7.3
       react: ^16.14.0 || ^17 || ^18 || ^19
       react-dom: ^16.14.0 || 17 || ^18 || ^19
+    peerDependenciesMeta:
+      open-ask-ai:
+        optional: true
 
   '@emmetio/abbreviation@2.3.3':
     resolution: {integrity: sha512-mgv58UrU3rh4YgbE/TzgLQwJ3pFsHHhCLqY20aJq+9comytTXUDNGG/SMtSeMJdkpxgXSXunBGLD8Boka3JyVA==}
@@ -11752,7 +11756,7 @@ snapshots:
       cssesc: 3.0.0
       immediate: 3.3.0
 
-  '@easyops-cn/docusaurus-search-local@0.54.1(@docusaurus/theme-common@3.10.0(@docusaurus/plugin-content-docs@3.10.0(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@18.3.1))(lightningcss@1.32.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@18.3.1))(@types/react@19.2.14)(lightningcss@1.32.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3)':
+  '@easyops-cn/docusaurus-search-local@0.55.1(@docusaurus/theme-common@3.10.0(@docusaurus/plugin-content-docs@3.10.0(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@18.3.1))(lightningcss@1.32.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@18.3.1))(lightningcss@1.32.0)(open-ask-ai@0.7.3(@types/react@19.2.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3)':
     dependencies:
       '@docusaurus/plugin-content-docs': 3.10.0(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@18.3.1))(debug@4.4.3)(lightningcss@1.32.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3)
       '@docusaurus/theme-common': 3.10.0(@docusaurus/plugin-content-docs@3.10.0(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@18.3.1))(lightningcss@1.32.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -11783,8 +11787,6 @@ snapshots:
       - '@rspack/core'
       - '@swc/core'
       - '@swc/css'
-      - '@types/react'
-      - '@types/react-dom'
       - bufferutil
       - csso
       - esbuild

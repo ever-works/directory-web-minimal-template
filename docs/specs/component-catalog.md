@@ -401,7 +401,7 @@ interface SortSelectProps {
 ### BackToTop
 
 **File**: `packages/ui/src/preact/BackToTop.tsx`
-**Hydration**: `client:idle`
+**Hydration**: `client:visible`
 
 ```typescript
 interface BackToTopProps {
@@ -655,13 +655,14 @@ interface SimilarItemsProps {
 ```typescript
 interface ItemBrowserProps {
     items: ItemData[];
-    categories?: CategoryData[];
-    tags?: TagData[];
-    itemsName?: string;        // default: "Items"
+    categories?: CategoryWithCount[];
+    tags?: TagWithCount[];
+    itemName?: string;         // singular, e.g. "Tool"
+    itemsName?: string;        // plural, default: "Items"
     perPage?: number;          // default: 12
     layoutModes?: LayoutMode[]; // default: ['grid', 'list']
     initialLayout?: LayoutMode; // default: 'grid'
-    renderItem?: (item: ItemData, layout: LayoutMode) => preact.VNode;
+    renderItem?: (item: ItemData, layout: LayoutMode) => ComponentChildren;
     class?: string;
 }
 ```

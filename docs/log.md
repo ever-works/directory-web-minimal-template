@@ -3,6 +3,44 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-14 — Iteration 43: Documentation Drift Fixes, Dependency Upgrade
+
+### Documentation Drift Fixes (14 issues from comprehensive audit)
+
+**HIGH severity (4 issues — would cause compile errors if followed):**
+- Fixed `docs/specs/component-catalog.md` — `ItemBrowserProps.categories` corrected from `CategoryData[]` to `CategoryWithCount[]`
+- Fixed `docs/specs/component-catalog.md` — `ItemBrowserProps.tags` corrected from `TagData[]` to `TagWithCount[]`
+- Fixed `packages/adapters/README.md` — Added missing `refresh()` and `getHeadRef()` methods to DataAdapter interface
+- Fixed `packages/adapters/README.md` — Corrected false "zero runtime dependencies" claim and `execFileSync` description; actually uses `isomorphic-git` (pure JS)
+
+**MEDIUM severity (6 issues — misleading):**
+- Fixed `docs/specs/component-catalog.md` — `renderItem` return type corrected from `preact.VNode` to `ComponentChildren`
+- Fixed `docs/specs/component-catalog.md` — BackToTop hydration directive corrected from `client:idle` to `client:visible`
+- Fixed `packages/ui/README.md` — Package Structure: added 7 missing Astro components (FeaturedBadge, FeaturedSection, ItemCTA, ItemContent, ItemMetadata, ShareButton, SimilarItems)
+- Fixed `packages/ui/README.md` — Package Structure: added 3 missing Preact components (ItemBrowser, LayoutSwitcher, MobileMenu)
+- Fixed `packages/ui/README.md` — Domain Components table: updated from 17 to 24 entries (all actual components)
+- Fixed `packages/ui/README.md` — Interactive Islands table: updated from 5 to 8 entries with corrected hydration directives
+
+**LOW severity (4 issues — minor gaps):**
+- Fixed `packages/core/README.md` — Added `ContentCache` usage documentation (was exported but undocumented)
+- Fixed `docs/specs/component-catalog.md` — Added missing `itemName` prop to `ItemBrowserProps`
+- Created `packages/sync/README.md` — New README for the sync package (was the only package without one)
+
+### Dependency Upgrade
+- Upgraded `@easyops-cn/docusaurus-search-local` from 0.54.1 → 0.55.1 (minor, docs site search)
+
+### Build Verification
+- `pnpm typecheck` — ALL 20 tasks pass (0 errors)
+- `pnpm lint` — ALL 9 tasks pass
+- `pnpm test` — ALL 12 unit test suites pass (430 tests)
+- `pnpm build` — ALL 7 apps build successfully (5030 pages for sample-git)
+- E2E tests (chromium): 67 passed, 5 skipped, 0 failed
+
+### Summary
+- **14 documentation drift issues fixed** (4 HIGH, 6 MEDIUM, 4 LOW)
+- **1 dependency upgrade** (minor)
+- **All checks pass**: typecheck, lint, unit tests, build, E2E
+
 ## 2026-04-13 — Iteration 42: Dependency Upgrades, Documentation Drift Fixes
 
 ### Dependency Upgrades

@@ -15,29 +15,39 @@ src/
 │   ├── separator/
 │   └── table/
 ├── astro/             Astro — directory-specific components built on primitives
-│   ├── ItemCard.astro
-│   ├── ItemGrid.astro
-│   ├── ItemList.astro
-│   ├── ItemDetail.astro
+│   ├── Breadcrumbs.astro
 │   ├── CategoryBadge.astro
 │   ├── CategoryList.astro
-│   ├── TagBadge.astro
-│   ├── TagList.astro
 │   ├── CollectionCard.astro
 │   ├── ComparisonTable.astro
-│   ├── Breadcrumbs.astro
-│   ├── Pagination.astro
-│   ├── Hero.astro
-│   ├── SiteHeader.astro
-│   ├── SiteFooter.astro
 │   ├── EmptyState.astro
-│   └── SEO.astro
+│   ├── FeaturedBadge.astro
+│   ├── FeaturedSection.astro
+│   ├── Hero.astro
+│   ├── ItemCTA.astro
+│   ├── ItemCard.astro
+│   ├── ItemContent.astro
+│   ├── ItemDetail.astro
+│   ├── ItemGrid.astro
+│   ├── ItemList.astro
+│   ├── ItemMetadata.astro
+│   ├── Pagination.astro
+│   ├── SEO.astro
+│   ├── ShareButton.astro
+│   ├── SimilarItems.astro
+│   ├── SiteFooter.astro
+│   ├── SiteHeader.astro
+│   ├── TagBadge.astro
+│   └── TagList.astro
 ├── preact/            Preact — interactive islands (client-side JS)
-│   ├── SearchInput.tsx
+│   ├── BackToTop.tsx
 │   ├── FilterBar.tsx
+│   ├── ItemBrowser.tsx
+│   ├── LayoutSwitcher.tsx
+│   ├── MobileMenu.tsx
+│   ├── SearchInput.tsx
 │   ├── SortSelect.tsx
-│   ├── ThemeToggle.tsx
-│   └── BackToTop.tsx
+│   └── ThemeToggle.tsx
 ├── components/ui/     Preact — shadcn-style primitives for use inside islands
 │   ├── badge.tsx
 │   ├── button.tsx
@@ -82,23 +92,30 @@ These are the directory-specific components that combine primitives with data ty
 
 | Component | Wraps | Purpose |
 |-----------|-------|---------|
-| **ItemCard** | Card + Badge | Single item card with icon, name, description, categories, tags |
-| **ItemGrid** | — | Responsive CSS grid of ItemCard components |
-| **ItemList** | — | Vertical list of ItemCard components |
-| **ItemDetail** | Card + Badge + Separator + Button | Full item detail view |
+| **Breadcrumbs** | — | Breadcrumb nav with JSON-LD structured data |
 | **CategoryBadge** | Badge (outline) | Single category label |
 | **CategoryList** | — | Grid of CategoryBadge components |
-| **TagBadge** | Badge (secondary) | Single tag label |
-| **TagList** | — | Flex-wrap list of TagBadge components |
 | **CollectionCard** | Card | Collection card with item count |
 | **ComparisonTable** | Table + Badge | Side-by-side comparison table |
 | **EmptyState** | Empty | "No results" messaging |
+| **FeaturedBadge** | Badge | "Featured" indicator badge |
+| **FeaturedSection** | — | Featured items highlight section |
 | **Hero** | Button | Page hero with title, subtitle, CTA |
-| **SiteHeader** | Button (ghost) | Sticky navigation header |
-| **SiteFooter** | Separator | Footer with site info |
+| **ItemCTA** | Button | Call-to-action button for items (visit, view source) |
+| **ItemCard** | Card + Badge | Single item card with icon, name, description, categories, tags |
+| **ItemContent** | — | Rendered markdown content body for item detail |
+| **ItemDetail** | Card + Badge + Separator + Button | Full item detail view |
+| **ItemGrid** | — | Responsive CSS grid of ItemCard components |
+| **ItemList** | — | Vertical list of ItemCard components |
+| **ItemMetadata** | — | Metadata display (updated date, publisher, brand) |
 | **Pagination** | — | Page navigation with number/ellipsis logic |
-| **Breadcrumbs** | — | Breadcrumb nav with JSON-LD structured data |
 | **SEO** | — | Meta tags, Open Graph, Twitter Card, JSON-LD |
+| **ShareButton** | Button | Social share / copy link button |
+| **SimilarItems** | ItemGrid | Related/similar items section |
+| **SiteFooter** | Separator | Footer with site info |
+| **SiteHeader** | Button (ghost) | Sticky navigation header |
+| **TagBadge** | Badge (secondary) | Single tag label |
+| **TagList** | — | Flex-wrap list of TagBadge components |
 
 **When to use:** In Astro page files. These are the primary building blocks for assembling directory pages.
 
@@ -111,11 +128,14 @@ These handle features that require client-side JavaScript: search, filtering, so
 
 | Component | Purpose | Hydration |
 |-----------|---------|-----------|
-| **SearchInput** | Debounced search input with clear button | `client:load` |
-| **FilterBar** | Category (single-select) + tag (multi-select) filters | `client:load` |
-| **SortSelect** | Sort dropdown (name, date, featured) | `client:load` |
-| **ThemeToggle** | Light/dark mode toggle | `client:load` |
 | **BackToTop** | Scroll-to-top button (appears after scroll threshold) | `client:visible` |
+| **FilterBar** | Category (single-select) + tag (multi-select) filters | `client:visible` |
+| **ItemBrowser** | Combined browse interface (search + filters + sort + pagination + layout) | `client:load` |
+| **LayoutSwitcher** | Grid/list/compact layout toggle | `client:visible` |
+| **MobileMenu** | Hamburger menu for mobile navigation | `client:load` |
+| **SearchInput** | Debounced search input with clear button | `client:load` |
+| **SortSelect** | Sort dropdown (name, date, featured) | `client:visible` |
+| **ThemeToggle** | Light/dark mode toggle | `client:load` |
 
 **When to use:** When a feature needs to respond to user interaction. Import them in `.astro` pages with a `client:*` directive.
 

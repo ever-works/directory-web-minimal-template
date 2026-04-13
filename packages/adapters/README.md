@@ -4,9 +4,9 @@ Data source abstraction layer for the Ever Works minimal directory template. Pro
 
 ## What This Package Does
 
-1. **Defines the `DataAdapter` interface** — A contract for reading files, listing directories, and checking existence
+1. **Defines the `DataAdapter` interface** — A contract for reading files, listing directories, checking existence, refreshing, and change detection
 2. **`FilesystemAdapter`** — Reads content directly from a local directory
-3. **`GitAdapter`** — Clones a remote Git repository (shallow, single-branch) then delegates to `FilesystemAdapter`
+3. **`GitAdapter`** — Clones a remote Git repository using `isomorphic-git` (shallow, single-branch) then delegates to `FilesystemAdapter`
 4. **`createAdapter()` factory** — Automatically selects the right adapter based on configuration and environment variables
 5. **`resolveAdapterConfig()`** — Merges explicit config with environment variable defaults
 
@@ -70,8 +70,13 @@ interface DataAdapter {
     listDirectories(relativeDir: string): Promise<string[]>;
     exists(relativePath: string): Promise<boolean>;
     getContentPath(): string;
+    refresh(): Promise<boolean>;
+    getHeadRef(): Promise<string | null>;
 }
 ```
+
+- `refresh()` — Pull latest changes from the remote data source. Returns `true` if content changed.
+- `getHeadRef()` — Get the current HEAD reference (commit SHA or mtime hash) for cheap change detection.
 
 All methods operate on paths **relative to the content root**. The adapter handles path resolution internally.
 
@@ -93,11 +98,11 @@ When using `DATA_REPOSITORY`, the factory also reads `GH_TOKEN` and `GITHUB_BRAN
 
 - **Path traversal protection** — `FilesystemAdapter` validates that resolved paths don't escape the content root (e.g., `../../etc/passwd` is rejected)
 - **Token redaction** — `GitAdapter` strips access tokens from error messages to prevent secret leakage in logs
-- **Command injection prevention** — Git operations use `execFileSync` with argument arrays (no shell interpolation) and validate branch names against a safe character regex
+- **Command injection prevention** — Git operations use `isomorphic-git` (pure JavaScript, no shell commands), eliminating command injection vectors entirely
 
 ## Key Design Decisions
 
-- **Zero runtime dependencies** — Only uses Node.js built-ins (`fs/promises`, `child_process`, `path`)
+- **Pure JS Git** — Uses `isomorphic-git` for Git operations (no `git` binary required, works in all environments)
 - **Idempotent Git cloning** — Checks for `.content/.git` before cloning; safe to call `init()` multiple times
 - **Shallow clone** — Uses `--depth 1 --single-branch` for minimal clone size and speed
 - **Delegation pattern** — `GitAdapter` clones once, then delegates all reads to a `FilesystemAdapter` internally
