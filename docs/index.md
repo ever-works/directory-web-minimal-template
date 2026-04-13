@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-13 (Iteration 38: Tag page SEO tests, git test fixes, Playwright 1.59 upgrade)
+> Updated: 2026-04-13 (Iteration 39: Dependency upgrades, E2E test fixes)
 
 ## Root Documents
 

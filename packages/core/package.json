@@ -16,11 +16,11 @@
     },
     "dependencies": {
         "@ever-works/adapters": "workspace:*",
-        "yaml": "^2.7.0"
+        "yaml": "^2.8.3"
     },
     "devDependencies": {
         "@ever-works/tsconfig": "workspace:*",
         "@types/node": "^22.19.17",
-        "typescript": "^5.7.0"
+        "typescript": "^5.9.3"
     }
 }

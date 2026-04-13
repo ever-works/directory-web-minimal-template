@@ -7,22 +7,24 @@
         ".": "./src/index.ts",
         "./webhook-endpoint": "./src/webhook-endpoint.ts"
     },
-    "files": ["src"],
+    "files": [
+        "src"
+    ],
     "scripts": {
         "typecheck": "tsc --noEmit",
         "test": "vitest run"
     },
     "dependencies": {
-        "@ever-works/plugins": "workspace:*",
         "@ever-works/core": "workspace:*",
+        "@ever-works/plugins": "workspace:*",
         "@ever-works/sync": "workspace:*"
     },
     "devDependencies": {
-        "astro": "^6.0.0",
-        "typescript": "^5.8.3",
+        "astro": "^6.1.5",
+        "typescript": "^5.9.3",
         "vitest": "^4.1.4"
     },
     "peerDependencies": {
-        "astro": "^6.0.0"
+        "astro": "^6.1.5"
     }
 }

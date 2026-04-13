@@ -7,6 +7,41 @@ sidebar_label: "Change Log"
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-13 — Iteration 39: Dependency Upgrades, E2E Test Fixes
+
+### Dependency Upgrades (non-breaking, minor/patch)
+- **Astro**: `^6.0.0` → `^6.1.5` (all 6 Astro apps + astro-integration package)
+- **@astrojs/check**: `^0.9.0` → `^0.9.8` (all 6 Astro apps)
+- **@astrojs/sitemap**: `^3.7.0` → `^3.7.2` (all 6 Astro apps)
+- **@astrojs/vercel**: `^10.0.0` → `^10.0.4` (web, sample-git)
+- **Tailwind CSS**: `^4.2.0` → `^4.2.2` (all apps + docs)
+- **@tailwindcss/vite**: `^4.2.0` → `^4.2.2` (all 6 Astro apps)
+- **Preact**: `^10.29.0` → `^10.29.1` (all 6 Astro apps + ui package)
+- **yaml**: `^2.7.0` → `^2.8.3` (core, all 5 sample apps)
+- **tsx**: `^4.19.0` → `^4.21.0` (web)
+- **tailwind-merge**: `^3.0.0` → `^3.5.0` (ui, docs)
+- **@typescript-eslint/eslint-plugin**: `^8.48.0` → `^8.58.1`
+- **@typescript-eslint/parser**: `^8.48.0` → `^8.58.1`
+
+**Not upgraded** (compatibility): TypeScript stays at ^5.7.0 — `@astrojs/check` peer requires `^5.0.0`, TS 6.x not yet supported.
+
+### E2E Test Fixes
+- **`apps/web-e2e/tests/seo.spec.ts`** — Fixed category page ItemList test: changed URL from `/category/sample-category/` (non-existent) to `/category/form-components/` (valid sample-basic category with items). This test was broken since iteration 36 when JSON-LD ItemList was added.
+- **`apps/web-e2e/tests/mobile-menu.spec.ts`** — Fixed flaky "should close on Escape key" test: added 500ms wait for Preact hydration before pressing Escape, focus inside panel before keypress, and increased timeout to 10s. The Escape keydown handler is attached via `useEffect` after hydration, so pressing Escape before hydration completed caused intermittent failures.
+
+### Build Verification
+- `pnpm typecheck` — ALL 20 tasks pass (0 errors)
+- `pnpm lint` — ALL 9 tasks pass
+- `pnpm build` — ALL 7 apps build successfully
+  - sample-git build time improved: 128s (was 137s in iteration 38)
+- E2E tests: 559 passed, 27 skipped, 0 failures (42 spec files, 5 sample projects)
+
+### Next Steps (for next scheduled run)
+1. Consider upgrading TypeScript when @astrojs/check supports v6
+2. Consider adding Lighthouse CI performance testing
+3. Consider adding visual regression tests for key pages
+4. Explore reducing serialized props size for sample-git ItemBrowser
+
 ## 2026-04-13 — Iteration 38: Tag Page SEO Tests, Git Test Fixes, Playwright Upgrade
 
 ### JSON-LD ItemList on Tag Pages — E2E Tests

@@ -41,9 +41,14 @@ test.describe('Mobile Menu', () => {
 
     test('should close on Escape key', async ({ page }) => {
         await page.goto('/');
-        await page.locator('[data-component="mobile-menu"] button').click();
-        await expect(page.locator('#mobile-nav-panel')).toBeVisible();
+        const toggle = page.locator('[data-component="mobile-menu"] button');
+        await toggle.click();
+        const panel = page.locator('#mobile-nav-panel');
+        await expect(panel).toBeVisible();
+        // Wait for Preact hydration to attach event listeners
+        await page.waitForTimeout(500);
+        await panel.locator('a').first().focus();
         await page.keyboard.press('Escape');
-        await expect(page.locator('#mobile-nav-panel')).not.toBeVisible();
+        await expect(panel).not.toBeVisible({ timeout: 10000 });
     });
 });

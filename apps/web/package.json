@@ -15,8 +15,8 @@
     },
     "dependencies": {
         "@astrojs/preact": "^5.1.1",
-        "@astrojs/sitemap": "^3.7.0",
-        "@astrojs/vercel": "^10.0.0",
+        "@astrojs/sitemap": "^3.7.2",
+        "@astrojs/vercel": "^10.0.4",
         "@ever-works/adapters": "workspace:*",
         "@ever-works/astro-integration": "workspace:*",
         "@ever-works/core": "workspace:*",
@@ -29,18 +29,18 @@
         "@ever-works/plugins": "workspace:*",
         "@ever-works/sync": "workspace:*",
         "@ever-works/ui": "workspace:*",
-        "@tailwindcss/vite": "^4.2.0",
-        "astro": "^6.0.0",
-        "preact": "^10.29.0",
-        "tailwindcss": "^4.2.0",
-        "yaml": "^2.7.0"
+        "@tailwindcss/vite": "^4.2.2",
+        "astro": "^6.1.5",
+        "preact": "^10.29.1",
+        "tailwindcss": "^4.2.2",
+        "yaml": "^2.8.3"
     },
     "devDependencies": {
-        "@astrojs/check": "^0.9.0",
+        "@astrojs/check": "^0.9.8",
         "@ever-works/eslint-config": "workspace:*",
         "@ever-works/tsconfig": "workspace:*",
         "pagefind": "^1.5.2",
-        "tsx": "^4.19.0",
-        "typescript": "^5.7.0"
+        "tsx": "^4.21.0",
+        "typescript": "^5.9.3"
     }
 }

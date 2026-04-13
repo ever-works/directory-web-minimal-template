@@ -18,6 +18,6 @@
     "devDependencies": {
         "@ever-works/eslint-config": "workspace:*",
         "@ever-works/tsconfig": "workspace:*",
-        "typescript": "^5.7.0"
+        "typescript": "^5.9.3"
     }
 }

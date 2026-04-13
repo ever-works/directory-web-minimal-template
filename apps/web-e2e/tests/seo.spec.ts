@@ -53,7 +53,7 @@ test.describe('SEO', () => {
     });
 
     test('should have JSON-LD ItemList on category page', async ({ page }) => {
-        await page.goto('/category/sample-category/');
+        await page.goto('/category/form-components/');
         const jsonLdScripts = page.locator('script[type="application/ld+json"]');
         const count = await jsonLdScripts.count();
 
