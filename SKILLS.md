@@ -53,6 +53,8 @@ Verify the monorepo structure:
 
 ```
 apps/web/              -- The Astro site you will customize
+apps/web-e2e/          -- Playwright E2E tests
+apps/docs/             -- Docusaurus documentation site
 apps/sample-basic/     -- Reference implementation (React UI Components directory)
 apps/sample-jobs/      -- Reference implementation (Remote Tech Jobs directory)
 apps/sample-events/    -- Reference implementation (Tech Events directory, teal, port 4325)
@@ -1355,6 +1357,8 @@ interface CollectionData {
     icon_url?: string;
     /** Item slugs that belong to this collection */
     items?: string[];
+    /** Number of items in this collection (from YAML or computed) */
+    item_count?: number;
     /** Whether this collection is active and visible */
     isActive?: boolean;
     /** Creation timestamp */

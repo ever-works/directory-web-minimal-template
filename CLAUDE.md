@@ -103,11 +103,13 @@ pnpm install              # Install all dependencies
 pnpm dev                  # Start all dev servers
 pnpm dev:web              # Start only the web app
 pnpm dev:docs             # Start only the docs site
+pnpm dev:sample-git       # Start sample-git dev server
 pnpm build                # Build all apps
 pnpm lint                 # Lint all packages
 pnpm typecheck            # Type-check all packages
 pnpm test                 # Run all unit tests (Vitest)
 pnpm test:e2e             # Run E2E tests (Playwright)
+pnpm format               # Format code with Prettier
 pnpm clean                # Clean all build artifacts
 ```
 
@@ -133,12 +135,13 @@ pnpm clean                # Clean all build artifacts
 
 These commands are always safe to run:
 - `pnpm install`
-- `pnpm dev` / `pnpm dev:web` / `pnpm dev:docs`
+- `pnpm dev` / `pnpm dev:web` / `pnpm dev:docs` / `pnpm dev:sample-git`
 - `pnpm build`
 - `pnpm lint`
 - `pnpm typecheck`
 - `pnpm test`
 - `pnpm test:e2e`
+- `pnpm format`
 - `pnpm clean`
 
 ## Before Making Changes

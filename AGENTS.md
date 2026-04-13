@@ -36,7 +36,7 @@ Every document, specification, code file, and decision MUST comply with these ru
 - No rich text editor
 
 ### R5: ISR by Default, Static Opt-Out
-- Default: `output: 'hybrid'` with ISR enabled via `@astrojs/vercel`
+- Default: `output: 'static'` with Vercel adapter conditionally added for ISR
 - All pages pre-rendered at build time; ISR handles on-demand regeneration when content changes
 - Opt-out: Set `ENABLE_ISR=false` for pure static output (`output: 'static'`)
 - No client-side data fetching for core content (hydration for interactions only)
@@ -142,7 +142,6 @@ packages/<name>/
 ```
 apps/web/
 ├── src/
-│   ├── components/       — Astro/framework components
 │   ├── layouts/          — Page layouts
 │   ├── pages/            — Astro pages (file-based routing)
 │   ├── styles/           — Global styles (minimal)

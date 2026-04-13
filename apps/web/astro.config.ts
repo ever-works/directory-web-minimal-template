@@ -9,7 +9,7 @@ import { getPluginRunner, getContent } from './src/lib/content';
 /**
  * Astro Configuration
  *
- * ISR mode (default): hybrid output with Vercel adapter for on-demand page regeneration.
+ * ISR mode (default): static output with Vercel adapter for on-demand page regeneration.
  * Static mode (ENABLE_ISR=false): pure static output, no server runtime.
  *
  * Preact for interactive islands (compat: true enables react → preact aliasing for shadcn).

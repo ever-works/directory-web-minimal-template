@@ -3,15 +3,21 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
-## 2026-04-13 — Iteration 42: Dependency Upgrades, Docs Sidebar Fix, Project Health Audit
+## 2026-04-13 — Iteration 42: Dependency Upgrades, Documentation Drift Fixes
 
 ### Dependency Upgrades
 - Upgraded `astro` from 6.1.5 → 6.1.6 across all 8 apps (patch release)
 - Upgraded `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser` from 8.58.1 → 8.58.2
 - Skipped TypeScript 6.0 upgrade (major version with breaking changes — ecosystem not ready yet)
 
-### Docs Sidebar Fix
-- Fixed `apps/docs/sidebarsTemplate.ts` — Added missing `guides/performance-testing` guide to the sidebar (was added in iteration 41 but not wired into sidebar)
+### Documentation Drift Fixes (from automated audit)
+- Fixed `AGENTS.md` R5 — Changed `output: 'hybrid'` → `output: 'static'` to match actual Astro config
+- Fixed `AGENTS.md` file structure — Removed non-existent `apps/web/src/components/` directory from tree
+- Fixed `CLAUDE.md` — Added missing `pnpm format` and `pnpm dev:sample-git` to Common Commands and Safe Operations
+- Fixed `SKILLS.md` — Added `item_count?: number` to CollectionData reference (matches `packages/core/src/types/collection.ts`)
+- Fixed `SKILLS.md` Step 2 — Added missing `apps/docs/` and `apps/web-e2e/` to monorepo structure listing
+- Fixed `apps/web/astro.config.ts` — Corrected misleading comment "hybrid output" → "static output"
+- Fixed `apps/docs/sidebarsTemplate.ts` — Added missing `guides/performance-testing` to sidebar
 
 ### Project Spec Update
 - Updated `.specify/project.md` — Updated "Current State" section from iteration 40 → 42, Astro version 6.1.5 → 6.1.6
@@ -25,7 +31,7 @@ sidebar_label: "Change Log"
 - Docs site (`@ever-works/docs-minimal`) builds successfully with updated sidebar
 
 ### Summary
-- **Routine maintenance iteration**: dependency patch upgrades, docs sidebar drift fix, project health audit
+- **Maintenance + drift fixes**: dependency patch upgrades, 7 documentation drift fixes from automated audit
 - **All checks pass**: typecheck, lint, unit tests, build, E2E, docs build
 - **No breaking changes introduced**
 
