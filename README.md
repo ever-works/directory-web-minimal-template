@@ -89,8 +89,8 @@ packages/
 | `pnpm build` | Build all apps |
 | `pnpm lint` | Lint all packages |
 | `pnpm typecheck` | Type-check all packages |
-| `pnpm test` | Run all unit tests (Vitest) |
-| `pnpm test:e2e` | Run E2E tests (Playwright) |
+| `pnpm test` | Run all unit tests — 430 tests, 12 suites (Vitest) |
+| `pnpm test:e2e` | Run E2E tests — 293 tests, 42 specs, 5 projects (Playwright) |
 | `pnpm clean` | Clean all build artifacts |
 
 ## Samples

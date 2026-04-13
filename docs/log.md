@@ -3,6 +3,53 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-13 — Iteration 40: Project Health Audit, Timeline Update, E2E Verification
+
+### Project Spec Update
+- **`.specify/project.md`** — Rewrote Timeline section: expanded from 9 phases to 15 phases reflecting all completed work (components, samples, content sync, ISR, accessibility, SEO, quality). Added "Current State (Iteration 40)" summary with accurate counts: 8 apps, 15 packages, 430 unit tests, 293 E2E tests.
+
+### README Update
+- **`README.md`** — Updated Commands table: `pnpm test` and `pnpm test:e2e` now show test counts inline (430 unit tests / 293 E2E tests across 42 specs and 5 projects).
+
+### Dependency Audit
+- All dependencies verified at latest versions — no upgrades available:
+  - Astro 6.1.5, @astrojs/preact 5.1.1, @astrojs/sitemap 3.7.2, @astrojs/vercel 10.0.4
+  - Preact 10.29.1, Tailwind CSS 4.2.2, TypeScript 5.9.3
+  - Turbo 2.9.6, Vitest 4.1.4, Playwright 1.59.1, Pagefind 1.5.2
+- TypeScript 6.x still not supported by `@astrojs/check` (peer requires `^5.0.0`)
+
+### Full E2E Verification (all projects)
+- **sample-basic**: chromium 67 passed + 5 skipped, mobile 72 passed — all green
+- **sample-events + sample-jobs**: 123 passed + 10 skipped — all green
+- **sample-real-estate**: 38 passed + 5 skipped — all green
+- **sample-git**: 39 passed + 6 skipped — all green
+- **Total**: 339 passed, 26 skipped, 0 failures across 10 Playwright projects
+
+### Build Verification
+- `pnpm typecheck` — ALL 20 tasks pass (0 errors)
+- `pnpm lint` — ALL 9 tasks pass
+- `pnpm build` — ALL 7 apps build successfully (all cached)
+- `pnpm test` — ALL 430 unit tests pass across 12 suites
+
+### Docs Health Audit
+- All docs/index.md references verified
+- All .specify/ spec files verified
+- Component counts in README, AGENTS.md, SKILLS.md verified accurate
+- No drift found
+
+### Summary
+- **All dependencies at latest** — no upgrades needed
+- **All 430 unit tests pass** — 0 failures
+- **All 293 E2E test definitions pass** (339 executions across 10 projects) — 0 failures
+- **Project spec timeline updated** — now reflects 15 phases and current state
+- **Status: Fully stable and up-to-date. No regressions.**
+
+### Next Steps (for next scheduled run)
+1. Consider upgrading TypeScript when @astrojs/check supports v6
+2. Consider adding Lighthouse CI performance testing
+3. Consider adding visual regression tests for key pages
+4. Explore reducing serialized props size for sample-git ItemBrowser
+
 # Change Log
 
 > Tracks all documentation and specification changes.

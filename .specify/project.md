@@ -58,11 +58,25 @@ A minimal, static-rendered Astro template for AI-generated directory websites. L
 | Phase | Description | Status |
 |-------|-------------|--------|
 | Phase 1 | Foundation: monorepo, types, data layer, adapters | Complete |
-| Phase 2 | Headless UI components (17 Astro + 5 Preact) | Complete |
-| Phase 3 | Astro web app with all 12 page routes | Complete |
-| Phase 4 | Built-in plugins (SEO, pagination, filters, search, sort, sitemap) | Complete |
-| Phase 5 | Sample implementation (React UI Components directory) | Complete |
+| Phase 2 | Headless UI components (24 Astro + 8 Preact) | Complete |
+| Phase 3 | Astro web app with all 15 page routes | Complete |
+| Phase 4 | Built-in plugins (SEO, pagination, filters, search, sort, sitemap, breadcrumbs) | Complete |
+| Phase 5 | Sample implementations (basic, jobs, events, real-estate, git) | Complete |
 | Phase 6 | Deployment, CI/CD, docs site, E2E tests | Complete |
-| Phase 7 | Polish: UI package usage, docs quality, interactive components | Complete |
-| Phase 8 | Testing infrastructure, plugin-breadcrumbs, deployment docs | Complete |
-| Phase 9 | Breadcrumbs integration, E2E expansion (114 tests), CI tests | Complete |
+| Phase 7 | Polish: UI package, docs quality, interactive components | Complete |
+| Phase 8 | Testing: unit tests (430), E2E expansion (293 tests, 42 specs) | Complete |
+| Phase 9 | Breadcrumbs, content sync, ISR, Git adapter (isomorphic-git) | Complete |
+| Phase 10 | Static pages, collections, comparisons, sample-git (3200+ items) | Complete |
+| Phase 11 | Sample-jobs, sample-events, sample-real-estate directories | Complete |
+| Phase 12 | Component catalog: primitives, shadcn-style, item detail decomposition | Complete |
+| Phase 13 | Accessibility: skip-to-content, mobile hamburger menu, ARIA, keyboard nav | Complete |
+| Phase 14 | SEO: JSON-LD (WebSite, ItemPage, BreadcrumbList, ItemList), structured data | Complete |
+| Phase 15 | Quality: dependency upgrades, E2E test hardening, docs health audits | Complete |
+
+## Current State (Iteration 40)
+
+- **8 apps**: web, web-e2e, docs, sample-basic, sample-jobs, sample-events, sample-real-estate, sample-git
+- **15 packages**: core, ui, plugins, adapters, sync, astro-integration, 7 plugin-* packages, tsconfig, eslint-config
+- **430 unit tests** (Vitest) across 12 test suites — all passing
+- **293 E2E tests** (Playwright) across 42 spec files, 5 sample projects — all passing
+- **All dependencies at latest versions** (Astro 6.1.5, Preact 10.29.1, Tailwind 4.2.2, TS 5.9.3)
