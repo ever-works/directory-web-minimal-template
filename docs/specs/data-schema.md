@@ -186,6 +186,22 @@ homepage:
   default_sort: "featured"       # name-asc | name-desc | date-desc | featured
 ```
 
+## Page Data
+
+Static pages are stored as Markdown files in `.content/pages/`. Each page has YAML frontmatter for metadata.
+
+```yaml
+# .content/pages/about.md
+---
+title: "About Us"
+description: "Learn about our directory"
+---
+
+Markdown content here...
+```
+
+TypeScript type: `PageData` with fields `slug`, `title`, `description?`, `content`, plus pass-through for additional frontmatter fields.
+
 ## Additional Fields
 
 The template explicitly types the following fields on `ItemData`: `brand`, `brand_logo_url`, `images`, `publisher`. These are used by the full Next.js template and preserved here for compatibility. Built-in components do not render them by default, but custom components can access them directly.

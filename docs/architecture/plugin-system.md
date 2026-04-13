@@ -83,7 +83,7 @@ interface PluginContext {
     plugins: Map<string, Plugin>;
 
     /** Logger */
-    log: Logger;
+    log: PluginLogger;
 }
 ```
 

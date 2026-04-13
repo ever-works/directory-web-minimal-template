@@ -52,8 +52,11 @@ These hydrate as Astro islands for client-side interactivity:
 | `SearchInput` | Text search with debounce | `client:load` |
 | `FilterBar` | Category/tag filter controls | `client:visible` |
 | `SortSelect` | Sort order dropdown | `client:visible` |
-| `BackToTop` | Scroll-to-top button | `client:idle` |
+| `BackToTop` | Scroll-to-top button | `client:load` |
 | `ThemeToggle` | Dark/light mode toggle | `client:load` |
+| `ItemBrowser` | Full-featured item grid with search, filters, sort | `client:load` |
+| `LayoutSwitcher` | Grid/list view toggle | `client:visible` |
+| `MobileMenu` | Responsive hamburger navigation | `client:load` |
 
 ## Component Props Pattern
 

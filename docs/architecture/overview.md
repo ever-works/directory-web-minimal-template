@@ -15,7 +15,7 @@ The minimal directory template follows a **layered, plugin-based architecture** 
 │  Pages · Layouts · Routes · Static Build Pipeline   │
 ├─────────────────────────────────────────────────────┤
 │                  Plugin System                       │
-│  Search · Filters · Comparisons · Analytics · ...   │
+│  Search · Filters · SEO · Pagination · Sort · ...   │
 ├─────────────────────────────────────────────────────┤
 │               @ever-works/ui                         │
 │  Headless Components · Astro Components · Islands   │
@@ -62,6 +62,7 @@ The minimal directory template follows a **layered, plugin-based architecture** 
   - `plugin-seo` — Meta tags, JSON-LD structured data
   - `plugin-sort` — Item sorting (name, date, featured)
   - `plugin-sitemap` — XML sitemap generation
+  - `plugin-breadcrumbs` — Auto-generate breadcrumb trails
 - Plugins can transform data, add build hooks, modify pipeline
 
 ### 4. Application Layer (`apps/web`)
@@ -75,8 +76,8 @@ The minimal directory template follows a **layered, plugin-based architecture** 
 
 ### Static-First
 - `output: 'static'` — all pages pre-rendered at build time
-- No server endpoints, no API routes
-- Content changes require rebuild + redeploy
+- ISR mode injects `/api/webhook` endpoint for content sync; pure static mode has no server endpoints
+- Content changes handled via ISR (on-demand regeneration) or full rebuild + redeploy
 - Enables CDN-edge caching for maximum performance
 
 ### Plugin-Everything

@@ -14,7 +14,7 @@ The data layer is the foundation of the template. It reads structured data from 
 ```
 ┌──────────────────────────────────────────┐
 │           Content Reader API             │
-│  fetchItems() · fetchCategories() · ...  │
+│  loadItems() · loadCategories() · ...    │
 ├──────────────────────────────────────────┤
 │            YAML Parser                    │
 │  Parses .yml files → typed objects       │
@@ -83,6 +83,14 @@ interface ItemData {
     featured?: boolean;
     /** URL to item's icon/logo */
     icon_url?: string;
+    /** Brand name associated with the item */
+    brand?: string;
+    /** URL to the brand's logo image */
+    brand_logo_url?: string;
+    /** Array of screenshot/image URLs */
+    images?: string[];
+    /** Publisher name for display */
+    publisher?: string;
     /** Last update timestamp (yyyy-MM-dd HH:mm format) */
     updated_at: string;
     /** Approval status */
@@ -151,8 +159,32 @@ interface CollectionData {
     icon_url?: string;
     /** Item slugs in this collection */
     items?: string[];
+    /** Number of items in this collection (from YAML or computed) */
+    item_count?: number;
     /** Whether collection is active */
     isActive?: boolean;
+    /** Creation timestamp */
+    created_at?: string;
+    /** Last update timestamp */
+    updated_at?: string;
+}
+```
+
+### PageData
+
+```typescript
+/** A static page parsed from .content/pages/<slug>.md */
+interface PageData {
+    /** URL-safe slug derived from filename */
+    slug: string;
+    /** Page title from frontmatter */
+    title: string;
+    /** Page description from frontmatter */
+    description?: string;
+    /** Raw markdown content (body after frontmatter) */
+    content: string;
+    /** Pass-through for additional frontmatter fields */
+    [key: string]: unknown;
 }
 ```
 
@@ -199,6 +231,10 @@ interface SiteConfig {
     logo?: LogoConfig;
     pagination?: PaginationConfig;
     settings?: SettingsConfig;
+    custom_header?: NavLinkItem[];
+    custom_footer?: NavLinkItem[];
+    homepage?: HomepageConfig;
+    [key: string]: unknown;
 }
 
 interface LogoConfig {
@@ -215,6 +251,9 @@ interface PaginationConfig {
 interface SettingsConfig {
     categories_enabled?: boolean;
     tags_enabled?: boolean;
+    collections_enabled?: boolean;
+    comparisons_enabled?: boolean;
+    featured_enabled?: boolean;
 }
 ```
 
@@ -224,35 +263,37 @@ The `@ever-works/core` package exposes these functions:
 
 ```typescript
 /** Load site configuration */
-function loadConfig(contentPath: string): Promise<SiteConfig>;
+function loadConfig(adapter: DataAdapter): Promise<SiteConfig>;
 
-/** Load all approved items with category/tag population */
-function loadItems(contentPath: string): Promise<{
-    items: ItemData[];
-    categories: CategoryWithCount[];
-    tags: TagWithCount[];
-    collections: CollectionData[];
-    total: number;
-}>;
+/** Load all approved items */
+function loadItems(adapter: DataAdapter): Promise<ItemData[]>;
 
 /** Load a single item by slug */
-function loadItem(contentPath: string, slug: string): Promise<ItemData | null>;
+function loadItem(adapter: DataAdapter, slug: string): Promise<ItemData | null>;
 
 /** Load all categories */
-function loadCategories(contentPath: string): Promise<CategoryData[]>;
+function loadCategories(adapter: DataAdapter): Promise<CategoryData[]>;
 
 /** Load all tags */
-function loadTags(contentPath: string): Promise<TagData[]>;
+function loadTags(adapter: DataAdapter): Promise<TagData[]>;
 
 /** Load all collections */
-function loadCollections(contentPath: string): Promise<CollectionData[]>;
+function loadCollections(adapter: DataAdapter): Promise<CollectionData[]>;
 
 /** Load all comparisons */
-function loadComparisons(contentPath: string): Promise<ComparisonData[]>;
+function loadComparisons(adapter: DataAdapter): Promise<ComparisonData[]>;
 
 /** Load a single comparison by slug */
-function loadComparison(contentPath: string, slug: string): Promise<ComparisonData | null>;
+function loadComparison(adapter: DataAdapter, slug: string): Promise<ComparisonData | null>;
+
+/** Load all static pages */
+function loadPages(adapter: DataAdapter): Promise<PageData[]>;
+
+/** Load a single page by slug */
+function loadPage(adapter: DataAdapter, slug: string): Promise<PageData | null>;
 ```
+
+Note: The `loadContent()` utility in `apps/web/src/lib/content.ts` composes these loaders together and computes `CategoryWithCount[]` / `TagWithCount[]` with item counts.
 
 ## Adapter Interface
 
@@ -263,6 +304,9 @@ interface DataAdapter {
     /** Unique adapter identifier */
     readonly id: string;
 
+    /** Human-readable name */
+    readonly name: string;
+
     /** Initialize the data source (e.g., clone repo) */
     init(config: AdapterConfig): Promise<void>;
 
@@ -272,11 +316,20 @@ interface DataAdapter {
     /** List files in a directory */
     listFiles(dir: string): Promise<string[]>;
 
+    /** List immediate subdirectories in a directory */
+    listDirectories(dir: string): Promise<string[]>;
+
     /** Check if a path exists */
     exists(path: string): Promise<boolean>;
 
     /** Get the resolved content root path */
     getContentPath(): string;
+
+    /** Pull latest changes from remote. Returns true if content changed. */
+    refresh(): Promise<boolean>;
+
+    /** Get current HEAD ref for change detection (commit SHA or mtime hash) */
+    getHeadRef(): Promise<string | null>;
 }
 
 interface AdapterConfig {
@@ -284,18 +337,22 @@ interface AdapterConfig {
     repository?: string;
     /** Auth token (for git adapter) */
     token?: string;
-    /** Branch name (for git adapter) */
+    /** Branch name (for git adapter, default: 'main') */
     branch?: string;
     /** Local filesystem path (for filesystem adapter) */
     localPath?: string;
+    /** Clone depth for git (default: 1 for shallow clone) */
+    cloneDepth?: number;
+    /** Additional adapter-specific options */
+    [key: string]: unknown;
 }
 ```
 
 ### Built-in Adapters
 
 1. **GitAdapter** — Clones a git repository at build time
-   - Uses `git clone --depth 1` for speed
-   - Clones into `.content/` directory
+   - Uses `isomorphic-git` (pure JS, no git binary required)
+   - Shallow clone (depth 1) into `.content/` directory
    - Requires `DATA_REPOSITORY` env var
 
 2. **FilesystemAdapter** — Reads from a local directory

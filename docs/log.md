@@ -3,6 +3,49 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-14 — Iteration 44: Documentation Drift Audit, Test Count Updates
+
+### Documentation Drift Fixes (15 issues from comprehensive audit)
+
+**HIGH severity (4 issues — would cause compile errors if followed):**
+- Fixed `docs/architecture/data-layer.md` — Content Reader API functions had wrong parameter type (`contentPath: string` → `adapter: DataAdapter`)
+- Fixed `docs/architecture/data-layer.md` — `loadItems()` return type was wrong (complex object → `Promise<ItemData[]>`)
+- Fixed `docs/architecture/plugin-system.md` — `PluginContext.log` type was `Logger` (nonexistent) → corrected to `PluginLogger`
+- Fixed `docs/architecture/adapter-system.md` — DataAdapter missing `refresh()` and `getHeadRef()` methods
+
+**MEDIUM severity (6 issues — misleading):**
+- Fixed `docs/architecture/overview.md` — Plugin diagram listed nonexistent "Comparisons" and "Analytics" plugins; corrected to actual plugins
+- Fixed `docs/architecture/overview.md` — Plugin list missing `plugin-breadcrumbs` (7th built-in plugin)
+- Fixed `docs/architecture/overview.md` — "No server endpoints, no API routes" claim contradicts ISR webhook endpoint; clarified for ISR vs static modes
+- Fixed `docs/architecture/component-system.md` — Interactive components table listed 5 but actual count is 8; added `ItemBrowser`, `LayoutSwitcher`, `MobileMenu`
+- Fixed `docs/architecture/data-layer.md` — Content Reader API diagram used wrong function names (`fetchItems()` → `loadItems()`)
+- Fixed `README.md` — E2E project count was 6, actual is 11 (incl. mobile variants)
+
+**LOW severity (5 issues — stale counts/minor gaps):**
+- Fixed `.specify/project.md` — E2E test count updated (293 → 569 tests, 42 → 46 spec files)
+- Fixed `.specify/project.md` — Unit test count updated (430 → 458 tests, 12 → 28 test files)
+- Fixed `README.md` — Unit test count updated (430/12 → 458/28)
+- Fixed `README.md` — E2E test count updated (~303 → ~569)
+- Fixed `docs/architecture/data-layer.md` — Missing `PageData` type, `loadPages()`/`loadPage()` functions
+- Fixed `docs/architecture/data-layer.md` — `ItemData` missing `brand`, `brand_logo_url`, `images`, `publisher` fields
+- Fixed `docs/architecture/data-layer.md` — `CollectionData` missing `item_count`, `created_at`, `updated_at` fields
+- Fixed `docs/architecture/data-layer.md` — `SiteConfig` missing `custom_header`, `custom_footer`, `homepage` fields
+- Fixed `docs/architecture/data-layer.md` — `SettingsConfig` missing `collections_enabled`, `comparisons_enabled`, `featured_enabled`
+- Fixed `docs/architecture/data-layer.md` — `AdapterConfig` missing `cloneDepth` field and index signature
+- Fixed `docs/architecture/data-layer.md` — GitAdapter description corrected from "git clone --depth 1" to "isomorphic-git"
+- Fixed `docs/specs/data-schema.md` — Added missing `PageData` / page data section
+
+### Build Verification
+- `pnpm typecheck` — ALL 20 tasks pass (0 errors)
+- `pnpm lint` — ALL 9 tasks pass
+- `pnpm test` — ALL 12 unit test suites pass (458 tests across 28 files)
+- `pnpm build` — ALL 7 apps build successfully
+- E2E tests (chromium + mobile): 569 passed, 27 skipped, 0 failed
+
+### Summary
+- **15+ documentation drift issues fixed** (4 HIGH, 6 MEDIUM, 5+ LOW)
+- **All checks pass**: typecheck, lint, unit tests, build, E2E
+
 ## 2026-04-14 — Iteration 43: Documentation Drift Fixes, Dependency Upgrade
 
 ### Documentation Drift Fixes (14 issues from comprehensive audit)

@@ -61,6 +61,22 @@ interface DataAdapter {
      * Used by components that need direct filesystem access.
      */
     getContentPath(): string;
+
+    /**
+     * Pull latest changes from the remote data source.
+     * For GitAdapter: git fetch + fast-forward merge.
+     * For FilesystemAdapter: checks file mtimes for changes.
+     * @returns `true` if content changed, `false` if already up-to-date
+     */
+    refresh(): Promise<boolean>;
+
+    /**
+     * Get the current HEAD reference for cheap change detection.
+     * For GitAdapter: returns the current commit SHA.
+     * For FilesystemAdapter: returns a hash of file mtimes.
+     * @returns Reference string, or null if unavailable
+     */
+    getHeadRef(): Promise<string | null>;
 }
 
 interface AdapterConfig {
