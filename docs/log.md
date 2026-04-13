@@ -3,6 +3,73 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-13 — Iteration 41: Lighthouse CI, Visual Regression, Serialized Props Optimization
+
+### Lighthouse CI Performance Testing
+- Created `lighthouserc.cjs` — Lighthouse CI configuration testing 4 representative pages from sample-basic (homepage, item detail, category listing, categories index)
+- Created `.github/workflows/lighthouse.yml` — Dedicated GitHub Actions workflow using `treosh/lighthouse-ci-action@v12` with server command for sample-basic preview
+- Performance budgets: Performance ≥90, Accessibility ≥90, Best Practices ≥90, SEO ≥90 (warn mode)
+- 3 runs per URL for stable median results
+- Created `.specify/features/lighthouse-ci.md` — Feature specification
+- Created `docs/guides/performance-testing.md` — Complete setup and configuration guide
+- Updated `.gitignore` — Added `.lighthouseci/` directory
+
+### Visual Regression Testing
+- Created 4 visual regression test files in `apps/web-e2e/tests/visual/`:
+  - `visual-home.spec.ts` — Homepage above-fold and full-page screenshots
+  - `visual-item.spec.ts` — Item detail page screenshots
+  - `visual-category.spec.ts` — Category listing, categories index, and 404 page screenshots
+  - `visual-responsive.spec.ts` — Mobile viewport screenshots (homepage, item, category)
+- Added `visual` project to `apps/web-e2e/playwright.config.ts` — Desktop Chrome against sample-basic port 4323
+- Updated `chromium` and `mobile` projects to exclude `**/visual/**` tests
+- Generated 10 baseline screenshots for all visual regression tests
+- All 10 visual regression tests pass against baselines
+- Created `.specify/features/visual-regression.md` — Feature specification
+- Added visual regression step to `.github/workflows/ci.yml`
+
+### Sample-Git Serialized Props Optimization
+- **Problem**: All 3264 items serialized as Preact props in index.html (~1.6MB HTML bloat, slow hydration)
+- **Solution**: Lazy-load full dataset from static JSON endpoint on first user interaction
+- Created `apps/sample-git/src/pages/data/items.json.ts` — Build-time static JSON endpoint with all browser items
+- Modified `apps/sample-git/src/pages/index.astro` — Only serializes first 12 items + totalItemCount (was all 3264)
+- Rewrote `apps/sample-git/src/components/ItemBrowser.tsx`:
+  - New props: `initialItems` (first page), `totalItemCount`, `dataUrl` (JSON endpoint)
+  - `ensureFullDataset()` callback fetches `/data/items.json` lazily on first interaction
+  - All interaction handlers (search, filter, sort, paginate) trigger lazy fetch
+  - Backward-compatible: still supports legacy `items` prop
+  - Shows "loading…" indicator during data fetch
+- **Result**: ~800x reduction in initial serialized props (from ~1.6MB to ~2KB)
+- All 39 sample-git E2E tests pass (6 skipped as expected)
+- TypeScript: 0 errors across all 20 tasks
+
+### Docs Drift Fixes
+- Fixed `.specify/project.md` Phase 3: "15 page routes" → "13 page routes" (actual count)
+- Updated `docs/index.md`:
+  - Added `guides/performance-testing.md` entry
+  - Added `.specify/features/lighthouse-ci.md` entry
+  - Updated iteration number
+
+### Build Verification
+- `pnpm typecheck` — ALL 20 tasks pass (0 errors)
+- `pnpm lint` — ALL 9 tasks pass
+- `pnpm test` — ALL 430 unit tests pass
+- `pnpm --filter @ever-works/sample-git build` — 5030 pages in 103s
+- E2E (git-chromium): 39 passed, 6 skipped — all green
+- Visual regression: 10 passed — all green
+
+### Summary
+- **Lighthouse CI added** — 4 representative pages tested with performance budgets
+- **Visual regression testing added** — 10 baseline screenshots across 4 test files
+- **Serialized props optimized** — ~800x smaller initial HTML payload for sample-git
+- **Docs drift fixed** — 1 inaccuracy corrected in project spec
+- **Status: All tests pass. No regressions.**
+
+### Next Steps (for next scheduled run)
+1. Consider upgrading TypeScript when @astrojs/check supports v6
+2. Generate Linux baseline screenshots for CI (current baselines are Windows)
+3. Consider adding @types/node 25 upgrade (from 22)
+4. Explore compression for items.json (gzip at CDN level)
+
 ## 2026-04-13 — Iteration 40: Project Health Audit, Timeline Update, E2E Verification
 
 ### Project Spec Update

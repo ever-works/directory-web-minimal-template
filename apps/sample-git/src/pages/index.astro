@@ -18,17 +18,28 @@ const jsonLd = generateJsonLd('WebSite', {
     url: config.app_url ?? '',
 });
 
-// Serialize items for the Preact island (only needed fields)
-const browserItems = items.map((item) => ({
-    slug: item.slug,
-    name: item.name,
-    description: item.description,
-    category: item.category,
-    tags: item.tags,
-    featured: item.featured,
-    icon_url: item.icon_url,
-    updated_at: item.updated_at,
-}));
+// Only serialize the first page of items for fast initial render.
+// The full dataset is available at /data/items.json and loaded lazily
+// by ItemBrowser on first user interaction (search, filter, sort, paginate).
+const PER_PAGE = 12;
+const browserItems = items
+    .sort((a, b) => {
+        if (a.featured && !b.featured) return -1;
+        if (!a.featured && b.featured) return 1;
+        return a.name.localeCompare(b.name);
+    })
+    .slice(0, PER_PAGE)
+    .map((item) => ({
+        slug: item.slug,
+        name: item.name,
+        description: item.description,
+        category: item.category,
+        tags: item.tags,
+        featured: item.featured,
+        icon_url: item.icon_url,
+        updated_at: item.updated_at,
+    }));
+const totalItemCount = items.length;
 
 // Filter out categories and tags with no items, include counts
 const activeCategories = categories
@@ -61,10 +72,12 @@ const activeTags = tags
     <!-- Single interactive island: categories, tags, search, sort, items, pagination -->
     <ItemBrowser
         client:load
-        items={browserItems}
+        initialItems={browserItems}
+        totalItemCount={totalItemCount}
         categories={activeCategories}
         tags={activeTags}
         itemsName={config.items_name}
-        perPage={12}
+        perPage={PER_PAGE}
+        dataUrl="/data/items.json"
     />
 </BaseLayout>

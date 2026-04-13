@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-13 (Iteration 40: Project health audit, timeline update, E2E verification)
+> Updated: 2026-04-13 (Iteration 41: Lighthouse CI, serialized props optimization, visual regression testing)
 
 ## Root Documents
 
@@ -72,6 +72,7 @@ slug: /
 - **features/sample-jobs.md** — Sample Jobs (job board directory) spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/sample-jobs.md))
 - **features/sample-events.md** — Sample Events (conferences/meetups directory) spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/sample-events.md))
 - **features/sample-real-estate.md** — Sample Real Estate (property listings directory) spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/sample-real-estate.md))
+- **features/lighthouse-ci.md** — Lighthouse CI performance testing spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/lighthouse-ci.md))
 
 ## Guides
 
@@ -84,6 +85,7 @@ slug: /
 - [guides/interactive-components.md](guides/interactive-components.md) — How to use Preact interactive islands (search, filter, sort, theme, back-to-top)
 - [guides/content-sync.md](guides/content-sync.md) — Content sync setup (webhooks, polling, ISR)
 - [guides/deployment.md](guides/deployment.md) — How to deploy to Vercel and other static hosts
+- [guides/performance-testing.md](guides/performance-testing.md) — Lighthouse CI performance testing setup and configuration
 - [guides/troubleshooting.md](guides/troubleshooting.md) — Common issues and solutions
 
 ## Reference

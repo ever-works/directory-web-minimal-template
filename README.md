@@ -53,7 +53,7 @@ pnpm dev:web
 ```
 apps/
   web/                Astro static site (core template)
-  web-e2e/            Playwright E2E tests (~293 test cases, 42 spec files, 5 sample projects)
+  web-e2e/            Playwright E2E tests (~303 test cases, 46 spec files, 6 projects incl. visual regression)
   docs/               Docusaurus documentation site
   sample-basic/       Reference: React UI Components (hardcoded data)
   sample-jobs/        Reference: Remote Tech Jobs directory
@@ -90,7 +90,7 @@ packages/
 | `pnpm lint` | Lint all packages |
 | `pnpm typecheck` | Type-check all packages |
 | `pnpm test` | Run all unit tests — 430 tests, 12 suites (Vitest) |
-| `pnpm test:e2e` | Run E2E tests — 293 tests, 42 specs, 5 projects (Playwright) |
+| `pnpm test:e2e` | Run E2E tests — ~303 tests, 46 specs, 6 projects (Playwright) |
 | `pnpm clean` | Clean all build artifacts |
 
 ## Samples

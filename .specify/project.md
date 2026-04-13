@@ -59,7 +59,7 @@ A minimal, static-rendered Astro template for AI-generated directory websites. L
 |-------|-------------|--------|
 | Phase 1 | Foundation: monorepo, types, data layer, adapters | Complete |
 | Phase 2 | Headless UI components (24 Astro + 8 Preact) | Complete |
-| Phase 3 | Astro web app with all 15 page routes | Complete |
+| Phase 3 | Astro web app with all 13 page routes | Complete |
 | Phase 4 | Built-in plugins (SEO, pagination, filters, search, sort, sitemap, breadcrumbs) | Complete |
 | Phase 5 | Sample implementations (basic, jobs, events, real-estate, git) | Complete |
 | Phase 6 | Deployment, CI/CD, docs site, E2E tests | Complete |

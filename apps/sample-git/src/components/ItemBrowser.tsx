@@ -2,6 +2,12 @@
  * ItemBrowser — Interactive Preact island with collapsible category/tag
  * filters, search, sort, and pagination.
  *
+ * **Lazy-loading optimization**: Receives only the first page of items
+ * as serialized props for fast initial render. The full dataset is
+ * fetched lazily from a static JSON endpoint on first user interaction
+ * (search, filter, sort, or page change). This reduces initial HTML
+ * payload from ~1.6MB to ~5KB for large datasets (3200+ items).
+ *
  * Uses headless components from @ever-works/ui:
  *   - SearchInput for debounced search
  *   - SortSelect for sort dropdown
@@ -9,7 +15,7 @@
  * Featured items appear first with a badge and accent background.
  * Pagination limits display to `perPage` items with prev/next controls.
  */
-import { useState, useMemo, useCallback } from 'preact/hooks';
+import { useState, useMemo, useCallback, useRef } from 'preact/hooks';
 import SearchInput from '@ever-works/ui/preact/SearchInput';
 import type { SortOption } from '@ever-works/ui';
 
@@ -37,12 +43,19 @@ interface BrowserTag {
 }
 
 interface ItemBrowserProps {
-  items: BrowserItem[];
+  /** First page of items (serialized in HTML for fast initial paint) */
+  initialItems: BrowserItem[];
+  /** Total number of items in the dataset */
+  totalItemCount: number;
   categories: BrowserCategory[];
   tags: BrowserTag[];
   itemName?: string;
   itemsName?: string;
   perPage?: number;
+  /** URL to fetch all items from (static JSON endpoint) */
+  dataUrl?: string;
+  /** @deprecated Use initialItems instead */
+  items?: BrowserItem[];
 }
 
 const SORT_LABELS: Record<SortOption, string> = {
@@ -80,12 +93,25 @@ const CAT_MAX_H = 200;  // px — ~2 rows of category cards
 const TAG_MAX_H = 80;   // px — ~2 rows of tag pills
 
 export default function ItemBrowser({
-  items,
+  initialItems,
+  totalItemCount,
   categories,
   tags,
   itemsName = 'Items',
   perPage = 12,
+  dataUrl,
+  items: legacyItems,
 }: ItemBrowserProps) {
+  // Support legacy `items` prop for backward compatibility
+  const firstPageItems = initialItems ?? legacyItems ?? [];
+  const [allItems, setAllItems] = useState<BrowserItem[] | null>(null);
+  const [isLoadingFull, setIsLoadingFull] = useState(false);
+  const fetchedRef = useRef(false);
+
+  // Use full dataset once loaded, otherwise first page only
+  const items = allItems ?? firstPageItems;
+  const totalCount = totalItemCount ?? items.length;
+
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeTags, setActiveTags] = useState<string[]>([]);
@@ -94,25 +120,46 @@ export default function ItemBrowser({
   const [catsExpanded, setCatsExpanded] = useState(false);
   const [tagsExpanded, setTagsExpanded] = useState(false);
 
+  /** Lazily fetch the full dataset from the static JSON endpoint */
+  const ensureFullDataset = useCallback(() => {
+    if (allItems || fetchedRef.current || !dataUrl) return;
+    fetchedRef.current = true;
+    setIsLoadingFull(true);
+    fetch(dataUrl)
+      .then((res) => res.json())
+      .then((data: BrowserItem[]) => {
+        setAllItems(data);
+        setIsLoadingFull(false);
+      })
+      .catch(() => {
+        fetchedRef.current = false;
+        setIsLoadingFull(false);
+      });
+  }, [allItems, dataUrl]);
+
   const handleSearch = useCallback((query: string) => {
+    ensureFullDataset();
     setSearchQuery(query);
     setCurrentPage(1);
-  }, []);
+  }, [ensureFullDataset]);
 
   const handleSortChange = useCallback((sort: SortOption) => {
+    ensureFullDataset();
     setSortBy(sort);
     setCurrentPage(1);
-  }, []);
+  }, [ensureFullDataset]);
 
   const handleCategoryClick = useCallback((catId: string) => {
+    ensureFullDataset();
     setActiveCategory((prev) => {
       const next = prev === catId ? null : catId;
       setCurrentPage(1);
       return next;
     });
-  }, []);
+  }, [ensureFullDataset]);
 
   const handleTagClick = useCallback((tagId: string) => {
+    ensureFullDataset();
     setActiveTags((prev) => {
       const next = prev.includes(tagId)
         ? prev.filter((t) => t !== tagId)
@@ -120,7 +167,7 @@ export default function ItemBrowser({
       setCurrentPage(1);
       return next;
     });
-  }, []);
+  }, [ensureFullDataset]);
 
   const filteredItems = useMemo(() => {
     let result = items;
@@ -151,10 +198,16 @@ export default function ItemBrowser({
     return result;
   }, [items, searchQuery, activeCategory, activeTags, sortBy]);
 
-  const totalPages = Math.ceil(filteredItems.length / perPage);
+  // When full dataset isn't loaded yet and no filters are active, use totalCount
+  const displayTotal = (!allItems && !hasAnyFilter()) ? totalCount : filteredItems.length;
+  const totalPages = Math.ceil((!allItems && !hasAnyFilter()) ? totalCount / perPage : filteredItems.length / perPage);
   const startIdx = (currentPage - 1) * perPage;
   const pagedItems = filteredItems.slice(startIdx, startIdx + perPage);
-  const hasFilters = searchQuery.trim() !== '' || activeCategory !== null || activeTags.length > 0;
+
+  function hasAnyFilter() {
+    return searchQuery.trim() !== '' || activeCategory !== null || activeTags.length > 0;
+  }
+  const hasFilters = hasAnyFilter();
 
   const clearAll = () => {
     setSearchQuery('');
@@ -278,9 +331,10 @@ export default function ItemBrowser({
       {/* Results count */}
       <div class="mb-4 flex items-center justify-between">
         <p class="text-sm text-gray-500 dark:text-gray-400">
-          {filteredItems.length} {itemsName.toLowerCase()}
+          {displayTotal} {itemsName.toLowerCase()}
           {hasFilters && ' (filtered)'}
           {totalPages > 1 && ` · page ${currentPage} of ${totalPages}`}
+          {isLoadingFull && ' · loading…'}
         </p>
         {hasFilters && (
           <button
@@ -367,7 +421,7 @@ export default function ItemBrowser({
           <button
             type="button"
             disabled={currentPage === 1}
-            onClick={() => setCurrentPage(currentPage - 1)}
+            onClick={() => { ensureFullDataset(); setCurrentPage(currentPage - 1); }}
             class="rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
           >
             ← Prev
@@ -394,7 +448,7 @@ export default function ItemBrowser({
                 <button
                   key={p}
                   type="button"
-                  onClick={() => setCurrentPage(p as number)}
+                  onClick={() => { ensureFullDataset(); setCurrentPage(p as number); }}
                   class={`rounded-lg px-3.5 py-2 text-sm font-medium transition-colors ${
                     currentPage === p
                       ? 'bg-brand-600 text-white dark:bg-brand-500'
@@ -410,7 +464,7 @@ export default function ItemBrowser({
           <button
             type="button"
             disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage(currentPage + 1)}
+            onClick={() => { ensureFullDataset(); setCurrentPage(currentPage + 1); }}
             class="rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
           >
             Next →

@@ -6,6 +6,7 @@ import { defineConfig, devices } from '@playwright/test';
  *
  * Projects:
  *   - chromium / mobile            → sample-basic on port 4323
+ *   - visual                        → visual regression tests on port 4323
  *   - events-chromium / events-mobile → sample-events on port 4325
  *   - jobs-chromium / jobs-mobile   → sample-jobs on port 4324
  *   - re-chromium / re-mobile       → sample-real-estate on port 4326
@@ -28,7 +29,7 @@ export default defineConfig({
         {
             name: 'chromium',
             testDir: './tests',
-            testIgnore: ['**/events/**', '**/jobs/**', '**/real-estate/**', '**/git/**'],
+            testIgnore: ['**/events/**', '**/jobs/**', '**/real-estate/**', '**/git/**', '**/visual/**'],
             use: {
                 ...devices['Desktop Chrome'],
                 baseURL: 'http://localhost:4323',
@@ -37,9 +38,19 @@ export default defineConfig({
         {
             name: 'mobile',
             testDir: './tests',
-            testIgnore: ['**/events/**', '**/jobs/**', '**/real-estate/**', '**/git/**'],
+            testIgnore: ['**/events/**', '**/jobs/**', '**/real-estate/**', '**/git/**', '**/visual/**'],
             use: {
                 ...devices['iPhone 14'],
+                baseURL: 'http://localhost:4323',
+            },
+        },
+
+        // ── visual regression (sample-basic) ──────────────
+        {
+            name: 'visual',
+            testDir: './tests/visual',
+            use: {
+                ...devices['Desktop Chrome'],
                 baseURL: 'http://localhost:4323',
             },
         },

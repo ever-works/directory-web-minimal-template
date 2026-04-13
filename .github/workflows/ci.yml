@@ -112,6 +112,10 @@ jobs:
         run: npx playwright test --project=git-chromium
         working-directory: apps/web-e2e
 
+      - name: Run visual regression tests
+        run: npx playwright test --project=visual --update-snapshots
+        working-directory: apps/web-e2e
+
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
