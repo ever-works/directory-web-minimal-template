@@ -62,6 +62,22 @@ interface DataAdapter {
      * Used when tools need direct filesystem access (e.g., Pagefind indexing).
      */
     getContentPath(): string;
+
+    /**
+     * Pull latest changes from the remote data source.
+     * For GitAdapter: git fetch + fast-forward merge via isomorphic-git.
+     * For FilesystemAdapter: checks file mtimes for changes.
+     * @returns `true` if content changed, `false` if already up-to-date
+     */
+    refresh(): Promise<boolean>;
+
+    /**
+     * Get the current HEAD reference for cheap change detection.
+     * For GitAdapter: returns the current commit SHA.
+     * For FilesystemAdapter: returns a hash of file mtimes.
+     * @returns Reference string, or null if unavailable
+     */
+    getHeadRef(): Promise<string | null>;
 }
 ```
 
@@ -81,6 +97,9 @@ interface AdapterConfig {
     /** Local filesystem path (filesystem adapter) */
     localPath?: string;
 
+    /** Clone depth for git (default: 1 for shallow clone) */
+    cloneDepth?: number;
+
     /** Additional adapter-specific options */
     [key: string]: unknown;
 }
@@ -90,17 +109,21 @@ interface AdapterConfig {
 
 ### GitAdapter (`@ever-works/adapters`)
 
-Clones a Git repository at build time using `git clone`.
+Clones a Git repository using `isomorphic-git` (pure JS, no git binary required).
 
 **Config:**
 - `repository` — GitHub HTTPS URL (required)
 - `token` — GitHub PAT for private repos (optional)
 - `branch` — Branch name (default: `'main'`)
+- `cloneDepth` — Shallow clone depth (default: `1`)
 
 **Behavior:**
-- Runs `git clone --depth 1 --single-branch --branch <branch> <url> .content/`
-- Sets up `x-access-token:<token>` auth for private repos
+- Uses `isomorphic-git` for all git operations (clone, fetch, pull, resolveRef)
+- Pure JavaScript — works in any Node.js environment including serverless
+- Sets up HTTP auth header for private repos
 - Skips clone if `.content/.git` already exists (idempotent)
+- `refresh()` fetches + fast-forward merges from remote
+- `getHeadRef()` returns current commit SHA via `resolveRef`
 - Content path: `<project-root>/.content/`
 
 ### FilesystemAdapter (`@ever-works/adapters`)

@@ -16,7 +16,7 @@ A minimal, static-rendered Astro template for AI-generated directory websites. L
 
 1. No user authentication or accounts
 2. No payment processing or subscriptions
-3. No server-side rendering (SSR)
+3. No full SSR — static-first with optional ISR via `@astrojs/vercel`
 4. No database requirements
 5. No geo/maps/location features
 6. No CRM or external service integrations

@@ -106,6 +106,7 @@ interface ContentData {
     comparisons: ComparisonData[];
     pages: PageData[];
     config: SiteConfig;
+    total: number;
 }
 ```
 

@@ -24,7 +24,10 @@ The minimal directory template follows a **layered, plugin-based architecture** 
 │  Types · Schemas · Content Reader · Config Loader   │
 ├─────────────────────────────────────────────────────┤
 │            @ever-works/adapters                      │
-│  Git Adapter · Filesystem Adapter · (future: API)   │
+│  Git Adapter (isomorphic-git) · Filesystem Adapter  │
+├─────────────────────────────────────────────────────┤
+│     @ever-works/sync · @ever-works/astro-integration │
+│  Content sync · Webhooks · ISR · Build lifecycle    │
 ├─────────────────────────────────────────────────────┤
 │              Data Repository (.content/)             │
 │  YAML Files · Categories · Tags · Collections       │
@@ -33,12 +36,13 @@ The minimal directory template follows a **layered, plugin-based architecture** 
 
 ## Layers
 
-### 1. Data Layer (`@ever-works/core` + `@ever-works/adapters`)
+### 1. Data Layer (`@ever-works/core` + `@ever-works/adapters` + `@ever-works/sync`)
 
-- **Adapters** provide raw file access (git clone, filesystem read)
+- **Adapters** provide raw file access via `isomorphic-git` (pure JS, no git binary) or filesystem
 - **Core** parses YAML, validates against TypeScript interfaces, exposes typed APIs
-- All data is loaded at build time — no runtime data fetching
-- Content is read from `.content/` directory (cloned from a git repo)
+- **Sync** orchestrates content refresh (webhooks, polling, ISR triggers)
+- **Astro Integration** (`@ever-works/astro-integration`) provides build lifecycle hooks and webhook endpoint
+- Content is pre-rendered at build time; ISR enables on-demand regeneration when content changes
 
 ### 2. Component Layer (`@ever-works/ui`)
 

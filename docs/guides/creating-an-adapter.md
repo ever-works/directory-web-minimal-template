@@ -93,6 +93,18 @@ export class MySourceAdapter implements DataAdapter {
         return this.basePath;
     }
 
+    async refresh(): Promise<boolean> {
+        // Pull latest changes from your data source.
+        // Return true if content changed, false if already up-to-date.
+        throw new Error('Not implemented');
+    }
+
+    async getHeadRef(): Promise<string | null> {
+        // Return a reference string for change detection (e.g., commit SHA, ETag).
+        // Return null if not available.
+        return null;
+    }
+
     /** Prevent path traversal attacks */
     private validatePath(path: string): void {
         if (path.includes('..') || path.startsWith('/')) {
@@ -120,10 +132,12 @@ function createAdapter(): DataAdapter {
 
 ## Checklist
 
-- [ ] Implements all `DataAdapter` methods
+- [ ] Implements all `DataAdapter` methods (including `refresh()` and `getHeadRef()`)
 - [ ] Path traversal protection in all read methods
 - [ ] Tokens/credentials never logged
 - [ ] `init()` validates configuration
 - [ ] `readFile()` throws on missing files
 - [ ] `listFiles()` returns file names only (not paths)
+- [ ] `refresh()` returns `true` on changes, `false` if up-to-date
+- [ ] `getHeadRef()` returns a stable reference for change detection
 - [ ] TypeScript strict mode passes

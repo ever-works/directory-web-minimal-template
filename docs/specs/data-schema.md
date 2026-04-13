@@ -26,6 +26,10 @@ status: "approved"                   # draft | pending | approved | rejected
 featured: true
 icon_url: "https://example.com/icon.png"
 collections: ["top-picks", "developer-tools"]
+brand: "React Hook Form"
+brand_logo_url: "https://example.com/brand-logo.png"
+images: ["https://example.com/screenshot1.png"]
+publisher: "react-hook-form"
 markdown: |
   ## Overview
   React Hook Form is a library for...
@@ -82,8 +86,11 @@ markdown: |
   name: "Top Picks"
   description: "Our favorite libraries and tools"
   icon_url: "https://example.com/star.png"
-  items: ["react-hook-form", "tanstack-table", "radix-ui"]
+  items: ["react-hook-form", "tanstack-table", "radix-ui"]   # optional
+  item_count: 3                                              # optional
   isActive: true
+  created_at: "2026-01-01"                                   # optional
+  updated_at: "2026-01-15"                                   # optional
 
 - id: "new-releases"
   slug: "new-releases"
@@ -111,6 +118,7 @@ summary: "A comparison of two popular React form libraries"
 verdict: "React Hook Form offers better performance with less re-renders"
 verdict_winner: "item_a"
 generated_at: "2026-01-10T12:00:00Z"
+sources: ["https://example.com/benchmark"]   # optional
 dimensions:
   - name: "Performance"
     item_a_summary: "Minimal re-renders, uncontrolled components"
@@ -156,10 +164,30 @@ pagination:
 settings:
   categories_enabled: true
   tags_enabled: true
+  collections_enabled: true
+  comparisons_enabled: true
+  featured_enabled: true
+
+# Custom navigation (optional)
+custom_header:
+  - label: "Blog"
+    href: "https://blog.example.com"
+    external: true
+custom_footer:
+  - label: "Privacy"
+    href: "/privacy"
+
+# Homepage display settings (optional)
+homepage:
+  hero_title: "Find the Best Components"
+  hero_description: "Browse our curated directory"
+  search_enabled: true
+  default_view: "grid"           # grid | list
+  default_sort: "featured"       # name-asc | name-desc | date-desc | featured
 ```
 
-## Minimal Fields for This Template
+## Additional Fields
 
-The minimal template only uses a subset of the full template's fields. Fields not listed above (e.g., `location`, `submitted_by`, `reviewed_by`, `promo_code`, `showSurveys`, `publisher`, `action`, `brand`, `brand_logo_url`, `images`) are available in the raw YAML but not used by any built-in component. They are passed through as `[key: string]: unknown` for custom use.
+The template explicitly types the following fields on `ItemData`: `brand`, `brand_logo_url`, `images`, `publisher`. These are used by the full Next.js template and preserved here for compatibility. Built-in components do not render them by default, but custom components can access them directly.
 
-Similarly, config fields like `auth`, `mail`, `pricing`, `payment`, `custom_hero`, `custom_header`, `custom_footer` are ignored by this template since we don't have auth, payments, or advanced customization features.
+Config fields like `auth`, `mail`, `pricing`, `payment` are ignored by this template since we don't have auth, payments, or advanced customization features. They are preserved as `[key: string]: unknown` for forward compatibility.

@@ -30,9 +30,18 @@ sidebar_label: "Change Log"
 - E2E tests (chromium): 67 passed, 5 skipped (mobile-only tests)
 - Docs site (`@ever-works/docs-minimal`) builds successfully with updated sidebar
 
+### Deep Documentation Drift Fixes (from second automated audit)
+- Fixed `docs/specs/adapter-interface.md` — Added `refresh()` and `getHeadRef()` methods to DataAdapter interface; added `cloneDepth` to AdapterConfig; updated GitAdapter description from shell `git clone` to `isomorphic-git` (HIGH: guide would cause compile failures)
+- Fixed `docs/guides/creating-an-adapter.md` — Added `refresh()` and `getHeadRef()` to example adapter template; updated checklist (HIGH: adapters built from this guide would fail to compile)
+- Fixed `docs/specs/data-schema.md` — Added `brand`, `brand_logo_url`, `images`, `publisher` to Item; added `item_count`, `created_at`, `updated_at` to Collection; added `sources` to Comparison; added `custom_header`, `custom_footer`, `homepage`, expanded `settings` to SiteConfig
+- Fixed `docs/specs/plugin-interface.md` — Added `total: number` field to ContentData
+- Fixed `docs/guides/interactive-components.md` — Added MobileMenu (8th Preact component)
+- Fixed `docs/architecture/overview.md` — Added `@ever-works/sync` and `@ever-works/astro-integration` packages to layer diagram and data layer description; updated GitAdapter to mention isomorphic-git
+- Fixed `.specify/project.md` — Updated Non-Goal "No SSR" → "No full SSR — static-first with optional ISR"
+
 ### Summary
-- **Maintenance + drift fixes**: dependency patch upgrades, 7 documentation drift fixes from automated audit
-- **All checks pass**: typecheck, lint, unit tests, build, E2E, docs build
+- **Maintenance + deep drift fixes**: dependency patch upgrades, 7 initial drift fixes + 7 additional from deep docs audit
+- **All checks pass**: typecheck, lint, unit tests, build, E2E (596 tests: 569 passed, 27 skipped), docs build
 - **No breaking changes introduced**
 
 ## 2026-04-13 — Iteration 41: Lighthouse CI, Visual Regression, Serialized Props Optimization
