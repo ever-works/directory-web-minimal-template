@@ -206,6 +206,10 @@ interface ComparisonData {
     verdict_winner?: 'item_a' | 'item_b' | 'tie';
     dimensions?: ComparisonDimension[];
     generated_at?: string;
+    /** Source URLs referenced in the comparison */
+    sources?: string[];
+    /** Long-form markdown content (from companion .md file) */
+    content?: string;
 }
 
 interface ComparisonDimension {

@@ -109,10 +109,10 @@ await adapter.init({
 ```
 
 **Implementation details:**
-- Uses `git clone --depth 1 --single-branch` for minimal clone
+- Uses `isomorphic-git` for shallow clone (pure JS, no git binary required)
 - Clones into `.content/` in the project root
 - Skips clone if `.content/.git` already exists
-- Falls back to `degit` if full git is unavailable
+- Supports `refresh()` for incremental content updates (fetch + fast-forward)
 
 ### FilesystemAdapter
 

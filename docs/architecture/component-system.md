@@ -83,8 +83,7 @@ interface ItemCardProps extends BaseComponentProps {
     showTags?: boolean;
     /** Whether to show the item description */
     showDescription?: boolean;
-    /** Custom slot for actions area */
-    actionsSlot?: unknown;
+    // Actions are provided via Astro's <slot name="actions"> mechanism, not as a prop
 }
 ```
 
