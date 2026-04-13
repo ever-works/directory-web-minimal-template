@@ -53,9 +53,27 @@ test.describe('Git SEO', () => {
     });
 
     test('should have JSON-LD ItemList on category page', async ({ page }) => {
-        // Navigate to a category with items (time-tracking-software is a major category)
-        await page.goto('/category/time-tracking-software/');
+        // Navigate to a category that has items assigned to it
+        // (time-tracking-software has 0 items; mobile-time-tracking has items)
+        await page.goto('/category/mobile-time-tracking/');
 
+        const jsonLdScripts = page.locator('script[type="application/ld+json"]');
+        const count = await jsonLdScripts.count();
+
+        let foundItemList = false;
+        for (let i = 0; i < count; i++) {
+            const content = await jsonLdScripts.nth(i).textContent();
+            if (content && content.includes('ItemList')) {
+                foundItemList = true;
+                break;
+            }
+        }
+        expect(foundItemList).toBe(true);
+    });
+
+    test('should have JSON-LD ItemList on tag page', async ({ page }) => {
+        // Use a tag that has items (1099 is a small tag in the time-tracking dataset)
+        await page.goto('/tag/1099/');
         const jsonLdScripts = page.locator('script[type="application/ld+json"]');
         const count = await jsonLdScripts.count();
 

@@ -10,7 +10,7 @@
     },
     "devDependencies": {
         "@ever-works/tsconfig": "workspace:*",
-        "@playwright/test": "^1.50.0",
+        "@playwright/test": "^1.59.0",
         "typescript": "^5.7.0"
     }
 }

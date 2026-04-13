@@ -70,4 +70,20 @@ test.describe('Real Estate SEO', () => {
         }
         expect(foundItemList).toBe(true);
     });
+
+    test('should have JSON-LD ItemList on tag page', async ({ page }) => {
+        await page.goto('/tag/downtown/');
+        const jsonLdScripts = page.locator('script[type="application/ld+json"]');
+        const count = await jsonLdScripts.count();
+
+        let foundItemList = false;
+        for (let i = 0; i < count; i++) {
+            const content = await jsonLdScripts.nth(i).textContent();
+            if (content && content.includes('ItemList')) {
+                foundItemList = true;
+                break;
+            }
+        }
+        expect(foundItemList).toBe(true);
+    });
 });
