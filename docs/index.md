@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-13 (Iteration 35: skip-to-content, mobile hamburger menu, a11y E2E tests)
+> Updated: 2026-04-13 (Iteration 36: JSON-LD ItemList, mobile menu E2E coverage, docs health fixes)
 
 ## Root Documents
 

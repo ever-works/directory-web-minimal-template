@@ -900,7 +900,7 @@ These are primarily used inside Preact islands (e.g., `ItemBrowser`, `FilterBar`
 | Category | Count | Location |
 |----------|-------|----------|
 | Astro (directory-specific) | 24 | `packages/ui/src/astro/` |
-| Preact (interactive islands) | 7 | `packages/ui/src/preact/` |
+| Preact (interactive islands) | 8 | `packages/ui/src/preact/` |
 | Primitive (Astro, from fulldev/ui) | 22 | `packages/ui/src/primitives/` |
 | Preact utilities (shadcn-style) | 5 | `packages/ui/src/components/ui/` |
-| **Total** | **58** | |
+| **Total** | **59** | |

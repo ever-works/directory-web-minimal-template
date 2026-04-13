@@ -7,6 +7,55 @@ sidebar_label: "Change Log"
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-13 — Iteration 36: JSON-LD ItemList, Mobile Menu E2E Coverage, Docs Health Fixes
+
+### JSON-LD ItemList on Category/Tag Pages
+- **`apps/web/src/pages/category/[slug].astro`** — Added JSON-LD `ItemList` structured data for category listing pages. Uses `generateJsonLd('ItemList', ...)` from `@ever-works/plugin-seo`. Only emits when items exist.
+- **`apps/web/src/pages/tag/[slug].astro`** — Same JSON-LD `ItemList` addition for tag listing pages.
+- Verified in built output: `dist/category/sample-category/index.html` and `dist/tag/sample-tag/index.html` both contain `ItemList` JSON-LD.
+
+### Mobile Menu E2E Tests for All Sample Apps
+- **`apps/web-e2e/tests/events/events-mobile-menu.spec.ts`** — NEW: 5 mobile-only tests (hamburger visible, panel opens, nav links, navigation, Escape closes)
+- **`apps/web-e2e/tests/jobs/jobs-mobile-menu.spec.ts`** — NEW: 5 mobile-only tests
+- **`apps/web-e2e/tests/real-estate/re-mobile-menu.spec.ts`** — NEW: 5 mobile-only tests
+- **`apps/web-e2e/tests/git/git-mobile-menu.spec.ts`** — NEW: 5 mobile-only tests (with hydration-aware Escape test)
+- Total: 20 new mobile menu tests across 4 sample apps
+
+### Mobile-Aware Home Page Tests (Bug Fix)
+- **`apps/web-e2e/tests/events/events-home.spec.ts`** — Fixed "should have site header with navigation" to handle mobile viewport (checks hamburger button instead of hidden desktop nav links)
+- **`apps/web-e2e/tests/jobs/jobs-home.spec.ts`** — Same mobile-aware fix
+- **`apps/web-e2e/tests/real-estate/re-home.spec.ts`** — Same mobile-aware fix
+- **`apps/web-e2e/tests/git/git-home.spec.ts`** — Same mobile-aware fix
+
+### Docs Health Fixes
+- **`docs/specs/component-catalog.md`** — Fixed Preact component count from 7 to 8 (MobileMenu was missing from summary table). Updated total from 58 to 59.
+- **`README.md`** — Updated E2E test count to "~247 test cases, 34 spec files, 5 sample projects" (was "~227 tests")
+
+### Docs Health Check Results
+- All 33+ docs files in `docs/index.md` verified to exist on disk
+- All 15 `.specify/` spec files verified
+- All 24 Astro + 8 Preact components match `docs/specs/component-catalog.md`
+- All package.json exports in `packages/ui` verified
+- AGENTS.md component listings verified accurate
+- SKILLS.md plugin listings verified accurate
+
+### Build Verification
+- `pnpm typecheck` — ALL 20 tasks pass (0 errors)
+- `pnpm lint` — ALL 9 tasks pass
+- `pnpm build` — ALL 7 apps build successfully:
+  - web (15 pages), sample-basic (42 pages), sample-jobs (36 pages)
+  - sample-events (37 pages), sample-real-estate (37 pages)
+  - sample-git (5030 pages), docs site
+- E2E tests: 135 passed for sample-basic (chromium + mobile), 79 passed for events-mobile, 64 passed for jobs+real-estate mobile, 5 passed for git mobile menu
+- Total test definitions: ~247 across 34 spec files
+
+### Next Steps (for next scheduled run)
+1. Consider upgrading TypeScript when @astrojs/check supports v6
+2. Fix pre-existing git-home.spec.ts failure: "should have category sidebar in ItemBrowser" on mobile viewport
+3. Add JSON-LD ItemList to sample app category/tag pages (currently only in web template)
+4. Consider adding a11y tests to other sample apps (currently only sample-basic)
+5. Consider adding SEO tests to other sample apps (currently only sample-basic)
+
 ## 2026-04-13 — Iteration 35: Skip-to-Content, Mobile Menu, A11y E2E Tests
 
 ### Accessibility: Skip-to-Content Link

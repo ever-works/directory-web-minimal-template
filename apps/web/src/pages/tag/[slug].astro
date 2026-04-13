@@ -6,6 +6,7 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getContent } from '../../lib/content';
+import { generateJsonLd } from '@ever-works/plugin-seo';
 import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
 import ItemGrid from '@ever-works/ui/astro/ItemGrid.astro';
 import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
@@ -31,6 +32,17 @@ const breadcrumbItems = [
     { label: 'Tags', href: '/tags' },
     { label: tag.name },
 ];
+
+// JSON-LD ItemList for tag listing
+const jsonLd = tagItems.length > 0
+    ? generateJsonLd('ItemList', {
+        type: 'ItemList',
+        items: tagItems.map((item) => ({
+            name: item.name,
+            url: `/item/${item.slug}`,
+        })),
+    })
+    : null;
 ---
 
 <BaseLayout
@@ -38,6 +50,11 @@ const breadcrumbItems = [
     description={`Browse ${tagItems.length} ${config.items_name.toLowerCase()} tagged with ${tag.name}`}
     config={config}
 >
+    {jsonLd && (
+        <Fragment slot="head">
+            <script is:inline type="application/ld+json" set:html={jsonLd} />
+        </Fragment>
+    )}
     <Breadcrumbs items={breadcrumbItems} />
 
     <section data-component="tag-page">

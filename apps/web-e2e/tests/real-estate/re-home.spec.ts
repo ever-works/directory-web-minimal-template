@@ -18,13 +18,19 @@ test.describe('Real Estate Home Page', () => {
         await expect(heading).toContainText('Dream Properties');
     });
 
-    test('should have site header with navigation', async ({ page }) => {
+    test('should have site header with navigation', async ({ page, isMobile }) => {
         await page.goto('/');
         const header = page.locator('header');
         await expect(header).toBeVisible();
         await expect(header.locator('a[href="/"]').first()).toBeVisible();
-        await expect(header.locator('a[href="/categories"]').first()).toBeVisible();
-        await expect(header.locator('a[href="/tags"]').first()).toBeVisible();
+
+        if (isMobile) {
+            const menuToggle = page.locator('[data-component="mobile-menu"] button');
+            await expect(menuToggle).toBeVisible();
+        } else {
+            await expect(header.locator('a[href="/categories"]').first()).toBeVisible();
+            await expect(header.locator('a[href="/tags"]').first()).toBeVisible();
+        }
     });
 
     test('should have site footer with copyright', async ({ page }) => {

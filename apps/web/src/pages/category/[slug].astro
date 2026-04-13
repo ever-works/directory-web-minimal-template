@@ -6,6 +6,7 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getContent } from '../../lib/content';
+import { generateJsonLd } from '@ever-works/plugin-seo';
 import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
 import ItemGrid from '@ever-works/ui/astro/ItemGrid.astro';
 import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
@@ -32,6 +33,17 @@ const breadcrumbItems = [
     { label: 'Categories', href: '/categories' },
     { label: category.name },
 ];
+
+// JSON-LD ItemList for category listing
+const jsonLd = categoryItems.length > 0
+    ? generateJsonLd('ItemList', {
+        type: 'ItemList',
+        items: categoryItems.map((item) => ({
+            name: item.name,
+            url: `/item/${item.slug}`,
+        })),
+    })
+    : null;
 ---
 
 <BaseLayout
@@ -39,6 +51,11 @@ const breadcrumbItems = [
     description={`Browse ${categoryItems.length} ${config.items_name.toLowerCase()} in ${category.name}`}
     config={config}
 >
+    {jsonLd && (
+        <Fragment slot="head">
+            <script is:inline type="application/ld+json" set:html={jsonLd} />
+        </Fragment>
+    )}
     <Breadcrumbs items={breadcrumbItems} />
 
     <section data-component="category-page">
