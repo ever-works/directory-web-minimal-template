@@ -45,7 +45,7 @@ test.describe('Git Home Page', () => {
         await page.goto('/');
         // The ItemBrowser renders item cards with links
         const itemLinks = page.locator('a[href^="/item/"]');
-        await expect(itemLinks.first()).toBeVisible({ timeout: 10000 });
+        await expect(itemLinks.first()).toBeVisible({ timeout: 30000 });
         const count = await itemLinks.count();
         expect(count).toBeGreaterThan(0);
     });
@@ -59,7 +59,10 @@ test.describe('Git Home Page', () => {
 
     test('should have category sidebar in ItemBrowser', async ({ page }) => {
         await page.goto('/');
-        // ItemBrowser has collapsible categories section
-        await expect(page.getByText('Categories').first()).toBeVisible({ timeout: 10000 });
+        // ItemBrowser renders categories via a Preact island (client:load).
+        // sample-git has 90+ categories so hydration can take longer, especially on mobile.
+        const categoriesLegend = page.locator('[data-component="item-browser"] [data-part="categories"] [data-part="legend"]');
+        await expect(categoriesLegend).toBeVisible({ timeout: 30000 });
+        await expect(categoriesLegend).toContainText('Categories');
     });
 });

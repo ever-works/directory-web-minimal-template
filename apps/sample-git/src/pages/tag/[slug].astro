@@ -5,6 +5,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BreadcrumbNav from '../../components/BreadcrumbNav.astro';
 import { getContent } from '../../lib/content';
+import { generateJsonLd } from '@ever-works/plugin-seo';
 import type { ItemData, TagData } from '@ever-works/core';
 
 export async function getStaticPaths() {
@@ -25,9 +26,25 @@ interface Props {
 
 const { tag, items } = Astro.props;
 const { config } = await getContent();
+
+// JSON-LD ItemList for tag listing
+const jsonLd = items.length > 0
+    ? generateJsonLd('ItemList', {
+        type: 'ItemList',
+        items: items.map((item) => ({
+            name: item.name,
+            url: `/item/${item.slug}`,
+        })),
+    })
+    : null;
 ---
 
 <BaseLayout title={tag.name} description={`Browse ${items.length} ${config.items_name.toLowerCase()} tagged with ${tag.name}`} config={config}>
+    {jsonLd && (
+        <Fragment slot="head">
+            <script is:inline type="application/ld+json" set:html={jsonLd} />
+        </Fragment>
+    )}
     <!-- Breadcrumbs (from plugin) -->
     <BreadcrumbNav path={Astro.url.pathname} />
 

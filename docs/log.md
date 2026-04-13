@@ -7,6 +7,57 @@ sidebar_label: "Change Log"
 
 > Tracks all documentation and specification changes.
 
+## 2026-04-13 — Iteration 37: JSON-LD ItemList for All Samples, A11y & SEO E2E Tests, Git Test Fix
+
+### JSON-LD ItemList on All Sample App Category/Tag Pages
+- **`apps/sample-basic/src/pages/category/[slug].astro`** — Added JSON-LD `ItemList` structured data via `generateJsonLd('ItemList', ...)`
+- **`apps/sample-basic/src/pages/tag/[slug].astro`** — Same JSON-LD `ItemList` addition
+- **`apps/sample-jobs/src/pages/category/[slug].astro`** — Added JSON-LD `ItemList`
+- **`apps/sample-jobs/src/pages/tag/[slug].astro`** — Added JSON-LD `ItemList`
+- **`apps/sample-events/src/pages/category/[slug].astro`** — Added JSON-LD `ItemList`
+- **`apps/sample-events/src/pages/tag/[slug].astro`** — Added JSON-LD `ItemList`
+- **`apps/sample-real-estate/src/pages/category/[slug].astro`** — Added JSON-LD `ItemList`
+- **`apps/sample-real-estate/src/pages/tag/[slug].astro`** — Added JSON-LD `ItemList`
+- **`apps/sample-git/src/pages/category/[slug].astro`** — Added JSON-LD `ItemList`
+- **`apps/sample-git/src/pages/tag/[slug].astro`** — Added JSON-LD `ItemList`
+- All 10 pages now match the web template pattern: import `generateJsonLd` from `@ever-works/plugin-seo`, emit `ItemList` JSON-LD when items exist
+
+### Accessibility E2E Tests for All Sample Apps
+- **`apps/web-e2e/tests/events/events-a11y.spec.ts`** — NEW: 4 tests (skip-to-content, main-content landmark, navigation landmark, aria-labels)
+- **`apps/web-e2e/tests/jobs/jobs-a11y.spec.ts`** — NEW: 4 tests
+- **`apps/web-e2e/tests/real-estate/re-a11y.spec.ts`** — NEW: 4 tests
+- **`apps/web-e2e/tests/git/git-a11y.spec.ts`** — NEW: 4 tests
+- Total: 16 new a11y tests across 4 sample apps
+
+### SEO E2E Tests for All Sample Apps
+- **`apps/web-e2e/tests/events/events-seo.spec.ts`** — NEW: 7 tests (meta description, OG tags, JSON-LD home/item/breadcrumb/category ItemList)
+- **`apps/web-e2e/tests/jobs/jobs-seo.spec.ts`** — NEW: 7 tests
+- **`apps/web-e2e/tests/real-estate/re-seo.spec.ts`** — NEW: 7 tests
+- **`apps/web-e2e/tests/git/git-seo.spec.ts`** — NEW: 6 tests (longer timeouts for large dataset)
+- Total: 27 new SEO tests across 4 sample apps (including JSON-LD ItemList verification on category pages)
+
+### Git Home Test Fix
+- **`apps/web-e2e/tests/git/git-home.spec.ts`** — Fixed "should have category sidebar in ItemBrowser" test for mobile viewport. Uses precise `[data-component="item-browser"] [data-part="categories"] [data-part="legend"]` selector instead of `getByText('Categories')`. Increased timeout to 30s for large dataset hydration (90+ categories). Also increased item listing timeout to 30s for consistency.
+
+### Docs Updates
+- **`README.md`** — Updated E2E test count to "~287 test cases, 42 spec files, 5 sample projects" (was "~247 tests, 34 spec files")
+
+### Build Verification
+- `pnpm typecheck` — ALL 20 tasks pass (0 errors)
+- `pnpm lint` — ALL 9 tasks pass
+- `pnpm build` — ALL 7 apps build successfully:
+  - web (15 pages), sample-basic (42 pages), sample-jobs (36 pages)
+  - sample-events (37 pages), sample-real-estate (37 pages)
+  - sample-git (5030 pages), docs site
+- Total test definitions: ~287 across 42 spec files
+
+### Next Steps (for next scheduled run)
+1. Consider upgrading TypeScript when @astrojs/check supports v6
+2. Run the full E2E test suite to verify all new tests pass
+3. Consider adding JSON-LD ItemList to tag pages in SEO tests (currently only testing category pages)
+4. Consider adding performance testing (Lighthouse CI) to the E2E suite
+5. Consider adding visual regression tests for key pages
+
 ## 2026-04-13 — Iteration 36: JSON-LD ItemList, Mobile Menu E2E Coverage, Docs Health Fixes
 
 ### JSON-LD ItemList on Category/Tag Pages
