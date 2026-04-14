@@ -3,6 +3,47 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-14 — Iteration 55: Preact Component Rendering Tests, MobileMenu Ref Fix
+
+### Feature: Preact Component Rendering Tests with jsdom
+- **Created**: `packages/ui/src/__tests__/setup.ts` — Vitest setup file for Preact component tests (cleanup, localStorage mock, matchMedia mock, scrollTo mock)
+- **Updated**: `packages/ui/vitest.config.ts` — Added jsdom environment, tsx test file support, Preact alias configuration, setup file
+- **Installed**: `@testing-library/preact` and `jsdom` as dev dependencies in `@ever-works/ui`
+- **Created**: 7 new test files with 67 total tests:
+  - `__tests__/preact/sort-select.test.tsx` — 7 tests (rendering, options, selection, onChange callback, labels)
+  - `__tests__/preact/theme-toggle.test.tsx` — 9 tests (toggle, localStorage persistence, dark class, data-theme attribute)
+  - `__tests__/preact/layout-switcher.test.tsx` — 10 tests (modes, radiogroup, switching, localStorage persist/restore)
+  - `__tests__/preact/search-input.test.tsx` — 9 tests (debounce, clear button, Escape key, accessibility)
+  - `__tests__/preact/filter-bar.test.tsx` — 14 tests (category/tag selection, multi-select, toggle, clear all, aria-pressed)
+  - `__tests__/preact/back-to-top.test.tsx` — 6 tests (visibility threshold, scrollTo, hide on scroll back)
+  - `__tests__/preact/mobile-menu.test.tsx` — 12 tests (toggle, nav links, Escape close, body scroll lock, aria-expanded)
+- **Impact**: All 8 Preact interactive components now have rendering test coverage. UI package tests: 42 → 109 (+67 new).
+
+### Fix: MobileMenu Ref Forwarding (discovered during testing)
+- **Updated**: `packages/ui/src/preact/MobileMenu.tsx` — Fixed ref forwarding issue where Preact didn't forward `ref` through the `Button` function component (no `forwardRef`). The toggle button now uses a native `<button>` element with `buttonVariants()` styling and a callback ref (`setButtonRef`) that correctly captures the DOM element. Also added safety check in click-outside handler for cases where `buttonRef.current` may not be a DOM node.
+- **Impact**: `close()` focus restoration and click-outside detection now work correctly in all environments (browser + jsdom).
+
+### Verification
+- `pnpm typecheck` — 21/21 tasks pass (0 errors)
+- `pnpm lint` — 10/10 tasks pass
+- `pnpm test` — 14/14 tasks pass (651 total unit tests, +67 new Preact component tests)
+- `pnpm build` — 7/7 tasks pass (sample-git: 5030 pages)
+
+### Test Count Summary
+- **Unit tests**: 651 total (UI: 109 including 67 new Preact rendering tests, core: 113, adapters: 69, plugins: 67, sync: 47, plugin-seo: 43, plugin-rss: 39, plugin-filters: 37, plugin-breadcrumbs: 34, plugin-pagination: 30, plugin-sort: 22, plugin-search: 18, plugin-sitemap: 14, astro-integration: 9)
+- **E2E test files**: 56 (unchanged)
+
+### Dependencies
+- Added: `@testing-library/preact`, `jsdom` (dev deps in `@ever-works/ui`)
+- No safe minor/patch upgrades available. Known deferred: TypeScript 6.0, cspell 10, React 19, react-player 3.x (all docs-site only).
+
+### Next Steps
+1. Investigate TypeScript 6.0 upgrade feasibility
+2. Consider adding more Preact component edge case tests
+3. Investigate react-player 3.x upgrade for docs site
+
+---
+
 ## 2026-04-14 — Iteration 54: pnpm Upgrade, Q19 Complete Resolution, Documentation Health Check
 
 ### Upgrade: pnpm 10.31.0 → 10.33.0

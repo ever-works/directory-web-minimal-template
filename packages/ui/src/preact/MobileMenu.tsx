@@ -11,7 +11,7 @@
  */
 import { useState, useCallback, useEffect, useRef } from 'preact/hooks';
 import type { MobileMenuProps } from '../types.js';
-import { Button } from '../components/ui/button';
+import { buttonVariants } from '../primitives/button/button-variants';
 import { cn } from '../lib/utils';
 
 export default function MobileMenu({
@@ -21,6 +21,12 @@ export default function MobileMenu({
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // Preact doesn't forward ref through function components without forwardRef.
+  // Use a callback ref to capture the actual DOM button element.
+  const setButtonRef = useCallback((el: HTMLButtonElement | null) => {
+    (buttonRef as { current: HTMLButtonElement | null }).current = el;
+  }, []);
 
   const toggle = useCallback(() => {
     setIsOpen((prev) => !prev);
@@ -65,11 +71,12 @@ export default function MobileMenu({
 
     const handleClick = (e: MouseEvent) => {
       const target = e.target as Node;
+      const menuEl = menuRef.current;
+      const buttonEl = buttonRef.current;
       if (
-        menuRef.current &&
-        !menuRef.current.contains(target) &&
-        buttonRef.current &&
-        !buttonRef.current.contains(target)
+        menuEl &&
+        !menuEl.contains(target) &&
+        (!buttonEl || !buttonEl.contains(target))
       ) {
         close();
       }
@@ -86,16 +93,16 @@ export default function MobileMenu({
       className={cn('md:hidden', className)}
       data-component="mobile-menu"
     >
-      <Button
-        ref={buttonRef}
+      <button
+        ref={setButtonRef}
         type="button"
-        variant="ghost"
-        size="icon"
         onClick={toggle}
         aria-expanded={isOpen}
         aria-controls="mobile-nav-panel"
         aria-label={isOpen ? 'Close menu' : 'Open menu'}
         data-part="toggle"
+        data-slot="button"
+        className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }))}
       >
         {isOpen ? (
           <svg
@@ -131,7 +138,7 @@ export default function MobileMenu({
             <line x1="4" x2="20" y1="18" y2="18" />
           </svg>
         )}
-      </Button>
+      </button>
 
       {isOpen && (
         <div

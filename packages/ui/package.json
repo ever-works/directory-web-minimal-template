@@ -37,7 +37,9 @@
     },
     "devDependencies": {
         "@ever-works/tsconfig": "workspace:*",
+        "@testing-library/preact": "^3.2.4",
         "astro": "^6.1.6",
+        "jsdom": "^29.0.2",
         "preact": "^10.29.1",
         "typescript": "^5.9.3",
         "vitest": "^4.1.4"
