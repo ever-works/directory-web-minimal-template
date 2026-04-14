@@ -7,7 +7,7 @@
  *
  * Usage:
  * ```astro
- * <ItemBrowser client:load items={items} categories={categories} tags={tags} />
+ * <ItemBrowser client:load initialItems={items} totalItemCount={items.length} categories={categories} tags={tags} />
  * ```
  */
 import { useState, useMemo, useCallback } from 'preact/hooks';
@@ -38,7 +38,8 @@ interface BrowserTag {
 }
 
 interface ItemBrowserProps {
-  items: BrowserItem[];
+  initialItems: BrowserItem[];
+  totalItemCount?: number;
   categories: BrowserCategory[];
   tags: BrowserTag[];
   itemName?: string;
@@ -67,7 +68,7 @@ function sortItems(items: BrowserItem[], sort: SortOption): BrowserItem[] {
 }
 
 export default function ItemBrowser({
-  items,
+  initialItems: items,
   categories,
   tags,
   itemsName = 'Items',

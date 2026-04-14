@@ -33,7 +33,8 @@ interface BrowserTag {
 }
 
 interface ItemBrowserProps {
-  items: BrowserItem[];
+  initialItems: BrowserItem[];
+  totalItemCount?: number;
   categories: BrowserCategory[];
   tags: BrowserTag[];
   itemName?: string;
@@ -62,7 +63,7 @@ function sortItems(items: BrowserItem[], sort: SortOption): BrowserItem[] {
 }
 
 export default function ItemBrowser({
-  items,
+  initialItems: items,
   categories,
   tags,
   itemsName = 'Events',

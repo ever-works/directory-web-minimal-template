@@ -3,6 +3,30 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-14 — Iteration 49: Unified ItemBrowser API, Dev Script Shortcuts
+
+### Fix: Unified ItemBrowser Prop API
+- **Updated**: All 5 sample apps (`sample-basic`, `sample-events`, `sample-jobs`, `sample-real-estate`, `sample-git`) — ItemBrowser components now use consistent `initialItems` + `totalItemCount` props instead of deprecated `items` prop
+- **Removed**: Deprecated `items` prop from `sample-git` ItemBrowser — all callers already use `initialItems`
+- **Updated**: ItemBrowser interfaces in all sample apps to accept `initialItems: BrowserItem[]` and optional `totalItemCount?: number`
+- **Impact**: Consistent API across all sample apps, no more deprecation warnings in typecheck
+
+### Fix: Missing Root Dev Scripts
+- **Added**: Root-level dev shortcuts in `package.json`:
+  - `pnpm dev:sample-basic` → port 4323
+  - `pnpm dev:sample-events` → port 4325
+  - `pnpm dev:sample-jobs` → port 4324
+  - `pnpm dev:sample-real-estate` → port 4326
+- **Impact**: All sample apps now have root-level turbo dev shortcuts, matching documentation
+
+### Health Verification
+- `pnpm typecheck` — 20/20 tasks pass, 0 errors, 0 warnings, 0 hints
+- `pnpm build` — 7/7 tasks pass
+- `pnpm test` — 12/12 unit test tasks pass
+- E2E tests (chromium project) — 76 passed, 5 skipped
+- E2E tests (git-chromium project) — 46 passed, 6 skipped
+- Documentation accuracy audit — 98.5% accurate, fixed remaining drift
+
 ## 2026-04-14 — Iteration 48: Article JSON-LD, Dependency Upgrades, Health Verification
 
 ### Feature: Article JSON-LD Structured Data for Static Pages

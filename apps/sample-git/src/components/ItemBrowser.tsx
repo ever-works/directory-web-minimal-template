@@ -54,8 +54,6 @@ interface ItemBrowserProps {
   perPage?: number;
   /** URL to fetch all items from (static JSON endpoint) */
   dataUrl?: string;
-  /** @deprecated Use initialItems instead */
-  items?: BrowserItem[];
 }
 
 const SORT_LABELS: Record<SortOption, string> = {
@@ -100,10 +98,8 @@ export default function ItemBrowser({
   itemsName = 'Items',
   perPage = 12,
   dataUrl,
-  items: legacyItems,
 }: ItemBrowserProps) {
-  // Support legacy `items` prop for backward compatibility
-  const firstPageItems = initialItems ?? legacyItems ?? [];
+  const firstPageItems = initialItems ?? [];
   const [allItems, setAllItems] = useState<BrowserItem[] | null>(null);
   const [isLoadingFull, setIsLoadingFull] = useState(false);
   const fetchedRef = useRef(false);

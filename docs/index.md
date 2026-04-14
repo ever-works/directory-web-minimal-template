@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-14 (Iteration 48: Article JSON-LD for static pages, dependency upgrades)
+> Updated: 2026-04-14 (Iteration 49: Unified ItemBrowser API, dev script shortcuts)
 
 ## Root Documents
 

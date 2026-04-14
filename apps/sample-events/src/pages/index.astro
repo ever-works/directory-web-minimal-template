@@ -29,6 +29,7 @@ const browserItems = items.map((item) => ({
     icon_url: item.icon_url,
     updated_at: item.updated_at,
 }));
+const totalItemCount = items.length;
 
 const browserCategories = categories.map((cat) => ({
     id: cat.id,
@@ -131,7 +132,8 @@ function getMetaLocation(item: typeof items[number]): string | undefined {
         </h2>
         <ItemBrowser
             client:load
-            items={browserItems}
+            initialItems={browserItems}
+            totalItemCount={totalItemCount}
             categories={browserCategories}
             tags={browserTags}
             itemsName={config.items_name}
