@@ -3,7 +3,38 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
-## 2026-04-14 — Iteration 44: Documentation Drift Audit, Test Count Updates
+## 2026-04-14 — Iteration 45: Code Quality, SEO, Documentation Accuracy
+
+### Documentation Drift Fixes
+- Fixed `.specify/project.md` test counts: corrected from "569 E2E" to actual 303, from "458 unit" to actual 430
+- Updated iteration number to 45
+
+### Code Quality Improvements
+- `packages/adapters/src/filesystem-adapter.ts` — Narrowed overly broad `catch {}` in `walkDir()` to only catch ENOENT (missing directory) errors; re-throws real errors (permissions, disk) instead of silently swallowing them
+- `packages/ui/src/astro/ItemDetail.astro` — Added safety comment documenting that `set:html` is safe here because content comes from trusted git-backed YAML, not runtime user input
+- `packages/ui/src/astro/ComparisonTable.astro` — Same safety documentation for `set:html` usage
+
+### SEO: JSON-LD Structured Data on Comparison Pages
+- `apps/web/src/pages/comparison/[slug].astro` — Added JSON-LD ItemList for comparison contestants
+- `apps/sample-basic/src/pages/comparison/[slug].astro` — Added JSON-LD ItemList
+- `apps/sample-events/src/pages/comparison/[slug].astro` — Added JSON-LD ItemList
+- `apps/sample-jobs/src/pages/comparison/[slug].astro` — Added JSON-LD ItemList
+- `apps/sample-real-estate/src/pages/comparison/[slug].astro` — Added JSON-LD ItemList
+- `apps/sample-git/src/pages/comparison/[slug].astro` — Added JSON-LD ItemList
+
+### Dependency Audit
+- Verified all core dependencies at latest compatible versions (Astro 6.1.6, TS 5.9.3, Playwright 1.59.1)
+- TypeScript 6.0 not yet compatible with `@astrojs/check` and `tsconfck` (peer dep conflict) — staying on TS 5.9.x
+- `@types/node` 25 is major bump — staying on 22.x for stability
+
+### Build Verification
+- `pnpm typecheck` — ALL 20 tasks pass (0 errors)
+- `pnpm build` — ALL 7 apps build successfully
+- `pnpm test` — ALL 430 unit tests pass across 12 suites
+- `pnpm lint` — ALL 9 lint tasks pass
+- E2E: 67 passed + 5 skipped in chromium project (sample-basic)
+
+
 
 ### Documentation Drift Fixes (15 issues from comprehensive audit)
 

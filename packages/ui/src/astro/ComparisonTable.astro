@@ -67,6 +67,7 @@ const { comparison, showScores = true, class: className, ...attrs } = Astro.prop
         </footer>
     )}
 
+    {/* Content is pre-rendered from trusted git-backed YAML; no runtime user input. Safe for set:html. */}
     {comparison.content && (
         <div data-part="content" class="prose dark:prose-invert mt-6 max-w-none" set:html={comparison.content} />
     )}

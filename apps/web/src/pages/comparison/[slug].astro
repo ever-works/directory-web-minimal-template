@@ -6,6 +6,7 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getContent } from '../../lib/content';
+import { generateJsonLd } from '@ever-works/plugin-seo';
 import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
 import ComparisonTable from '@ever-works/ui/astro/ComparisonTable.astro';
 
@@ -25,6 +26,15 @@ const breadcrumbItems = [
     { label: 'Comparisons', href: '/comparisons' },
     { label: comparison.title },
 ];
+
+// JSON-LD ItemList for comparison contestants
+const jsonLd = generateJsonLd('ItemList', {
+    type: 'ItemList',
+    items: [
+        { name: comparison.item_a_name, url: `/item/${comparison.item_a_slug}` },
+        { name: comparison.item_b_name, url: `/item/${comparison.item_b_slug}` },
+    ],
+});
 ---
 
 <BaseLayout
@@ -32,6 +42,9 @@ const breadcrumbItems = [
     description={comparison.summary || `Compare ${comparison.item_a_name} vs ${comparison.item_b_name}`}
     config={config}
 >
+    <Fragment slot="head">
+        <script is:inline type="application/ld+json" set:html={jsonLd} />
+    </Fragment>
     <Breadcrumbs items={breadcrumbItems} />
 
     <ComparisonTable comparison={comparison} showScores />

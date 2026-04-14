@@ -83,6 +83,7 @@ const categories = Array.isArray(item.category) ? item.category : [item.category
             <>
                 <Separator />
                 <CardContent>
+                    {/* Content is pre-rendered from trusted git-backed YAML; no runtime user input. Safe for set:html. */}
                     <div data-part="content" class="prose dark:prose-invert max-w-none" set:html={item.markdown} />
                 </CardContent>
             </>

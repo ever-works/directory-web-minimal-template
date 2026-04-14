@@ -7,6 +7,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BreadcrumbNav from '../../components/BreadcrumbNav.astro';
 import { getContent } from '../../lib/content';
+import { generateJsonLd } from '@ever-works/plugin-seo';
 import type { ComparisonData } from '@ever-works/core';
 
 export async function getStaticPaths() {
@@ -23,6 +24,15 @@ interface Props {
 
 const { comparison } = Astro.props;
 const { config } = await getContent();
+
+// JSON-LD ItemList for comparison contestants
+const jsonLd = generateJsonLd('ItemList', {
+    type: 'ItemList',
+    items: [
+        { name: comparison.item_a_name, url: `/item/${comparison.item_a_slug}` },
+        { name: comparison.item_b_name, url: `/item/${comparison.item_b_slug}` },
+    ],
+});
 ---
 
 <BaseLayout
@@ -30,6 +40,9 @@ const { config } = await getContent();
     description={comparison.summary || `Compare ${comparison.item_a_name} vs ${comparison.item_b_name}`}
     config={config}
 >
+    <Fragment slot="head">
+        <script is:inline type="application/ld+json" set:html={jsonLd} />
+    </Fragment>
     <!-- Breadcrumbs (from plugin) -->
     <BreadcrumbNav path={Astro.url.pathname} />
 

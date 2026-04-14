@@ -229,8 +229,12 @@ export class FilesystemAdapter implements DataAdapter {
                     await this.walkDir(fullPath, snapshot);
                 }
             }
-        } catch {
-            // Directory may not exist yet, ignore
+        } catch (error: unknown) {
+            // Only ignore ENOENT (directory not found); re-throw real errors
+            if (error instanceof Error && 'code' in error && (error as NodeJS.ErrnoException).code === 'ENOENT') {
+                return;
+            }
+            throw error;
         }
     }
 
