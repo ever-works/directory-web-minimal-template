@@ -3,6 +3,48 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-14 — Iteration 54: pnpm Upgrade, Q19 Complete Resolution, Documentation Health Check
+
+### Upgrade: pnpm 10.31.0 → 10.33.0
+- **Updated**: `package.json` — `packageManager` field updated to `pnpm@10.33.0` with integrity hash
+- **Verified**: `pnpm install` succeeds, lockfile unchanged
+- **Impact**: Latest pnpm with bug fixes and performance improvements
+
+### Resolution: Q19-F — Unused Public Exports (INTENTIONAL)
+- **Updated**: `docs/questions.md` — Q19-F marked as INTENTIONAL
+- **Audited**: All 11 exports (`FilesystemAdapter`, `GitAdapter`, `createPluginLogger`, `generateBreadcrumbs`, `filterItems`, `parseFiltersFromUrl`, `serializeFiltersToUrl`, `sortItems`, `loadComparison`, `loadItem`, `loadPage`)
+- **Findings**: All are used internally within their packages and covered by tests. They are public API exports for package consumers (AI agents building on the template). Sample apps use higher-level abstractions (`getContent()`, `definePlugins()`) instead of these lower-level exports. Keeping them exported is correct for a template library.
+- **Impact**: Q19 is now FULLY RESOLVED — all 10 items (A-J) closed
+
+### Resolution: Q19-I — Sample Apps & Astro UI Components (BY DESIGN)
+- **Updated**: `docs/questions.md` — Q19-I marked as BY DESIGN
+- **Rationale**: The `@ever-works/ui/astro/` components are headless (unstyled) building blocks. Sample apps are AI-generated finished products with fully styled inline HTML — this is intentional to demonstrate the end-to-end customization workflow. `apps/web` (the blank canvas template) uses the headless components because it IS the template. Sample apps DO use Preact interactive components (`SearchInput`, `FilterBar`, `SortSelect`, `LayoutSwitcher`, `ThemeToggle`, `BackToTop`, `MobileMenu`) from `@ever-works/ui/preact/`.
+
+### Documentation Health Check
+- **Verified**: All 11 guide docs, 6 architecture docs, 4 spec docs exist and match `docs/index.md` links
+- **Verified**: All 24 Astro components and 8 Preact components in `@ever-works/ui` match component catalog spec
+- **Verified**: 584 unit tests across 14 packages (unchanged)
+- **Verified**: 56 E2E test files (unchanged)
+- **Verified**: All 16 packages and 8 apps directories exist per CLAUDE.md claims
+- **Verified**: Full build passes — 7/7 tasks (sample-git: 5030 pages)
+- **Verified**: TypeScript already at ^5.9.3 in all packages (docs pinned at ~5.6.3 for Docusaurus 3.x compatibility)
+
+### Verification
+- `pnpm typecheck` — 21/21 tasks pass (0 errors)
+- `pnpm lint` — 10/10 tasks pass
+- `pnpm test` — 14/14 tasks pass (584 total unit tests)
+- `pnpm build` — 7/7 tasks pass
+
+### Dependencies
+- No safe minor upgrades available. Known deferred: TypeScript 6.0, cspell 10, React 19, react-player 3.x.
+
+### Next Steps
+1. Resolve Q19-F (audit unused public exports — awaiting analysis)
+2. Add Preact component rendering tests with jsdom
+3. Investigate react-player 3.x upgrade for docs site
+
+---
+
 ## 2026-04-14 — Iteration 53: Core Logger, LayoutSwitcher in Samples, sample-git Documentation
 
 ### Feature: Structured Core Logger (Q19-H: RESOLVED)
