@@ -48,7 +48,7 @@ const config: Config = {
 					'specs/**/*.{md,mdx}',
 					'plans/**/*.{md,mdx}'
 				],
-				editUrl: 'https://github.com/ever-works/directory-web-minimal-template/tree/main/'
+				editUrl: 'https://github.com/ever-works/directory-web-minimal-template/tree/main/docs/'
 			}
 		]
 	],
