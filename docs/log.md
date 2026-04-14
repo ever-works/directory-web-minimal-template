@@ -3,6 +3,29 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-14 — Iteration 60: Documentation Accuracy Audit
+
+### Documentation Fixes
+- **Fixed docs/index.md**: Updated iteration reference from 58 → 60
+- **Fixed docs/index.md**: Updated questions reference from Q1-Q18 → Q1-Q19 (Q19 exists since iteration 54)
+- **Fixed .specify/project.md**: Updated iteration reference from 58 → 60
+- **Fixed README.md**: Corrected E2E test case count from ~569 → 364 (actual `test()` definitions across 56 spec files)
+- **Fixed docs/log.md**: Marked iteration 57 "Next Steps" #3 and #4 as DONE (visual regression and E2E coverage already implemented)
+
+### Build Verification
+- `pnpm typecheck` — ALL 21 tasks pass (0 errors)
+- `pnpm lint` — ALL 16 tasks pass
+- `pnpm test` — ALL 14 test suites pass (811 tests)
+- `pnpm build` — ALL 7 tasks pass
+- `pnpm audit` — 0 vulnerabilities
+
+### Outdated Dependencies (Deferred — docs app only)
+- `cspell` 8.19.4 → 10.0.0 (major — deferred)
+- `react` 18.3.1 → 19.2.5 (pinned for Docusaurus 3.x)
+- `react-dom` 18.3.1 → 19.2.5 (pinned for Docusaurus 3.x)
+- `react-player` 2.16.1 → 3.4.0 (major — deferred)
+- `typescript` 5.6.3 → 6.0.2 (pinned for Docusaurus 3.x)
+
 ## 2026-04-14 — Iteration 59: Security Overrides, Documentation Accuracy
 
 ### Security
@@ -96,8 +119,8 @@ sidebar_label: "Change Log"
 ### Next Steps
 1. Upgrade Docusaurus docs app TypeScript when Docusaurus supports TS 6
 2. Monitor Astro/tsconfck for TS 6 peer dependency updates
-3. Consider visual regression testing setup
-4. Explore additional E2E test coverage
+3. ~~Consider visual regression testing setup~~ — DONE (4 spec files, dedicated Playwright project)
+4. ~~Explore additional E2E test coverage~~ — DONE (56 spec files, 364 test cases)
 
 ## 2026-04-14 — Iteration 56: Test Coverage, Lint Standardization, Documentation Health
 

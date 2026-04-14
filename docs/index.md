@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-14 (Iteration 58: security fixes, E2E test quality, documentation accuracy)
+> Updated: 2026-04-14 (Iteration 60: documentation accuracy audit)
 
 ## Root Documents
 
@@ -93,5 +93,5 @@ slug: /
 
 ## Reference
 
-- [questions.md](questions.md) — Open questions and decisions (Q1-Q18 with defaults)
+- [questions.md](questions.md) — Open questions and decisions (Q1-Q19 with defaults)
 - [log.md](log.md) — Change log (all iterations tracked)
