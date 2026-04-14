@@ -11,6 +11,7 @@
         "preview": "astro preview",
         "typecheck": "astro check && tsc --noEmit",
         "lint": "eslint src/",
+        "lint:fix": "eslint src/ --fix",
         "clean": "rm -rf dist .astro"
     },
     "dependencies": {
@@ -42,6 +43,6 @@
         "@ever-works/tsconfig": "workspace:*",
         "pagefind": "^1.5.2",
         "tsx": "^4.21.0",
-        "typescript": "^5.9.3"
+        "typescript": "^6.0.2"
     }
 }

@@ -23,6 +23,7 @@
     "scripts": {
         "typecheck": "tsc --noEmit",
         "lint": "eslint src/",
+        "lint:fix": "eslint src/ --fix",
         "test": "vitest run",
         "clean": "rm -rf dist"
     },
@@ -40,10 +41,11 @@
         "@ever-works/eslint-config": "workspace:*",
         "@ever-works/tsconfig": "workspace:*",
         "@testing-library/preact": "^3.2.4",
+        "@types/node": "^25.6.0",
         "astro": "^6.1.6",
         "jsdom": "^29.0.2",
         "preact": "^10.29.1",
-        "typescript": "^5.9.3",
+        "typescript": "^6.0.2",
         "vitest": "^4.1.4"
     }
 }

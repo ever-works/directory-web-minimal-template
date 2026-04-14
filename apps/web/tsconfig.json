@@ -1,7 +1,6 @@
 {
     "extends": "@ever-works/tsconfig/astro.json",
     "compilerOptions": {
-        "baseUrl": ".",
         "paths": {
             "@/*": ["./src/*"]
         }

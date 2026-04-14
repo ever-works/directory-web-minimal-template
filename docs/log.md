@@ -3,6 +3,50 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-14 — Iteration 57: TypeScript 6.0, Test Coverage Expansion, lint:fix
+
+### TypeScript 6.0.2 Upgrade
+- **Upgraded**: TypeScript `^5.9.3` → `^6.0.2` across 21 workspace packages (all except `apps/docs` which stays on `~5.6.3` for Docusaurus 3.x compatibility)
+- **Fixed**: Added `"types": ["node"]` to `packages/tsconfig/base.json` — TS 6 requires explicit Node.js type declarations; cross-package type resolution no longer inherits `@types/node` implicitly
+- **Fixed**: Removed deprecated `baseUrl` from `apps/web/tsconfig.json` — TS 6 deprecated this option; `paths` now works without it
+- **Added**: `@types/node@^25.6.0` as devDependency to 11 packages that were missing it (ui, plugins, plugin-breadcrumbs, plugin-filters, plugin-pagination, plugin-rss, plugin-seo, plugin-sitemap, plugin-sort, astro-integration, plugin-search)
+- **Fixed**: `webhook-endpoint.test.ts` — Updated mock type casts from `as { request: Request }` to `as unknown as APIContext` for TS 6 strict type checking
+- **Note**: Peer dependency warnings from `tsconfck@3.1.6` and `@astrojs/check@0.9.8` (declare `typescript@^5.0.0`) — functional, waiting for upstream updates
+
+### Test Coverage Expansion (+120 tests)
+- **Core loaders** (+84 tests): Extended test coverage for `page-loader.ts`, `item-loader.ts`, `collection-loader.ts`, and other loaders with edge cases (empty data, missing fields, sorting, filtering, pagination boundaries)
+  - Core tests: 113 → 197
+- **Astro integration** (+36 tests): Added `sync-registry.test.ts` and `webhook-endpoint.test.ts`
+  - sync-registry: Tests for registry get/set operations, null handling, accessor functions
+  - webhook-endpoint: Tests for POST (GitHub webhook) and GET (health check) handlers, signature validation, branch filtering, ISR sync, deploy hook fallback
+  - Integration tests: 9 → 45
+
+### lint:fix Script
+- **Added**: `"lint:fix"` task to `turbo.json` (cache: false)
+- **Added**: `"lint:fix": "eslint src/ --fix"` script to 15 packages
+- **Added**: `"lint:fix"` script to root `package.json` (`turbo run lint:fix`)
+
+### Verification
+- `pnpm typecheck` — 21/21 tasks pass (0 errors)
+- `pnpm lint` — 16/16 tasks pass
+- `pnpm test` — 14/14 tasks pass (811 total unit tests, +120 from iteration 56)
+- `pnpm build` — 7/7 tasks pass (5030 pages in sample-git)
+
+### Test Count Summary
+- **Unit tests**: 811 total (+120 from iteration 56)
+  - core: 197 (+84), astro-integration: 45 (+36), ui: 109, adapters: 69, plugins: 67, sync: 62, plugin-filters: 62, plugin-seo: 43, plugin-rss: 39, plugin-breadcrumbs: 34, plugin-pagination: 30, plugin-sort: 22, plugin-search: 18, plugin-sitemap: 14
+- **E2E test files**: 56 (unchanged)
+
+### Dependencies
+- TypeScript: 5.9.3 → 6.0.2 (21 packages)
+- @types/node: added to 11 packages (^25.6.0)
+
+### Next Steps
+1. Upgrade Docusaurus docs app TypeScript when Docusaurus supports TS 6
+2. Monitor Astro/tsconfck for TS 6 peer dependency updates
+3. Consider visual regression testing setup
+4. Explore additional E2E test coverage
+
 ## 2026-04-14 — Iteration 56: Test Coverage, Lint Standardization, Documentation Health
 
 ### New Tests: resolve-config & url-sync

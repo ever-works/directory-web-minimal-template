@@ -18,7 +18,8 @@
         "noUnusedParameters": true,
         "exactOptionalPropertyTypes": false,
         "noImplicitReturns": true,
-        "noFallthroughCasesInSwitch": true
+        "noFallthroughCasesInSwitch": true,
+        "types": ["node"]
     },
     "exclude": ["node_modules", "dist"]
 }

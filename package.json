@@ -17,6 +17,7 @@
         "dev:sample-jobs": "turbo run dev --filter=@ever-works/sample-jobs",
         "dev:sample-real-estate": "turbo run dev --filter=@ever-works/sample-real-estate",
         "lint": "turbo run lint",
+        "lint:fix": "turbo run lint:fix",
         "test:e2e": "turbo run test:e2e",
         "clean": "turbo run clean",
         "format": "prettier --write \"**/*.{ts,tsx,js,jsx,md,json}\"",
