@@ -171,7 +171,7 @@ export default function ItemBrowser({
 								aria-pressed={activeCategory === cat.id}
 							>
 								{cat.name}
-								{cat.count != null && (
+								{cat.count !== null && cat.count !== undefined && (
 									<span className="ml-1 text-xs opacity-60">({cat.count})</span>
 								)}
 							</Button>
@@ -204,7 +204,7 @@ export default function ItemBrowser({
 								className="cursor-pointer"
 							>
 								{tag.name}
-								{tag.count != null && (
+								{tag.count !== null && tag.count !== undefined && (
 									<span className="ml-1 text-xs opacity-60">({tag.count})</span>
 								)}
 							</Badge>

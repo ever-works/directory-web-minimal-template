@@ -9,3 +9,4 @@ export { loadTags } from './tag-loader';
 export { loadCollections } from './collection-loader';
 export { loadItems, loadItem } from './item-loader';
 export { loadComparisons, loadComparison } from './comparison-loader';
+export { loadPages, loadPage } from './page-loader';

@@ -3,6 +3,60 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-14 — Iteration 56: Test Coverage, Lint Standardization, Documentation Health
+
+### New Tests: resolve-config & url-sync
+- **Created**: `packages/sync/src/__tests__/resolve-config.test.ts` — 15 tests for SyncConfig resolution:
+  - Default values (all 6 fields)
+  - Environment variable parsing (6 env vars: SYNC_POLL_INTERVAL_MS, SYNC_TIMEOUT_MS, SYNC_MAX_RETRIES, WEBHOOK_SECRET, VERCEL_DEPLOY_HOOK_URL, CONTENT_CACHE_TTL_MS)
+  - Invalid environment values (non-numeric fallback to defaults)
+  - Explicit overrides (precedence over env and defaults)
+  - Priority order verification (override > env > default)
+- **Created**: `packages/plugin-filters/src/__tests__/url-sync.test.ts` — 25 tests for URL sync utilities:
+  - `parseFiltersFromUrl` — empty params, single/comma-separated categories/tags, search query, whitespace trimming, empty segments, custom param names
+  - `serializeFiltersToUrl` — empty filters, single/multiple values, omit whitespace-only search, custom param names
+  - Round-trip serialization (parse(serialize(filters)) === filters, custom params, empty filters)
+- **Impact**: Sync tests: 47 → 62 (+15), Filter tests: 37 → 62 (+25)
+
+### Fix: Loaders Barrel Export
+- **Updated**: `packages/core/src/loaders/index.ts` — Added missing `loadPages` and `loadPage` re-exports from `page-loader.ts`
+- **Impact**: `import { loadPages } from '@ever-works/core/loaders'` now works correctly
+
+### Fix: ItemBrowser Strict Equality
+- **Updated**: `packages/ui/src/preact/ItemBrowser.tsx` — Replaced 2 loose equality checks (`!=`) with strict equality (`!== null && !== undefined`) to satisfy ESLint `eqeqeq` rule
+
+### Lint Standardization Across All Packages
+- **Created**: `eslint.config.js` in 6 packages (core, adapters, plugins, sync, astro-integration, ui) — each imports shared `@ever-works/eslint-config`
+- **Updated**: 6 `package.json` files — added `"lint": "eslint src/"` script and `@ever-works/eslint-config` dev dependency
+- **Fixed**: `packages/adapters/src/__tests__/git-adapter.test.ts` — Added `eslint-disable @typescript-eslint/no-explicit-any` for legitimate test mock types
+- **Impact**: Lint tasks: 10 → 16 (all 16 packages now have consistent lint scripts)
+
+### Documentation Drift Fixes
+- **Updated**: `docs/questions.md` (Q11) — Fixed interactive component count from 5 to 8 (added LayoutSwitcher, ItemBrowser, MobileMenu)
+- **Updated**: `docs/index.md` — Added missing `features/visual-regression.md` spec entry
+- **Updated**: `docs/log.md` — This entry
+
+### Verification
+- `pnpm typecheck` — 21/21 tasks pass (0 errors)
+- `pnpm lint` — 16/16 tasks pass (was 10, +6 new packages)
+- `pnpm test` — 14/14 tasks pass (691 total unit tests, +40 new)
+- `pnpm build` — 7/7 tasks pass
+
+### Test Count Summary
+- **Unit tests**: 691 total (+40 from iteration 55)
+  - core: 113, ui: 109, adapters: 69, plugins: 67, sync: 62 (+15), plugin-filters: 62 (+25), plugin-seo: 43, plugin-rss: 39, plugin-breadcrumbs: 34, plugin-pagination: 30, plugin-sort: 22, plugin-search: 18, plugin-sitemap: 14, astro-integration: 9
+- **E2E test files**: 56 (unchanged)
+
+### Dependencies
+- No new external dependencies added
+- `@ever-works/eslint-config` added as devDependency to 6 packages (workspace link only)
+
+### Next Steps
+1. Add tests for astro-integration (integration.ts, sync-registry.ts, webhook-endpoint.ts)
+2. Check for dependency updates
+3. Improve core loader test coverage
+4. Consider adding lint:fix script for auto-fixing
+
 ## 2026-04-14 — Iteration 55: Preact Component Rendering Tests, MobileMenu Ref Fix
 
 ### Feature: Preact Component Rendering Tests with jsdom

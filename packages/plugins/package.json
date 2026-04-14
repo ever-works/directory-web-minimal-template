@@ -9,14 +9,16 @@
         ".": "./src/index.ts"
     },
     "scripts": {
-        "test": "vitest run",
         "typecheck": "tsc --noEmit",
+        "lint": "eslint src/",
+        "test": "vitest run",
         "clean": "rm -rf dist"
     },
     "dependencies": {
         "@ever-works/core": "workspace:*"
     },
     "devDependencies": {
+        "@ever-works/eslint-config": "workspace:*",
         "@ever-works/tsconfig": "workspace:*",
         "typescript": "^5.9.3"
     }

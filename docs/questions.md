@@ -149,7 +149,7 @@ sidebar_label: "Questions"
 
 ## Q11: Interactive Component Integration in Web Template
 
-**Context**: The UI package includes 5 Preact interactive components (SearchInput, FilterBar, SortSelect, BackToTop, ThemeToggle) but the `apps/web` template pages don't use them. The `apps/web` template is intentionally a blank canvas, but should at least demonstrate interactive component wiring.
+**Context**: The UI package includes 8 Preact interactive components (SearchInput, FilterBar, SortSelect, BackToTop, ThemeToggle, LayoutSwitcher, ItemBrowser, MobileMenu) but the `apps/web` template pages don't use them. The `apps/web` template is intentionally a blank canvas, but should at least demonstrate interactive component wiring.
 
 **Options**:
 - **A) Keep web template blank, demo in sample-basic only** — AI agents wire them in per project `[DEFAULT]`
@@ -160,7 +160,7 @@ sidebar_label: "Questions"
 
 **Action needed**: Integrate SearchInput, FilterBar, and SortSelect into `apps/sample-basic` pages to demonstrate proper usage.
 
-**Status**: DONE — All 5 interactive components are integrated in `apps/sample-basic`.
+**Status**: DONE — All 8 interactive components are integrated in `apps/sample-basic`.
 
 ---
 
