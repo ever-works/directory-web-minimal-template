@@ -206,4 +206,35 @@ TypeScript type: `PageData` with fields `slug`, `title`, `description?`, `conten
 
 The template explicitly types the following fields on `ItemData`: `brand`, `brand_logo_url`, `images`, `publisher`. These are used by the full Next.js template and preserved here for compatibility. Built-in components do not render them by default, but custom components can access them directly.
 
+### `meta` Field
+
+`ItemData` has an explicit `meta?: Record<string, unknown>` field for domain-specific metadata. Vertical templates (jobs, events, real-estate) should use `meta` for custom fields:
+
+```yaml
+# Job listing example
+meta:
+  salary: "$120k - $150k"
+  location: "Remote"
+  company: "Acme Corp"
+
+# Real estate example
+meta:
+  price: "$450,000"
+  location: "Downtown"
+  bedrooms: 3
+```
+
+Access in code: `item.meta?.salary`, `item.meta?.location`, etc.
+
+### `_breadcrumbs` Field (Plugin-Injected)
+
+`ContentData` has an optional `_breadcrumbs` field populated by `@ever-works/plugin-breadcrumbs` during the `onDataLoaded` hook. It is a `Map<string, Array<{ label: string; href?: string }>>` mapping page pathnames to breadcrumb trails. Access in Astro pages:
+
+```typescript
+const data = await getContent();
+const crumbs = data._breadcrumbs?.get(Astro.url.pathname) ?? [];
+```
+
+### Pass-Through
+
 Config fields like `auth`, `mail`, `pricing`, `payment` are ignored by this template since we don't have auth, payments, or advanced customization features. They are preserved as `[key: string]: unknown` for forward compatibility.

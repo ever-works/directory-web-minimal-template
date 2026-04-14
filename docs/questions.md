@@ -275,17 +275,17 @@ sidebar_label: "Questions"
 **High priority items:**
 - A) **~~UI package has zero tests~~** — DONE (iteration 51). Added 42 unit tests across 3 test files: `utils.test.ts` (12 tests for `cn()`), `sort-items.test.ts` (12 tests for `sortItemsByOption()`), `variants.test.ts` (18 tests for badge/button CVA variants).
 - B) **~~Duplicated `sortItems` logic~~** — DONE (iteration 51). Extracted `sortItemsByOption<T>()` to `@ever-works/ui/lib/sort-items`. Generic over `Sortable` interface. All 5 sample apps + UI ItemBrowser now import from the shared utility. 7 duplicate implementations removed.
-- C) **Double type assertion in BreadcrumbNav** — All 5 samples use `(data as unknown as Record<string, unknown>)._breadcrumbs`. Consider extending `ContentData` with an optional `_breadcrumbs` field or creating a `ContentDataWithBreadcrumbs` type.
-- D) **`ItemData` index signature weakens type safety** — `[key: string]: unknown` allows any property access without type errors. Consider moving pass-through to a dedicated `meta?: Record<string, unknown>` field.
+- C) **~~Double type assertion in BreadcrumbNav~~** — DONE (iteration 52). Added optional `_breadcrumbs` field to `ContentData` interface. Updated all 5 sample BreadcrumbNav components to use `data._breadcrumbs` directly instead of `(data as unknown as Record<string, unknown>)._breadcrumbs`. Removed type assertion from `plugin-breadcrumbs` plugin.ts.
+- D) **~~`ItemData` index signature weakens type safety~~** — DONE (iteration 52). Added explicit `meta?: Record<string, unknown>` field to `ItemData`. Index signature kept for backward compatibility with YAML data spread. Sample apps (events, real-estate) already use `item.meta` pattern.
 - E) **`LayoutSwitcher` component never used** — Exported from UI package but not imported by any app. Now used by `ItemBrowser` in UI package (iteration 49), but no sample app uses it standalone.
 
 **Medium priority items:**
 - F) **Unused public exports** — `FilesystemAdapter`, `GitAdapter`, `createPluginLogger`, `generateBreadcrumbs`, `filterItems`, `parseFiltersFromUrl`, `serializeFiltersToUrl`, `sortItems`, `loadComparison`, `loadItem`, `loadPage` are exported but never imported externally.
-- G) **Missing plugin.ts tests** — plugin-filters, plugin-breadcrumbs, plugin-sort, plugin-pagination, plugin-seo all have tests for their utilities but not for the plugin lifecycle (plugin.ts) files.
+- G) **~~Missing plugin.ts tests~~** — DONE (iteration 52). Added plugin lifecycle tests for `plugin-breadcrumbs` (12 tests), `plugin-filters` (10 tests), `plugin-sort` (13 tests), `plugin-pagination` (14 tests). Total: 49 new lifecycle tests.
 - H) **Console.warn in core loaders** — 29 instances of `console.warn` in core loaders. Consider a structured logger utility with configurable verbosity.
 - I) **Sample apps don't use Astro UI components** — None of the 5 samples import Astro components from `@ever-works/ui/astro`. Only `apps/web` uses them.
 - J) **sample-git ItemBrowser diverges** — 476 lines vs ~230 in other samples with a custom lazy-loading pattern. Should document this as intentional for large datasets.
 
-**Default choice**: Items C-E remain as high priority. F-J are nice-to-haves. Item C (BreadcrumbNav types) is the next best ROI improvement.
+**Default choice**: Item E remains as high priority. F, H-J are nice-to-haves.
 
-**Status**: A and B RESOLVED (iteration 51). C-J still open.
+**Status**: A-D, G RESOLVED (iterations 51-52). E, F, H-J still open.

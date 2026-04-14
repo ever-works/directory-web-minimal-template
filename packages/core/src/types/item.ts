@@ -57,6 +57,14 @@ export interface ItemData {
     markdown?: string;
 
     /**
+     * Domain-specific metadata bucket.
+     * Used by vertical templates (jobs, events, real-estate) for custom fields
+     * like location, price, salary, date, etc.
+     * Prefer `meta.fieldName` over top-level custom fields for type clarity.
+     */
+    meta?: Record<string, unknown>;
+
+    /**
      * Pass-through for any additional fields in the YAML.
      * The full template has fields like location, submitted_by, etc.
      * These are preserved but not used by built-in components.

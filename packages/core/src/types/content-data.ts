@@ -36,4 +36,11 @@ export interface ContentData {
 
     /** Total number of approved items */
     total: number;
+
+    /**
+     * Plugin-injected breadcrumb map.
+     * Populated by `@ever-works/plugin-breadcrumbs` via `onDataLoaded` hook.
+     * Maps page pathname → BreadcrumbEntry[].
+     */
+    _breadcrumbs?: Map<string, Array<{ label: string; href?: string }>>;
 }

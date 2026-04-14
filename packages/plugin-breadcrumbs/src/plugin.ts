@@ -37,11 +37,10 @@ export function breadcrumbsPlugin(options: BreadcrumbsPluginOptions = {}): Plugi
                 const breadcrumbs = generateBreadcrumbs(data, options);
                 context.log.info(`Generated breadcrumbs for ${breadcrumbs.size} pages`);
 
-                // Attach breadcrumbs to content data as metadata
                 return {
                     ...data,
                     _breadcrumbs: breadcrumbs,
-                } as ContentData & { _breadcrumbs: typeof breadcrumbs };
+                };
             },
         },
     };

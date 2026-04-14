@@ -3,6 +3,60 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-14 — Iteration 52: Type Safety Improvements, Plugin Lifecycle Tests, Feed E2E Tests
+
+### Fix: BreadcrumbNav Double Type Assertion (Q19-C: RESOLVED)
+- **Added**: Optional `_breadcrumbs` field to `ContentData` interface in `packages/core/src/types/content-data.ts`
+- **Updated**: All 5 sample BreadcrumbNav components — removed `(data as unknown as Record<string, unknown>)._breadcrumbs` double assertion, now uses `data._breadcrumbs` directly
+- **Updated**: `packages/plugin-breadcrumbs/src/plugin.ts` — removed `as ContentData & { _breadcrumbs: ... }` type assertion from `onDataLoaded` return
+- **Impact**: Proper type flow from plugin to consumer, no unsafe casts needed
+
+### Fix: ItemData Meta Field (Q19-D: RESOLVED)
+- **Added**: Explicit `meta?: Record<string, unknown>` field to `ItemData` interface
+- **Kept**: Index signature `[key: string]: unknown` for backward compatibility with YAML data spread
+- **Impact**: Provides clear guidance for domain-specific fields (location, price, salary) via `item.meta`
+
+### Feature: Plugin Lifecycle Tests (Q19-G: RESOLVED)
+- **Created**: `packages/plugin-breadcrumbs/src/__tests__/plugin.test.ts` — 12 tests (creation, metadata, onInit, onDataLoaded, exports)
+- **Created**: `packages/plugin-filters/src/__tests__/plugin.test.ts` — 10 tests (creation, defaults, custom options, exports)
+- **Created**: `packages/plugin-sort/src/__tests__/plugin.test.ts` — 13 tests (creation, onInit, onDataLoaded sorting, empty arrays, exports)
+- **Created**: `packages/plugin-pagination/src/__tests__/plugin.test.ts` — 14 tests (creation, defaults, plugin options, site config precedence, exports)
+- **Total**: 49 new plugin lifecycle tests across 4 plugin packages
+
+### Feature: RSS/Atom/robots.txt E2E Tests
+- **Created**: `apps/web-e2e/tests/feeds.spec.ts` — 11 tests for sample-basic (RSS XML structure, channel metadata, items, Atom XML, feed autodiscovery links, robots.txt)
+- **Created**: `apps/web-e2e/tests/events/events-feeds.spec.ts` — 5 tests
+- **Created**: `apps/web-e2e/tests/jobs/jobs-feeds.spec.ts` — 5 tests
+- **Created**: `apps/web-e2e/tests/real-estate/re-feeds.spec.ts` — 5 tests
+- **Created**: `apps/web-e2e/tests/git/git-feeds.spec.ts` — 5 tests
+- **Total**: 31 new E2E tests across 5 test files, covering all 5 sample projects
+
+### Documentation Updates
+- **Updated**: `docs/questions.md` — marked Q19-C, Q19-D, Q19-G as RESOLVED with details
+- **Updated**: `docs/log.md` — this entry
+
+### Verification
+- `pnpm typecheck` — 21/21 tasks pass (0 errors)
+- `pnpm lint` — 10/10 tasks pass
+- `pnpm test` — 14/14 tasks pass (612 total unit tests, up from 484)
+- `pnpm build` — 7/7 tasks pass (sample-basic: 42 pages, sample-jobs: 36, sample-events: 37, sample-real-estate: 37, sample-git: 5030, web: 8, docs: OK)
+
+### Test Count Summary
+- **Unit tests**: 612 total (was 484 in iteration 50, +128 across iterations 51-52)
+- **E2E test files**: 56 (was 46 in iteration 50, +10 across iterations 51-52)
+
+### Dependencies
+- No safe upgrades available. Known deferred: TypeScript 6.0 (incompatible with @astrojs/check), cspell 10 (major version), React 19 (Docusaurus requires React 18).
+
+### Next Steps
+1. Resolve Q19-E (LayoutSwitcher standalone usage in sample apps)
+2. Add Preact component rendering tests with jsdom
+3. Run E2E tests against built sites to verify feed tests
+4. Investigate react-player 3.x upgrade for docs site
+5. Consider structured logger to replace console.warn in core loaders (Q19-H)
+
+---
+
 ## 2026-04-14 — Iteration 51: UI Package Tests, sortItems Deduplication
 
 ### UI Package Test Infrastructure (Q19-A: RESOLVED)
