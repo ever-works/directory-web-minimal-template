@@ -73,7 +73,7 @@ A minimal, static-rendered Astro template for AI-generated directory websites. L
 | Phase 14 | SEO: JSON-LD (WebSite, ItemPage, BreadcrumbList, ItemList), structured data | Complete |
 | Phase 15 | Quality: dependency upgrades, E2E test hardening, docs health audits | Complete |
 
-## Current State (Iteration 60)
+## Current State (Iteration 61)
 
 - **8 apps**: web, web-e2e, docs, sample-basic, sample-jobs, sample-events, sample-real-estate, sample-git
 - **16 packages**: core, ui, plugins, adapters, sync, astro-integration, 8 plugin-* packages (seo, rss, pagination, filters, search, sort, sitemap, breadcrumbs), tsconfig, eslint-config

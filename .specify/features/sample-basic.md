@@ -26,7 +26,7 @@ This sample serves two purposes:
 | Items count | 8+ curated libraries |
 | Categories | 5 (Form, Data Display, Navigation, Layout, Feedback) |
 | Tags | 8+ (TypeScript, Accessible, Headless, Open Source, etc.) |
-| Plugins | All 6 built-in plugins enabled |
+| Plugins | All 8 built-in plugins enabled (seo, pagination, filters, search, sort, sitemap, breadcrumbs, rss) |
 | Styling | Tailwind CSS, modern clean design |
 | Theme | Dark/light mode with system preference detection |
 | Output | Fully static (Astro `output: 'static'`) |

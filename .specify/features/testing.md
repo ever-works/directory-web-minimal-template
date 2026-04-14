@@ -21,7 +21,7 @@ Vitest-based unit testing alongside the existing Playwright E2E tests. Provides 
 7. `packages/plugin-*` each have tests for their core logic (all plugin packages covered)
 8. Tests use `vi.mock()` for filesystem/IO mocking
 9. All tests pass in CI (add to CI workflow)
-10. Total test coverage: 268 unit tests across 19 test files, 10 packages
+10. Total test coverage: 811 unit tests across 44 test files, 14 packages
 11. Plugin pipeline integration tests validate end-to-end data flow, chaining, error handling, ordering, and context propagation
 
 ## Technical Design

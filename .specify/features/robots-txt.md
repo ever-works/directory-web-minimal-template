@@ -74,8 +74,8 @@ Sitemap: https://example.com/sitemap-index.xml
 
 ## Acceptance Criteria
 
-- [ ] `pnpm typecheck` passes
-- [ ] Unit tests pass
-- [ ] Valid robots.txt format
-- [ ] Sitemap reference correct
-- [ ] All apps generate /robots.txt
+- [x] `pnpm typecheck` passes
+- [x] Unit tests pass
+- [x] Valid robots.txt format
+- [x] Sitemap reference correct
+- [x] All apps generate /robots.txt

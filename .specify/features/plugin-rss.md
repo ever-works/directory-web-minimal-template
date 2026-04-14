@@ -103,9 +103,9 @@ packages/plugin-rss/
 
 ## Acceptance Criteria
 
-- [ ] `pnpm typecheck` passes with 0 errors
-- [ ] `pnpm test` passes for plugin-rss
-- [ ] Generated RSS validates against RSS 2.0 spec
-- [ ] Generated Atom validates against Atom 1.0 spec
-- [ ] Feed autodiscovery links in page head
-- [ ] All sample apps include feed generation
+- [x] `pnpm typecheck` passes with 0 errors
+- [x] `pnpm test` passes for plugin-rss (39 tests)
+- [x] Generated RSS validates against RSS 2.0 spec
+- [x] Generated Atom validates against Atom 1.0 spec
+- [x] Feed autodiscovery links in page head
+- [x] All sample apps include feed generation

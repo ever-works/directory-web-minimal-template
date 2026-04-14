@@ -9,6 +9,11 @@ All plugins implement `@ever-works/plugins` `Plugin` interface.
 Each is a separate workspace package with its own `package.json` and `tsconfig.json`.
 Plugins are registered via `definePlugins()` in a `plugins.config.ts` file in the web app.
 
+**Total: 8 plugin packages** (seo, pagination, filters, search, sort, sitemap, breadcrumbs, rss).
+Note: `plugin-breadcrumbs` and `plugin-rss` were added after Phase 4 and have their own spec files:
+- `.specify/features/plugin-breadcrumbs.md`
+- `.specify/features/plugin-rss.md`
+
 ## Plugin Packages
 
 ### 1. `@ever-works/plugin-seo` (packages/plugin-seo)

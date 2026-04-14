@@ -3,6 +3,41 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-14 — Iteration 61: Spec Health Audit & Documentation Drift Fixes
+
+### Comprehensive Audit
+- Ran 3 parallel audits: documentation drift, E2E test health, .specify content health
+- Verified all 811 unit tests pass (14 suites), all 21 typecheck tasks pass, all 16 lint tasks pass
+- Verified all 7 builds pass (fully cached)
+- Confirmed 0 vulnerabilities, all core dependencies at latest versions
+- Confirmed E2E test setup is internally consistent (56 specs, 364 tests, 11 Playwright projects, 5 web servers)
+
+### .specify Spec Fixes
+- **Fixed `sample-events.md`**: Updated frontmatter status from `planned` → `complete` (app fully implemented since iteration 42)
+- **Fixed `sample-real-estate.md`**: Updated frontmatter status from `planned` → `complete` (app fully implemented since iteration 43)
+- **Fixed `ui-components.md`**: Updated component tree to include all 24 Astro + 8 Preact components (was missing 8 Astro + 3 Preact components added in Phases 12-14)
+- **Fixed `testing.md`**: Updated test coverage from "268 tests / 19 files / 10 packages" → "811 tests / 44 files / 14 packages"
+- **Fixed `sample-basic.md`**: Updated plugin count from "6 built-in plugins" → "8 built-in plugins" (includes breadcrumbs and rss)
+- **Fixed `plugins-phase4.md`**: Added note about total 8 plugin packages (breadcrumbs and rss added post-Phase 4)
+- **Fixed `plugin-rss.md`**: Checked off all 6 acceptance criteria (all verified passing)
+- **Fixed `robots-txt.md`**: Checked off all 5 acceptance criteria (all verified passing)
+
+### Documentation Updates
+- **Updated `.specify/project.md`**: Iteration 60 → 61
+- **Updated `docs/index.md`**: Iteration 60 → 61, updated description
+
+### Build Verification
+- `pnpm typecheck` — ALL 21 tasks pass (0 errors)
+- `pnpm lint` — ALL 16 tasks pass
+- `pnpm test` — ALL 14 test suites pass (811 tests)
+- `pnpm build` — ALL 7 tasks pass
+- `pnpm audit` — 0 vulnerabilities
+
+### Summary
+- **8 spec files updated** — resolved all stale frontmatter, counts, and unchecked acceptance criteria
+- **No code changes** — documentation-only iteration
+- **All numbers verified against actual codebase** — no remaining discrepancies
+
 ## 2026-04-14 — Iteration 60: Documentation Accuracy Audit
 
 ### Documentation Fixes

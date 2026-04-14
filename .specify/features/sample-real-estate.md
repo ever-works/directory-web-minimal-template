@@ -1,6 +1,6 @@
 ---
 title: "Sample Real Estate — Property Listings Directory"
-status: planned
+status: complete
 priority: medium
 ---
 

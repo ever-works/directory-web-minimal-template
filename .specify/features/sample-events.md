@@ -1,6 +1,6 @@
 ---
 title: "Sample Events — Events & Conferences Directory"
-status: planned
+status: complete
 priority: medium
 ---
 

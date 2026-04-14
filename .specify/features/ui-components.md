@@ -33,29 +33,43 @@ See:
 packages/ui/
 ├── src/
 │   ├── types.ts          — All component prop interfaces
-│   ├── astro/            — Static Astro components
+│   ├── astro/            — Static Astro components (24 total)
+│   │   ├── Breadcrumbs.astro
+│   │   ├── CategoryBadge.astro
+│   │   ├── CategoryList.astro
+│   │   ├── CollectionCard.astro
+│   │   ├── ComparisonTable.astro
+│   │   ├── EmptyState.astro
+│   │   ├── FeaturedBadge.astro       — Added in Phase 12
+│   │   ├── FeaturedSection.astro     — Added in Phase 12
+│   │   ├── Hero.astro
+│   │   ├── ItemCTA.astro             — Added in Phase 12
 │   │   ├── ItemCard.astro
+│   │   ├── ItemContent.astro         — Added in Phase 12
+│   │   ├── ItemDetail.astro
 │   │   ├── ItemGrid.astro
 │   │   ├── ItemList.astro
-│   │   ├── ItemDetail.astro
-│   │   ├── CategoryList.astro
-│   │   ├── CategoryBadge.astro
-│   │   ├── TagList.astro
-│   │   ├── TagBadge.astro
-│   │   ├── CollectionCard.astro
-│   │   ├── Breadcrumbs.astro
+│   │   ├── ItemMetadata.astro        — Added in Phase 12
 │   │   ├── Pagination.astro
-│   │   ├── SiteHeader.astro
+│   │   ├── SEO.astro                 — Added in Phase 14
+│   │   ├── ShareButton.astro         — Added in Phase 12
+│   │   ├── SimilarItems.astro        — Added in Phase 12
 │   │   ├── SiteFooter.astro
-│   │   ├── Hero.astro
-│   │   ├── EmptyState.astro
-│   │   └── ComparisonTable.astro
-│   ├── preact/           — Interactive Preact components
-│   │   ├── SearchInput.tsx
-│   │   ├── FilterBar.tsx
-│   │   ├── SortSelect.tsx
+│   │   ├── SiteHeader.astro
+│   │   ├── TagBadge.astro
+│   │   └── TagList.astro
+│   ├── preact/           — Interactive Preact components (8 total)
 │   │   ├── BackToTop.tsx
+│   │   ├── FilterBar.tsx
+│   │   ├── ItemBrowser.tsx           — Added in Phase 12
+│   │   ├── LayoutSwitcher.tsx        — Added in Phase 12
+│   │   ├── MobileMenu.tsx            — Added in Phase 13
+│   │   ├── SearchInput.tsx
+│   │   ├── SortSelect.tsx
 │   │   └── ThemeToggle.tsx
+│   ├── lib/              — Shared utilities
+│   │   ├── sort-items.ts
+│   │   └── utils.ts
 │   └── index.ts
 ├── package.json
 ├── tsconfig.json
