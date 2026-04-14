@@ -3,6 +3,31 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-14 — Iteration 62: Documentation Accuracy Audit, Missing E2E Test, Command Docs
+
+### Documentation Drift Fixes
+- **Fixed `.specify/project.md`**: Updated page route count from 13 → 16 (actual: 16 page files), iteration reference 61 → 62, E2E spec files 56 → 57
+- **Fixed `AGENTS.md`**: Added R15 (Specification First) to cross-check checklist (was missing), added `meta?: Record<string, unknown>` to ItemData contract (was present in code but not documented)
+- **Fixed `CLAUDE.md`**: Added 5 missing commands: `dev:sample-basic`, `dev:sample-events`, `dev:sample-jobs`, `dev:sample-real-estate`, `lint:fix`
+- **Fixed `README.md`**: Updated E2E spec file count from 56 → 57
+- **Updated `docs/index.md`**: Updated iteration reference
+
+### New E2E Test
+- **Created `apps/web-e2e/tests/git/git-collections.spec.ts`** — 3 tests covering collections page for sample-git (empty state, heading, navigation). This was the only missing test file in the otherwise consistent pattern across all 5 sample apps.
+
+### Build Verification
+- `pnpm typecheck` — ALL 21 tasks pass (0 errors)
+- `pnpm lint` — ALL 16 tasks pass
+- `pnpm test` — ALL 14 test suites pass (811 tests)
+- `pnpm build` — ALL 7 tasks pass
+- `pnpm audit` — 0 vulnerabilities
+- All dependency versions current: Astro 6.1.6, Preact 10.29.1, Tailwind 4.2.2, TS 6.0.2
+
+### Summary
+- **5 documentation files fixed** (accuracy drift from iteration counts, missing fields, missing commands)
+- **1 new E2E test file** (git-collections.spec.ts — 3 tests, now 57 spec files total)
+- **No code changes** — all fixes were documentation-only plus 1 test file
+
 ## 2026-04-14 — Iteration 61: Spec Health Audit & Documentation Drift Fixes
 
 ### Comprehensive Audit

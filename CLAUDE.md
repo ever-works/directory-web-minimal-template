@@ -103,9 +103,14 @@ pnpm install              # Install all dependencies
 pnpm dev                  # Start all dev servers
 pnpm dev:web              # Start only the web app
 pnpm dev:docs             # Start only the docs site
+pnpm dev:sample-basic     # Start sample-basic dev server
+pnpm dev:sample-events    # Start sample-events dev server
 pnpm dev:sample-git       # Start sample-git dev server
+pnpm dev:sample-jobs      # Start sample-jobs dev server
+pnpm dev:sample-real-estate # Start sample-real-estate dev server
 pnpm build                # Build all apps
 pnpm lint                 # Lint all packages
+pnpm lint:fix             # Lint and auto-fix all packages
 pnpm typecheck            # Type-check all packages
 pnpm test                 # Run all unit tests (Vitest)
 pnpm test:e2e             # Run E2E tests (Playwright)

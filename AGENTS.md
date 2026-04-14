@@ -174,6 +174,7 @@ interface ItemData {
     updated_at: string;
     status: 'draft' | 'pending' | 'approved' | 'rejected';
     markdown?: string;
+    meta?: Record<string, unknown>; // domain-specific metadata (jobs, events, real-estate)
     [key: string]: unknown; // pass-through for additional YAML fields
 }
 ```
@@ -318,6 +319,7 @@ Before creating or modifying ANY file, verify:
 - [ ] Proper monorepo structure? (R12)
 - [ ] Exhaustive documentation? (R13)
 - [ ] Convention over configuration? Good defaults? (R14)
+- [ ] Spec/plan written before implementation? (R15)
 
 ## Skills for AI Agents
 
