@@ -90,7 +90,7 @@ export interface MetaTag {
 // ---------------------------------------------------------------------------
 
 /** Supported JSON-LD schema types. */
-export type JsonLdType = 'WebSite' | 'ItemList' | 'Product' | 'BreadcrumbList' | 'SoftwareApplication';
+export type JsonLdType = 'WebSite' | 'ItemList' | 'Product' | 'BreadcrumbList' | 'SoftwareApplication' | 'Article';
 
 /** Input data for JSON-LD generation. Discriminated by {@link JsonLdType}. */
 export type JsonLdInput =
@@ -98,7 +98,8 @@ export type JsonLdInput =
     | ItemListInput
     | ProductInput
     | BreadcrumbListInput
-    | SoftwareApplicationInput;
+    | SoftwareApplicationInput
+    | ArticleInput;
 
 /** Data required to build a `WebSite` JSON-LD block. */
 export interface WebSiteInput {
@@ -217,6 +218,39 @@ export interface SoftwareApplicationInput {
 
     /** Total number of ratings. */
     ratingCount?: number;
+}
+
+// ---------------------------------------------------------------------------
+// Article
+// ---------------------------------------------------------------------------
+
+/** Data required to build an `Article` JSON-LD block for static pages. */
+export interface ArticleInput {
+    type: 'Article';
+
+    /** Article headline / title. */
+    headline: string;
+
+    /** Absolute URL. */
+    url: string;
+
+    /** Short description / abstract. */
+    description?: string;
+
+    /** ISO-8601 publication date. */
+    datePublished?: string;
+
+    /** ISO-8601 last-modified date. */
+    dateModified?: string;
+
+    /** Author name or organization. */
+    author?: string;
+
+    /** Publisher name. Falls back to {@link author} if not specified. */
+    publisher?: string;
+
+    /** Featured image URL. */
+    image?: string;
 }
 
 // ---------------------------------------------------------------------------

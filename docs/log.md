@@ -3,6 +3,63 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-14 — Iteration 48: Article JSON-LD, Dependency Upgrades, Health Verification
+
+### Feature: Article JSON-LD Structured Data for Static Pages
+- **Added**: `Article` JSON-LD type to `@ever-works/plugin-seo` — new `ArticleInput` interface with headline, url, description, datePublished, dateModified, author, publisher, image fields
+- **Updated**: `generateJsonLd()` to handle `'Article'` type with `buildArticle()` builder
+- **Updated**: `JsonLdType` union to include `'Article'`
+- **Updated**: `apps/web/src/pages/pages/[slug].astro` — now includes Article JSON-LD + BreadcrumbList JSON-LD structured data, uses `pageType="article"`
+- **Updated**: All 5 sample apps (`sample-basic`, `sample-events`, `sample-jobs`, `sample-real-estate`, `sample-git`) — static pages now include Article JSON-LD
+- **Impact**: Static pages (about, privacy, terms, contact, etc.) now have Schema.org Article structured data for improved SEO
+
+### Unit Tests: Article JSON-LD
+- Added 4 new tests in `packages/plugin-seo/src/__tests__/json-ld.test.ts`:
+  - Basic Article JSON-LD generation (headline + url)
+  - All optional fields (description, dates, author, publisher, image)
+  - Author→publisher fallback when publisher not specified
+  - Omit author/publisher when neither specified
+- Updated common structure tests to include Article type
+- **Total plugin-seo tests: 34** (was 30)
+
+### E2E Tests: Static Page JSON-LD
+- Added `should have Article JSON-LD structured data` test in `tests/static-pages.spec.ts`
+- Verifies Article JSON-LD presence, @context, headline, and URL on `/pages/about/`
+- **Total static page E2E tests: 9** (was 8)
+
+### Dependency Upgrades
+- `@types/node` — `24.12.2` → `25.6.0` (in adapters, core, sync)
+- `dotenv` — `16.6.1` → `17.4.2` (in docs-minimal)
+- Note: TypeScript 6.0 skipped — incompatible with `@astrojs/check` peer dep (`^5.0.0`). Staying on TS 5.9.3.
+- Note: React 19 skipped — Docusaurus 3.x requires React 18.
+- Note: cspell 10 skipped — major version, deferred to future iteration.
+
+### Documentation Drift Audit
+- Comprehensive audit: AGENTS.md pages/components/plugins, component catalog, CLAUDE.md commands, data schemas, package versions — **zero drift issues found**
+
+### Build Verification
+- `pnpm typecheck` — ALL 20 tasks pass (0 errors)
+- `pnpm test` — ALL 12 suites pass (436 unit tests, up from 432)
+- `pnpm build` — ALL 7 apps build successfully
+- E2E (chromium): 76 passed, 5 skipped
+- E2E (events-chromium): 90 passed, 5 skipped
+- E2E (jobs-chromium): 42 passed, 5 skipped
+- E2E (re-chromium): 43 passed, 5 skipped
+- E2E (git-chromium): 46 passed, 6 skipped
+- **Total E2E: 297 passed, 26 skipped**
+
+### Summary
+- **New feature**: Article JSON-LD structured data on all static pages across all 6 apps
+- **Test coverage**: 436 unit + 297 E2E = 733 total tests
+- **Dependencies**: @types/node v25, dotenv v17
+- **Documentation**: Zero drift, all docs accurate
+
+### Next Steps (for next scheduled run)
+1. Add table-of-contents component for long static pages
+2. Evaluate cspell 10 major version upgrade compatibility
+3. Consider adding more SEO features (robots.txt generation, canonical URLs)
+4. Explore adding RSS/Atom feed generation plugin
+
 ## 2026-04-14 — Iteration 47: Markdown Rendering Bug Fix, Static Pages E2E Coverage
 
 ### Bug Fix: Markdown-to-HTML Conversion for Static Pages

@@ -68,6 +68,30 @@ test.describe('Static Pages', () => {
 		expect(count).toBeGreaterThan(0);
 	});
 
+	test('should have Article JSON-LD structured data', async ({ page }) => {
+		await page.goto('/pages/about/');
+		const jsonLdScripts = page.locator('script[type="application/ld+json"]');
+		const count = await jsonLdScripts.count();
+		expect(count).toBeGreaterThanOrEqual(1);
+
+		// Find the Article JSON-LD
+		let foundArticle = false;
+		for (let i = 0; i < count; i++) {
+			const content = await jsonLdScripts.nth(i).textContent();
+			if (content) {
+				const data = JSON.parse(content);
+				if (data['@type'] === 'Article') {
+					foundArticle = true;
+					expect(data['@context']).toBe('https://schema.org');
+					expect(data.headline).toBeTruthy();
+					expect(data.url).toContain('/pages/about');
+					break;
+				}
+			}
+		}
+		expect(foundArticle).toBe(true);
+	});
+
 	test('should 404 for non-existent static page', async ({ page }) => {
 		const response = await page.goto('/pages/does-not-exist/');
 		expect(response?.status()).toBe(404);

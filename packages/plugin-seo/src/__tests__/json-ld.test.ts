@@ -6,6 +6,7 @@ import type {
     ProductInput,
     BreadcrumbListInput,
     SoftwareApplicationInput,
+    ArticleInput,
     DirectoryItemInput,
 } from '../types.js';
 
@@ -274,6 +275,75 @@ describe('generateJsonLd', () => {
         });
     });
 
+    describe('Article', () => {
+        it('generates basic Article JSON-LD with headline and url', () => {
+            const data: ArticleInput = {
+                type: 'Article',
+                headline: 'About Us',
+                url: 'https://example.com/pages/about',
+            };
+
+            const result = JSON.parse(generateJsonLd('Article', data));
+
+            expect(result['@context']).toBe('https://schema.org');
+            expect(result['@type']).toBe('Article');
+            expect(result.headline).toBe('About Us');
+            expect(result.url).toBe('https://example.com/pages/about');
+            expect(result.description).toBeUndefined();
+            expect(result.author).toBeUndefined();
+        });
+
+        it('includes all optional fields when provided', () => {
+            const data: ArticleInput = {
+                type: 'Article',
+                headline: 'Privacy Policy',
+                url: 'https://example.com/pages/privacy',
+                description: 'Our privacy practices',
+                datePublished: '2024-01-01',
+                dateModified: '2024-06-15',
+                author: 'Acme Corp',
+                publisher: 'Acme Publishing',
+                image: 'https://example.com/privacy.jpg',
+            };
+
+            const result = JSON.parse(generateJsonLd('Article', data));
+
+            expect(result.description).toBe('Our privacy practices');
+            expect(result.datePublished).toBe('2024-01-01');
+            expect(result.dateModified).toBe('2024-06-15');
+            expect(result.author).toEqual({ '@type': 'Organization', name: 'Acme Corp' });
+            expect(result.publisher).toEqual({ '@type': 'Organization', name: 'Acme Publishing' });
+            expect(result.image).toBe('https://example.com/privacy.jpg');
+        });
+
+        it('uses author as publisher fallback when publisher not specified', () => {
+            const data: ArticleInput = {
+                type: 'Article',
+                headline: 'Terms',
+                url: 'https://example.com/pages/terms',
+                author: 'My Company',
+            };
+
+            const result = JSON.parse(generateJsonLd('Article', data));
+
+            expect(result.author).toEqual({ '@type': 'Organization', name: 'My Company' });
+            expect(result.publisher).toEqual({ '@type': 'Organization', name: 'My Company' });
+        });
+
+        it('omits author and publisher when neither specified', () => {
+            const data: ArticleInput = {
+                type: 'Article',
+                headline: 'Info',
+                url: 'https://example.com/pages/info',
+            };
+
+            const result = JSON.parse(generateJsonLd('Article', data));
+
+            expect(result.author).toBeUndefined();
+            expect(result.publisher).toBeUndefined();
+        });
+    });
+
     describe('generateItemJsonLd', () => {
         it('produces SoftwareApplication when applicationCategory is set', () => {
             const item: DirectoryItemInput = {
@@ -348,12 +418,20 @@ describe('generateJsonLd', () => {
                     url: 'https://a.com',
                 }),
             );
+            const articleResult = JSON.parse(
+                generateJsonLd('Article', {
+                    type: 'Article',
+                    headline: 'T',
+                    url: 'https://t.com',
+                }),
+            );
 
             expect(websiteResult['@context']).toBe('https://schema.org');
             expect(itemListResult['@context']).toBe('https://schema.org');
             expect(productResult['@context']).toBe('https://schema.org');
             expect(breadcrumbResult['@context']).toBe('https://schema.org');
             expect(softwareResult['@context']).toBe('https://schema.org');
+            expect(articleResult['@context']).toBe('https://schema.org');
         });
 
         it('all outputs have the correct @type', () => {
@@ -376,12 +454,20 @@ describe('generateJsonLd', () => {
                     url: 'https://a.com',
                 }),
             );
+            const articleResult = JSON.parse(
+                generateJsonLd('Article', {
+                    type: 'Article',
+                    headline: 'T',
+                    url: 'https://t.com',
+                }),
+            );
 
             expect(websiteResult['@type']).toBe('WebSite');
             expect(itemListResult['@type']).toBe('ItemList');
             expect(productResult['@type']).toBe('Product');
             expect(breadcrumbResult['@type']).toBe('BreadcrumbList');
             expect(softwareResult['@type']).toBe('SoftwareApplication');
+            expect(articleResult['@type']).toBe('Article');
         });
     });
 });

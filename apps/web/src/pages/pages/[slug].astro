@@ -4,9 +4,11 @@
  *
  * Uses getStaticPaths to generate one page per content page at build time.
  * Pages are standalone content like "About", "Privacy Policy", etc.
+ * Includes Article JSON-LD structured data for SEO.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getContent } from '../../lib/content';
+import { generateJsonLd } from '@ever-works/plugin-seo';
 import type { PageData } from '@ever-works/core';
 import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
 
@@ -25,6 +27,26 @@ interface Props {
 const { page } = Astro.props;
 const { config } = await getContent();
 
+const siteUrl = config.site_url ?? '';
+
+// Article JSON-LD for static content pages
+const articleLd = generateJsonLd('Article', {
+    type: 'Article',
+    headline: page.title,
+    url: `${siteUrl}/pages/${page.slug}`,
+    description: page.description,
+    author: config.company_name,
+});
+
+// BreadcrumbList JSON-LD
+const breadcrumbLd = generateJsonLd('BreadcrumbList', {
+    type: 'BreadcrumbList',
+    items: [
+        { name: 'Home', url: `${siteUrl}/` },
+        { name: page.title, url: `${siteUrl}/pages/${page.slug}` },
+    ],
+});
+
 const breadcrumbItems = [
     { label: 'Home', href: '/' },
     { label: page.title },
@@ -35,7 +57,13 @@ const breadcrumbItems = [
     title={page.title}
     description={page.description}
     config={config}
+    pageType="article"
 >
+    <Fragment slot="head">
+        <script is:inline type="application/ld+json" set:html={articleLd} />
+        <script is:inline type="application/ld+json" set:html={breadcrumbLd} />
+    </Fragment>
+
     <Breadcrumbs items={breadcrumbItems} />
 
     <article class="prose max-w-none">

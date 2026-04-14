@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-14 (Iteration 47: markdown rendering bug fix, static pages E2E coverage)
+> Updated: 2026-04-14 (Iteration 48: Article JSON-LD for static pages, dependency upgrades)
 
 ## Root Documents
 

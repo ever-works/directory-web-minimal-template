@@ -17,6 +17,7 @@ import type {
     WebSiteInput,
     BreadcrumbListInput,
     SoftwareApplicationInput,
+    ArticleInput,
     DirectoryItemInput,
 } from './types';
 
@@ -52,6 +53,8 @@ export function generateJsonLd(type: JsonLdType, data: JsonLdInput): string {
             return JSON.stringify(buildBreadcrumbList(data as BreadcrumbListInput));
         case 'SoftwareApplication':
             return JSON.stringify(buildSoftwareApplication(data as SoftwareApplicationInput));
+        case 'Article':
+            return JSON.stringify(buildArticle(data as ArticleInput));
     }
 }
 
@@ -182,6 +185,48 @@ function buildBreadcrumbList(data: BreadcrumbListInput): Record<string, unknown>
             item: item.url,
         })),
     };
+}
+
+/** Build a Schema.org `Article` object for static content pages. */
+function buildArticle(data: ArticleInput): Record<string, unknown> {
+    const ld: Record<string, unknown> = {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: data.headline,
+        url: data.url,
+    };
+
+    if (data.description) {
+        ld['description'] = data.description;
+    }
+
+    if (data.image) {
+        ld['image'] = data.image;
+    }
+
+    if (data.datePublished) {
+        ld['datePublished'] = data.datePublished;
+    }
+
+    if (data.dateModified) {
+        ld['dateModified'] = data.dateModified;
+    }
+
+    if (data.author) {
+        ld['author'] = {
+            '@type': 'Organization',
+            name: data.author,
+        };
+    }
+
+    if (data.publisher || data.author) {
+        ld['publisher'] = {
+            '@type': 'Organization',
+            name: data.publisher ?? data.author,
+        };
+    }
+
+    return ld;
 }
 
 /** Build a Schema.org `SoftwareApplication` object. */
