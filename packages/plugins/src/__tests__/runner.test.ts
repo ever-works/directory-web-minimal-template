@@ -381,20 +381,11 @@ describe('definePlugins', () => {
         expect(sorted.map((p) => p.id)).toEqual(['c', 'b', 'a']);
     });
 
-    it('should handle missing dependencies gracefully (warns, does not crash)', () => {
-        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
+    it('should throw when a dependency is not registered', () => {
         const pluginA = createPlugin({ id: 'a', dependencies: ['nonexistent'] });
 
-        const sorted = definePlugins([pluginA]);
-
-        expect(sorted).toHaveLength(1);
-        expect(sorted[0]!.id).toBe('a');
-        expect(warnSpy).toHaveBeenCalledWith(
-            expect.stringContaining('nonexistent')
-        );
-
-        warnSpy.mockRestore();
+        expect(() => definePlugins([pluginA])).toThrow('nonexistent');
+        expect(() => definePlugins([pluginA])).toThrow('not registered');
     });
 
     it('should work with definePlugins + PluginRunner integration', async () => {

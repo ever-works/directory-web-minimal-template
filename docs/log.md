@@ -3,6 +3,24 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-14 — Iteration 62b: Code Quality Fixes from Automated Audit
+
+### Bug Fixes
+- **Fixed `SyncManager.syncWithTimeout()` timer leak** (`packages/sync/src/sync-manager.ts`): `setTimeout` in `Promise.race` was never cleared when `adapter.refresh()` resolved first — orphan timers in long-running processes. Now uses try/finally to always `clearTimeout`.
+- **Fixed `ItemBrowser.tsx` pagination overflow** (`packages/ui/src/preact/ItemBrowser.tsx`): Previously rendered ALL page buttons (267 buttons for 3200+ items at 12/page). Now uses `getVisiblePages()` with ellipsis truncation, matching the Astro `Pagination.astro` component.
+- **Fixed `definePlugins` silent missing dependency skip** (`packages/plugins/src/define-plugins.ts`): Missing dependencies were silently warned via `console.warn` and skipped, causing confusing runtime errors. Now throws a clear error immediately. Updated 4 tests accordingly.
+
+### Code Quality
+- **Extracted `getVisiblePages()` to shared utility** (`packages/ui/src/lib/pagination.ts`): Removed 30-line duplicate function from `Pagination.astro`, both components now import from `lib/pagination.ts`.
+- **Extracted `handleKeyActivation()` to shared utility** (`packages/ui/src/lib/keyboard.ts`): Removed duplicate function from `FilterBar.tsx` and `ItemBrowser.tsx`, both now import from `lib/keyboard.ts`.
+- **Removed dead `loaders/index.ts` barrel** (`packages/core/src/loaders/index.ts`): Barrel file was never imported anywhere — `core/src/index.ts` imports directly from individual loader files.
+
+### Build Verification
+- `pnpm typecheck` — ALL 21 tasks pass (0 errors)
+- `pnpm lint` — ALL 16 tasks pass
+- `pnpm test` — ALL 14 test suites pass (811 tests)
+- `pnpm build` — ALL 7 tasks pass
+
 ## 2026-04-14 — Iteration 62: Documentation Accuracy Audit, Missing E2E Test, Command Docs
 
 ### Documentation Drift Fixes

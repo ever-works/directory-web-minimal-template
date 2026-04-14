@@ -149,43 +149,24 @@ describe('definePlugins', () => {
     // missing dependency handling
     // ------------------------------------------------------------------
     describe('missing dependencies', () => {
-        it('warns but does not crash when a dependency is not registered', () => {
-            const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
+        it('throws when a dependency is not registered', () => {
             const plugin = createPlugin({ id: 'consumer', dependencies: ['missing-dep'] });
-            const result = definePlugins([plugin]);
 
-            expect(result).toHaveLength(1);
-            expect(result[0]!.id).toBe('consumer');
-            expect(warnSpy).toHaveBeenCalledWith(
-                expect.stringContaining('missing-dep'),
-            );
+            expect(() => definePlugins([plugin])).toThrow('missing-dep');
+            expect(() => definePlugins([plugin])).toThrow('not registered');
         });
 
-        it('warns for each missing dependency individually', () => {
-            const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
+        it('throws for the first missing dependency encountered', () => {
             const plugin = createPlugin({ id: 'multi', dependencies: ['missing-a', 'missing-b'] });
-            const result = definePlugins([plugin]);
 
-            expect(result).toHaveLength(1);
-            expect(warnSpy).toHaveBeenCalledTimes(2);
-            expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('missing-a'));
-            expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('missing-b'));
+            expect(() => definePlugins([plugin])).toThrow('missing-a');
         });
 
-        it('resolves registered dependencies while skipping missing ones', () => {
-            const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
+        it('throws when one dependency exists but another does not', () => {
             const a = createPlugin({ id: 'a' });
             const b = createPlugin({ id: 'b', dependencies: ['a', 'nonexistent'] });
 
-            const result = definePlugins([b, a]);
-
-            expect(result.map((p) => p.id)).toEqual(['a', 'b']);
-            expect(warnSpy).toHaveBeenCalledWith(
-                expect.stringContaining('nonexistent'),
-            );
+            expect(() => definePlugins([b, a])).toThrow('nonexistent');
         });
     });
 

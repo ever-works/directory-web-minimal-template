@@ -20,16 +20,7 @@ import type { FilterBarProps } from '../types.js';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { cn } from '../lib/utils';
-
-/** Handle Enter/Space key activation for non-button elements */
-function handleKeyActivation(callback: () => void) {
-  return (e: KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      callback();
-    }
-  };
-}
+import { handleKeyActivation } from '../lib/keyboard';
 
 export default function FilterBar({
   categories = [],

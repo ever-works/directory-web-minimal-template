@@ -27,16 +27,8 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { cn } from '../lib/utils';
 import { sortItemsByOption } from '../lib/sort-items';
-
-/** Handle Enter/Space key activation for non-button elements */
-function handleKeyActivation(callback: () => void) {
-	return (e: KeyboardEvent) => {
-		if (e.key === 'Enter' || e.key === ' ') {
-			e.preventDefault();
-			callback();
-		}
-	};
-}
+import { getVisiblePages } from '../lib/pagination';
+import { handleKeyActivation } from '../lib/keyboard';
 
 export default function ItemBrowser({
 	items,
@@ -307,18 +299,22 @@ export default function ItemBrowser({
 					>
 						Previous
 					</Button>
-					{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-						<Button
-							key={page}
-							type="button"
-							variant={currentPage === page ? 'default' : 'outline'}
-							size="sm"
-							onClick={() => setCurrentPage(page)}
-							aria-current={currentPage === page ? 'page' : undefined}
-						>
-							{page}
-						</Button>
-					))}
+					{getVisiblePages(currentPage, totalPages).map((page, i) =>
+						page === '...' ? (
+							<span key={`ellipsis-${i}`} className="px-2 text-gray-400">...</span>
+						) : (
+							<Button
+								key={page}
+								type="button"
+								variant={currentPage === page ? 'default' : 'outline'}
+								size="sm"
+								onClick={() => setCurrentPage(page as number)}
+								aria-current={currentPage === page ? 'page' : undefined}
+							>
+								{page}
+							</Button>
+						),
+					)}
 					<Button
 						type="button"
 						variant="outline"

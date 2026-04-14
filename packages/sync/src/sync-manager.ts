@@ -136,13 +136,18 @@ export class SyncManager {
     /** Call adapter.refresh() with timeout protection */
     private async syncWithTimeout(): Promise<boolean> {
         const timeoutMs = this.config.syncTimeoutMs;
+        let timer: ReturnType<typeof setTimeout> | undefined;
 
-        return Promise.race([
-            this.adapter.refresh(),
-            new Promise<never>((_, reject) =>
-                setTimeout(() => reject(new Error(`Sync timed out after ${timeoutMs}ms`)), timeoutMs),
-            ),
-        ]);
+        try {
+            return await Promise.race([
+                this.adapter.refresh(),
+                new Promise<never>((_, reject) => {
+                    timer = setTimeout(() => reject(new Error(`Sync timed out after ${timeoutMs}ms`)), timeoutMs);
+                }),
+            ]);
+        } finally {
+            if (timer !== undefined) clearTimeout(timer);
+        }
     }
 
     /** Emit event to all listeners */

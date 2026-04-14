@@ -56,9 +56,7 @@ function resolveDependencyOrder(plugins: Plugin[]): Plugin[] {
 
         const plugin = pluginMap.get(id);
         if (!plugin) {
-            // Dependency not in the registered plugins — warn but don't crash
-            console.warn(`[plugins] Warning: dependency "${id}" is not registered. Skipping.`);
-            return;
+            throw new Error(`Plugin dependency "${id}" is not registered. Check that all required plugins are included.`);
         }
 
         visiting.add(id);
