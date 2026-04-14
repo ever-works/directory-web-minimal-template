@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-14 (Iteration 63: test coverage expansion, 811 → 863 tests)
+> Updated: 2026-04-14 (Iteration 64: barrel export + UI component tests, 863 → 952 tests)
 
 ## Root Documents
 

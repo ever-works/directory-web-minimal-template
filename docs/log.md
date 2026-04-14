@@ -3,6 +3,50 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-14 — Iteration 64: Barrel Export Tests + UI Component Tests (+89 tests, 13 new test files)
+
+### New Barrel Export Tests (12 test files)
+- **`packages/core/src/__tests__/barrel-exports.test.ts`** — 14 tests validating all public API exports (loaders, content reader, cache, logger)
+- **`packages/adapters/src/__tests__/barrel-exports.test.ts`** — 5 tests (FilesystemAdapter, GitAdapter, createAdapter, resolveAdapterConfig)
+- **`packages/sync/src/__tests__/barrel-exports.test.ts`** — 5 tests (SyncManager, WebhookHandler, DeployHookTrigger, resolveSyncConfig)
+- **`packages/plugins/src/__tests__/barrel-exports.test.ts`** — 4 tests (definePlugins, PluginRunner, createPluginLogger)
+- **`packages/plugin-seo/src/__tests__/barrel-exports.test.ts`** — 5 tests (seoPlugin, generateMetaTags, generateJsonLd, generateItemJsonLd, generateRobotsTxt)
+- **`packages/plugin-rss/src/__tests__/barrel-exports.test.ts`** — 7 tests (rssPlugin, buildFeedEntries, resolveRssConfig, generateRss, escapeXml, toRfc2822, generateAtom, toAtomDate)
+- **`packages/plugin-search/src/__tests__/barrel-exports.test.ts`** — 2 tests (searchPlugin)
+- **`packages/plugin-sitemap/src/__tests__/barrel-exports.test.ts`** — 2 tests (sitemapPlugin)
+- **`packages/plugin-filters/src/__tests__/barrel-exports.test.ts`** — 5 tests (filtersPlugin, filterItems, parseFiltersFromUrl, serializeFiltersToUrl, DEFAULT_PARAM_NAMES)
+- **`packages/plugin-pagination/src/__tests__/barrel-exports.test.ts`** — 4 tests (paginationPlugin, paginate, generatePagePaths)
+- **`packages/plugin-sort/src/__tests__/barrel-exports.test.ts`** — 3 tests (sortPlugin, sortItems)
+- **`packages/plugin-breadcrumbs/src/__tests__/barrel-exports.test.ts`** — 3 tests (breadcrumbsPlugin, generateBreadcrumbs)
+
+### New UI Component Tests (1 test file)
+- **`packages/ui/src/__tests__/preact/ui-components.test.tsx`** — 34 tests for all 5 shadcn-style Preact UI components:
+  - **Badge** (7 tests): data-slot, children, default/secondary/outline variants, className merge, span element
+  - **Button** (9 tests): data-slot, children, button role, default/ghost variants, sm/icon sizes, className merge, disabled prop
+  - **Input** (6 tests): data-slot, default type, custom type, className merge, placeholder, base styling
+  - **Label** (5 tests): data-slot, children, label element, className merge, base styling
+  - **Select/SelectOption** (7 tests): data-slot, select element, options rendering, className merge, base styling, option value/text
+
+### Documentation Updates
+- **Updated README.md**: Unit test count 863 → 952
+- **Updated `.specify/project.md`**: Iteration 63 → 64, unit tests 863 → 952
+- **Updated `.specify/features/testing.md`**: Coverage 863 tests / 55 files → 952 tests / 68 files
+- **Updated `docs/index.md`**: Iteration reference 63 → 64
+
+### Build Verification
+- `pnpm typecheck` — ALL 21 tasks pass (0 errors)
+- `pnpm lint` — ALL 16 tasks pass
+- `pnpm test` — ALL 14 test suites pass (952 tests)
+- `pnpm build` — ALL 8 apps build successfully
+- `pnpm audit` — 0 vulnerabilities
+
+### Summary
+- **13 new test files** — 12 barrel export tests + 1 UI components test
+- **89 new tests** (863 → 952) — covering all package public APIs and all 5 shadcn-style UI components
+- **Every package now has barrel export validation** — catches accidental removal or renaming of exports
+- **All shadcn-style Preact components tested** — Badge, Button, Input, Label, Select, SelectOption
+- **No production code modified** — all changes are test-only + documentation updates
+
 ## 2026-04-14 — Iteration 63: Test Coverage Expansion (+52 tests, 4 new test files)
 
 ### New Unit Tests
