@@ -14,6 +14,7 @@ import { useState, useMemo, useCallback } from 'preact/hooks';
 import SearchInput from '@ever-works/ui/preact/SearchInput';
 import FilterBar from '@ever-works/ui/preact/FilterBar';
 import SortSelect from '@ever-works/ui/preact/SortSelect';
+import { sortItemsByOption } from '@ever-works/ui/lib/sort-items';
 import type { SortOption } from '@ever-works/ui';
 
 interface BrowserItem {
@@ -44,27 +45,6 @@ interface ItemBrowserProps {
   tags: BrowserTag[];
   itemName?: string;
   itemsName?: string;
-}
-
-function sortItems(items: BrowserItem[], sort: SortOption): BrowserItem[] {
-  const sorted = [...items];
-  switch (sort) {
-    case 'name-asc':
-      return sorted.sort((a, b) => a.name.localeCompare(b.name));
-    case 'name-desc':
-      return sorted.sort((a, b) => b.name.localeCompare(a.name));
-    case 'date-asc':
-      return sorted.sort((a, b) => a.updated_at.localeCompare(b.updated_at));
-    case 'date-desc':
-      return sorted.sort((a, b) => b.updated_at.localeCompare(a.updated_at));
-    case 'featured':
-    default:
-      return sorted.sort((a, b) => {
-        if (a.featured && !b.featured) return -1;
-        if (!a.featured && b.featured) return 1;
-        return a.name.localeCompare(b.name);
-      });
-  }
 }
 
 export default function ItemBrowser({
@@ -123,7 +103,7 @@ export default function ItemBrowser({
     }
 
     // Sort
-    result = sortItems(result, sortBy);
+    result = sortItemsByOption(result, sortBy);
 
     return result;
   }, [items, searchQuery, activeCategory, activeTags, sortBy]);

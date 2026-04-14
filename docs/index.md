@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-14 (Iteration 50: RSS/Atom feed plugin, robots.txt generation)
+> Updated: 2026-04-14 (Iteration 51: UI package tests, sortItems deduplication)
 
 ## Root Documents
 

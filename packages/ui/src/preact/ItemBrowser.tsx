@@ -26,6 +26,7 @@ import LayoutSwitcher from './LayoutSwitcher';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { cn } from '../lib/utils';
+import { sortItemsByOption } from '../lib/sort-items';
 
 /** Handle Enter/Space key activation for non-button elements */
 function handleKeyActivation(callback: () => void) {
@@ -35,32 +36,6 @@ function handleKeyActivation(callback: () => void) {
 			callback();
 		}
 	};
-}
-
-/** Sort items by the selected sort option. */
-function sortItems(items: ItemData[], sort: SortOption): ItemData[] {
-	const sorted = [...items];
-	switch (sort) {
-		case 'name-asc':
-			return sorted.sort((a, b) => a.name.localeCompare(b.name));
-		case 'name-desc':
-			return sorted.sort((a, b) => b.name.localeCompare(a.name));
-		case 'date-asc':
-			return sorted.sort((a, b) =>
-				a.updated_at.localeCompare(b.updated_at),
-			);
-		case 'date-desc':
-			return sorted.sort((a, b) =>
-				b.updated_at.localeCompare(a.updated_at),
-			);
-		case 'featured':
-		default:
-			return sorted.sort((a, b) => {
-				if (a.featured && !b.featured) return -1;
-				if (!a.featured && b.featured) return 1;
-				return a.name.localeCompare(b.name);
-			});
-	}
 }
 
 export default function ItemBrowser({
@@ -147,7 +122,7 @@ export default function ItemBrowser({
 			);
 		}
 
-		return sortItems(result, sortBy);
+		return sortItemsByOption(result, sortBy);
 	}, [items, searchQuery, activeCategory, activeTags, sortBy]);
 
 	/* ── Pagination ──────────────────────────────────── */

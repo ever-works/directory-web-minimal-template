@@ -18,6 +18,7 @@
 import { useState, useMemo, useCallback, useRef } from 'preact/hooks';
 import SearchInput from '@ever-works/ui/preact/SearchInput';
 import type { SortOption } from '@ever-works/ui';
+import { sortItemsByOption } from '@ever-works/ui/lib/sort-items';
 
 interface BrowserItem {
   slug: string;
@@ -64,27 +65,6 @@ const SORT_LABELS: Record<SortOption, string> = {
   'date-desc': 'Newest first',
 };
 const SORT_OPTIONS: SortOption[] = ['featured', 'name-asc', 'name-desc', 'date-asc', 'date-desc'];
-
-function sortItems(items: BrowserItem[], sort: SortOption): BrowserItem[] {
-  const sorted = [...items];
-  switch (sort) {
-    case 'name-asc':
-      return sorted.sort((a, b) => a.name.localeCompare(b.name));
-    case 'name-desc':
-      return sorted.sort((a, b) => b.name.localeCompare(a.name));
-    case 'date-asc':
-      return sorted.sort((a, b) => a.updated_at.localeCompare(b.updated_at));
-    case 'date-desc':
-      return sorted.sort((a, b) => b.updated_at.localeCompare(a.updated_at));
-    case 'featured':
-    default:
-      return sorted.sort((a, b) => {
-        if (a.featured && !b.featured) return -1;
-        if (!a.featured && b.featured) return 1;
-        return a.name.localeCompare(b.name);
-      });
-  }
-}
 
 /** Max visible rows before "show more" */
 const CAT_MAX_H = 200;  // px — ~2 rows of category cards
@@ -190,7 +170,7 @@ export default function ItemBrowser({
       );
     }
 
-    result = sortItems(result, sortBy);
+    result = sortItemsByOption(result, sortBy);
     return result;
   }, [items, searchQuery, activeCategory, activeTags, sortBy]);
 

@@ -896,6 +896,42 @@ These are primarily used inside Preact islands (e.g., `ItemBrowser`, `FilterBar`
 
 ---
 
+## Utility Functions
+
+### cn()
+
+**File**: `packages/ui/src/lib/utils.ts`
+**Export**: `@ever-works/ui/lib/utils`
+
+Merges Tailwind CSS classes with proper conflict resolution using `clsx` + `tailwind-merge`.
+
+```typescript
+cn(...inputs: ClassValue[]): string
+```
+
+### sortItemsByOption()
+
+**File**: `packages/ui/src/lib/sort-items.ts`
+**Export**: `@ever-works/ui/lib/sort-items`
+
+Client-safe item sorting by `SortOption` string. Generic over any type with `{ name, updated_at, featured? }` — works with both `ItemData` from `@ever-works/core` and custom `BrowserItem` types in sample apps.
+
+```typescript
+type SortOption = 'name-asc' | 'name-desc' | 'date-asc' | 'date-desc' | 'featured';
+
+interface Sortable {
+    name: string;
+    updated_at: string;
+    featured?: boolean;
+}
+
+sortItemsByOption<T extends Sortable>(items: T[], sort: SortOption): T[]
+```
+
+This is the canonical sort implementation used by `ItemBrowser` and all sample apps. Avoids duplicating sort logic across the codebase.
+
+---
+
 ## Component Summary
 
 | Category | Count | Location |

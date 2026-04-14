@@ -3,6 +3,43 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-14 — Iteration 51: UI Package Tests, sortItems Deduplication
+
+### UI Package Test Infrastructure (Q19-A: RESOLVED)
+- **Added**: `vitest` dev dependency and test script to `@ever-works/ui`
+- **Created**: `packages/ui/vitest.config.ts` — test configuration
+- **Created**: `src/__tests__/utils.test.ts` — 12 tests for `cn()` utility (class merging, conflict resolution, conditional classes, Tailwind overrides)
+- **Created**: `src/__tests__/sort-items.test.ts` — 12 tests for `sortItemsByOption()` (all sort modes, edge cases, immutability, empty/single-item arrays)
+- **Created**: `src/__tests__/variants.test.ts` — 18 tests for `badgeVariants` and `buttonVariants` (all variant/size combinations, defaults, base classes)
+- **Total**: 42 new unit tests in 3 test files
+
+### Shared sortItemsByOption Utility (Q19-B: RESOLVED)
+- **Created**: `packages/ui/src/lib/sort-items.ts` — canonical client-safe sort by `SortOption` string
+- **Generic**: `sortItemsByOption<T extends Sortable>()` works with `ItemData`, `BrowserItem`, or any `{ name, updated_at, featured? }`
+- **Exported**: `@ever-works/ui/lib/sort-items` — new package export
+- **Refactored**: `packages/ui/src/preact/ItemBrowser.tsx` — removed inline `sortItems`, imports shared utility
+- **Refactored**: 5 sample apps (`sample-basic`, `sample-jobs`, `sample-events`, `sample-real-estate`, `sample-git`) — removed duplicated `sortItems` function, now import `sortItemsByOption` from `@ever-works/ui/lib/sort-items`
+- **Eliminated**: 7 duplicate `sortItems` implementations → 1 shared implementation with tests
+
+### Documentation Updates
+- **Updated**: `docs/specs/component-catalog.md` — added Utility Functions section documenting `cn()` and `sortItemsByOption()`
+- **Updated**: `docs/questions.md` — marked Q19-A and Q19-B as RESOLVED with details
+- **Updated**: `docs/log.md` — this entry
+
+### Verification
+- `pnpm typecheck` — 21/21 tasks pass (0 errors)
+- `pnpm lint` — 10/10 tasks pass
+- `pnpm test` — 14/14 tasks pass (42 new tests, 55 total new test assertions)
+- `pnpm build` — 7/7 tasks pass (sample-basic: 42 pages, sample-jobs: 36, sample-events: 37, sample-real-estate: 37, sample-git: 5030, web: 8, docs: OK)
+
+### Next Steps
+1. Resolve Q19-C (BreadcrumbNav double type assertion)
+2. Add more UI component tests (Preact component rendering with jsdom)
+3. Run E2E tests against built sites
+4. Create specs for remaining open items
+
+---
+
 ## 2026-04-14 — Iteration 50: RSS/Atom Feed Plugin, robots.txt Generation
 
 ### Feature: RSS/Atom Feed Plugin (`@ever-works/plugin-rss`)

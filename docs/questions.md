@@ -273,11 +273,11 @@ sidebar_label: "Questions"
 **Context**: A comprehensive code quality audit (iteration 44) identified several areas for improvement. These are tracked here for future work.
 
 **High priority items:**
-- A) **UI package has zero tests** — 39 component files but no test files. Add unit tests for Preact component logic (FilterBar, SortSelect, ItemBrowser, SearchInput) and utility functions (`cn`).
-- B) **Duplicated `sortItems` logic** — Each of the 5 sample apps and the UI package define their own `sortItems` function instead of importing from `@ever-works/plugin-sort`. Consider extracting a client-safe sort utility to `@ever-works/ui`.
+- A) **~~UI package has zero tests~~** — DONE (iteration 51). Added 42 unit tests across 3 test files: `utils.test.ts` (12 tests for `cn()`), `sort-items.test.ts` (12 tests for `sortItemsByOption()`), `variants.test.ts` (18 tests for badge/button CVA variants).
+- B) **~~Duplicated `sortItems` logic~~** — DONE (iteration 51). Extracted `sortItemsByOption<T>()` to `@ever-works/ui/lib/sort-items`. Generic over `Sortable` interface. All 5 sample apps + UI ItemBrowser now import from the shared utility. 7 duplicate implementations removed.
 - C) **Double type assertion in BreadcrumbNav** — All 5 samples use `(data as unknown as Record<string, unknown>)._breadcrumbs`. Consider extending `ContentData` with an optional `_breadcrumbs` field or creating a `ContentDataWithBreadcrumbs` type.
 - D) **`ItemData` index signature weakens type safety** — `[key: string]: unknown` allows any property access without type errors. Consider moving pass-through to a dedicated `meta?: Record<string, unknown>` field.
-- E) **`LayoutSwitcher` component never used** — Exported from UI package but not imported by any app. Needs at least one usage example.
+- E) **`LayoutSwitcher` component never used** — Exported from UI package but not imported by any app. Now used by `ItemBrowser` in UI package (iteration 49), but no sample app uses it standalone.
 
 **Medium priority items:**
 - F) **Unused public exports** — `FilesystemAdapter`, `GitAdapter`, `createPluginLogger`, `generateBreadcrumbs`, `filterItems`, `parseFiltersFromUrl`, `serializeFiltersToUrl`, `sortItems`, `loadComparison`, `loadItem`, `loadPage` are exported but never imported externally.
@@ -286,6 +286,6 @@ sidebar_label: "Questions"
 - I) **Sample apps don't use Astro UI components** — None of the 5 samples import Astro components from `@ever-works/ui/astro`. Only `apps/web` uses them.
 - J) **sample-git ItemBrowser diverges** — 476 lines vs ~230 in other samples with a custom lazy-loading pattern. Should document this as intentional for large datasets.
 
-**Default choice**: Items A-E are high priority for the next few iterations. F-J are nice-to-haves. Item B (sortItems dedup) and C (BreadcrumbNav types) are the best ROI improvements.
+**Default choice**: Items C-E remain as high priority. F-J are nice-to-haves. Item C (BreadcrumbNav types) is the next best ROI improvement.
 
-**Status**: DOCUMENTED — tracking for future iterations.
+**Status**: A and B RESOLVED (iteration 51). C-J still open.

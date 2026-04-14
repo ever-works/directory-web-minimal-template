@@ -7,7 +7,8 @@
     "types": "./src/index.ts",
     "exports": {
         ".": "./src/index.ts",
-        "./lib/*": "./src/lib/*",
+        "./lib/utils": "./src/lib/utils.ts",
+        "./lib/sort-items": "./src/lib/sort-items.ts",
         "./primitives/*": "./src/primitives/*",
         "./astro/*": "./src/astro/*",
         "./preact/SearchInput": "./src/preact/SearchInput.tsx",
@@ -21,6 +22,7 @@
     },
     "scripts": {
         "typecheck": "tsc --noEmit",
+        "test": "vitest run",
         "clean": "rm -rf dist"
     },
     "dependencies": {
@@ -37,6 +39,7 @@
         "@ever-works/tsconfig": "workspace:*",
         "astro": "^6.1.6",
         "preact": "^10.29.1",
-        "typescript": "^5.9.3"
+        "typescript": "^5.9.3",
+        "vitest": "^4.1.4"
     }
 }
