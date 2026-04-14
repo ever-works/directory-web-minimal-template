@@ -3,6 +3,34 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-14 — Iteration 63: Test Coverage Expansion (+52 tests, 4 new test files)
+
+### New Unit Tests
+- **`packages/ui/src/__tests__/pagination.test.ts`** — 14 tests for `getVisiblePages()` ellipsis truncation utility (shared between Pagination.astro and ItemBrowser.tsx). Covers: all-pages display, ellipsis placement (leading, trailing, both), boundary deduplication, custom max parameter, current-page inclusion across all pages, and adjacency-skip logic.
+- **`packages/ui/src/__tests__/keyboard.test.ts`** — 7 tests for `handleKeyActivation()` keyboard utility (shared between FilterBar and ItemBrowser). Covers: Enter/Space activation, non-activation key rejection, preventDefault behavior, reusability.
+- **`packages/plugin-seo/src/__tests__/plugin.test.ts`** — 13 tests for `seoPlugin()` factory function. Covers: plugin structure validation, onInit logging (siteUrl, titleTemplate, JSON-LD), validation warnings (invalid URL, missing %s, missing @, invalid OG image), and onDataLoaded passthrough.
+- **`packages/ui/src/__tests__/preact/item-browser.test.tsx`** — 18 tests for `ItemBrowser` Preact component (the most complex untested component). Covers: rendering with data attributes, category/tag filtering, search filtering with debounce, empty state, clear-all, pagination, default item card, featured badge, custom renderItem.
+
+### Documentation Accuracy
+- **Fixed README.md**: E2E spec count 56 → 57 (line 94, was already correct on line 56)
+- **Updated README.md**: Unit test count 811 → 863
+- **Updated `.specify/project.md`**: Iteration 62 → 63, unit tests 811 → 863
+- **Updated `.specify/features/testing.md`**: Coverage 811 tests / 44 files → 863 tests / 55 files
+- **Updated `docs/index.md`**: Iteration reference 62 → 63
+
+### Build Verification
+- `pnpm typecheck` — ALL 21 tasks pass (0 errors)
+- `pnpm lint` — ALL 16 tasks pass
+- `pnpm test` — ALL 14 test suites pass (863 tests)
+- `pnpm build` — ALL 7 tasks pass
+- `pnpm audit` — 0 vulnerabilities
+
+### Summary
+- **4 new test files** — pagination, keyboard, SEO plugin factory, ItemBrowser component
+- **52 new tests** (811 → 863) — covering previously untested utilities and the most complex Preact component
+- **1 documentation fix** (README.md E2E spec count inconsistency)
+- **All code changes are test-only** — no production code modified
+
 ## 2026-04-14 — Iteration 62b: Code Quality Fixes from Automated Audit
 
 ### Bug Fixes
