@@ -38,7 +38,7 @@ test.describe('Jobs Comparison Detail — Vercel vs Cloudflare', () => {
 
     test('should display breadcrumb navigation', async ({ page }) => {
         await page.goto('/comparison/vercel-vs-cloudflare');
-        const breadcrumbs = page.locator('nav[aria-label="Breadcrumb"]');
+        const breadcrumbs = page.locator('[data-component="breadcrumb-nav"]');
         await expect(breadcrumbs).toBeVisible();
     });
 });

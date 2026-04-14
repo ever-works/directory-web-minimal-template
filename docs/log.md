@@ -3,6 +3,29 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-14 — Iteration 58: Security Fixes, E2E Test Quality, Documentation Accuracy
+
+### Security
+- **Upgraded webpack override** from `5.98.0` → `5.104.1` — fixes 2 security advisories (remaining 4 are upstream Docusaurus dependency chain)
+
+### E2E Test Quality (11 files updated)
+- **Standardized breadcrumb locators** across all 17 breadcrumb-referencing test files to use `[data-component="breadcrumb-nav"]` — previously 3 different strategies were used inconsistently
+- **Replaced `waitForTimeout`** in `mobile-menu.spec.ts` and `git/git-mobile-menu.spec.ts` with condition-based `waitFor({ state: 'attached' })` — eliminates flakiness
+- **Fixed silent pass** in `category.spec.ts` — replaced `if (await link.isVisible())` conditional with `await expect(link).toBeVisible()` assertion
+- **Replaced deprecated `page.click()`** in `navigation.spec.ts` with `page.locator().click()` pattern
+- **Removed `results.json` from git tracking** — added to `.gitignore` (580KB test artifact)
+
+### Documentation Accuracy
+- **Fixed test counts** in `README.md`: 458 tests → 811 tests, 28 suites → 14 suites
+- **Fixed test counts** in `.specify/project.md`: 612 tests → 811 tests, updated iteration number to 58
+- **Updated TypeScript version** in `.specify/project.md`: 5.9.3 → 6.0.2
+
+### Build Verification
+- `pnpm build` — ALL 7 tasks pass
+- `pnpm test` — ALL 14 test suites pass (811 tests)
+- `pnpm typecheck` — ALL 21 tasks pass (0 errors)
+- `pnpm lint` — ALL 16 tasks pass
+
 ## 2026-04-14 — Iteration 57: TypeScript 6.0, Test Coverage Expansion, lint:fix
 
 ### TypeScript 6.0.2 Upgrade

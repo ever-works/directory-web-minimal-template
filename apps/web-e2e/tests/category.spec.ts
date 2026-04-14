@@ -27,10 +27,9 @@ test.describe('Categories', () => {
     test('should link from categories index to category page', async ({ page }) => {
         await page.goto('/categories/');
         const link = page.locator('a[href="/category/form-components"]').first();
-        if (await link.isVisible()) {
-            await link.click();
-            await expect(page).toHaveURL(/\/category\/form-components/);
-        }
+        await expect(link).toBeVisible();
+        await link.click();
+        await expect(page).toHaveURL(/\/category\/form-components/);
     });
 });
 

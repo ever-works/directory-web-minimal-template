@@ -20,7 +20,7 @@ test.describe('Property Detail Page', () => {
 
     test('should display breadcrumbs', async ({ page }) => {
         await page.goto('/item/downtown-loft');
-        const breadcrumbs = page.locator('nav[aria-label="Breadcrumb"]');
+        const breadcrumbs = page.locator('[data-component="breadcrumb-nav"]');
         await expect(breadcrumbs).toBeVisible();
     });
 

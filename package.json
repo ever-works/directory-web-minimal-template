@@ -50,7 +50,7 @@
     },
     "pnpm": {
         "overrides": {
-            "webpack": "5.98.0"
+            "webpack": "5.104.1"
         }
     }
 }

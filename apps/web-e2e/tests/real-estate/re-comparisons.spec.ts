@@ -32,7 +32,7 @@ test.describe('Real Estate Comparison Detail — Downtown Loft vs Suburban House
 
     test('should display breadcrumb navigation', async ({ page }) => {
         await page.goto('/comparison/downtown-loft-vs-suburban-house');
-        const breadcrumbs = page.locator('nav[aria-label="Breadcrumb"]');
+        const breadcrumbs = page.locator('[data-component="breadcrumb-nav"]');
         await expect(breadcrumbs).toBeVisible();
     });
 });

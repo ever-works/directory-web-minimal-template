@@ -14,7 +14,7 @@ test.describe('Navigation', () => {
             await page.locator('[data-component="mobile-menu"] button').click();
             await page.locator('#mobile-nav-panel a[href="/categories"]').click();
         } else {
-            await page.click('a[href="/categories"]');
+            await page.locator('a[href="/categories"]').click();
         }
         await expect(page).toHaveURL(/\/categories/);
         await expect(page).toHaveTitle(/Categories/);
@@ -26,7 +26,7 @@ test.describe('Navigation', () => {
             await page.locator('[data-component="mobile-menu"] button').click();
             await page.locator('#mobile-nav-panel a[href="/tags"]').click();
         } else {
-            await page.click('a[href="/tags"]');
+            await page.locator('a[href="/tags"]').click();
         }
         await expect(page).toHaveURL(/\/tags/);
         await expect(page).toHaveTitle(/Tags/);

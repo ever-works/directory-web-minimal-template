@@ -16,8 +16,7 @@ test.describe('Jobs Static Pages', () => {
 
 	test('should display breadcrumbs on about page', async ({ page }) => {
 		await page.goto('/pages/about/');
-		const mainContent = page.locator('main');
-		const breadcrumbNav = mainContent.locator('nav').first();
+		const breadcrumbNav = page.locator('[data-component="breadcrumb-nav"]');
 		await expect(breadcrumbNav).toBeVisible();
 		await expect(breadcrumbNav.getByText('Home')).toBeVisible();
 	});

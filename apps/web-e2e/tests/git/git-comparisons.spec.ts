@@ -33,7 +33,7 @@ test.describe('Git Comparisons Page', () => {
 
     test('should show breadcrumbs on comparison page', async ({ page }) => {
         await page.goto('/comparison/hubstaff--toggl');
-        const breadcrumbs = page.locator('nav[aria-label="Breadcrumb"]');
+        const breadcrumbs = page.locator('[data-component="breadcrumb-nav"]');
         await expect(breadcrumbs).toBeVisible();
     });
 });

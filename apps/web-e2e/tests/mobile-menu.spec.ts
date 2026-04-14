@@ -45,8 +45,8 @@ test.describe('Mobile Menu', () => {
         await toggle.click();
         const panel = page.locator('#mobile-nav-panel');
         await expect(panel).toBeVisible();
-        // Wait for Preact hydration to attach event listeners
-        await page.waitForTimeout(500);
+        // Wait for hydration to attach event listeners
+        await page.locator('[data-component="mobile-menu"] button').waitFor({ state: 'attached' });
         await panel.locator('a').first().focus();
         await page.keyboard.press('Escape');
         await expect(panel).not.toBeVisible({ timeout: 10000 });

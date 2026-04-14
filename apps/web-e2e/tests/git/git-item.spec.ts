@@ -20,7 +20,7 @@ test.describe('Git Item Detail Page', () => {
 
     test('should show breadcrumbs', async ({ page }) => {
         await page.goto('/item/toggl');
-        const breadcrumbs = page.locator('nav[aria-label="Breadcrumb"]');
+        const breadcrumbs = page.locator('[data-component="breadcrumb-nav"]');
         await expect(breadcrumbs).toBeVisible();
     });
 

@@ -40,8 +40,7 @@ test.describe('Git Static Pages', () => {
 
 	test('should display breadcrumbs on static pages', async ({ page }) => {
 		await page.goto('/pages/about.en/');
-		const mainContent = page.locator('main');
-		const breadcrumbNav = mainContent.locator('nav').first();
+		const breadcrumbNav = page.locator('[data-component="breadcrumb-nav"]');
 		await expect(breadcrumbNav).toBeVisible();
 		await expect(breadcrumbNav.getByText('Home')).toBeVisible();
 	});

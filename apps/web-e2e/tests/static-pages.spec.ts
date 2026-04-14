@@ -30,8 +30,7 @@ test.describe('Static Pages', () => {
 		await page.goto('/pages/about/');
 		// Static pages have breadcrumb navigation in main content area
 		// The breadcrumb nav is inside <main> and links back to Home
-		const mainContent = page.locator('main');
-		const breadcrumbNav = mainContent.locator('nav').first();
+		const breadcrumbNav = page.locator('[data-component="breadcrumb-nav"]');
 		await expect(breadcrumbNav).toBeVisible();
 		await expect(breadcrumbNav.getByText('Home')).toBeVisible();
 	});

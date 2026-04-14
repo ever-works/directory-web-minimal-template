@@ -44,9 +44,9 @@ test.describe('Git Mobile Menu', () => {
         await page.locator('[data-component="mobile-menu"] button').click();
         const panel = page.locator('#mobile-nav-panel');
         await expect(panel).toBeVisible();
-        // Focus inside the panel to ensure keydown handler is active
+        // Wait for hydration to attach event listeners
+        await page.locator('[data-component="mobile-menu"] button').waitFor({ state: 'attached' });
         await panel.locator('a').first().focus();
-        await page.waitForTimeout(100);
         await page.keyboard.press('Escape');
         await expect(panel).not.toBeVisible({ timeout: 5000 });
     });
