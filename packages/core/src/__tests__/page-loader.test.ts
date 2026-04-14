@@ -64,7 +64,8 @@ We are a great company.`;
         expect(pages[0]!.slug).toBe('about');
         expect(pages[0]!.title).toBe('About Us');
         expect(pages[0]!.description).toBe('Learn about our company');
-        expect(pages[0]!.content).toContain('# About Us');
+        // Content is now converted from markdown to HTML
+        expect(pages[0]!.content).toContain('<h1>About Us</h1>');
         expect(pages[0]!.content).toContain('We are a great company.');
     });
 
@@ -102,7 +103,8 @@ No frontmatter here.`;
         expect(pages).toHaveLength(1);
         expect(pages[0]!.slug).toBe('simple');
         expect(pages[0]!.title).toBe('Simple');
-        expect(pages[0]!.content).toContain('# Just Content');
+        // Content is converted from markdown to HTML
+        expect(pages[0]!.content).toContain('<h1>Just Content</h1>');
     });
 
     it('should load multiple pages', async () => {

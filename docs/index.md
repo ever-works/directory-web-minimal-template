@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-14 (Iteration 46: health check, @types/node v24 upgrade, full verification)
+> Updated: 2026-04-14 (Iteration 47: markdown rendering bug fix, static pages E2E coverage)
 
 ## Root Documents
 

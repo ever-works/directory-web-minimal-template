@@ -4,6 +4,7 @@
  */
 
 import { parse as parseYaml } from 'yaml';
+import { marked } from 'marked';
 import type { DataAdapter } from '@ever-works/adapters';
 import type { PageData } from '../types/index.js';
 
@@ -56,11 +57,14 @@ async function parsePage(adapter: DataAdapter, filename: string): Promise<PageDa
             ? frontmatter['title']
             : slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
+        // Convert markdown body to HTML for rendering via set:html
+        const htmlContent = await marked.parse(body);
+
         const page: PageData = {
             ...frontmatter,
             slug,
             title,
-            content: body,
+            content: htmlContent,
         };
 
         if (typeof frontmatter['description'] === 'string') {

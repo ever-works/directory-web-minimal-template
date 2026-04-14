@@ -3,6 +3,46 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-14 — Iteration 47: Markdown Rendering Bug Fix, Static Pages E2E Coverage
+
+### Bug Fix: Markdown-to-HTML Conversion for Static Pages
+- **Fixed**: Static pages (`pages/[slug]`) were rendering raw markdown instead of HTML. The page loader returned raw markdown body text, which `set:html` inserted as-is without conversion.
+- **Solution**: Added `marked` v18 to `@ever-works/core` dependencies. The page loader now converts markdown body content to HTML via `marked.parse()` before returning `PageData.content`.
+- **Impact**: All static pages (about, privacy, terms, contact, submit, cookies) across all 5 sample apps now render proper HTML — headings as `<h2>`, lists as `<ul>/<li>`, bold as `<strong>`, etc.
+
+### New E2E Tests: Static Pages Coverage
+- Created `tests/static-pages.spec.ts` — 8 tests for sample-basic (about page rendering, heading, markdown-to-HTML, breadcrumbs, meta tags, header/footer, 404)
+- Created `tests/events/events-static-pages.spec.ts` — 5 tests (about, submit, breadcrumbs, layout, content)
+- Created `tests/jobs/jobs-static-pages.spec.ts` — 4 tests (about, breadcrumbs, layout, content)
+- Created `tests/real-estate/re-static-pages.spec.ts` — 5 tests (about, contact, breadcrumbs, layout, content)
+- Created `tests/git/git-static-pages.spec.ts` — 7 tests (about, privacy, terms, cookies, breadcrumbs, layout, markdown HTML)
+- **Total new E2E tests: 29 tests across 5 test files**
+
+### Unit Test Updates
+- Updated `packages/core/src/__tests__/page-loader.test.ts` — 2 assertions updated to expect HTML output instead of raw markdown
+
+### Build Verification
+- `pnpm typecheck` — ALL 20 tasks pass (0 errors)
+- `pnpm test` — ALL 12 suites pass (102 core + 330 other = 432 unit tests)
+- `pnpm build` — ALL 7 apps build successfully
+- E2E (chromium): 75 passed, 5 skipped
+- E2E (events-chromium): 5 passed
+- E2E (jobs-chromium): 4 passed
+- E2E (re-chromium): 5 passed
+- E2E (git-chromium): 7 passed
+
+### Summary
+- **Bug fixed**: Static pages now render markdown as proper HTML
+- **Test coverage expanded**: 29 new E2E tests for static pages across all sample apps
+- **Dependencies**: Added `marked@^18.0.0` to `@ever-works/core`
+- **All tests passing**: 432 unit + 596+ E2E tests
+
+### Next Steps (for next scheduled run)
+1. Consider adding SEO JSON-LD structured data for static pages
+2. Explore adding markdown rendering to page loader for about/privacy/terms pages
+3. Review if git sample `.en` suffix convention should be normalized (strip locale from slug)
+4. Consider adding a table of contents component for long static pages
+
 ## 2026-04-14 — Iteration 46: Health Check, Dependency Upgrade, Full Verification
 
 ### Dependency Upgrade
