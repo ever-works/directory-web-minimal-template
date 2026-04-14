@@ -6,6 +6,9 @@ settings:
 
 overrides:
   webpack: 5.104.1
+  serialize-javascript: '>=7.0.5'
+  follow-redirects: '>=1.16.0'
+  yaml: '>=2.8.3'
 
 importers:
 
@@ -163,7 +166,7 @@ importers:
         specifier: ^4.2.2
         version: 4.2.2
       yaml:
-        specifier: ^2.8.3
+        specifier: '>=2.8.3'
         version: 2.8.3
     devDependencies:
       '@astrojs/check':
@@ -239,7 +242,7 @@ importers:
         specifier: ^4.2.2
         version: 4.2.2
       yaml:
-        specifier: ^2.8.3
+        specifier: '>=2.8.3'
         version: 2.8.3
     devDependencies:
       '@astrojs/check':
@@ -324,7 +327,7 @@ importers:
         specifier: ^4.2.2
         version: 4.2.2
       yaml:
-        specifier: ^2.8.3
+        specifier: '>=2.8.3'
         version: 2.8.3
     devDependencies:
       '@astrojs/check':
@@ -400,7 +403,7 @@ importers:
         specifier: ^4.2.2
         version: 4.2.2
       yaml:
-        specifier: ^2.8.3
+        specifier: '>=2.8.3'
         version: 2.8.3
     devDependencies:
       '@astrojs/check':
@@ -476,7 +479,7 @@ importers:
         specifier: ^4.2.2
         version: 4.2.2
       yaml:
-        specifier: ^2.8.3
+        specifier: '>=2.8.3'
         version: 2.8.3
     devDependencies:
       '@astrojs/check':
@@ -555,7 +558,7 @@ importers:
         specifier: ^4.2.2
         version: 4.2.2
       yaml:
-        specifier: ^2.8.3
+        specifier: '>=2.8.3'
         version: 2.8.3
     devDependencies:
       '@astrojs/check':
@@ -648,7 +651,7 @@ importers:
         specifier: ^18.0.0
         version: 18.0.0
       yaml:
-        specifier: ^2.8.3
+        specifier: '>=2.8.3'
         version: 2.8.3
     devDependencies:
       '@ever-works/eslint-config':
@@ -5997,8 +6000,8 @@ packages:
     resolution: {integrity: sha512-9UbaD6XdAL97+k/n+N7JwX46K/M6Zc6KcFYskrYL8wbBV/Uyk0CTAMY0VT+qiK5PM7AIc9aTWYtq65U7T+aCNQ==}
     engines: {node: '>=8'}
 
-  follow-redirects@1.15.11:
-    resolution: {integrity: sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ==}
+  follow-redirects@1.16.0:
+    resolution: {integrity: sha512-y5rN/uOsadFT/JfYwhxRS5R7Qce+g3zG97+JrtFZlC9klX/W5hD7iiLzScI4nZqUS7DNUdhPgw4xI8W2LuXlUw==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -8140,9 +8143,6 @@ packages:
   radix3@1.1.2:
     resolution: {integrity: sha512-b484I/7b8rDEdSDKckSSBA8knMpcdsXudlE/LNL639wFoHKwLbEkQFZHWEYwDC0wa0FKUcCY+GAF73Z7wxNVFA==}
 
-  randombytes@2.1.0:
-    resolution: {integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==}
-
   range-parser@1.2.0:
     resolution: {integrity: sha512-kA5WQoNVo4t9lNx2kQNFCxKeBl5IbbSNBl1M/tLkw9WCn+hxNBAW5Qh8gdhs63CJnhjJ2zQWFoqPJP2sK1AV5A==}
     engines: {node: '>= 0.6'}
@@ -8542,8 +8542,9 @@ packages:
     resolution: {integrity: sha512-VMbMxbDeehAxpOtWJXlcUS5E8iXh6QmN+BkRX1GARS3wRaXEEgzCcB10gTQazO42tpNIya8xIyNx8fll1OFPrg==}
     engines: {node: '>= 0.8.0'}
 
-  serialize-javascript@6.0.2:
-    resolution: {integrity: sha512-Saa1xPByTTq2gdeFZYLLo+RFE35NHZkAbqZeWNd3BpzppeVisAqpDjcp8dyf6uIvEqJRd46jemmyA4iFIeVk8g==}
+  serialize-javascript@7.0.5:
+    resolution: {integrity: sha512-F4LcB0UqUl1zErq+1nYEEzSHJnIwb3AF2XWB94b+afhrekOUijwooAYqFyRbjYkm2PAKBabx6oYv/xDxNi8IBw==}
+    engines: {node: '>=20.0.0'}
 
   serve-handler@6.1.7:
     resolution: {integrity: sha512-CinAq1xWb0vR3twAv9evEU8cNWkXCb9kd5ePAHUKJBkOsUpR1wt/CvGdeca7vqumL1U5cSaeVQ6zZMxiJ3yWsg==}
@@ -9275,7 +9276,7 @@ packages:
       sugarss: ^5.0.0
       terser: ^5.16.0
       tsx: ^4.8.1
-      yaml: ^2.4.2
+      yaml: '>=2.8.3'
     peerDependenciesMeta:
       '@types/node':
         optional: true
@@ -9655,11 +9656,6 @@ packages:
 
   yaml-language-server@1.20.0:
     resolution: {integrity: sha512-qhjK/bzSRZ6HtTvgeFvjNPJGWdZ0+x5NREV/9XZWFjIGezew2b4r5JPy66IfOhd5OA7KeFwk1JfmEbnTvev0cA==}
-    hasBin: true
-
-  yaml@2.7.1:
-    resolution: {integrity: sha512-10ULxpnOCQXxJvBgxsn9ptjq6uviG/htZKk9veJGhlqn3w/DxQ631zFF+nlQXLwmImeS5amR2dl2U8sg6U9jsQ==}
-    engines: {node: '>= 14'}
     hasBin: true
 
   yaml@2.8.3:
@@ -14872,7 +14868,7 @@ snapshots:
       globby: 13.2.2
       normalize-path: 3.0.0
       schema-utils: 4.3.3
-      serialize-javascript: 6.0.2
+      serialize-javascript: 7.0.5
       webpack: 5.104.1
 
   core-js-compat@3.49.0:
@@ -15039,7 +15035,7 @@ snapshots:
       jest-worker: 29.7.0
       postcss: 8.5.9
       schema-utils: 4.3.3
-      serialize-javascript: 6.0.2
+      serialize-javascript: 7.0.5
       webpack: 5.104.1
     optionalDependencies:
       clean-css: 5.3.3
@@ -15963,7 +15959,7 @@ snapshots:
 
   flattie@1.1.1: {}
 
-  follow-redirects@1.15.11(debug@4.4.3):
+  follow-redirects@1.16.0(debug@4.4.3):
     optionalDependencies:
       debug: 4.4.3
 
@@ -16422,7 +16418,7 @@ snapshots:
   http-proxy@1.18.1(debug@4.4.3):
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.15.11(debug@4.4.3)
+      follow-redirects: 1.16.0(debug@4.4.3)
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
@@ -18507,10 +18503,6 @@ snapshots:
 
   radix3@1.1.2: {}
 
-  randombytes@2.1.0:
-    dependencies:
-      safe-buffer: 5.2.1
-
   range-parser@1.2.0: {}
 
   range-parser@1.2.1: {}
@@ -19076,9 +19068,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  serialize-javascript@6.0.2:
-    dependencies:
-      randombytes: 2.1.0
+  serialize-javascript@7.0.5: {}
 
   serve-handler@6.1.7:
     dependencies:
@@ -20225,9 +20215,7 @@ snapshots:
       vscode-languageserver-textdocument: 1.0.12
       vscode-languageserver-types: 3.17.5
       vscode-uri: 3.1.0
-      yaml: 2.7.1
-
-  yaml@2.7.1: {}
+      yaml: 2.8.3
 
   yaml@2.8.3: {}
 

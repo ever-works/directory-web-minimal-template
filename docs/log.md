@@ -3,6 +3,35 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-14 — Iteration 59: Security Overrides, Documentation Accuracy
+
+### Security
+- **Added pnpm overrides** for 3 vulnerable upstream dependencies (all in Docusaurus / @astrojs/check chains):
+  - `serialize-javascript` → `>=7.0.5` (fixes HIGH RCE via RegExp.flags + moderate CPU exhaustion)
+  - `follow-redirects` → `>=1.16.0` (fixes moderate auth header leak on cross-domain redirects)
+  - `yaml` → `>=2.8.3` (fixes moderate stack overflow via deeply nested YAML collections)
+- **Result**: `pnpm audit` now reports **0 vulnerabilities** (was 4: 1 high + 3 moderate)
+
+### Documentation Accuracy
+- **Fixed README.md**: E2E spec file count updated from 46 → 56 (in monorepo structure and commands table)
+- **Fixed README.md**: Added missing `plugin-rss/` to packages listing
+
+### Build Verification
+- `pnpm typecheck` — ALL 21 tasks pass (0 errors)
+- `pnpm lint` — ALL 16 tasks pass
+- `pnpm test` — ALL 14 test suites pass (811 tests)
+- `pnpm build` — ALL 7 tasks pass
+  - web: 15 pages, sample-basic: 42, sample-jobs: 36, sample-events: 37, sample-real-estate: 37, sample-git: 5030, docs: 46
+- `pnpm audit` — 0 vulnerabilities
+
+### Outdated Dependencies (Deferred)
+- `cspell` 8.19.4 → 10.0.0 (docs app only, major version — deferred)
+- `react` 18.3.1 → 19.2.5 (docs app, pinned for Docusaurus 3.x compatibility)
+- `react-dom` 18.3.1 → 19.2.5 (docs app, pinned for Docusaurus 3.x compatibility)
+- `react-player` 2.16.1 → 3.4.0 (docs app only, major version — deferred)
+- `typescript` 5.6.3 → 6.0.2 (docs app only, pinned for Docusaurus 3.x compatibility)
+- Peer dependency warnings from `tsconfck@3.1.6` and `@astrojs/check@0.9.8` (declare `typescript@^5.0.0`) — functional, waiting for upstream updates
+
 ## 2026-04-14 — Iteration 58: Security Fixes, E2E Test Quality, Documentation Accuracy
 
 ### Security

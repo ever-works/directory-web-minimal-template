@@ -50,7 +50,10 @@
     },
     "pnpm": {
         "overrides": {
-            "webpack": "5.104.1"
+            "webpack": "5.104.1",
+            "serialize-javascript": ">=7.0.5",
+            "follow-redirects": ">=1.16.0",
+            "yaml": ">=2.8.3"
         }
     }
 }
