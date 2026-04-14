@@ -6,6 +6,7 @@
 import { parse as parseYaml } from 'yaml';
 import type { DataAdapter } from '@ever-works/adapters';
 import type { TagData } from '../types/index.js';
+import { coreLogger } from '../logger.js';
 
 /**
  * Load tag definitions from the data adapter.
@@ -18,7 +19,7 @@ export async function loadTags(adapter: DataAdapter): Promise<TagData[]> {
     try {
         const exists = await adapter.exists('tags.yml');
         if (!exists) {
-            console.warn('[core] tags.yml not found, returning empty array');
+            coreLogger.warn('tags.yml not found, returning empty array');
             return [];
         }
 
@@ -26,7 +27,7 @@ export async function loadTags(adapter: DataAdapter): Promise<TagData[]> {
         const parsed: unknown = parseYaml(raw);
 
         if (!Array.isArray(parsed)) {
-            console.warn('[core] tags.yml is not an array, returning empty array');
+            coreLogger.warn('tags.yml is not an array, returning empty array');
             return [];
         }
 
@@ -42,7 +43,7 @@ export async function loadTags(adapter: DataAdapter): Promise<TagData[]> {
                 ...(typeof entry['isActive'] === 'boolean' ? { isActive: entry['isActive'] } : {}),
             }));
     } catch (error) {
-        console.warn('[core] Failed to load tags.yml:', error);
+        coreLogger.warn('Failed to load tags.yml:', error);
         return [];
     }
 }

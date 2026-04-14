@@ -9,8 +9,9 @@ import { useState, useMemo, useCallback } from 'preact/hooks';
 import SearchInput from '@ever-works/ui/preact/SearchInput';
 import FilterBar from '@ever-works/ui/preact/FilterBar';
 import SortSelect from '@ever-works/ui/preact/SortSelect';
+import LayoutSwitcher from '@ever-works/ui/preact/LayoutSwitcher';
 import { sortItemsByOption } from '@ever-works/ui/lib/sort-items';
-import type { SortOption } from '@ever-works/ui';
+import type { SortOption, LayoutMode } from '@ever-works/ui';
 
 interface BrowserItem {
   slug: string;
@@ -52,6 +53,7 @@ export default function ItemBrowser({
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<SortOption>('featured');
+  const [layout, setLayout] = useState<LayoutMode>('grid');
 
   const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
@@ -67,6 +69,10 @@ export default function ItemBrowser({
 
   const handleSortChange = useCallback((sort: SortOption) => {
     setSortBy(sort);
+  }, []);
+
+  const handleLayoutChange = useCallback((mode: LayoutMode) => {
+    setLayout(mode);
   }, []);
 
   const filteredItems = useMemo(() => {
@@ -112,11 +118,19 @@ export default function ItemBrowser({
             onSearch={handleSearch}
             class="search-input-styled"
           />
-          <SortSelect
-            selected={sortBy}
-            onChange={handleSortChange}
-            class="sort-select-styled"
-          />
+          <div class="flex items-center gap-2">
+            <LayoutSwitcher
+              modes={['grid', 'list']}
+              selected={layout}
+              onChange={handleLayoutChange}
+              persistKey="ew-sample-real-estate-layout"
+            />
+            <SortSelect
+              selected={sortBy}
+              onChange={handleSortChange}
+              class="sort-select-styled"
+            />
+          </div>
         </div>
 
         <FilterBar
@@ -172,7 +186,7 @@ export default function ItemBrowser({
           )}
         </div>
       ) : (
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div class={layout === 'list' ? 'flex flex-col gap-3' : 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3'}>
           {filteredItems.map((item) => (
             <a
               key={item.slug}

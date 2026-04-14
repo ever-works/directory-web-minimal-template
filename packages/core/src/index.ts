@@ -49,3 +49,7 @@ export { loadContent } from './content-reader';
 // Content cache
 export { ContentCache } from './content-cache';
 export type { ContentCacheConfig, CacheStatus } from './content-cache';
+
+// Logger
+export { coreLogger, createCoreLogger } from './logger';
+export type { CoreLogger } from './logger';

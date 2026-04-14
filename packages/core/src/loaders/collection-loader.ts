@@ -6,6 +6,7 @@
 import { parse as parseYaml } from 'yaml';
 import type { DataAdapter } from '@ever-works/adapters';
 import type { CollectionData } from '../types/index.js';
+import { coreLogger } from '../logger.js';
 
 /**
  * Load collection definitions from the data adapter.
@@ -18,7 +19,7 @@ export async function loadCollections(adapter: DataAdapter): Promise<CollectionD
     try {
         const exists = await adapter.exists('collections.yml');
         if (!exists) {
-            console.warn('[core] collections.yml not found, returning empty array');
+            coreLogger.warn('collections.yml not found, returning empty array');
             return [];
         }
 
@@ -26,7 +27,7 @@ export async function loadCollections(adapter: DataAdapter): Promise<CollectionD
         const parsed: unknown = parseYaml(raw);
 
         if (!Array.isArray(parsed)) {
-            console.warn('[core] collections.yml is not an array, returning empty array');
+            coreLogger.warn('collections.yml is not an array, returning empty array');
             return [];
         }
 
@@ -53,7 +54,7 @@ export async function loadCollections(adapter: DataAdapter): Promise<CollectionD
                 ...(typeof entry['updated_at'] === 'string' ? { updated_at: entry['updated_at'] } : {}),
             }));
     } catch (error) {
-        console.warn('[core] Failed to load collections.yml:', error);
+        coreLogger.warn('Failed to load collections.yml:', error);
         return [];
     }
 }

@@ -7,6 +7,7 @@ import { parse as parseYaml } from 'yaml';
 import { marked } from 'marked';
 import type { DataAdapter } from '@ever-works/adapters';
 import type { PageData } from '../types/index.js';
+import { coreLogger } from '../logger.js';
 
 /**
  * Split a markdown file into frontmatter and body content.
@@ -73,7 +74,7 @@ async function parsePage(adapter: DataAdapter, filename: string): Promise<PageDa
 
         return page;
     } catch (error) {
-        console.warn(`[core] Failed to load page ${filePath}:`, error);
+        coreLogger.warn(`Failed to load page ${filePath}:`, error);
         return null;
     }
 }
@@ -89,7 +90,7 @@ export async function loadPages(adapter: DataAdapter): Promise<PageData[]> {
     try {
         const exists = await adapter.exists('pages');
         if (!exists) {
-            console.warn('[core] pages/ directory not found, returning empty array');
+            coreLogger.warn('pages/ directory not found, returning empty array');
             return [];
         }
 
@@ -102,7 +103,7 @@ export async function loadPages(adapter: DataAdapter): Promise<PageData[]> {
 
         return results.filter((page): page is PageData => page !== null);
     } catch (error) {
-        console.warn('[core] Failed to load pages:', error);
+        coreLogger.warn('Failed to load pages:', error);
         return [];
     }
 }

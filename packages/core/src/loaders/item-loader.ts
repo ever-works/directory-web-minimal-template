@@ -6,6 +6,7 @@
 import { parse as parseYaml } from 'yaml';
 import type { DataAdapter } from '@ever-works/adapters';
 import type { ItemData } from '../types/index.js';
+import { coreLogger } from '../logger.js';
 
 /**
  * Parse a single item YAML file into an ItemData object.
@@ -22,7 +23,7 @@ async function parseItem(adapter: DataAdapter, slug: string): Promise<ItemData |
         const parsed: unknown = parseYaml(raw);
 
         if (parsed === null || typeof parsed !== 'object') {
-            console.warn(`[core] ${filePath} is empty or invalid, skipping`);
+            coreLogger.warn(`${filePath} is empty or invalid, skipping`);
             return null;
         }
 
@@ -30,7 +31,7 @@ async function parseItem(adapter: DataAdapter, slug: string): Promise<ItemData |
 
         const name = typeof data['name'] === 'string' ? data['name'] : '';
         if (!name) {
-            console.warn(`[core] ${filePath} has no name, skipping`);
+            coreLogger.warn(`${filePath} has no name, skipping`);
             return null;
         }
 
@@ -68,7 +69,7 @@ async function parseItem(adapter: DataAdapter, slug: string): Promise<ItemData |
 
         return item;
     } catch (error) {
-        console.warn(`[core] Failed to load ${filePath}:`, error);
+        coreLogger.warn(`Failed to load ${filePath}:`, error);
         return null;
     }
 }
@@ -91,7 +92,7 @@ export async function loadItems(adapter: DataAdapter): Promise<ItemData[]> {
     try {
         const exists = await adapter.exists('data');
         if (!exists) {
-            console.warn('[core] data/ directory not found, returning empty array');
+            coreLogger.warn('data/ directory not found, returning empty array');
             return [];
         }
 
@@ -104,7 +105,7 @@ export async function loadItems(adapter: DataAdapter): Promise<ItemData[]> {
             (item): item is ItemData => item !== null && item.status === 'approved'
         );
     } catch (error) {
-        console.warn('[core] Failed to load items:', error);
+        coreLogger.warn('Failed to load items:', error);
         return [];
     }
 }

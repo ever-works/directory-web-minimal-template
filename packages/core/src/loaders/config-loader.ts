@@ -6,6 +6,7 @@
 import { parse as parseYaml } from 'yaml';
 import type { DataAdapter } from '@ever-works/adapters';
 import type { SiteConfig } from '../types/index.js';
+import { coreLogger } from '../logger.js';
 
 /** Default site configuration used when fields are missing */
 const DEFAULT_CONFIG: SiteConfig = {
@@ -28,7 +29,7 @@ export async function loadConfig(adapter: DataAdapter): Promise<SiteConfig> {
         const parsed: unknown = parseYaml(raw);
 
         if (parsed === null || typeof parsed !== 'object') {
-            console.warn('[core] config.yml is empty or invalid, using defaults');
+            coreLogger.warn('config.yml is empty or invalid, using defaults');
             return { ...DEFAULT_CONFIG };
         }
 
@@ -51,7 +52,7 @@ export async function loadConfig(adapter: DataAdapter): Promise<SiteConfig> {
                 : DEFAULT_CONFIG.copyright_year,
         };
     } catch (error) {
-        console.warn('[core] Failed to load config.yml, using defaults:', error);
+        coreLogger.warn('Failed to load config.yml, using defaults:', error);
         return { ...DEFAULT_CONFIG };
     }
 }

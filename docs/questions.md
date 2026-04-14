@@ -277,15 +277,15 @@ sidebar_label: "Questions"
 - B) **~~Duplicated `sortItems` logic~~** — DONE (iteration 51). Extracted `sortItemsByOption<T>()` to `@ever-works/ui/lib/sort-items`. Generic over `Sortable` interface. All 5 sample apps + UI ItemBrowser now import from the shared utility. 7 duplicate implementations removed.
 - C) **~~Double type assertion in BreadcrumbNav~~** — DONE (iteration 52). Added optional `_breadcrumbs` field to `ContentData` interface. Updated all 5 sample BreadcrumbNav components to use `data._breadcrumbs` directly instead of `(data as unknown as Record<string, unknown>)._breadcrumbs`. Removed type assertion from `plugin-breadcrumbs` plugin.ts.
 - D) **~~`ItemData` index signature weakens type safety~~** — DONE (iteration 52). Added explicit `meta?: Record<string, unknown>` field to `ItemData`. Index signature kept for backward compatibility with YAML data spread. Sample apps (events, real-estate) already use `item.meta` pattern.
-- E) **`LayoutSwitcher` component never used** — Exported from UI package but not imported by any app. Now used by `ItemBrowser` in UI package (iteration 49), but no sample app uses it standalone.
+- E) **~~`LayoutSwitcher` component never used~~** — DONE (iteration 53). Added `LayoutSwitcher` to all 4 non-git sample apps (`sample-basic`, `sample-jobs`, `sample-events`, `sample-real-estate`). Each app imports `LayoutSwitcher` from `@ever-works/ui/preact/LayoutSwitcher`, adds grid/list toggle with separate `persistKey`, and dynamically switches between grid and list CSS layouts. `sample-git` excluded intentionally (custom layout tuned for 3,200+ items).
 
 **Medium priority items:**
 - F) **Unused public exports** — `FilesystemAdapter`, `GitAdapter`, `createPluginLogger`, `generateBreadcrumbs`, `filterItems`, `parseFiltersFromUrl`, `serializeFiltersToUrl`, `sortItems`, `loadComparison`, `loadItem`, `loadPage` are exported but never imported externally.
 - G) **~~Missing plugin.ts tests~~** — DONE (iteration 52). Added plugin lifecycle tests for `plugin-breadcrumbs` (12 tests), `plugin-filters` (10 tests), `plugin-sort` (13 tests), `plugin-pagination` (14 tests). Total: 49 new lifecycle tests.
-- H) **Console.warn in core loaders** — 29 instances of `console.warn` in core loaders. Consider a structured logger utility with configurable verbosity.
+- H) **~~Console.warn in core loaders~~** — DONE (iteration 53). Created `packages/core/src/logger.ts` with `CoreLogger` interface (`info`, `warn`, `error`, `debug` methods) and `coreLogger` singleton. All 24 `console.warn` calls across 7 loader files replaced with `coreLogger.warn()`. Logger auto-prefixes `[core]`, supports variadic args, and has optional verbose mode for `debug()`. 10 unit tests in `logger.test.ts`. Exported via `@ever-works/core` barrel.
 - I) **Sample apps don't use Astro UI components** — None of the 5 samples import Astro components from `@ever-works/ui/astro`. Only `apps/web` uses them.
-- J) **sample-git ItemBrowser diverges** — 476 lines vs ~230 in other samples with a custom lazy-loading pattern. Should document this as intentional for large datasets.
+- J) **~~sample-git ItemBrowser diverges~~** — DONE (iteration 53). Added comprehensive "Architecture: ItemBrowser Divergence" section to `apps/sample-git/README.md` documenting why sample-git's ItemBrowser (~450 lines) differs from other samples (~230 lines): lazy loading for 3,200+ items (1.6MB → 5KB initial payload), pagination, custom collapsible category/tag UI. Includes comparison table and data flow diagram.
 
 **Default choice**: Item E remains as high priority. F, H-J are nice-to-haves.
 
-**Status**: A-D, G RESOLVED (iterations 51-52). E, F, H-J still open.
+**Status**: A-E, G-H, J RESOLVED (iterations 51-53). F, I still open.

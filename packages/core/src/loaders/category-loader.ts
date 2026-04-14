@@ -6,6 +6,7 @@
 import { parse as parseYaml } from 'yaml';
 import type { DataAdapter } from '@ever-works/adapters';
 import type { CategoryData } from '../types/index.js';
+import { coreLogger } from '../logger.js';
 
 /**
  * Load category definitions from the data adapter.
@@ -26,7 +27,7 @@ export async function loadCategories(adapter: DataAdapter): Promise<CategoryData
             const parsed: unknown = parseYaml(raw);
 
             if (!Array.isArray(parsed)) {
-                console.warn(`[core] ${path} is not an array, skipping`);
+                coreLogger.warn(`${path} is not an array, skipping`);
                 continue;
             }
 
@@ -42,10 +43,10 @@ export async function loadCategories(adapter: DataAdapter): Promise<CategoryData
                     ...(typeof entry['image_url'] === 'string' ? { image_url: entry['image_url'] } : {}),
                 }));
         } catch (error) {
-            console.warn(`[core] Failed to load ${path}:`, error);
+            coreLogger.warn(`Failed to load ${path}:`, error);
         }
     }
 
-    console.warn('[core] No categories file found, returning empty array');
+    coreLogger.warn('No categories file found, returning empty array');
     return [];
 }

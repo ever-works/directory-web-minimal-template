@@ -3,6 +3,55 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-14 — Iteration 53: Core Logger, LayoutSwitcher in Samples, sample-git Documentation
+
+### Feature: Structured Core Logger (Q19-H: RESOLVED)
+- **Created**: `packages/core/src/logger.ts` — `CoreLogger` interface with `info()`, `warn()`, `error()`, `debug()` methods
+- **Created**: `coreLogger` singleton and `createCoreLogger(verbose?)` factory
+- **Updated**: All 7 core loader files — replaced 24 raw `console.warn('[core] ...')` calls with `coreLogger.warn('...')` (prefix auto-added by logger)
+- **Exported**: `coreLogger`, `createCoreLogger`, `CoreLogger` type from `@ever-works/core` barrel
+- **Created**: `packages/core/src/__tests__/logger.test.ts` — 10 tests (prefixing, extra args, verbose mode, default non-verbose)
+- **Impact**: Consistent logging API across core, mirrors `PluginLogger` from `@ever-works/plugins`. Enables future log-level filtering.
+- **Files changed**: `logger.ts` (new), `index.ts`, `category-loader.ts`, `collection-loader.ts`, `comparison-loader.ts`, `config-loader.ts`, `item-loader.ts`, `page-loader.ts`, `tag-loader.ts`
+
+### Feature: LayoutSwitcher in Sample Apps (Q19-E: RESOLVED)
+- **Updated**: `apps/sample-basic/src/components/ItemBrowser.tsx` — added `LayoutSwitcher` (grid/list toggle), layout-aware grid CSS, `persistKey="ew-sample-basic-layout"`
+- **Updated**: `apps/sample-jobs/src/components/ItemBrowser.tsx` — same pattern, `persistKey="ew-sample-jobs-layout"`
+- **Updated**: `apps/sample-events/src/components/ItemBrowser.tsx` — same pattern, `persistKey="ew-sample-events-layout"`
+- **Updated**: `apps/sample-real-estate/src/components/ItemBrowser.tsx` — same pattern, `persistKey="ew-sample-real-estate-layout"`
+- **Excluded**: `sample-git` — intentionally divergent (custom layout for 3,200+ items)
+- **Impact**: All 4 standard sample apps now demonstrate standalone `LayoutSwitcher` usage with grid/list view toggle and localStorage persistence
+
+### Documentation: sample-git ItemBrowser Divergence (Q19-J: RESOLVED)
+- **Updated**: `apps/sample-git/README.md` — added "Architecture: ItemBrowser Divergence" section with comparison table (data loading, payload, pagination, UI, component imports) and lazy-loading data flow diagram
+- **Impact**: Explicitly documents why sample-git's ItemBrowser (~450 lines) differs from other samples (~230 lines) and why this divergence should be preserved
+
+### Documentation Updates
+- **Updated**: `docs/questions.md` — marked Q19-E, Q19-H, Q19-J as RESOLVED with details
+- **Updated**: `docs/log.md` — this entry
+- **Updated**: `docs/index.md` — updated iteration reference
+
+### Verification
+- `pnpm typecheck` — 21/21 tasks pass (0 errors)
+- `pnpm lint` — 10/10 tasks pass
+- `pnpm test` — 14/14 tasks pass (584 total unit tests, +10 new logger tests)
+- `pnpm build` — 7/7 tasks pass (sample-basic: 42 pages, sample-jobs: 36, sample-events: 37, sample-real-estate: 37, sample-git: 5030, web: 8, docs: OK)
+
+### Test Count Summary
+- **Unit tests**: 584 total (core: 113 including 10 new logger tests)
+- **E2E test files**: 56 (unchanged)
+
+### Dependencies
+- No safe upgrades available. Known deferred: TypeScript 6.0, cspell 10, React 19, react-player 3.x.
+
+### Next Steps
+1. Resolve Q19-F (audit unused public exports — low priority)
+2. Resolve Q19-I (sample apps using Astro UI components — medium priority)
+3. Add Preact component rendering tests with jsdom
+4. Investigate react-player 3.x upgrade for docs site
+
+---
+
 ## 2026-04-14 — Iteration 52: Type Safety Improvements, Plugin Lifecycle Tests, Feed E2E Tests
 
 ### Fix: BreadcrumbNav Double Type Assertion (Q19-C: RESOLVED)

@@ -6,6 +6,7 @@
 import { parse as parseYaml } from 'yaml';
 import type { DataAdapter } from '@ever-works/adapters';
 import type { ComparisonData, ComparisonDimension } from '../types/index.js';
+import { coreLogger } from '../logger.js';
 
 /**
  * Parse a single comparison from its YAML and optional Markdown files.
@@ -22,7 +23,7 @@ async function parseComparison(adapter: DataAdapter, slug: string): Promise<Comp
         const parsed: unknown = parseYaml(raw);
 
         if (parsed === null || typeof parsed !== 'object') {
-            console.warn(`[core] ${ymlPath} is empty or invalid, skipping`);
+            coreLogger.warn(`${ymlPath} is empty or invalid, skipping`);
             return null;
         }
 
@@ -33,7 +34,7 @@ async function parseComparison(adapter: DataAdapter, slug: string): Promise<Comp
         const itemBSlug = typeof data['item_b_slug'] === 'string' ? data['item_b_slug'] : '';
 
         if (!title || !itemASlug || !itemBSlug) {
-            console.warn(`[core] ${ymlPath} missing required fields (title, item_a_slug, item_b_slug), skipping`);
+            coreLogger.warn(`${ymlPath} missing required fields (title, item_a_slug, item_b_slug), skipping`);
             return null;
         }
 
@@ -88,7 +89,7 @@ async function parseComparison(adapter: DataAdapter, slug: string): Promise<Comp
 
         return comparison;
     } catch (error) {
-        console.warn(`[core] Failed to load comparison ${slug}:`, error);
+        coreLogger.warn(`Failed to load comparison ${slug}:`, error);
         return null;
     }
 }
@@ -141,7 +142,7 @@ export async function loadComparisons(adapter: DataAdapter): Promise<ComparisonD
 
         return results.filter((c): c is ComparisonData => c !== null);
     } catch (error) {
-        console.warn('[core] Failed to load comparisons:', error);
+        coreLogger.warn('Failed to load comparisons:', error);
         return [];
     }
 }

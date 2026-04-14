@@ -62,6 +62,33 @@ pnpm --filter @ever-works/sample-git build
 # Output: apps/sample-git/dist/
 ```
 
+## Architecture: ItemBrowser Divergence
+
+The `sample-git` ItemBrowser (`src/components/ItemBrowser.tsx`, ~450 lines) is intentionally different from the other sample apps (~230 lines each). This is **by design** to handle the 3,200+ item dataset:
+
+### Why it diverges
+
+| Concern | sample-basic/jobs/events/real-estate | sample-git |
+|---|---|---|
+| **Data loading** | All items passed upfront as props | First page only; full dataset fetched lazily from `/api/items.json` on first interaction |
+| **Initial HTML payload** | Small (~50KB for ~50 items) | Would be ~1.6MB without lazy loading; reduced to ~5KB |
+| **Pagination** | None (all items shown) | Full pagination with page navigation (12 items/page) |
+| **Category/Tag UI** | Shared `FilterBar` component | Custom grid cards with collapsible "Show all" sections (100+ categories, 200+ tags) |
+| **Layout switching** | Uses shared `LayoutSwitcher` | Not applicable (custom card layout tuned for large datasets) |
+| **Component imports** | `SearchInput`, `FilterBar`, `SortSelect`, `LayoutSwitcher` | `SearchInput` only (custom inline sort, custom filter UI) |
+
+### Lazy loading pattern
+
+```
+Server renders first page (12 items) → fast initial paint (~5KB HTML)
+                    ↓
+User interacts (search/filter/sort/page) → fetch /api/items.json once (~200KB)
+                    ↓
+All subsequent filtering/sorting/pagination → client-side with full dataset
+```
+
+This divergence is intentional and should be preserved. Other sample apps can stay simple because their datasets are small (30-60 items).
+
 ## Customizing
 
 To use a different data repository, create a `.env` file:
