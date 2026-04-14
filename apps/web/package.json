@@ -22,6 +22,7 @@
         "@ever-works/core": "workspace:*",
         "@ever-works/plugin-filters": "workspace:*",
         "@ever-works/plugin-pagination": "workspace:*",
+        "@ever-works/plugin-rss": "workspace:*",
         "@ever-works/plugin-search": "workspace:*",
         "@ever-works/plugin-seo": "workspace:*",
         "@ever-works/plugin-sitemap": "workspace:*",

@@ -84,6 +84,11 @@ const footerLinks: NavLinkItem[] = config.custom_footer ?? [];
 
         {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
         {config.logo?.favicon && <link rel="icon" href={config.logo.favicon} />}
+
+        {/* RSS/Atom feed autodiscovery */}
+        <link rel="alternate" type="application/rss+xml" title={`${config.company_name} RSS Feed`} href="/rss.xml" />
+        <link rel="alternate" type="application/atom+xml" title={`${config.company_name} Atom Feed`} href="/atom.xml" />
+
         <slot name="head" />
     </head>
     <body data-component="body">

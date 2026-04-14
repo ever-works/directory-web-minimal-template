@@ -348,6 +348,9 @@ See `SKILLS.md` for detailed step-by-step guides.
 | `/comparisons` | `comparisons.astro` | Comparisons index |
 | `/comparison/[slug]` | `comparison/[slug].astro` | Comparison detail |
 | `/pages/[slug]` | `pages/[slug].astro` | Static content page (from `.content/pages/`) |
+| `/rss.xml` | `rss.xml.ts` | RSS 2.0 feed (items) |
+| `/atom.xml` | `atom.xml.ts` | Atom 1.0 feed (items) |
+| `/robots.txt` | `robots.txt.ts` | robots.txt with sitemap reference |
 | `/404` | `404.astro` | Not found page |
 
 ## Available UI Components (packages/ui)
@@ -392,10 +395,11 @@ Import: `import { Button } from '@ever-works/ui/components/ui/button'`
 
 | Plugin | Purpose |
 |--------|---------|
-| `plugin-seo` | Meta tags, Open Graph, JSON-LD |
+| `plugin-seo` | Meta tags, Open Graph, JSON-LD, robots.txt |
 | `plugin-pagination` | Paginate item arrays |
 | `plugin-filters` | Client-side category/tag filtering |
 | `plugin-search` | Static search via Pagefind |
 | `plugin-sort` | Sort items by name, date, featured |
 | `plugin-sitemap` | XML sitemap generation |
+| `plugin-rss` | RSS 2.0 and Atom 1.0 feed generation |
 | `plugin-breadcrumbs` | Auto-generate breadcrumb trails for all page types |

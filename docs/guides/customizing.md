@@ -602,6 +602,7 @@ sortPlugin({ defaultSort: 'updated_at', defaultDirection: 'desc' }),
 | Search | `@ever-works/plugin-search` | Static search via Pagefind |
 | Sort | `@ever-works/plugin-sort` | `defaultSort`, `defaultDirection` |
 | Sitemap | `@ever-works/plugin-sitemap` | XML sitemap generation |
+| RSS | `@ever-works/plugin-rss` | RSS 2.0 and Atom 1.0 feeds |
 | Breadcrumbs | `@ever-works/plugin-breadcrumbs` | Auto-generated breadcrumb trails |
 
 See [Creating a Plugin](/guides/creating-a-plugin/) for building your own.

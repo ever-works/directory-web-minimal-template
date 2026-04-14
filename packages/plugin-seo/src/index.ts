@@ -29,6 +29,7 @@ export { seoPlugin } from './plugin';
 // Utility functions
 export { generateMetaTags } from './meta';
 export { generateJsonLd, generateItemJsonLd } from './json-ld';
+export { generateRobotsTxt } from './robots';
 
 // Types
 export type {
@@ -46,3 +47,4 @@ export type {
     SoftwareApplicationInput,
     DirectoryItemInput,
 } from './types';
+export type { RobotsTxtOptions, RobotsTxtRule } from './robots';

@@ -62,6 +62,7 @@ The minimal directory template follows a **layered, plugin-based architecture** 
   - `plugin-seo` — Meta tags, JSON-LD structured data
   - `plugin-sort` — Item sorting (name, date, featured)
   - `plugin-sitemap` — XML sitemap generation
+  - `plugin-rss` — RSS 2.0 and Atom 1.0 feed generation
   - `plugin-breadcrumbs` — Auto-generate breadcrumb trails
 - Plugins can transform data, add build hooks, modify pipeline
 

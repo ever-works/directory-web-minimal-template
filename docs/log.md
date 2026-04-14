@@ -3,6 +3,61 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-14 — Iteration 50: RSS/Atom Feed Plugin, robots.txt Generation
+
+### Feature: RSS/Atom Feed Plugin (`@ever-works/plugin-rss`)
+- **Created**: New `packages/plugin-rss/` package with full RSS 2.0 and Atom 1.0 feed generation
+- **Files**: `types.ts`, `plugin.ts`, `rss-generator.ts`, `atom-generator.ts`, `index.ts`
+- **API**: `rssPlugin()` factory, `buildFeedEntries()`, `generateRss()`, `generateAtom()`, `resolveRssConfig()`
+- **Options**: `title`, `description`, `siteUrl`, `limit` (default: 50), `atom` (default: true), `sortBy`
+- **Tests**: 39 unit tests across 3 test files (rss-generator, atom-generator, plugin)
+
+### Feature: robots.txt Generation (`@ever-works/plugin-seo`)
+- **Added**: `generateRobotsTxt()` utility to `@ever-works/plugin-seo`
+- **File**: `packages/plugin-seo/src/robots.ts` — pure function, no side effects
+- **Options**: `siteUrl`, `sitemapFilename`, `disallow`, `allow`, custom `rules` with per-user-agent config and crawl delay
+- **Tests**: 9 new unit tests in `packages/plugin-seo/src/__tests__/robots.test.ts`
+- **Total plugin-seo tests**: 43 (was 34)
+
+### Integration: Feed & Robots Pages Across All Apps
+- **Added**: `rss.xml.ts`, `atom.xml.ts`, `robots.txt.ts` pages to all 6 apps:
+  - `apps/web`, `apps/sample-basic`, `apps/sample-events`, `apps/sample-jobs`, `apps/sample-real-estate`, `apps/sample-git`
+- **Added**: `rssPlugin()` to `plugins.config.ts` in all 6 apps
+- **Added**: `@ever-works/plugin-rss` dependency to all 6 app `package.json` files
+- **Added**: RSS/Atom feed autodiscovery `<link>` tags in all 6 `BaseLayout.astro` files
+- **Generated**: All 6 apps produce `/rss.xml`, `/atom.xml`, `/robots.txt` in build output
+
+### Specifications
+- **Created**: `.specify/features/plugin-rss.md` — RSS/Atom feed plugin spec
+- **Created**: `.specify/features/robots-txt.md` — robots.txt generation spec
+
+### Documentation Updates
+- **Updated**: `AGENTS.md` — Added `plugin-rss` to Available Plugins table, added feed/robots pages to Available Pages table, updated `plugin-seo` description
+- **Updated**: `CLAUDE.md` — Added `plugin-rss` to monorepo structure listing
+- **Updated**: `docs/architecture/overview.md` — Added `plugin-rss` to built-in plugins list
+- **Updated**: `docs/overview.md` — Added `plugin-rss` to package tree
+- **Updated**: `docs/guides/customizing.md` — Added RSS row to plugin table
+- **Updated**: `docs/index.md` — Added new spec links, updated iteration reference
+
+### Build Verification
+- `pnpm typecheck` — 21/21 tasks pass (was 20, added plugin-rss), 0 errors
+- `pnpm test` — 13/13 test tasks pass (was 12, added plugin-rss), 484 unit tests (was 436, +48 new)
+- `pnpm build` — 7/7 apps build successfully
+- All 6 apps generate `/rss.xml`, `/atom.xml`, `/robots.txt` in dist output
+
+### Summary
+- **New plugin**: `@ever-works/plugin-rss` — RSS 2.0 + Atom 1.0 feed generation
+- **New feature**: `generateRobotsTxt()` in `@ever-works/plugin-seo`
+- **48 new tests**: 39 (plugin-rss) + 9 (robots.txt) = 484 total unit tests
+- **18 new pages**: 3 endpoints (rss.xml, atom.xml, robots.txt) × 6 apps
+- **Feed autodiscovery**: All layouts include `<link rel="alternate">` for RSS/Atom
+
+### Next Steps (for next scheduled run)
+1. Add E2E tests for RSS/Atom/robots.txt endpoints
+2. Add table-of-contents component for long static pages
+3. Evaluate cspell 10 major version upgrade compatibility
+4. Explore per-category/per-tag RSS feeds
+
 ## 2026-04-14 — Iteration 49: Unified ItemBrowser API, Dev Script Shortcuts
 
 ### Fix: Unified ItemBrowser Prop API

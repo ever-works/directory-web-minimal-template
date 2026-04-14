@@ -71,6 +71,7 @@ pnpm dev
 │   ├── plugin-search/    — Search plugin (Pagefind)
 │   ├── plugin-sort/      — Sort plugin
 │   ├── plugin-sitemap/   — Sitemap plugin
+│   ├── plugin-rss/       — RSS/Atom feed plugin
 │   ├── plugin-breadcrumbs/— Breadcrumbs plugin
 │   ├── tsconfig/         — Shared TypeScript configurations
 │   └── eslint-config/    — Shared ESLint configuration

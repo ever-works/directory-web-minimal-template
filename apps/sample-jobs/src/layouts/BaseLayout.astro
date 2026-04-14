@@ -65,6 +65,8 @@ const metaTags = generateMetaTags(pageMeta, {});
             })();
         </script>
 
+        <link rel="alternate" type="application/rss+xml" title={`${config.company_name} RSS Feed`} href="/rss.xml" />
+        <link rel="alternate" type="application/atom+xml" title={`${config.company_name} Atom Feed`} href="/atom.xml" />
         <slot name="head" />
     </head>
     <body class="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100 antialiased">

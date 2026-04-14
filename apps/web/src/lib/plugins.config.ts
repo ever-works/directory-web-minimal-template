@@ -18,6 +18,7 @@ import { filtersPlugin } from '@ever-works/plugin-filters';
 import { searchPlugin } from '@ever-works/plugin-search';
 import { sortPlugin } from '@ever-works/plugin-sort';
 import { sitemapPlugin } from '@ever-works/plugin-sitemap';
+import { rssPlugin } from '@ever-works/plugin-rss';
 
 /**
  * Active plugins for this site.
@@ -43,4 +44,7 @@ export const plugins = definePlugins([
 
     // Sitemap configuration wrapper for @astrojs/sitemap
     sitemapPlugin(),
+
+    // RSS 2.0 and Atom 1.0 feed generation
+    rssPlugin(),
 ]);
