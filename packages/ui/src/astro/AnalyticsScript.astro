@@ -1,0 +1,34 @@
+---
+/**
+ * AnalyticsScript — Renders analytics tracking script tags.
+ * Reads resolved config from `@ever-works/plugin-analytics`.
+ * Emits zero output when no config is provided or tracking is disabled.
+ *
+ * @example
+ * ```astro
+ * ---
+ * import AnalyticsScript from '@ever-works/ui/astro/AnalyticsScript.astro';
+ * ---
+ * <head>
+ *   <AnalyticsScript config={analyticsConfig} />
+ * </head>
+ * ```
+ */
+
+import type { ResolvedAnalyticsConfig } from '@ever-works/plugin-analytics';
+import { renderAnalyticsScripts } from '@ever-works/plugin-analytics';
+
+interface Props {
+    config?: ResolvedAnalyticsConfig;
+}
+
+const { config } = Astro.props;
+
+const shouldRender = config
+    && config.providers.length > 0
+    && !(config.disableInDev && import.meta.env.DEV);
+
+const html = shouldRender ? renderAnalyticsScripts(config) : '';
+---
+
+{html && <Fragment set:html={html} />}

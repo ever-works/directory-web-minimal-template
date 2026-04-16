@@ -17,6 +17,7 @@
         "@ever-works/adapters": "workspace:*",
         "@ever-works/astro-integration": "workspace:*",
         "@ever-works/core": "workspace:*",
+        "@ever-works/plugin-analytics": "workspace:*",
         "@ever-works/plugin-breadcrumbs": "workspace:*",
         "@ever-works/plugin-filters": "workspace:*",
         "@ever-works/plugin-pagination": "workspace:*",

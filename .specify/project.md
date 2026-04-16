@@ -72,11 +72,12 @@ A minimal, static-rendered Astro template for AI-generated directory websites. L
 | Phase 13 | Accessibility: skip-to-content, mobile hamburger menu, ARIA, keyboard nav | Complete |
 | Phase 14 | SEO: JSON-LD (WebSite, ItemPage, BreadcrumbList, ItemList), structured data | Complete |
 | Phase 15 | Quality: dependency upgrades, E2E test hardening, docs health audits | Complete |
+| Phase 16 | Analytics plugin: Plausible, Umami, Fathom, GA4, custom | Complete |
 
-## Current State (Iteration 64)
+## Current State (Iteration 66)
 
 - **8 apps**: web, web-e2e, docs, sample-basic, sample-jobs, sample-events, sample-real-estate, sample-git
-- **16 packages**: core, ui, plugins, adapters, sync, astro-integration, 8 plugin-* packages (seo, rss, pagination, filters, search, sort, sitemap, breadcrumbs), tsconfig, eslint-config
-- **952 unit tests** (Vitest) across 14 test suites — all passing
+- **17 packages**: core, ui, plugins, adapters, sync, astro-integration, 9 plugin-* packages (seo, rss, pagination, filters, search, sort, sitemap, breadcrumbs, analytics), tsconfig, eslint-config
+- **995 unit tests** (Vitest) across 15 test suites — all passing
 - **57 E2E test files** (Playwright) across 5 sample projects
 - **All dependencies at latest versions** (Astro 6.1.6, Preact 10.29.1, Tailwind 4.2.2, TS 6.0.2)

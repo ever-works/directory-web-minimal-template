@@ -76,6 +76,7 @@ packages/
   plugin-sitemap/     XML sitemap generation
   plugin-breadcrumbs/ Auto-generate breadcrumb trails
   plugin-rss/         RSS 2.0 + Atom 1.0 feed generation
+  plugin-analytics/   Privacy-friendly analytics (Plausible, Umami, Fathom, GA4, custom)
   tsconfig/           Shared TypeScript configurations
   eslint-config/      Shared ESLint configuration
 ```
@@ -90,7 +91,7 @@ packages/
 | `pnpm build` | Build all apps |
 | `pnpm lint` | Lint all packages |
 | `pnpm typecheck` | Type-check all packages |
-| `pnpm test` | Run all unit tests — 952 tests, 14 suites (Vitest) |
+| `pnpm test` | Run all unit tests — 995 tests, 15 suites (Vitest) |
 | `pnpm test:e2e` | Run E2E tests — 364 tests, 57 specs, 11 projects (Playwright) |
 | `pnpm clean` | Clean all build artifacts |
 

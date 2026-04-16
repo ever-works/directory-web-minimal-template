@@ -3,6 +3,42 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-17 — Iteration 66: plugin-analytics implementation (+43 tests)
+
+### New Package: `@ever-works/plugin-analytics`
+- **`packages/plugin-analytics/`** — Privacy-friendly, multi-provider analytics plugin
+- **Types**: `AnalyticsPluginOptions`, `ResolvedAnalyticsConfig`, per-provider discriminated unions (Plausible, Umami, Fathom, GA4, Custom)
+- **Config resolution**: Validation + defaults (respectDoNotTrack=true, disableInDev=true, placement=head)
+- **5 renderers**: `renderPlausibleScript`, `renderUmamiScript`, `renderFathomScript`, `renderGa4Script`, `renderCustomScript`
+- **Render helper**: `renderAnalyticsScripts` — multi-provider rendering with optional Do-Not-Track IIFE guard
+- **Plugin factory**: `analyticsPlugin()` with `onInit` (logging) and `onDataLoaded` (_analytics injection)
+- **XSS protection**: `escapeAttr()` utility for all provider-rendered attributes
+
+### New UI Component
+- **`packages/ui/src/astro/AnalyticsScript.astro`** — Reads `ResolvedAnalyticsConfig`, respects `disableInDev`, renders zero output when no config or dev mode
+
+### Sample Integration
+- **`apps/sample-basic`** — Registered `analyticsPlugin({ providers: [{ provider: 'custom', html: '<!-- analytics: demo -->' }] })` with commented Plausible example. AnalyticsScript added to BaseLayout.
+
+### ContentData Extension
+- **`packages/core/src/types/content-data.ts`** — Added `_analytics?: unknown` field (follows `_breadcrumbs` convention)
+
+### Test Coverage
+- **43 new tests** across 4 test files (resolve-config: 12, renderers: 19, plugin: 7, barrel: 9)
+- **Total: 995 unit tests** (952 → 995), **15 test suites** (14 → 15)
+
+### Documentation
+- **`docs/guides/analytics.md`** — Setup guide with per-provider examples
+- **`docs/index.md`** — Added analytics guide entry
+- **`README.md`** — Listed plugin-analytics, updated test count 952 → 995
+- **`CLAUDE.md`** — Added analytics to plugin-* list
+- **`SKILLS.md`** — Added "Add analytics" quick reference
+
+### Build Verification
+- `pnpm typecheck` — ALL 22 tasks pass (0 errors)
+- `pnpm lint` — ALL pass
+- `pnpm test` — ALL 15 test suites pass (995 tests)
+
 ## 2026-04-17 — Iteration 65: plugin-analytics spec + plan (docs-only)
 
 ### New Specification

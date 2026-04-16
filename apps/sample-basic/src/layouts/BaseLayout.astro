@@ -6,11 +6,14 @@
  * BackToTop button, and full SEO integration via plugin-seo.
  */
 import type { SiteConfig } from '@ever-works/core';
+import type { ResolvedAnalyticsConfig } from '@ever-works/plugin-analytics';
 import { generateMetaTags } from '@ever-works/plugin-seo';
 import type { PageMeta } from '@ever-works/plugin-seo';
+import AnalyticsScript from '@ever-works/ui/astro/AnalyticsScript.astro';
 import ThemeToggle from '@ever-works/ui/preact/ThemeToggle';
 import BackToTop from '@ever-works/ui/preact/BackToTop';
 import MobileMenu from '@ever-works/ui/preact/MobileMenu';
+import { getContent } from '../lib/content';
 import '../styles/global.css';
 
 interface Props {
@@ -23,6 +26,8 @@ interface Props {
 }
 
 const { title, description, config, canonicalUrl, ogImage, pageType = 'website' } = Astro.props;
+const contentData = await getContent();
+const analyticsConfig = contentData._analytics as ResolvedAnalyticsConfig | undefined;
 const siteTitle = `${title} | ${config.company_name}`;
 const metaDescription = description || `${config.company_name} — Discover the best ${config.items_name.toLowerCase()}`;
 
@@ -67,6 +72,7 @@ const metaTags = generateMetaTags(pageMeta, {});
 
         <link rel="alternate" type="application/rss+xml" title={`${config.company_name} RSS Feed`} href="/rss.xml" />
         <link rel="alternate" type="application/atom+xml" title={`${config.company_name} Atom Feed`} href="/atom.xml" />
+        <AnalyticsScript config={analyticsConfig} />
         <slot name="head" />
     </head>
     <body class="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100 antialiased">

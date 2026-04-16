@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-17 (Iteration 65: plugin-analytics spec + plan, docs only)
+> Updated: 2026-04-17 (Iteration 66: plugin-analytics implementation)
 
 ## Root Documents
 
@@ -89,6 +89,7 @@ slug: /
 - [guides/creating-an-adapter.md](guides/creating-an-adapter.md) — How to create a data adapter
 - [guides/interactive-components.md](guides/interactive-components.md) — How to use Preact interactive islands (search, filter, sort, theme, back-to-top)
 - [guides/content-sync.md](guides/content-sync.md) — Content sync setup (webhooks, polling, ISR)
+- [guides/analytics.md](guides/analytics.md) — How to add analytics (Plausible, Umami, Fathom, GA4, custom)
 - [guides/deployment.md](guides/deployment.md) — How to deploy to Vercel and other static hosts
 - [guides/performance-testing.md](guides/performance-testing.md) — Lighthouse CI performance testing setup and configuration
 - [guides/troubleshooting.md](guides/troubleshooting.md) — Common issues and solutions

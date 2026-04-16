@@ -32,7 +32,7 @@ This is a **minimal, static-rendered Astro template** for AI-generated directory
 │   ├── core/             — Data layer, content reader, types, schemas
 │   ├── ui/               — Headless UI components (unstyled building blocks)
 │   ├── plugins/          — Plugin system (runner, types, define-plugins)
-│   ├── plugin-*/         — Built-in plugins (search, filters, pagination, seo, sitemap, sort, breadcrumbs, rss)
+│   ├── plugin-*/         — Built-in plugins (search, filters, pagination, seo, sitemap, sort, breadcrumbs, rss, analytics)
 │   ├── astro-integration/— Astro integration for plugin build lifecycle hooks
 │   ├── adapters/         — Data source adapters (git, filesystem, etc.)
 │   ├── sync/             — Content sync orchestration (webhooks, polling, ISR)

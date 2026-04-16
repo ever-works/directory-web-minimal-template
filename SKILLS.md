@@ -1738,6 +1738,7 @@ Low-level composable building blocks. Use `data-slot` attributes (not `data-comp
 | Add a new page | Create file in `apps/web/src/pages/` |
 | Change items per page | `apps/web/src/lib/plugins.config.ts` (paginationPlugin) |
 | Add SEO settings | `apps/web/src/lib/plugins.config.ts` (seoPlugin) |
+| Add analytics | `plugins.config.ts` (analyticsPlugin) + `<AnalyticsScript />` in layout. See `docs/guides/analytics.md` |
 | Enable/disable plugins | `apps/web/src/lib/plugins.config.ts` |
 | Modify item card layout | Edit inline markup in page files |
 | Add interactive search | Import from `@ever-works/ui/preact/SearchInput` |

@@ -43,4 +43,11 @@ export interface ContentData {
      * Maps page pathname → BreadcrumbEntry[].
      */
     _breadcrumbs?: Map<string, Array<{ label: string; href?: string }>>;
+
+    /**
+     * Plugin-injected analytics configuration.
+     * Populated by `@ever-works/plugin-analytics` via `onDataLoaded` hook.
+     * Type: `ResolvedAnalyticsConfig` from `@ever-works/plugin-analytics`.
+     */
+    _analytics?: unknown;
 }

@@ -11,6 +11,7 @@ import { sortPlugin } from '@ever-works/plugin-sort';
 import { sitemapPlugin } from '@ever-works/plugin-sitemap';
 import { breadcrumbsPlugin } from '@ever-works/plugin-breadcrumbs';
 import { rssPlugin } from '@ever-works/plugin-rss';
+import { analyticsPlugin } from '@ever-works/plugin-analytics';
 
 export const plugins = definePlugins([
     seoPlugin(),
@@ -21,4 +22,9 @@ export const plugins = definePlugins([
     sitemapPlugin(),
     breadcrumbsPlugin(),
     rssPlugin(),
+    analyticsPlugin({
+        providers: [{ provider: 'custom', html: '<!-- analytics: demo -->' }],
+        // Example: uncomment to use Plausible instead
+        // providers: [{ provider: 'plausible', domain: 'example.com' }],
+    }),
 ]);
