@@ -287,3 +287,35 @@ sidebar_label: "Questions"
 - J) **~~sample-git ItemBrowser diverges~~** — DONE (iteration 53). Added comprehensive "Architecture: ItemBrowser Divergence" section to `apps/sample-git/README.md` documenting why sample-git's ItemBrowser (~450 lines) differs from other samples (~230 lines): lazy loading for 3,200+ items (1.6MB → 5KB initial payload), pagination, custom collapsible category/tag UI. Includes comparison table and data flow diagram.
 
 **Status**: ALL ITEMS RESOLVED (iterations 51-54). A-E (code improvements), F (public API exports intentional), G (plugin tests), H (structured logger), I (sample apps by design), J (sample-git docs).
+
+---
+
+## Q20: Analytics Plugin Design Decisions (iteration 65)
+
+**Context**: `@ever-works/plugin-analytics` was specified in iteration 65 (`.specify/features/plugin-analytics.md`). Several sub-decisions are tracked here so they surface at the top-level questions list rather than only inside the spec.
+
+**Q-A1: Event tracking API in v0.1?**
+- A) **Pageview-only** — single responsibility, ship fast `[DEFAULT]`
+- B) Add `trackEvent(name, props)` helper — more powerful but larger surface
+
+Default choice: **Pageview-only**. Events deferred to v0.2 once real-world usage clarifies the API shape.
+
+**Q-A2: Bundle a consent banner?**
+- A) **No — belongs in separate `plugin-consent`** `[DEFAULT]`
+- B) Yes — tightly couple consent to analytics
+
+Default choice: **No**. Consent and analytics are different domains; coupling them forces users of custom consent solutions to fight the plugin.
+
+**Q-A3: Where does `<AnalyticsScript />` live?**
+- A) **`@ever-works/ui/astro/AnalyticsScript.astro`** — consistent with other Astro components `[DEFAULT]`
+- B) Inside the plugin package — keeps the feature self-contained
+
+Default choice: **`@ever-works/ui`**. All Astro components live in one place; plugin package stays pure TS (easier to test, no Astro peer dep).
+
+**Q-A4: Which providers in v0.1?**
+- A) **Plausible + Umami + Fathom + GA4 + custom escape hatch** `[DEFAULT]`
+- B) Add Simple Analytics, Matomo, PostHog upfront
+
+Default choice: **The 5 listed**. Users needing others use the `custom` provider with raw HTML. Additional providers can be added as individual PRs once there's demand.
+
+**Status**: OPEN — defaults in effect. Decisions will be re-evaluated during implementation phase (see `docs/plans/phase-4b-plugin-analytics.md`).

@@ -3,6 +3,33 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-17 — Iteration 65: plugin-analytics spec + plan (docs-only)
+
+### New Specification
+- **`.specify/features/plugin-analytics.md`** — Full feature spec for `@ever-works/plugin-analytics`. Covers summary, goals, non-goals, data contract, plugin options (per-provider discriminated union for Plausible / Umami / Fathom / GA4 / custom), resolved config shape, package structure, UI component (`<AnalyticsScript />` in `@ever-works/ui`), plugin lifecycle (`onInit` + `onDataLoaded`), validation rules, security notes, testing strategy, docs, and acceptance criteria. 4 open sub-questions tracked inline (Q-A1..Q-A4) with documented defaults.
+
+### New Plan
+- **`docs/plans/phase-4b-plugin-analytics.md`** — 8-step implementation plan (4b.1 package scaffold → 4b.8 verification gate). Each step is independently verifiable with acceptance criteria, risk matrix, implementation order, and explicit non-goals (no `trackEvent` in v0.1, no consent banner, no dashboard UI).
+
+### Documentation Index Updates
+- **`docs/index.md`** — Added entries for both new files; bumped the "Updated" line to 2026-04-17 / Iteration 65.
+
+### Rationale
+Iteration 65 is intentionally docs-only: it introduces a well-scoped new plugin feature before any code lands, consistent with the project rule "only implement things / changes if you have full detailed plan / spec / tasks for it written in the docs folder or in .specify folder." The plugin was chosen because (a) analytics is a near-universal requirement for directory sites, (b) the feature fits cleanly inside the existing plugin conventions (same shape as `plugin-seo`, `plugin-rss`), and (c) privacy-friendly defaults align with the project's performance and minimal-surface philosophy.
+
+### No Code Changes
+- No production code modified
+- No tests added (code scheduled for a later iteration per spec)
+- `pnpm typecheck` pre-existing full-turbo cache: 21/21 pass (verified before the iteration started)
+
+### Follow-up
+Next iteration(s) will execute `docs/plans/phase-4b-plugin-analytics.md` step-by-step:
+1. Package scaffold + types + resolve-config (4b.1–4b.2)
+2. Provider renderers + plugin factory (4b.3–4b.4)
+3. UI component + sample integration (4b.5–4b.6)
+4. Docs/README/guides/SKILLS cross-links (4b.7)
+5. Final verification gate (4b.8)
+
 ## 2026-04-14 — Iteration 64: Barrel Export Tests + UI Component Tests (+89 tests, 13 new test files)
 
 ### New Barrel Export Tests (12 test files)
