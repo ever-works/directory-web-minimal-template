@@ -936,8 +936,8 @@ This is the canonical sort implementation used by `ItemBrowser` and all sample a
 
 | Category | Count | Location |
 |----------|-------|----------|
-| Astro (directory-specific) | 24 | `packages/ui/src/astro/` |
+| Astro (directory-specific) | 25 | `packages/ui/src/astro/` |
 | Preact (interactive islands) | 8 | `packages/ui/src/preact/` |
 | Primitive (Astro, from fulldev/ui) | 22 | `packages/ui/src/primitives/` |
 | Preact utilities (shadcn-style) | 5 | `packages/ui/src/components/ui/` |
-| **Total** | **59** | |
+| **Total** | **60** | |

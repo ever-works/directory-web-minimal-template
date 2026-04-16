@@ -202,12 +202,8 @@ export default definePlugins([
 | `plugin-sort` | UI + Data | Sort controls (name, date, featured) |
 
 | `plugin-breadcrumbs` | UI + Data | Breadcrumb navigation with structured data |
-
-### Future (Not Yet Implemented)
-
-| Plugin | Type | Description |
-|--------|------|-------------|
-| `plugin-rss` | Build | RSS feed generation |
+| `plugin-rss` | Build | RSS 2.0 and Atom 1.0 feed generation |
+| `plugin-analytics` | Build | Privacy-friendly analytics (Plausible, Umami, Fathom, GA4, custom) |
 
 ## Plugin Development Guide
 

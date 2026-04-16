@@ -405,3 +405,4 @@ Import: `import { Button } from '@ever-works/ui/components/ui/button'`
 | `plugin-sitemap` | XML sitemap generation |
 | `plugin-rss` | RSS 2.0 and Atom 1.0 feed generation |
 | `plugin-breadcrumbs` | Auto-generate breadcrumb trails for all page types |
+| `plugin-analytics` | Privacy-friendly analytics (Plausible, Umami, Fathom, GA4, custom) |
