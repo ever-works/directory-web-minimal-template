@@ -122,7 +122,7 @@ Plugins are registered in `plugins.config.ts`:
 ```typescript
 import { definePlugins } from '@ever-works/plugins';
 
-export default definePlugins([
+export const plugins = definePlugins([
     // Each entry is a plugin factory function call
     pluginA({ option: 'value' }),
     pluginB(),

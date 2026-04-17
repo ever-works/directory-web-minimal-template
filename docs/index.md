@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-17 (Iteration 82: 16/16 packages at 100% branch coverage, +7 tests → 1165 total)
+> Updated: 2026-04-17 (Iteration 83: spec drift fixes, 5 new plugin specs, plugin system docs corrected)
 
 ## Root Documents
 
@@ -77,6 +77,11 @@ slug: /
 - **features/plugin-rss.md** — RSS/Atom feed plugin spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/plugin-rss.md))
 - **features/plugin-analytics.md** — Analytics plugin spec (Plausible, Umami, Fathom, GA4, custom) ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/plugin-analytics.md))
 - **features/plugin-related-items.md** — Related items plugin spec (tag/category scoring, build-time computation) ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/plugin-related-items.md))
+- **features/plugin-filters.md** — Filters plugin spec (category, tag, search filtering with URL sync) ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/plugin-filters.md))
+- **features/plugin-search.md** — Search plugin spec (Pagefind static search indexing) ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/plugin-search.md))
+- **features/plugin-pagination.md** — Pagination plugin spec (page calculation, URL patterns) ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/plugin-pagination.md))
+- **features/plugin-sort.md** — Sort plugin spec (name, date, featured sorting) ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/plugin-sort.md))
+- **features/plugin-sitemap.md** — Sitemap plugin spec (@astrojs/sitemap config wrapper) ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/plugin-sitemap.md))
 - **features/robots-txt.md** — robots.txt generation spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/robots-txt.md))
 - **features/visual-regression.md** — Visual regression testing spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/visual-regression.md))
 

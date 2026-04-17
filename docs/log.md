@@ -3,6 +3,37 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-17 — Iteration 83: Spec drift fixes, 5 new plugin specs
+
+### Spec Drift Audit
+- Ran comprehensive spec drift audit across all docs, .specify/, and packages/
+- Found 5 drift issues (2 HIGH, 2 MEDIUM, 1 LOW)
+
+### HIGH: Created 5 Missing Plugin Specifications
+- `.specify/features/plugin-filters.md` — Category/tag/search filtering, URL sync, client-side pure functions
+- `.specify/features/plugin-search.md` — Pagefind static search indexing, build-time onAfterBuild hook
+- `.specify/features/plugin-pagination.md` — Page calculation, URL patterns, three-tier config precedence
+- `.specify/features/plugin-sort.md` — Name/date/featured sorting, locale-aware comparison
+- `.specify/features/plugin-sitemap.md` — @astrojs/sitemap config wrapper, onInit-only hook
+
+### MEDIUM: Fixed Plugin System Documentation
+- `docs/architecture/plugin-system.md` — Removed fictional `DataPlugin`, `UIPlugin`, `PagePlugin`, `BuildPlugin` sub-interfaces. Replaced with accurate "Plugin Categories" section explaining that all plugins implement the single `Plugin` interface; categories determined by which hooks they implement
+- Fixed `PluginContext.plugins` type from `Map` to `ReadonlyMap` (matching actual code)
+- Updated plugin config example to match actual `apps/web/src/lib/plugins.config.ts`
+- `docs/specs/plugin-interface.md` — Fixed `export default` to `export const` in registration example
+
+### Verification
+- README test counts verified accurate: 1165 tests, 76 files, 16 suites (no change needed)
+- All key dependencies current (Astro, Vite, Vitest, TypeScript, Preact, Tailwind, Playwright, Turbo)
+- Zero security vulnerabilities (pnpm audit clean)
+- All 16 packages at 100% branch coverage (no regression)
+- All builds pass (7/7 apps)
+- `docs/index.md` updated with 5 new spec entries
+
+### Dependencies
+- React 18→19, react-player 2→3, cspell 8→10 available but blocked by Docusaurus compatibility
+- No action needed on dependencies this iteration
+
 ## 2026-04-17 — Iteration 82: 16/16 packages at 100% branch coverage
 
 ### All 16 packages now at 100% branch coverage (+7 tests → 1165 total)

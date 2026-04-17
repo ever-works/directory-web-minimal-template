@@ -79,23 +79,36 @@ interface PluginContext {
     /** Output directory path */
     outDir: string;
 
-    /** Access to other registered plugins */
-    plugins: Map<string, Plugin>;
+    /** Access to other registered plugins (read-only) */
+    plugins: ReadonlyMap<string, Plugin>;
 
     /** Logger */
     log: PluginLogger;
 }
 ```
 
-## Plugin Types
+## Plugin Categories
+
+All plugins implement the single `Plugin` interface. There are no separate sub-interfaces.
+A plugin's category is determined by **which hooks it implements**:
 
 ### Data Plugins
-Transform or enrich loaded data.
+Transform or enrich loaded data via `onDataLoaded`.
 
 ```typescript
-interface DataPlugin extends Plugin {
-    hooks: {
-        onDataLoaded: (data: ContentData, context: PluginContext) => Promise<ContentData>;
+// No separate interface — just a Plugin that implements onDataLoaded
+export function sortPlugin(options?: SortOptions): Plugin {
+    return {
+        id: 'sort',
+        name: 'Sort Plugin',
+        version: '0.1.0',
+        description: 'Sorts items by name, date, or featured status.',
+        hooks: {
+            onDataLoaded: async (data, context) => {
+                // Sort items and return modified data
+                return { ...data, items: sortItems(data.items, options) };
+            },
+        },
     };
 }
 ```
@@ -103,58 +116,45 @@ interface DataPlugin extends Plugin {
 Examples: `plugin-sort`, `plugin-related-items`, `plugin-filters`
 
 ### UI Plugins
-Provide Astro/Preact components.
+Provide Preact interactive components (islands) or Astro components.
+These export both a plugin factory function AND standalone UI components.
 
 ```typescript
-interface UIPlugin extends Plugin {
-    /** Components this plugin provides */
-    components: Record<string, ComponentDefinition>;
-}
+// Plugin factory for build-time hooks
+export function searchPlugin(options?: SearchOptions): Plugin { ... }
 
-interface ComponentDefinition {
-    /** Import path for the component */
-    importPath: string;
-    /** Component props interface description */
-    props: string;
-    /** Usage example for AI agents */
-    example: string;
-}
+// Standalone UI component (imported directly by pages)
+// packages/plugin-search/src/SearchInput.tsx
+export function SearchInput(props: SearchInputProps) { ... }
 ```
 
 Examples: `plugin-search`, `plugin-filters`, `plugin-pagination`
 
-### Page Plugins
-Add new pages/routes to the site.
-
-```typescript
-interface PagePlugin extends Plugin {
-    /** Page routes this plugin adds */
-    pages: PageDefinition[];
-}
-
-interface PageDefinition {
-    /** URL pattern (e.g., '/comparisons/[slug]') */
-    pattern: string;
-    /** Description of what this page shows */
-    description: string;
-}
-```
-
-Examples: `plugin-sitemap`, `plugin-rss`
-
 ### Build Plugins
-Run during build pipeline (pre/post).
+Run during `onBeforeBuild` or `onAfterBuild` to generate artifacts.
 
 ```typescript
-interface BuildPlugin extends Plugin {
-    hooks: {
-        onBeforeBuild?: (context: PluginContext) => Promise<void>;
-        onAfterBuild?: (context: PluginContext) => Promise<void>;
+export function sitemapPlugin(options?: SitemapOptions): Plugin {
+    return {
+        id: 'sitemap',
+        name: 'Sitemap Plugin',
+        version: '0.1.0',
+        description: 'Generates XML sitemap after build.',
+        hooks: {
+            onAfterBuild: async (context) => {
+                // Generate sitemap.xml in outDir
+            },
+        },
     };
 }
 ```
 
-Examples: `plugin-seo`, `plugin-sitemap`, `plugin-rss`
+Examples: `plugin-seo`, `plugin-sitemap`, `plugin-rss`, `plugin-analytics`
+
+### Mixed Plugins
+Many plugins span multiple categories. For example, `plugin-filters` implements
+`onDataLoaded` (data transformation) AND exports UI components (FilterBar).
+The built-in plugins table below shows each plugin's actual categories.
 
 ## Plugin Configuration
 
@@ -162,29 +162,22 @@ Plugins are registered in `apps/web/src/lib/plugins.config.ts`:
 
 ```typescript
 import { definePlugins } from '@ever-works/plugins';
-import { searchPlugin } from '@ever-works/plugin-search';
-import { filtersPlugin } from '@ever-works/plugin-filters';
-import { paginationPlugin } from '@ever-works/plugin-pagination';
 import { seoPlugin } from '@ever-works/plugin-seo';
+import { paginationPlugin } from '@ever-works/plugin-pagination';
+import { filtersPlugin } from '@ever-works/plugin-filters';
+import { searchPlugin } from '@ever-works/plugin-search';
+import { sortPlugin } from '@ever-works/plugin-sort';
+import { sitemapPlugin } from '@ever-works/plugin-sitemap';
+import { rssPlugin } from '@ever-works/plugin-rss';
 
-export default definePlugins([
-    searchPlugin({
-        // Search-specific options
-        indexFields: ['name', 'description', 'tags'],
-    }),
-    filtersPlugin({
-        // Filter options
-        enableCategoryFilter: true,
-        enableTagFilter: true,
-    }),
-    paginationPlugin({
-        itemsPerPage: 20,
-        style: 'standard',
-    }),
-    seoPlugin({
-        generateJsonLd: true,
-        generateSitemap: true,
-    }),
+export const plugins = definePlugins([
+    seoPlugin(),
+    paginationPlugin({ itemsPerPage: 12 }),
+    filtersPlugin(),
+    searchPlugin(),
+    sortPlugin({ defaultSort: 'name', defaultDirection: 'asc' }),
+    sitemapPlugin(),
+    rssPlugin(),
 ]);
 ```
 
