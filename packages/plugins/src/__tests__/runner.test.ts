@@ -145,6 +145,43 @@ describe('PluginRunner', () => {
             expect(order).toEqual(['b']);
         });
 
+        it('should skip plugins with hooks object but no onInit method', async () => {
+            const initFn = vi.fn();
+            // hooks exists but onInit is NOT defined — covers the branch where
+            // `plugin.hooks` is truthy but `plugin.hooks.onInit` is undefined.
+            const pluginA = createPlugin({ id: 'a', hooks: {} });
+            const pluginB = createPlugin({
+                id: 'b',
+                hooks: { onInit: initFn },
+            });
+
+            const runner = new PluginRunner([pluginA, pluginB]);
+            await runner.runInit(createBaseContext());
+
+            expect(initFn).toHaveBeenCalledOnce();
+        });
+
+        it('should skip plugins whose hooks object only has unrelated hooks (no onInit)', async () => {
+            const initFn = vi.fn();
+            const afterBuildFn = vi.fn();
+            // hooks has onAfterBuild but NOT onInit
+            const pluginA = createPlugin({
+                id: 'a',
+                hooks: { onAfterBuild: afterBuildFn },
+            });
+            const pluginB = createPlugin({
+                id: 'b',
+                hooks: { onInit: initFn },
+            });
+
+            const runner = new PluginRunner([pluginA, pluginB]);
+            await runner.runInit(createBaseContext());
+
+            expect(initFn).toHaveBeenCalledOnce();
+            // onAfterBuild should NOT have been called via runInit
+            expect(afterBuildFn).not.toHaveBeenCalled();
+        });
+
         it('should provide PluginContext with log and plugins to hooks', async () => {
             let capturedCtx: PluginContext | null = null;
 
@@ -262,6 +299,45 @@ describe('PluginRunner', () => {
             expect(result.total).toBe(7);
         });
 
+        it('should skip plugins with hooks object but no onDataLoaded method', async () => {
+            const pluginA = createPlugin({ id: 'a', hooks: {} });
+            const pluginB = createPlugin({
+                id: 'b',
+                hooks: {
+                    onDataLoaded: vi.fn().mockImplementation(async (data: ContentData) => {
+                        return { ...data, total: 11 };
+                    }),
+                },
+            });
+
+            const runner = new PluginRunner([pluginA, pluginB]);
+            const result = await runner.runDataLoaded(createTestContentData(), createBaseContext());
+
+            expect(result.total).toBe(11);
+        });
+
+        it('should skip plugins whose hooks object only has unrelated hooks (no onDataLoaded)', async () => {
+            const beforeBuildFn = vi.fn();
+            const pluginA = createPlugin({
+                id: 'a',
+                hooks: { onBeforeBuild: beforeBuildFn },
+            });
+            const pluginB = createPlugin({
+                id: 'b',
+                hooks: {
+                    onDataLoaded: vi.fn().mockImplementation(async (data: ContentData) => {
+                        return { ...data, total: 13 };
+                    }),
+                },
+            });
+
+            const runner = new PluginRunner([pluginA, pluginB]);
+            const result = await runner.runDataLoaded(createTestContentData(), createBaseContext());
+
+            expect(result.total).toBe(13);
+            expect(beforeBuildFn).not.toHaveBeenCalled();
+        });
+
         it('should use previous data when a plugin returns undefined', async () => {
             const pluginA = createPlugin({
                 id: 'a',
@@ -313,6 +389,39 @@ describe('PluginRunner', () => {
             await runner.runBeforeBuild(createBaseContext());
 
             expect(buildFn).toHaveBeenCalledOnce();
+        });
+
+        it('should skip plugins with hooks object but no onBeforeBuild method', async () => {
+            const buildFn = vi.fn();
+            const pluginA = createPlugin({ id: 'a', hooks: {} });
+            const pluginB = createPlugin({
+                id: 'b',
+                hooks: { onBeforeBuild: buildFn },
+            });
+
+            const runner = new PluginRunner([pluginA, pluginB]);
+            await runner.runBeforeBuild(createBaseContext());
+
+            expect(buildFn).toHaveBeenCalledOnce();
+        });
+
+        it('should skip plugins whose hooks object only has unrelated hooks (no onBeforeBuild)', async () => {
+            const buildFn = vi.fn();
+            const initFn = vi.fn();
+            const pluginA = createPlugin({
+                id: 'a',
+                hooks: { onInit: initFn },
+            });
+            const pluginB = createPlugin({
+                id: 'b',
+                hooks: { onBeforeBuild: buildFn },
+            });
+
+            const runner = new PluginRunner([pluginA, pluginB]);
+            await runner.runBeforeBuild(createBaseContext());
+
+            expect(buildFn).toHaveBeenCalledOnce();
+            expect(initFn).not.toHaveBeenCalled();
         });
 
         it('should call onBeforeBuild on each plugin in order', async () => {
@@ -395,6 +504,39 @@ describe('PluginRunner', () => {
             await runner.runAfterBuild(createBaseContext());
 
             expect(afterFn).toHaveBeenCalledOnce();
+        });
+
+        it('should skip plugins with hooks object but no onAfterBuild method', async () => {
+            const afterFn = vi.fn();
+            const pluginA = createPlugin({ id: 'a', hooks: {} });
+            const pluginB = createPlugin({
+                id: 'b',
+                hooks: { onAfterBuild: afterFn },
+            });
+
+            const runner = new PluginRunner([pluginA, pluginB]);
+            await runner.runAfterBuild(createBaseContext());
+
+            expect(afterFn).toHaveBeenCalledOnce();
+        });
+
+        it('should skip plugins whose hooks object only has unrelated hooks (no onAfterBuild)', async () => {
+            const afterFn = vi.fn();
+            const initFn = vi.fn();
+            const pluginA = createPlugin({
+                id: 'a',
+                hooks: { onInit: initFn },
+            });
+            const pluginB = createPlugin({
+                id: 'b',
+                hooks: { onAfterBuild: afterFn },
+            });
+
+            const runner = new PluginRunner([pluginA, pluginB]);
+            await runner.runAfterBuild(createBaseContext());
+
+            expect(afterFn).toHaveBeenCalledOnce();
+            expect(initFn).not.toHaveBeenCalled();
         });
 
         it('should call onAfterBuild on each plugin in order', async () => {

@@ -252,4 +252,65 @@ describe('computeRelatedItems', () => {
 
         expect(result[0]!.icon_url).toBeUndefined();
     });
+
+    it('sets category to undefined when candidate has empty array category', () => {
+        const source = makeItem({ slug: 'a', tags: ['shared'] });
+        const candidate = makeItem({
+            slug: 'b',
+            category: [] as unknown as string,
+            tags: ['shared'],
+        });
+
+        const result = computeRelatedItems(
+            source,
+            [source, candidate],
+            DEFAULT_CONFIG,
+        );
+
+        // candidate.category[0] is undefined for empty array, then `undefined || undefined` → undefined
+        expect(result[0]!.category).toBeUndefined();
+    });
+
+    it('handles falsy non-empty-string category value', () => {
+        const source = makeItem({ slug: 'a', tags: ['shared'] });
+        const candidate = makeItem({
+            slug: 'b',
+            category: 0 as unknown as string,
+            tags: ['shared'],
+        });
+
+        const result = computeRelatedItems(
+            source,
+            [source, candidate],
+            DEFAULT_CONFIG,
+        );
+
+        // 0 is falsy, so `0 || undefined` → undefined
+        expect(result[0]!.category).toBeUndefined();
+    });
+});
+
+describe('computeScore — additional branch coverage', () => {
+    it('breaks on first matching category immediately', () => {
+        // Source has one category, candidate has that category as the first element
+        // This exercises the `break` on the very first iteration
+        const source = makeItem({ slug: 'a', category: 'cat1' });
+        const candidate = makeItem({ slug: 'b', category: ['cat1', 'cat2', 'cat3'] });
+        // Should get categoryWeight once (break after first match), not 1 per match
+        expect(computeScore(source, candidate, DEFAULT_CONFIG)).toBe(2);
+    });
+
+    it('breaks on category match at second element', () => {
+        // Source has 'cat2', candidate has ['cat1', 'cat2'] — match on second iteration
+        const source = makeItem({ slug: 'a', category: 'cat2' });
+        const candidate = makeItem({ slug: 'b', category: ['cat1', 'cat2', 'cat3'] });
+        expect(computeScore(source, candidate, DEFAULT_CONFIG)).toBe(2);
+    });
+
+    it('handles null category as falsy value via normalizeCategory', () => {
+        const source = makeItem({ slug: 'a', category: null as unknown as string });
+        const candidate = makeItem({ slug: 'b', category: null as unknown as string });
+        // null is falsy → normalizeCategory returns [] → no categories to match → score 0
+        expect(computeScore(source, candidate, DEFAULT_CONFIG)).toBe(0);
+    });
 });

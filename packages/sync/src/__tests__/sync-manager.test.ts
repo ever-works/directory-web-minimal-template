@@ -286,4 +286,47 @@ describe('SyncManager', () => {
 		expect(result.success).toBe(false);
 		expect(result.message).toContain('string error');
 	});
+
+	it('should handle stopPolling when no polling is active', () => {
+		const manager = new SyncManager(adapter, defaultConfig);
+
+		// pollTimer is null — stopPolling should be a no-op without errors
+		expect(manager.getStatus().isPolling).toBe(false);
+		manager.stopPolling();
+		expect(manager.getStatus().isPolling).toBe(false);
+	});
+
+	it('should emit sync:error with Error object wrapping non-Error thrown values', async () => {
+		adapter.refresh = vi.fn().mockRejectedValue('raw string error');
+		const manager = new SyncManager(adapter, { ...defaultConfig, maxRetries: 0 });
+		const errors: unknown[] = [];
+		manager.on((e) => {
+			if (e.type === 'sync:error') {
+				errors.push(e.error);
+			}
+		});
+
+		await manager.sync();
+
+		expect(errors).toHaveLength(1);
+		expect(errors[0]).toBeInstanceOf(Error);
+		expect((errors[0] as Error).message).toBe('raw string error');
+	});
+
+	it('should emit sync:error with original Error when Error is thrown', async () => {
+		const originalError = new Error('real error');
+		adapter.refresh = vi.fn().mockRejectedValue(originalError);
+		const manager = new SyncManager(adapter, { ...defaultConfig, maxRetries: 0 });
+		const errors: unknown[] = [];
+		manager.on((e) => {
+			if (e.type === 'sync:error') {
+				errors.push(e.error);
+			}
+		});
+
+		await manager.sync();
+
+		expect(errors).toHaveLength(1);
+		expect(errors[0]).toBe(originalError);
+	});
 });

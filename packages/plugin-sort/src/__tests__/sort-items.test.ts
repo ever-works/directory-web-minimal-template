@@ -84,4 +84,20 @@ describe('sortItems', () => {
         expect(result).toHaveLength(1);
         expect(result[0]).toBe(alpha);
     });
+
+    it('throws on unknown sort field', () => {
+        expect(() =>
+            sortItems([alpha], 'unknown' as never, 'asc'),
+        ).toThrow('Unknown sort field');
+    });
+
+    it('sorts featured items alphabetically within same featured group', () => {
+        const featured1 = makeItem({ name: 'Zulu', featured: true, updated_at: '2024-01-01 00:00' });
+        const featured2 = makeItem({ name: 'Alpha', featured: true, updated_at: '2024-01-01 00:00' });
+        const normal1 = makeItem({ name: 'Mike', updated_at: '2024-01-01 00:00' });
+        const normal2 = makeItem({ name: 'Echo', updated_at: '2024-01-01 00:00' });
+
+        const result = sortItems([featured1, normal1, featured2, normal2], 'featured', 'asc');
+        expect(result.map((i) => i.name)).toEqual(['Alpha', 'Zulu', 'Echo', 'Mike']);
+    });
 });

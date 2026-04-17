@@ -1,8 +1,24 @@
 import { mkdir, writeFile, rm, unlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi, afterEach } from 'vitest';
 import { FilesystemAdapter } from '../filesystem-adapter.js';
+
+/**
+ * Module-level mock for node:fs/promises.
+ * All functions default to their real implementations (passthrough).
+ * Individual tests can override via mockImplementationOnce / mockRejectedValueOnce.
+ */
+vi.mock('node:fs/promises', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('node:fs/promises')>();
+    return {
+        ...actual,
+        readFile: vi.fn(actual.readFile),
+        readdir: vi.fn(actual.readdir),
+        stat: vi.fn(actual.stat),
+        access: vi.fn(actual.access),
+    };
+});
 
 /** Root temp directory for all tests in this file. */
 let tempDir: string;
@@ -367,6 +383,10 @@ describe('FilesystemAdapter', () => {
     // walkDir non-ENOENT error handling
     // ------------------------------------------------------------------
     describe('walkDir error handling', () => {
+        afterEach(() => {
+            vi.restoreAllMocks();
+        });
+
         it('should silently ignore ENOENT when a directory disappears during walk', async () => {
             const adapter = await createInitializedAdapter();
             // Remove a directory after init — when refresh re-walks, the cached subdir is gone
@@ -380,6 +400,212 @@ describe('FilesystemAdapter', () => {
             // Should not throw
             const changed = await adapter.refresh();
             expect(typeof changed).toBe('boolean');
+        });
+
+        it('silently returns on ENOENT thrown by readdir during walk', async () => {
+            const adapter = await createInitializedAdapter();
+            const { readdir: mockedReaddir } = await import('node:fs/promises');
+
+            // Simulate an ENOENT error from readdir during the walk
+            const enoentError = Object.assign(
+                new Error('ENOENT: no such file or directory'),
+                { code: 'ENOENT' },
+            );
+            vi.mocked(mockedReaddir).mockRejectedValueOnce(enoentError as never);
+
+            // Should not throw — ENOENT is silently ignored
+            const changed = await adapter.refresh();
+            expect(typeof changed).toBe('boolean');
+        });
+    });
+
+    // ------------------------------------------------------------------
+    // Non-Error thrown values in error handlers
+    // ------------------------------------------------------------------
+    describe('non-Error thrown values', () => {
+        afterEach(() => {
+            vi.restoreAllMocks();
+        });
+
+        it('readFile wraps non-Error thrown values with String()', async () => {
+            const adapter = await createInitializedAdapter();
+            const { readFile: mockedReadFile } = await import('node:fs/promises');
+            // Make the mocked readFile reject with a plain string (not an Error)
+            vi.mocked(mockedReadFile).mockRejectedValueOnce('raw string error');
+            await expect(adapter.readFile('hello.txt')).rejects.toThrow(
+                'raw string error',
+            );
+        });
+
+        it('listFiles wraps non-Error thrown values with String()', async () => {
+            const adapter = await createInitializedAdapter();
+            const { readdir: mockedReaddir } = await import('node:fs/promises');
+            // Make the mocked readdir reject with a number (not an Error)
+            vi.mocked(mockedReaddir).mockRejectedValueOnce(42 as never);
+            await expect(adapter.listFiles('.')).rejects.toThrow(
+                'failed to list files in ".": 42',
+            );
+        });
+
+        it('listDirectories wraps non-Error thrown values with String()', async () => {
+            const adapter = await createInitializedAdapter();
+            const { readdir: mockedReaddir } = await import('node:fs/promises');
+            // Make the mocked readdir reject with a plain object (not an Error)
+            vi.mocked(mockedReaddir).mockRejectedValueOnce(
+                { custom: 'object' } as never,
+            );
+            await expect(adapter.listDirectories('.')).rejects.toThrow(
+                'failed to list directories in ".":',
+            );
+        });
+    });
+
+    // ------------------------------------------------------------------
+    // walkDir skips .git and node_modules directories
+    // ------------------------------------------------------------------
+    describe('walkDir directory filtering', () => {
+        let filterTempDir: string;
+
+        beforeAll(async () => {
+            filterTempDir = join(tmpdir(), `fs-adapter-filter-test-${Date.now()}`);
+            await mkdir(filterTempDir, { recursive: true });
+
+            // Create a regular file
+            await writeFile(join(filterTempDir, 'root.txt'), 'root content');
+
+            // Create .git directory with a file inside
+            await mkdir(join(filterTempDir, '.git'), { recursive: true });
+            await writeFile(join(filterTempDir, '.git', 'HEAD'), 'ref: refs/heads/main');
+
+            // Create node_modules directory with a file inside
+            await mkdir(join(filterTempDir, 'node_modules'), { recursive: true });
+            await writeFile(
+                join(filterTempDir, 'node_modules', 'package.json'),
+                '{}',
+            );
+
+            // Create a regular subdirectory with a file
+            await mkdir(join(filterTempDir, 'src'), { recursive: true });
+            await writeFile(join(filterTempDir, 'src', 'index.ts'), 'export {}');
+        });
+
+        afterAll(async () => {
+            await rm(filterTempDir, { recursive: true, force: true });
+        });
+
+        it('ignores .git directory during snapshot capture', async () => {
+            const adapter = new FilesystemAdapter();
+            await adapter.init({ localPath: filterTempDir });
+            const ref1 = await adapter.getHeadRef();
+
+            // Modify a file inside .git — should NOT change the hash
+            await new Promise((r) => setTimeout(r, 50));
+            await writeFile(
+                join(filterTempDir, '.git', 'HEAD'),
+                'ref: refs/heads/develop',
+            );
+
+            const ref2 = await adapter.getHeadRef();
+            expect(ref2).toBe(ref1);
+
+            // Restore
+            await writeFile(join(filterTempDir, '.git', 'HEAD'), 'ref: refs/heads/main');
+        });
+
+        it('ignores node_modules directory during snapshot capture', async () => {
+            const adapter = new FilesystemAdapter();
+            await adapter.init({ localPath: filterTempDir });
+            const ref1 = await adapter.getHeadRef();
+
+            // Modify a file inside node_modules — should NOT change the hash
+            await new Promise((r) => setTimeout(r, 50));
+            await writeFile(
+                join(filterTempDir, 'node_modules', 'package.json'),
+                '{"updated": true}',
+            );
+
+            const ref2 = await adapter.getHeadRef();
+            expect(ref2).toBe(ref1);
+
+            // Restore
+            await writeFile(join(filterTempDir, 'node_modules', 'package.json'), '{}');
+        });
+
+        it('still tracks files in regular subdirectories', async () => {
+            const adapter = new FilesystemAdapter();
+            await adapter.init({ localPath: filterTempDir });
+            const ref1 = await adapter.getHeadRef();
+
+            // Modify a file in src/ — SHOULD change the hash
+            await new Promise((r) => setTimeout(r, 50));
+            await writeFile(join(filterTempDir, 'src', 'index.ts'), 'export const x = 1;');
+
+            const ref2 = await adapter.getHeadRef();
+            expect(ref2).not.toBe(ref1);
+
+            // Restore
+            await writeFile(join(filterTempDir, 'src', 'index.ts'), 'export {}');
+        });
+    });
+
+    // ------------------------------------------------------------------
+    // walkDir re-throws non-ENOENT errors
+    // ------------------------------------------------------------------
+    describe('walkDir non-ENOENT error re-throw', () => {
+        afterEach(() => {
+            vi.restoreAllMocks();
+        });
+
+        it('re-throws non-ENOENT errors during directory walk', async () => {
+            const adapter = await createInitializedAdapter();
+            const { readdir: mockedReaddir } = await import('node:fs/promises');
+
+            // After init, make the mocked readdir reject with EACCES on next call
+            const eaccesError = Object.assign(new Error('permission denied'), {
+                code: 'EACCES',
+            });
+            vi.mocked(mockedReaddir).mockRejectedValueOnce(eaccesError as never);
+
+            await expect(adapter.refresh()).rejects.toThrow('permission denied');
+        });
+
+        it('re-throws errors that are not Error instances during walk', async () => {
+            const adapter = await createInitializedAdapter();
+            const { readdir: mockedReaddir } = await import('node:fs/promises');
+
+            // Throw a non-Error, non-ENOENT value — should be re-thrown as-is
+            vi.mocked(mockedReaddir).mockRejectedValueOnce(
+                'unexpected failure' as never,
+            );
+
+            await expect(adapter.refresh()).rejects.toBe('unexpected failure');
+        });
+    });
+
+    // ------------------------------------------------------------------
+    // safePath inner branch: outer condition true, inner false
+    // ------------------------------------------------------------------
+    describe('safePath edge cases', () => {
+        it('allows a path with trailing separator that resolves within content root', async () => {
+            const adapter = await createInitializedAdapter();
+            // A path with trailing slash — resolve() strips it, but the
+            // relative path does not start with '..', so it should be allowed.
+            const result = await adapter.exists('nested/');
+            expect(result).toBe(true);
+        });
+
+        it('allows a path that normalizes to content root itself', async () => {
+            const adapter = await createInitializedAdapter();
+            // '.' resolves to contentPath itself
+            const result = await adapter.exists('.');
+            expect(result).toBe(true);
+        });
+
+        it('rejects deeply nested traversal', async () => {
+            const adapter = await createInitializedAdapter();
+            await expect(
+                adapter.readFile('nested/../../outside'),
+            ).rejects.toThrow('path traversal detected');
         });
     });
 });
