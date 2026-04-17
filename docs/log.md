@@ -3,6 +3,58 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-17 — Iteration 76: spec drift audit, plugin-rss coverage 100%
+
+### Documentation Drift Fixes (13 files)
+
+**Component Catalog (`docs/specs/component-catalog.md`)**:
+- Clarified `handleKeyActivation()` and `getVisiblePages()` as internal utilities (subpath import, not barrel-exported)
+- Added note about `getVisiblePages` default (7) vs `Pagination.astro` default (5) discrepancy
+
+**Data Schema (`docs/specs/data-schema.md`)**:
+- Added `_analytics` field section (plugin-injected by `plugin-analytics`)
+- Added `_relatedItemsComputed` field section (plugin-injected by `plugin-related-items`)
+- Fixed `ComparisonData.category` — marked as optional (matching actual TypeScript type)
+
+**Plugin Interface (`docs/specs/plugin-interface.md`)**:
+- Added `_breadcrumbs`, `_analytics`, `_relatedItemsComputed` to `ContentData` interface
+- Documented `PluginRunner` class and `createPluginLogger` function exports
+
+**Plugin Phase 4 Spec (`.specify/features/plugins-phase4.md`)**:
+- Updated plugin count from 8 → 10 (added analytics, related-items references)
+- Added `generateItemJsonLd`, `generateRobotsTxt`, `RobotsTxtOptions`, `RobotsTxtRule` to plugin-seo exports
+- Added `FilterType`, `DEFAULT_PARAM_NAMES` to plugin-filters exports
+- Added `SortDirection`, `ResolvedSortConfig` to plugin-sort exports
+
+**Web App Spec (`.specify/features/web-app.md`)**:
+- Clarified that `rss.xml.ts`, `atom.xml.ts`, `robots.txt.ts` exist in sample implementations only, not base web app
+
+**AGENTS.md**:
+- Updated route table to note RSS/Atom/robots.txt pages are in samples, not base web app
+
+**README.md**:
+- Added `pnpm lint:fix` and `pnpm format` to commands table
+
+**Project Spec (`.specify/project.md`)**:
+- Updated Phase 2 component count to "25 Astro + 8 Preact + 22 primitives + 5 shadcn-style"
+- Updated Phase 4 plugin list to include rss, analytics, related-items
+
+**Sample Specs**:
+- `.specify/features/sample-jobs.md` — Added `/page/[page]` route to pages list
+- `.specify/features/sample-git.md` — Documented `/data/items.json` API endpoint
+
+### Test Coverage Improvement
+- **`@ever-works/plugin-rss`** — Coverage improved from 74% → 100% (statements), 73% → 100% (lines)
+- Added 10 new tests: `rssPlugin()` factory (5 tests), `date-asc` sort, `name-desc` sort, unknown `sortBy` fallback
+- Total plugin-rss tests: 53 (was 43)
+
+### Summary
+- **13 documentation files fixed** across specs, plans, and agent instructions
+- **10 new tests** bringing plugin-rss to 100% coverage
+- **0 regressions** — all builds, typechecks, lints, and tests pass
+
+---
+
 ## 2026-04-17 — Iteration 75: code coverage infrastructure, CI hardening
 
 ### Code Coverage

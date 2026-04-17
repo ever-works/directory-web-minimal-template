@@ -50,9 +50,11 @@ The core Astro application that assembles components, loads data, and generates 
 | `/comparison/[slug]` | `comparison/[slug].astro` | comparison data |
 | `/404` | `404.astro` | not found page |
 | `/pages/[slug]` | `pages/[slug].astro` | static content pages (from `.content/pages/`) |
-| `/rss.xml` | `rss.xml.ts` | RSS 2.0 feed |
-| `/atom.xml` | `atom.xml.ts` | Atom 1.0 feed |
-| `/robots.txt` | `robots.txt.ts` | robots.txt |
+| `/rss.xml` | `rss.xml.ts` | RSS 2.0 feed (added in sample implementations) |
+| `/atom.xml` | `atom.xml.ts` | Atom 1.0 feed (added in sample implementations) |
+| `/robots.txt` | `robots.txt.ts` | robots.txt (added in sample implementations) |
+
+> **Note**: The base `apps/web` template does not include `rss.xml.ts`, `atom.xml.ts`, or `robots.txt.ts` — these are intentionally left for AI agents or sample implementations to add using the `@ever-works/plugin-rss` and `@ever-works/plugin-seo` packages.
 
 ## Technical Design
 

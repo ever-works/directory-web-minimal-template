@@ -91,10 +91,12 @@ packages/
 | `pnpm dev:docs` | Start only the docs site |
 | `pnpm build` | Build all apps |
 | `pnpm lint` | Lint all packages |
+| `pnpm lint:fix` | Lint and auto-fix all packages |
 | `pnpm typecheck` | Type-check all packages |
 | `pnpm test` | Run all unit tests — 1030 tests, 76 test files, 16 suites (Vitest) |
 | `pnpm test:coverage` | Run unit tests with V8 coverage reports |
 | `pnpm test:e2e` | Run E2E tests — 367 tests, 57 specs, 11 projects (Playwright) |
+| `pnpm format` | Format code with Prettier |
 | `pnpm clean` | Clean all build artifacts |
 
 ## Samples

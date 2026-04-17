@@ -113,7 +113,7 @@ item_a_slug: "react-hook-form"
 item_b_slug: "formik"
 item_a_name: "React Hook Form"
 item_b_name: "Formik"
-category: "forms"
+category: "forms"                       # optional
 summary: "A comparison of two popular React form libraries"
 verdict: "React Hook Form offers better performance with less re-renders"
 verdict_winner: "item_a"
@@ -234,6 +234,19 @@ Access in code: `item.meta?.salary`, `item.meta?.location`, etc.
 const data = await getContent();
 const crumbs = data._breadcrumbs?.get(Astro.url.pathname) ?? [];
 ```
+
+### `_analytics` Field (Plugin-Injected)
+
+`ContentData` has an optional `_analytics` field populated by `@ever-works/plugin-analytics` during the `onDataLoaded` hook. It holds the resolved analytics configuration (type: `ResolvedAnalyticsConfig` from `@ever-works/plugin-analytics`). Access in Astro layouts:
+
+```typescript
+const data = await getContent();
+const analyticsConfig = data._analytics;
+```
+
+### `_relatedItemsComputed` Field (Plugin-Injected)
+
+`ContentData` has an optional `_relatedItemsComputed` boolean flag set by `@ever-works/plugin-related-items` during the `onDataLoaded` hook. When `true`, each `ItemData` in `data.items` has a `_relatedItems` array injected via index signature containing related item references scored by shared tags and categories.
 
 ### Pass-Through
 

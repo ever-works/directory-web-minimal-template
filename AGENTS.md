@@ -350,9 +350,9 @@ See `SKILLS.md` for detailed step-by-step guides.
 | `/comparisons` | `comparisons.astro` | Comparisons index |
 | `/comparison/[slug]` | `comparison/[slug].astro` | Comparison detail |
 | `/pages/[slug]` | `pages/[slug].astro` | Static content page (from `.content/pages/`) |
-| `/rss.xml` | `rss.xml.ts` | RSS 2.0 feed (items) |
-| `/atom.xml` | `atom.xml.ts` | Atom 1.0 feed (items) |
-| `/robots.txt` | `robots.txt.ts` | robots.txt with sitemap reference |
+| `/rss.xml` | `rss.xml.ts` | RSS 2.0 feed — in samples, not base web app |
+| `/atom.xml` | `atom.xml.ts` | Atom 1.0 feed — in samples, not base web app |
+| `/robots.txt` | `robots.txt.ts` | robots.txt — in samples, not base web app |
 | `/404` | `404.astro` | Not found page |
 
 ## Available UI Components (packages/ui)

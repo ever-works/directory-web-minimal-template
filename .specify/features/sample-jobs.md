@@ -53,6 +53,7 @@ Same page routes as sample-basic:
 - `/tags` — All tags
 - `/tag/[slug]` — Items with tag
 - `/item/[slug]` — Job detail page
+- `/page/[page]` — Paginated listing
 - `/collections` — All collections
 - `/collection/[slug]` — Items in collection
 - `/comparisons` — All comparisons

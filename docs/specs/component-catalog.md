@@ -971,9 +971,9 @@ cn(...inputs: ClassValue[]): string
 ### handleKeyActivation()
 
 **File**: `packages/ui/src/lib/keyboard.ts`
-**Export**: `@ever-works/ui/lib/keyboard`
+**Import**: `@ever-works/ui/lib/keyboard` (subpath import, not re-exported from barrel)
 
-Handles Enter/Space key activation for non-button interactive elements. Returns a `KeyboardEvent` handler that calls the provided callback and prevents default browser behavior when Enter or Space is pressed. Used inside Preact islands such as `FilterBar` and `ItemBrowser`.
+Internal utility used by Preact islands (`FilterBar`, `ItemBrowser`). Handles Enter/Space key activation for non-button interactive elements. Returns a `KeyboardEvent` handler that calls the provided callback and prevents default browser behavior.
 
 ```typescript
 handleKeyActivation(callback: () => void): (e: KeyboardEvent) => void
@@ -984,9 +984,9 @@ handleKeyActivation(callback: () => void): (e: KeyboardEvent) => void
 ### getVisiblePages()
 
 **File**: `packages/ui/src/lib/pagination.ts`
-**Export**: `@ever-works/ui/lib/pagination`
+**Import**: `@ever-works/ui/lib/pagination` (subpath import, not re-exported from barrel)
 
-Computes the array of visible page numbers (with `'...'` ellipsis markers) for a pagination control, truncating long page ranges while always showing the first and last page. Shared between `Pagination.astro` and `ItemBrowser.tsx`.
+Internal utility shared between `Pagination.astro` and `ItemBrowser.tsx`. Computes the array of visible page numbers (with `'...'` ellipsis markers) for a pagination control, truncating long page ranges while always showing the first and last page.
 
 ```typescript
 getVisiblePages(current: number, total: number, max?: number): (number | '...')[]
@@ -994,6 +994,8 @@ getVisiblePages(current: number, total: number, max?: number): (number | '...')[
 // total   — total number of pages
 // max     — maximum page buttons to show (default: 7)
 ```
+
+> **Note**: The function default for `max` is `7`, but `Pagination.astro` passes `maxVisible` (default: `5`) as the `max` argument. When using `getVisiblePages` directly, the effective default is `7`.
 
 ---
 

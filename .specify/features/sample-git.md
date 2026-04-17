@@ -89,6 +89,7 @@ Content loading uses the adapter pattern from `@ever-works/adapters`:
 | `/page/[page]` | `page/[page].astro` | Paginated listing |
 | `/pages/[slug]` | `pages/[slug].astro` | Static pages from Markdown content |
 | `/404` | `404.astro` | Not found page |
+| `/data/items.json` | `data/items.json.ts` | JSON API endpoint for all items (used by ItemBrowser) |
 
 ## Plugin Configuration
 

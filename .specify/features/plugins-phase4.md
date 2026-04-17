@@ -9,10 +9,12 @@ All plugins implement `@ever-works/plugins` `Plugin` interface.
 Each is a separate workspace package with its own `package.json` and `tsconfig.json`.
 Plugins are registered via `definePlugins()` in a `plugins.config.ts` file in the web app.
 
-**Total: 8 plugin packages** (seo, pagination, filters, search, sort, sitemap, breadcrumbs, rss).
-Note: `plugin-breadcrumbs` and `plugin-rss` were added after Phase 4 and have their own spec files:
+**Total: 10 plugin packages** (seo, pagination, filters, search, sort, sitemap, breadcrumbs, rss, analytics, related-items).
+Note: Plugins added after Phase 4 have their own spec files:
 - `.specify/features/plugin-breadcrumbs.md`
 - `.specify/features/plugin-rss.md`
+- `.specify/features/plugin-analytics.md`
+- `.specify/features/plugin-related-items.md`
 
 ## Plugin Packages
 
@@ -42,7 +44,9 @@ interface SeoPluginOptions {
 - `seoPlugin()` — factory function returning `Plugin`
 - `generateMetaTags(page: PageMeta, options: SeoPluginOptions): MetaTag[]` — pure utility
 - `generateJsonLd(type: JsonLdType, data: JsonLdInput): string` — pure utility
-- Types: `SeoPluginOptions`, `PageMeta`, `MetaTag`, `JsonLdType`, `JsonLdInput`
+- `generateItemJsonLd(item, siteUrl): string` — item-specific JSON-LD generation
+- `generateRobotsTxt(options?: RobotsTxtOptions): string` — robots.txt generation
+- Types: `SeoPluginOptions`, `PageMeta`, `MetaTag`, `JsonLdType`, `JsonLdInput`, `RobotsTxtOptions`, `RobotsTxtRule`
 
 **Hooks used**: `onInit` (validate config), `onDataLoaded` (inject SEO defaults into items)
 
@@ -105,7 +109,8 @@ interface FiltersPluginOptions {
 - `filterItems(items: ItemData[], filters: ActiveFilters): ItemData[]` — pure utility
 - `parseFiltersFromUrl(url: URL, paramNames: ParamNames): ActiveFilters` — pure utility
 - `serializeFiltersToUrl(filters: ActiveFilters, paramNames: ParamNames): URLSearchParams` — pure utility
-- Types: `FiltersPluginOptions`, `ActiveFilters`, `ParamNames`
+- Types: `FiltersPluginOptions`, `ActiveFilters`, `ParamNames`, `FilterType`
+- Constants: `DEFAULT_PARAM_NAMES`
 
 **Hooks used**: `onInit` (validate config)
 
@@ -164,7 +169,7 @@ type SortField = 'name' | 'updated_at' | 'featured';
 **Exports**:
 - `sortPlugin()` — factory function returning `Plugin`
 - `sortItems(items: ItemData[], field: SortField, direction: 'asc' | 'desc'): ItemData[]` — pure utility
-- Types: `SortPluginOptions`, `SortField`
+- Types: `SortPluginOptions`, `SortField`, `SortDirection`, `ResolvedSortConfig`
 
 **Hooks used**: `onInit` (validate config), `onDataLoaded` (apply default sort)
 

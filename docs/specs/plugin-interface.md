@@ -107,6 +107,11 @@ interface ContentData {
     pages: PageData[];
     config: SiteConfig;
     total: number;
+
+    // Plugin-injected optional fields:
+    _breadcrumbs?: Map<string, Array<{ label: string; href?: string }>>;
+    _analytics?: unknown;             // ResolvedAnalyticsConfig from plugin-analytics
+    _relatedItemsComputed?: boolean;  // Set by plugin-related-items
 }
 ```
 
@@ -128,6 +133,11 @@ The `definePlugins` function:
 1. Validates all plugin IDs are unique
 2. Resolves dependency order (topological sort)
 3. Returns an ordered array of initialized plugins
+
+### Additional Exports from `@ever-works/plugins`
+
+- **`PluginRunner`** — class that executes the plugin pipeline (`runInit`, `runDataLoaded`, `runBeforeBuild`, `runAfterBuild`)
+- **`createPluginLogger`** — factory function to create a `PluginLogger` instance for a given plugin ID
 
 ## Plugin Lifecycle
 
