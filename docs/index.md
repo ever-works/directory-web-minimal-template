@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-17 (Iteration 76: spec drift audit, plugin-rss coverage 100%)
+> Updated: 2026-04-17 (Iteration 77: coverage improvements, spec drift fixes)
 
 ## Root Documents
 

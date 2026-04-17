@@ -64,7 +64,7 @@ A minimal, static-rendered Astro template for AI-generated directory websites. L
 | Phase 5 | Sample implementations (basic, jobs, events, real-estate, git) | Complete |
 | Phase 6 | Deployment, CI/CD, docs site, E2E tests | Complete |
 | Phase 7 | Polish: UI package, docs quality, interactive components | Complete |
-| Phase 8 | Testing: unit tests (811), E2E expansion (56 spec files) | Complete |
+| Phase 8 | Testing: unit tests (1058), E2E expansion (57 spec files) | Complete |
 | Phase 9 | Breadcrumbs, content sync, ISR, Git adapter (isomorphic-git) | Complete |
 | Phase 10 | Static pages, collections, comparisons, sample-git (3200+ items) | Complete |
 | Phase 11 | Sample-jobs, sample-events, sample-real-estate directories | Complete |
@@ -76,11 +76,11 @@ A minimal, static-rendered Astro template for AI-generated directory websites. L
 | Phase 17 | Related items plugin: tag/category scoring, build-time computation | Complete |
 | Phase 18 | Code coverage infrastructure: V8 coverage across all 16 packages, CI hardening | Complete |
 
-## Current State (Iteration 75)
+## Current State (Iteration 77)
 
 - **8 apps**: web, web-e2e, docs, sample-basic, sample-jobs, sample-events, sample-real-estate, sample-git
 - **18 packages**: core, ui, plugins, adapters, sync, astro-integration, 10 plugin-* packages (seo, rss, pagination, filters, search, sort, sitemap, breadcrumbs, analytics, related-items), tsconfig, eslint-config
-- **1030 unit tests** (Vitest) across 76 test files, 16 suites — all passing
-- **V8 code coverage** enabled across all 16 packages (6 at 100%, avg >93%)
+- **1058 unit tests** (Vitest) across 76 test files, 16 suites — all passing
+- **V8 code coverage** enabled across all 16 packages (8 at 100%, avg >96%)
 - **367 E2E test cases** across 57 spec files, 11 Playwright projects, 5 sample apps
 - **All dependencies at latest versions** (Astro 6.1.7, Preact 10.29.1, Tailwind 4.2.2, TS 6.0.3, Prettier 3.8.3)

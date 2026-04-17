@@ -160,4 +160,62 @@ describe('renderAnalyticsScripts', () => {
         expect(html).toContain('plausible.io');
         expect(html).toContain('googletagmanager.com');
     });
+
+    it('renders umami provider via renderAnalyticsScripts', () => {
+        const html = renderAnalyticsScripts({
+            providers: [
+                { provider: 'umami', websiteId: 'u-123', scriptUrl: 'https://u.example.com/script.js' },
+            ],
+            respectDoNotTrack: false,
+            disableInDev: true,
+            placement: 'head',
+        });
+        expect(html).toContain('data-website-id="u-123"');
+        expect(html).toContain('u.example.com/script.js');
+    });
+
+    it('renders fathom provider via renderAnalyticsScripts', () => {
+        const html = renderAnalyticsScripts({
+            providers: [
+                { provider: 'fathom', siteId: 'FTEST' },
+            ],
+            respectDoNotTrack: false,
+            disableInDev: true,
+            placement: 'head',
+        });
+        expect(html).toContain('data-site="FTEST"');
+        expect(html).toContain('cdn.usefathom.com');
+    });
+
+    it('renders custom provider via renderAnalyticsScripts', () => {
+        const html = renderAnalyticsScripts({
+            providers: [
+                { provider: 'custom', html: '<script>track()</script>' },
+            ],
+            respectDoNotTrack: false,
+            disableInDev: true,
+            placement: 'head',
+        });
+        expect(html).toBe('<script>track()</script>');
+    });
+
+    it('renders all five providers together', () => {
+        const html = renderAnalyticsScripts({
+            providers: [
+                { provider: 'plausible', domain: 'all.example.com' },
+                { provider: 'umami', websiteId: 'u-all', scriptUrl: 'https://u.example.com/script.js' },
+                { provider: 'fathom', siteId: 'FALL' },
+                { provider: 'ga4', measurementId: 'G-ALL' },
+                { provider: 'custom', html: '<script>custom()</script>' },
+            ],
+            respectDoNotTrack: false,
+            disableInDev: true,
+            placement: 'head',
+        });
+        expect(html).toContain('all.example.com');
+        expect(html).toContain('data-website-id="u-all"');
+        expect(html).toContain('data-site="FALL"');
+        expect(html).toContain('G-ALL');
+        expect(html).toContain('custom()');
+    });
 });

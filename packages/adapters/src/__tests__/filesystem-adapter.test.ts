@@ -1,4 +1,4 @@
-import { mkdir, writeFile, rm } from 'node:fs/promises';
+import { mkdir, writeFile, rm, unlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
@@ -234,6 +234,132 @@ describe('FilesystemAdapter', () => {
             await expect(adapter.exists('../something')).rejects.toThrow(
                 'path traversal detected',
             );
+        });
+    });
+
+    // ------------------------------------------------------------------
+    // refresh
+    // ------------------------------------------------------------------
+    describe('refresh', () => {
+        it('returns false when no files changed between calls', async () => {
+            const adapter = await createInitializedAdapter();
+            const changed = await adapter.refresh();
+            expect(changed).toBe(false);
+        });
+
+        it('returns true when a file is modified', async () => {
+            const adapter = await createInitializedAdapter();
+            // First refresh to establish baseline
+            await adapter.refresh();
+
+            // Small delay to ensure mtime differs
+            await new Promise((r) => setTimeout(r, 50));
+            await writeFile(join(tempDir, 'hello.txt'), 'Hello, modified!');
+
+            const changed = await adapter.refresh();
+            expect(changed).toBe(true);
+
+            // Restore original content
+            await writeFile(join(tempDir, 'hello.txt'), 'Hello, world!');
+        });
+
+        it('returns true when a new file is added', async () => {
+            const adapter = await createInitializedAdapter();
+            await adapter.refresh();
+
+            await new Promise((r) => setTimeout(r, 50));
+            await writeFile(join(tempDir, 'new-file.txt'), 'new content');
+
+            const changed = await adapter.refresh();
+            expect(changed).toBe(true);
+
+            // Clean up
+            await unlink(join(tempDir, 'new-file.txt'));
+        });
+
+        it('returns true when a file is deleted', async () => {
+            // Create a temporary file to delete
+            await writeFile(join(tempDir, 'to-delete.txt'), 'delete me');
+            const adapter = await createInitializedAdapter();
+            await adapter.refresh();
+
+            await new Promise((r) => setTimeout(r, 50));
+            await unlink(join(tempDir, 'to-delete.txt'));
+
+            const changed = await adapter.refresh();
+            expect(changed).toBe(true);
+        });
+
+        it('throws before init', async () => {
+            const adapter = new FilesystemAdapter();
+            await expect(adapter.refresh()).rejects.toThrow(
+                'adapter not initialized',
+            );
+        });
+    });
+
+    // ------------------------------------------------------------------
+    // getHeadRef
+    // ------------------------------------------------------------------
+    describe('getHeadRef', () => {
+        it('returns a non-null string hash', async () => {
+            const adapter = await createInitializedAdapter();
+            const ref = await adapter.getHeadRef();
+            expect(ref).not.toBeNull();
+            expect(typeof ref).toBe('string');
+            expect((ref as string).length).toBeGreaterThan(0);
+        });
+
+        it('returns same hash when files have not changed', async () => {
+            const adapter = await createInitializedAdapter();
+            const ref1 = await adapter.getHeadRef();
+            const ref2 = await adapter.getHeadRef();
+            expect(ref1).toBe(ref2);
+        });
+
+        it('returns different hash after file modification', async () => {
+            const adapter = await createInitializedAdapter();
+            const ref1 = await adapter.getHeadRef();
+
+            await new Promise((r) => setTimeout(r, 50));
+            await writeFile(join(tempDir, 'hello.txt'), 'Hello, changed!');
+
+            const ref2 = await adapter.getHeadRef();
+            expect(ref2).not.toBe(ref1);
+
+            // Restore original content
+            await writeFile(join(tempDir, 'hello.txt'), 'Hello, world!');
+        });
+
+        it('throws before init', async () => {
+            const adapter = new FilesystemAdapter();
+            await expect(adapter.getHeadRef()).rejects.toThrow(
+                'adapter not initialized',
+            );
+        });
+    });
+
+    // ------------------------------------------------------------------
+    // listFiles error handling
+    // ------------------------------------------------------------------
+    describe('listFiles error', () => {
+        it('throws wrapped error when listing a non-existent directory', async () => {
+            const adapter = await createInitializedAdapter();
+            await expect(
+                adapter.listFiles('does-not-exist'),
+            ).rejects.toThrow('failed to list files');
+        });
+    });
+
+    // ------------------------------------------------------------------
+    // listDirectories error handling
+    // ------------------------------------------------------------------
+    describe('listDirectories error', () => {
+        it('throws wrapped error when listing a non-existent directory', async () => {
+            const adapter = await createInitializedAdapter();
+            await expect(
+                adapter.listDirectories('does-not-exist'),
+            ).rejects.toThrow('failed to list directories');
         });
     });
 });

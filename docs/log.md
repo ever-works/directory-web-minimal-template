@@ -3,6 +3,42 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-17 — Iteration 77: coverage improvements, spec drift fixes
+
+### Test Coverage Improvements (28 new tests)
+
+**`@ever-works/adapters`** — Coverage: 82.28% → 97.71% (statements)
+- Added 11 tests: `refresh()` (5), `getHeadRef()` (4), error paths for `listFiles` and `listDirectories` (2)
+- Total adapters tests: 85 (was 74)
+
+**`@ever-works/astro-integration`** — Coverage: 89.87% → 100% (statements)
+- Added 5 tests: `astro:config:setup` webhook injection (3), non-Error error handling (2)
+- Total integration tests: 50 (was 45)
+
+**`@ever-works/plugin-analytics`** — Coverage: 91.37% → 96.55% (statements)
+- Added 4 tests: `renderAnalyticsScripts` via umami, fathom, custom providers, and all-five-providers
+- Total analytics tests: 47 (was 43)
+- `render.ts` now at 100% (was 72.72%)
+
+### Documentation Drift Fixes (3 files)
+
+**`AGENTS.md`**:
+- Removed incorrect "in samples, not base web app" annotation from `/rss.xml`, `/atom.xml`, `/robots.txt` routes — all three exist in the base web app
+
+**`.specify/project.md`**:
+- Updated iteration counter: 75 → 77
+- Updated unit test count: 811 → 1058 in Phase 8 description
+- Updated current state test count: 1030 → 1058
+- Updated 100% coverage package count: 6 → 8
+
+### Summary
+- **28 new tests** bringing total from 1030 → 1058
+- **3 packages** with significant coverage improvements (adapters, astro-integration, plugin-analytics)
+- **3 documentation files** fixed
+- **0 regressions** — all builds, typechecks, lints, and tests pass
+
+---
+
 ## 2026-04-17 — Iteration 76: spec drift audit, plugin-rss coverage 100%
 
 ### Documentation Drift Fixes (13 files)

@@ -252,4 +252,127 @@ describe('everWorksIntegration', () => {
         );
         warnSpy.mockRestore();
     });
+
+    it('should not inject webhook route when sync.webhook is not enabled', () => {
+        const integration = everWorksIntegration({
+            getRunner: () => new PluginRunner([]),
+            getContent: async () => createMockContent(),
+        });
+
+        const injectRoute = vi.fn();
+        const logger = { warn: vi.fn(), info: vi.fn() };
+
+        const hook = integration.hooks['astro:config:setup'];
+        if (hook) {
+            (hook as unknown as (args: {
+                injectRoute: typeof injectRoute;
+                config: { adapter?: unknown };
+                logger: typeof logger;
+            }) => void)({
+                injectRoute,
+                config: { adapter: {} },
+                logger,
+            });
+        }
+
+        expect(injectRoute).not.toHaveBeenCalled();
+    });
+
+    it('should inject webhook route when sync.webhook is true and adapter exists', () => {
+        const integration = everWorksIntegration({
+            getRunner: () => new PluginRunner([]),
+            getContent: async () => createMockContent(),
+            sync: { webhook: true },
+        });
+
+        const injectRoute = vi.fn();
+        const logger = { warn: vi.fn(), info: vi.fn() };
+
+        const hook = integration.hooks['astro:config:setup'];
+        if (hook) {
+            (hook as unknown as (args: {
+                injectRoute: typeof injectRoute;
+                config: { adapter?: unknown };
+                logger: typeof logger;
+            }) => void)({
+                injectRoute,
+                config: { adapter: { name: 'vercel' } },
+                logger,
+            });
+        }
+
+        expect(injectRoute).toHaveBeenCalledWith({
+            pattern: '/api/webhook',
+            entrypoint: '@ever-works/astro-integration/webhook-endpoint',
+        });
+        expect(logger.info).toHaveBeenCalled();
+    });
+
+    it('should warn and skip injection when sync.webhook is true but no adapter', () => {
+        const integration = everWorksIntegration({
+            getRunner: () => new PluginRunner([]),
+            getContent: async () => createMockContent(),
+            sync: { webhook: true },
+        });
+
+        const injectRoute = vi.fn();
+        const logger = { warn: vi.fn(), info: vi.fn() };
+
+        const hook = integration.hooks['astro:config:setup'];
+        if (hook) {
+            (hook as unknown as (args: {
+                injectRoute: typeof injectRoute;
+                config: { adapter?: unknown };
+                logger: typeof logger;
+            }) => void)({
+                injectRoute,
+                config: { adapter: undefined },
+                logger,
+            });
+        }
+
+        expect(injectRoute).not.toHaveBeenCalled();
+        expect(logger.warn).toHaveBeenCalledWith(
+            expect.stringContaining('server adapter'),
+        );
+    });
+
+    it('should handle non-Error thrown in onBeforeBuild', async () => {
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        const integration = everWorksIntegration({
+            getRunner: () => new PluginRunner([]),
+            getContent: async () => { throw 'string error'; },
+        });
+
+        const hook = integration.hooks['astro:build:start'];
+        if (hook) {
+            await (hook as () => Promise<void>)();
+        }
+
+        expect(warnSpy).toHaveBeenCalledWith(
+            expect.stringContaining('string error'),
+        );
+        warnSpy.mockRestore();
+    });
+
+    it('should handle non-Error thrown in onAfterBuild', async () => {
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        const integration = everWorksIntegration({
+            getRunner: () => new PluginRunner([]),
+            getContent: async () => { throw 'string error in after build'; },
+        });
+
+        const hook = integration.hooks['astro:build:done'];
+        if (hook) {
+            const dir = makeDistUrl();
+            await (hook as (args: { dir: URL }) => Promise<void>)({ dir });
+        }
+
+        expect(warnSpy).toHaveBeenCalledWith(
+            expect.stringContaining('string error in after build'),
+        );
+        warnSpy.mockRestore();
+    });
 });
