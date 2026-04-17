@@ -4,7 +4,7 @@ Core data layer for the Ever Works minimal directory template. Loads, parses, an
 
 ## What This Package Does
 
-1. **Defines all data types** — `ItemData`, `CategoryData`, `TagData`, `CollectionData`, `ComparisonData`, `SiteConfig`, and the aggregate `ContentData`
+1. **Defines all data types** — `ItemData`, `CategoryData`, `TagData`, `CollectionData`, `ComparisonData`, `SiteConfig`, `NavLinkItem`, `HomepageConfig`, and the aggregate `ContentData`
 2. **Loads content from YAML** — Individual loaders for each content type that parse YAML files via a `DataAdapter` interface
 3. **Orchestrates loading** — `loadContent()` runs all loaders in parallel and computes derived data (category/tag counts)
 4. **Validates data** — Type-safe parsing with graceful fallbacks for missing or malformed fields
@@ -15,6 +15,8 @@ Core data layer for the Ever Works minimal directory template. Loads, parses, an
 src/
 ├── index.ts                    — Public API barrel export
 ├── content-reader.ts           — Orchestrates all loaders, computes counts
+├── content-cache.ts            — TTL-based content caching with deduplication
+├── logger.ts                   — Structured logging utility
 ├── types/
 │   ├── index.ts                — Type barrel export
 │   ├── item.ts                 — ItemData (directory entries)
@@ -92,16 +94,15 @@ This structure matches the full Next.js `directory-web-template` for compatibili
 
 ```typescript
 import { ContentCache } from '@ever-works/core';
-import type { ContentCacheConfig } from '@ever-works/core';
 
 const cache = new ContentCache({
-    adapter,
-    ttlMs: 300_000,      // 5-minute TTL (default)
-    onRefresh: (content) => { /* rebuild pages */ },
+    ttlMs: 300_000,      // 5-minute TTL (default: 0 = cache forever)
+    onInvalidate: () => { /* handle cache clear */ },
 });
 
-const content = await cache.get();   // returns cached or freshly loaded content
-const status = cache.status();       // { state: 'fresh' | 'stale' | 'empty', lastRefresh, headRef }
+const content = await cache.get(() => loadContent(adapter));
+const status = cache.getStatus();
+// { cached: true, loadedAt: 1713..., ageMs: 1234, ttlMs: 300000 }
 ```
 
 `ContentCache` wraps `loadContent()` with TTL-based caching and adapter-level change detection (`getHeadRef()`). Used by the ISR integration to avoid redundant content loading.
@@ -120,6 +121,7 @@ const status = cache.status();       // { state: 'fresh' | 'stale' | 'empty', la
 |---------|---------|
 | `@ever-works/adapters` | `DataAdapter` interface for file I/O |
 | `yaml` | YAML parsing (the [yaml](https://github.com/eemeli/yaml) package) |
+| `marked` | Markdown rendering for static pages |
 
 ## Testing
 

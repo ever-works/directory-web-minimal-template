@@ -58,7 +58,8 @@ packages/core/
 │   │   ├── tag-loader.ts
 │   │   ├── collection-loader.ts
 │   │   ├── comparison-loader.ts
-│   │   └── config-loader.ts
+│   │   ├── config-loader.ts
+│   │   └── page-loader.ts       — Load static pages, Markdown rendering
 │   ├── content-cache.ts     — In-memory content cache with TTL support
 │   ├── content-reader.ts    — Orchestrates all loaders (YAML parsing done inline in loaders)
 │   ├── logger.ts            — Internal logger utility

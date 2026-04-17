@@ -3,6 +3,60 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-17 — Iteration 86: Comprehensive drift audit, fix 30 issues across 17 files
+
+### Comprehensive Spec Drift Audit (3 parallel agents)
+- Audited all 18 package READMEs, all 25 .specify/ feature specs, and all docs/ content
+- Found 39 issues total (14 HIGH, 16 MEDIUM, 9 LOW) — fixed 30 HIGH+MEDIUM issues
+
+### HIGH Fixes (14)
+
+**`packages/core/README.md`**
+- Fixed ContentCache API example: wrong constructor params, wrong method names, wrong return shape
+- Added missing `marked` dependency to Dependencies table
+- Added missing `content-cache.ts` and `logger.ts` to file tree
+- Added missing `NavLinkItem`, `HomepageConfig` to types list
+
+**`packages/astro-integration/README.md`**
+- Added missing `@ever-works/sync` to Dependencies table
+- Added entire "Content Sync" section documenting sync-registry, webhook-endpoint, exports
+
+**`packages/plugin-seo/README.md`**
+- Added missing `BreadcrumbList` and `SoftwareApplication` to JSON-LD types table
+- Added missing `generateRobotsTxt()` and `generateItemJsonLd()` documentation
+
+**`docs/architecture/content-sync.md`** + **`docs/guides/content-sync.md`**
+- Fixed `CONTENT_CACHE_TTL_MS` default: 60000 → 300000 (5 minutes) in 4 locations
+- Fixed `SYNC_TIMEOUT_MS` default: 30000 → 60000 in 4 locations
+
+**`.specify/features/data-layer.md`** — Added missing `page-loader.ts` to loaders file tree
+**`.specify/features/web-app.md`** — Fixed: base web app DOES include rss.xml.ts, atom.xml.ts, robots.txt.ts
+**`.specify/features/sample-basic.md`** — Fixed item count 10 → 12 (added react-hook-form, react-spring)
+**`.specify/features/sample-git.md`** — Removed fictional deps, added missing real deps and pages
+
+### MEDIUM Fixes (16)
+
+**`packages/ui/README.md`** — Added missing lib files (keyboard.ts, pagination.ts, sort-items.ts), fixed tailwind-merge version
+**`packages/plugin-rss/README.md`** — Added Atom feed documentation and generateAtom example
+**`docs/architecture/component-system.md`** — LayoutSwitcher hydration: client:visible → client:load
+**`docs/specs/component-catalog.md`** — BackToTop hydration: client:visible → client:load
+**`docs/guides/content-sync.md`** — Fixed "60 seconds" prose → "5 minutes" (2 locations)
+**`docs/guides/troubleshooting.md`** — Node.js version: 20+ → 22+
+**`.specify/features/testing.md`** — Updated coverage baselines from Iteration 75 → 85, all 16/16 at 100%
+**`.specify/features/sample-events.md`** — Added 4 missing runtime deps, 3 missing pages, removed 2 fictional deps
+**`.specify/features/plugin-rss.md`** — Test count: 39 → 54
+
+### Dependencies
+- All at latest: Astro 6.1.7, Preact 10.29.1, Tailwind 4.2.2, TS 6.0.3, Vitest 4.1.4, Playwright 1.59.1, Turbo 2.9.6, Prettier 3.8.3
+- React 18→19 in docs app still blocked by Docusaurus compatibility
+- Zero security vulnerabilities (pnpm audit clean)
+
+### Verification
+- All 1165 unit tests passing across 16 suites (0 failures)
+- All 7 apps build successfully (sample-git: 5030 pages in ~100s)
+- All 41 lint + typecheck tasks pass (0 errors)
+- 16/16 packages at 100% branch coverage (no regression)
+
 ## 2026-04-17 — Iteration 85: Spec drift audit, fix 7 doc issues
 
 ### Spec Drift Audit (comprehensive, 3 parallel agents)

@@ -121,7 +121,7 @@ interface ContentCache {
 
 Key behaviors:
 
-- **TTL** — Each cache entry expires after a configurable duration (default: 60 seconds). Controlled by the `CONTENT_CACHE_TTL_MS` environment variable.
+- **TTL** — Each cache entry expires after a configurable duration (default: 5 minutes (300000 ms)). Controlled by the `CONTENT_CACHE_TTL_MS` environment variable.
 - **Deduplication** — Concurrent requests for the same content key share a single in-flight load. The first request triggers the load; subsequent requests await the same promise.
 - **Invalidation** — Explicit invalidation (via webhook or sync event) clears the cache immediately, regardless of remaining TTL.
 
@@ -148,7 +148,7 @@ Key behaviors:
 
 - **Polling** — When `SYNC_POLL_INTERVAL_MS` is set, the manager starts a `setInterval` loop that checks for remote changes. Each tick calls `resolveRef` to compare the local and remote HEAD SHAs.
 - **Mutex** — A lock prevents overlapping sync operations. If a sync is already in progress when a webhook or poll tick fires, the new request is queued, not dropped.
-- **Timeout** — Each sync operation has a deadline (default: 30 seconds). If the adapter refresh exceeds this, the operation is aborted and retried.
+- **Timeout** — Each sync operation has a deadline (default: 60 seconds). If the adapter refresh exceeds this, the operation is aborted and retried.
 - **Retry** — Failed syncs are retried up to `maxRetries` times (default: 3) with exponential backoff.
 - **Events** — The manager emits events for observability: `sync:start`, `sync:complete`, `sync:error`, and `sync:skip` (when no changes are detected).
 
@@ -189,9 +189,9 @@ This approach trades latency (a full rebuild takes 1-3 minutes) for simplicity (
 | `ENABLE_ISR` | No | `true` | Set to `false` to use static mode with deploy hooks |
 | `WEBHOOK_SECRET` | No | — | Shared secret for HMAC-SHA256 webhook validation |
 | `SYNC_POLL_INTERVAL_MS` | No | `0` (disabled) | Polling interval in milliseconds (e.g., `300000` for 5 minutes) |
-| `SYNC_TIMEOUT_MS` | No | `30000` | Maximum time for a single sync operation |
+| `SYNC_TIMEOUT_MS` | No | `60000` | Maximum time for a single sync operation |
 | `SYNC_MAX_RETRIES` | No | `3` | Number of retry attempts on sync failure |
-| `CONTENT_CACHE_TTL_MS` | No | `60000` | Cache TTL in milliseconds |
+| `CONTENT_CACHE_TTL_MS` | No | `300000` | Cache TTL in milliseconds |
 | `VERCEL_DEPLOY_HOOK_URL` | No | — | Vercel deploy hook URL (required when `ENABLE_ISR=false`) |
 
 ## Performance Considerations

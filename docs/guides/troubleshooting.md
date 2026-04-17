@@ -52,7 +52,7 @@ Installation issues are typically caused by Node.js version mismatches or a corr
 1. Verify your Node.js version:
    ```bash
    node --version
-   # Should be 20+ (24 LTS recommended)
+   # Should be 22+ (24 LTS recommended)
    ```
 
 2. Clear the pnpm store and reinstall:

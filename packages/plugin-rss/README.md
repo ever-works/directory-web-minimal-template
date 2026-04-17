@@ -33,6 +33,27 @@ export const GET: APIRoute = async () => {
 };
 ```
 
+### Generating Atom Feeds
+
+The package also exports `generateAtom` and `toAtomDate` from `atom-generator.ts` for Atom 1.0 feed generation.
+
+Create `src/pages/atom.xml.ts`:
+
+```typescript
+import type { APIRoute } from 'astro';
+import { buildFeedEntries, generateAtom, toAtomDate, resolveRssConfig } from '@ever-works/plugin-rss';
+
+export const GET: APIRoute = async () => {
+    const config = resolveRssConfig({ siteUrl: 'https://example.com' }, 'My Directory');
+    const entries = buildFeedEntries(items, config);
+    return new Response(generateAtom(entries, config), {
+        headers: { 'Content-Type': 'application/atom+xml; charset=utf-8' },
+    });
+};
+```
+
+`toAtomDate()` converts a `Date` or ISO string into the RFC 3339 format required by Atom feeds.
+
 ## Options
 
 | Option | Type | Default | Description |

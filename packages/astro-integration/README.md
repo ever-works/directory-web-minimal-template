@@ -65,7 +65,34 @@ Both hooks catch and log errors as warnings rather than failing the build. If a 
 |---------|---------|
 | `@ever-works/plugins` | `PluginRunner` class |
 | `@ever-works/core` | `ContentData` type |
+| `@ever-works/sync` | Content sync orchestration (SyncManager, WebhookHandler) |
 | `astro` | `AstroIntegration` type (peer dependency) |
+
+## Content Sync
+
+The integration includes a content sync subsystem that wires up `SyncManager` and `ContentCache` from `@ever-works/sync` into Astro's runtime.
+
+### Key files
+
+| File | Purpose |
+|------|---------|
+| `sync-registry.ts` | Singleton registry for `SyncManager` and `ContentCache` instances |
+| `webhook-endpoint.ts` | Auto-injected `/api/webhook` API route for GitHub webhook handling |
+
+### Configuration
+
+The integration options accept an optional `sync?: SyncIntegrationOptions` property to configure content sync behavior.
+
+### Exports
+
+| Export | Description |
+|--------|-------------|
+| `registerSync` | Register a `SyncManager`/`ContentCache` pair in the singleton registry |
+| `getSyncManager` | Retrieve the registered `SyncManager` instance |
+| `getContentCache` | Retrieve the registered `ContentCache` instance |
+| `getWebhookSecret` | Get the configured webhook HMAC secret |
+| `getDeployHookUrl` | Get the configured Vercel deploy hook URL |
+| `getTargetBranch` | Get the configured target Git branch |
 
 ## Testing
 

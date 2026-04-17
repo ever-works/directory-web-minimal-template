@@ -27,9 +27,9 @@ For most deployments, you only need `DATA_REPOSITORY` (and `GH_TOKEN` for privat
 | `ENABLE_ISR` | No | `true` | Set to `false` for static mode with deploy hooks |
 | `WEBHOOK_SECRET` | No | — | Shared secret for webhook HMAC-SHA256 validation |
 | `SYNC_POLL_INTERVAL_MS` | No | `0` (disabled) | Polling interval in milliseconds |
-| `SYNC_TIMEOUT_MS` | No | `30000` | Maximum time for a single sync operation |
+| `SYNC_TIMEOUT_MS` | No | `60000` | Maximum time for a single sync operation |
 | `SYNC_MAX_RETRIES` | No | `3` | Retry attempts on sync failure |
-| `CONTENT_CACHE_TTL_MS` | No | `60000` | Content cache TTL in milliseconds |
+| `CONTENT_CACHE_TTL_MS` | No | `300000` | Content cache TTL in milliseconds |
 | `VERCEL_DEPLOY_HOOK_URL` | No | — | Vercel deploy hook URL (required when `ENABLE_ISR=false`) |
 
 ## Setting Up GitHub Webhooks
@@ -155,7 +155,7 @@ curl -X POST "https://api.vercel.com/v1/integrations/deploy/prj_xxxx/yyyy"
 
 ### Cache serving stale content
 
-- The default cache TTL is 60 seconds. After invalidation, the next request triggers a fresh load.
+- The default cache TTL is 5 minutes (300 seconds). After invalidation, the next request triggers a fresh load.
 - If content seems stale, check that the sync completed successfully (look for `sync:complete` in logs)
 - You can reduce the TTL for faster updates at the cost of more frequent reloads
 
@@ -175,7 +175,7 @@ vercel env add CONTENT_CACHE_TTL_MS
 # Enter: 300000
 ```
 
-For most sites, the default of 60 seconds provides a good balance. Webhook-triggered invalidation clears the cache immediately regardless of TTL, so the TTL mainly affects how quickly the site recovers if a webhook is missed.
+For most sites, the default of 5 minutes provides a good balance. Webhook-triggered invalidation clears the cache immediately regardless of TTL, so the TTL mainly affects how quickly the site recovers if a webhook is missed.
 
 ### Manual Cache Invalidation
 

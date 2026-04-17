@@ -666,6 +666,9 @@ apps/sample-events/
 │   │   ├── collections.astro     — Collections index
 │   │   ├── comparisons.astro     — Comparisons index
 │   │   ├── 404.astro             — Not found
+│   │   ├── rss.xml.ts            — RSS feed
+│   │   ├── atom.xml.ts           — Atom feed
+│   │   ├── robots.txt.ts         — robots.txt generation
 │   │   ├── item/
 │   │   │   └── [slug].astro      — Event detail
 │   │   ├── category/
@@ -708,12 +711,14 @@ apps/sample-events/
 - `@ever-works/plugin-sort` workspace:*
 - `@ever-works/plugin-breadcrumbs` workspace:*
 - `@ever-works/plugin-sitemap` workspace:*
+- `@ever-works/plugin-rss` workspace:*
+- `@ever-works/plugin-analytics` workspace:*
+- `@ever-works/plugin-related-items` workspace:*
+- `@ever-works/astro-integration` workspace:*
 
 ### Dev
 - `@ever-works/tsconfig` workspace:*
-- `@ever-works/eslint-config` workspace:*
 - `@astrojs/check` ^0.9.8
-- `tsx` ^4.19.0
 - `typescript` ^5.7.0
 
 ## Non-Goals

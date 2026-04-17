@@ -76,26 +76,26 @@ packages/plugin-sitemap/src/__tests__/plugin.test.ts   — 14 tests
 
 V8 coverage is configured across all 16 test suites via `@vitest/coverage-v8`. Run `pnpm test:coverage` to generate reports.
 
-### Coverage Baselines (Iteration 75)
+### Coverage Baselines (Iteration 85)
 
 | Package | Stmts | Branch | Funcs | Lines |
 |---------|-------|--------|-------|-------|
-| core | 100% | 94.9% | 100% | 100% |
-| plugins | 96.1% | 88.5% | 100% | 98.6% |
+| core | 100% | 100% | 100% | 100% |
+| plugins | 100% | 100% | 100% | 100% |
 | plugin-filters | 100% | 100% | 100% | 100% |
 | plugin-pagination | 100% | 100% | 100% | 100% |
 | plugin-search | 100% | 100% | 100% | 100% |
 | plugin-sitemap | 100% | 100% | 100% | 100% |
-| plugin-seo | 100% | 95.6% | 100% | 100% |
-| plugin-related-items | 100% | 88.2% | 100% | 100% |
-| plugin-sort | 93.3% | 94.7% | 100% | 93.3% |
-| plugin-breadcrumbs | 97.4% | 100% | 100% | 97.4% |
-| plugin-rss | 74.4% | 71.7% | 78.6% | 73.8% |
-| plugin-analytics | 91.4% | 86.2% | 100% | 91.4% |
-| adapters | 82.3% | 75.0% | 85.7% | 82.8% |
-| astro-integration | 89.9% | 85.4% | 92.3% | 89.2% |
-| sync | 95.4% | 94.4% | 90.9% | 94.8% |
-| ui | 94.0% | 93.0% | 90.9% | 94.4% |
+| plugin-seo | 100% | 100% | 100% | 100% |
+| plugin-related-items | 100% | 100% | 100% | 100% |
+| plugin-sort | 100% | 100% | 100% | 100% |
+| plugin-breadcrumbs | 100% | 100% | 100% | 100% |
+| plugin-rss | 100% | 100% | 100% | 100% |
+| plugin-analytics | 100% | 100% | 100% | 100% |
+| adapters | 100% | 100% | 100% | 100% |
+| astro-integration | 100% | 100% | 100% | 100% |
+| sync | 100% | 100% | 100% | 100% |
+| ui | 100% | 100% | 100% | 100% |
 
 ### Configuration
 

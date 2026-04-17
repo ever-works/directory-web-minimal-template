@@ -25,6 +25,8 @@ For each page, `generateMetaTags()` produces:
 | `WebSite` | `WebSite` | Home page |
 | `ItemList` | `ItemList` with `ListItem` entries | Category, tag, collection pages |
 | `Product` | `Product` | Individual item pages |
+| `BreadcrumbList` | `BreadcrumbList` | Pages with breadcrumb navigation |
+| `SoftwareApplication` | `SoftwareApplication` | Software/tool item pages |
 
 ## Usage
 
@@ -68,6 +70,24 @@ const jsonLd = generateJsonLd('WebSite', {
     description: 'Find the best tools',
 });
 // '{"@context":"https://schema.org","@type":"WebSite",...}'
+```
+
+### Generating robots.txt
+
+```typescript
+import { generateRobotsTxt } from '@ever-works/plugin-seo';
+
+const robotsTxt = generateRobotsTxt({ siteUrl: 'https://example.com' });
+// User-agent: *\nAllow: /\nSitemap: https://example.com/sitemap.xml
+```
+
+### Generating item-specific JSON-LD
+
+```typescript
+import { generateItemJsonLd } from '@ever-works/plugin-seo';
+
+const jsonLd = generateItemJsonLd(item, { siteUrl: 'https://example.com' });
+// Produces Product or SoftwareApplication JSON-LD based on item data
 ```
 
 ## Configuration

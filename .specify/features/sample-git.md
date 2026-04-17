@@ -232,6 +232,11 @@ apps/sample-git/
 │   │   ├── collections.astro     — Collections index
 │   │   ├── comparisons.astro     — Comparisons index
 │   │   ├── 404.astro             — Not found
+│   │   ├── rss.xml.ts            — RSS feed
+│   │   ├── atom.xml.ts           — Atom feed
+│   │   ├── robots.txt.ts         — robots.txt generation
+│   │   ├── data/
+│   │   │   └── items.json.ts     — JSON API endpoint for all items
 │   │   ├── item/
 │   │   │   └── [slug].astro      — Item detail with Markdown content
 │   │   ├── category/
@@ -261,7 +266,6 @@ apps/sample-git/
 - `@astrojs/preact` ^4.1.0
 - `@astrojs/sitemap` ^3.7.0
 - `@tailwindcss/vite` ^4.2.0
-- `@tailwindcss/typography` ^0.5.19
 - `tailwindcss` ^4.2.0
 - `preact` ^10.29.0
 - `marked` ^18.0.0
@@ -271,6 +275,8 @@ apps/sample-git/
 - `@ever-works/adapters` workspace:*
 - `@ever-works/ui` workspace:*
 - `@ever-works/astro-integration` workspace:*
+- `@ever-works/sync` workspace:*
+- `@astrojs/vercel` ^9.2.0
 - `@ever-works/plugin-seo` workspace:*
 - `@ever-works/plugin-pagination` workspace:*
 - `@ever-works/plugin-filters` workspace:*
@@ -286,7 +292,6 @@ apps/sample-git/
 - `@ever-works/tsconfig` workspace:*
 - `@astrojs/check` ^0.9.0
 - `pagefind` ^1.5.0
-- `tsx` ^4.19.0
 - `typescript` ^5.7.0
 
 ## Build Verification Steps

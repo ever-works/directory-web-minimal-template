@@ -63,7 +63,7 @@ These hydrate as Astro islands for client-side interactivity:
 | `BackToTop` | Scroll-to-top button | `client:load` |
 | `ThemeToggle` | Dark/light mode toggle | `client:load` |
 | `ItemBrowser` | Full-featured item grid with search, filters, sort | `client:load` |
-| `LayoutSwitcher` | Grid/list view toggle | `client:visible` |
+| `LayoutSwitcher` | Grid/list view toggle | `client:load` |
 | `MobileMenu` | Responsive hamburger navigation | `client:load` |
 
 ## Component Props Pattern

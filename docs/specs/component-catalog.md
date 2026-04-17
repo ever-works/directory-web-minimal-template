@@ -432,7 +432,7 @@ interface SortSelectProps {
 ### BackToTop
 
 **File**: `packages/ui/src/preact/BackToTop.tsx`
-**Hydration**: `client:visible`
+**Hydration**: `client:load`
 
 ```typescript
 interface BackToTopProps {

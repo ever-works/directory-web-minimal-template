@@ -23,7 +23,7 @@ This sample serves two purposes:
 |--------|--------|
 | Directory name | React UI Components |
 | Item type | Component Library |
-| Items count | 10 curated libraries |
+| Items count | 12 curated libraries |
 | Categories | 5 (Form, Data Display, Navigation, Layout, Feedback) |
 | Tags | 8+ (TypeScript, Accessible, Headless, Open Source, etc.) |
 | Plugins | All 10 built-in plugins enabled (seo, pagination, filters, search, sort, sitemap, breadcrumbs, rss, related-items, analytics) |
@@ -262,6 +262,30 @@ status: "approved"
 featured: false
 ```
 
+#### 11. React Hook Form
+```yaml
+name: "React Hook Form"
+description: "Performant, flexible and extensible forms with easy-to-use validation and minimal re-renders."
+source_url: "https://react-hook-form.com"
+category: "form-components"
+tags: ["typescript", "open-source", "accessible"]
+updated_at: "2026-01-22 10:00"
+status: "approved"
+featured: false
+```
+
+#### 12. React Spring
+```yaml
+name: "React Spring"
+description: "A spring-physics based animation library that covers most UI-related animation needs with a modern, hook-based API."
+source_url: "https://www.react-spring.dev"
+category: "feedback"
+tags: ["typescript", "open-source", "animation"]
+updated_at: "2026-01-16 10:00"
+status: "approved"
+featured: false
+```
+
 ## Page Designs
 
 ### Home Page (`/`)
@@ -456,8 +480,12 @@ apps/sample-basic/
 │       │   └── mantine.yml
 │       ├── framer-motion/
 │       │   └── framer-motion.yml
-│       └── tanstack-table/
-│           └── tanstack-table.yml
+│       ├── tanstack-table/
+│       │   └── tanstack-table.yml
+│       ├── react-hook-form/
+│       │   └── react-hook-form.yml
+│       └── react-spring/
+│           └── react-spring.yml
 ├── scripts/
 │   └── clone-content.ts
 ├── src/

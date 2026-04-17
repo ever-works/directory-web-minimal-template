@@ -56,7 +56,10 @@ src/
 │   ├── label.tsx
 │   └── select.tsx
 ├── lib/
-│   └── utils.ts       cn() utility (clsx + tailwind-merge)
+│   ├── utils.ts       cn() utility (clsx + tailwind-merge)
+│   ├── keyboard.ts    Keyboard interaction utilities
+│   ├── pagination.ts  Visible page number computation
+│   └── sort-items.ts  Client-safe item sorting
 ├── types.ts           TypeScript prop interfaces for all components
 └── index.ts           Barrel — re-exports prop types
 ```
@@ -179,7 +182,7 @@ The split follows Astro's islands architecture philosophy:
 |---------|---------|---------|
 | [class-variance-authority](https://cva.style/) | ^0.7.1 | Variant-based component styling (defines variants like `variant="outline"`) |
 | [clsx](https://github.com/lukeed/clsx) | ^2.1.1 | Conditional class name composition |
-| [tailwind-merge](https://github.com/dcastil/tailwind-merge) | ^3.0.0 | Tailwind class deduplication and conflict resolution |
+| [tailwind-merge](https://github.com/dcastil/tailwind-merge) | ^3.5.0 | Tailwind class deduplication and conflict resolution |
 
 These three together power the `cn()` utility — the standard pattern from shadcn/ui for merging Tailwind classes safely.
 
