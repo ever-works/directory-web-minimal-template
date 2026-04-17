@@ -72,4 +72,5 @@ packages/core/
 ## Dependencies
 
 - `yaml` — YAML parsing library
+- `marked` — Markdown parsing for page content rendering
 - `@ever-works/adapters` — Data source adapters

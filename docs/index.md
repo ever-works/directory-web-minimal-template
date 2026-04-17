@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-17 (Iteration 86: comprehensive drift audit, fix 30 issues across 17 files)
+> Updated: 2026-04-17 (Iteration 87: spec drift audit, fix 8 issues across 5 files)
 
 ## Root Documents
 

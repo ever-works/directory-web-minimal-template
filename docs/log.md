@@ -3,6 +3,46 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-17 — Iteration 87: Spec drift audit, fix 8 issues across 5 files
+
+### Spec Drift Audit (3 parallel agents)
+- Audited all 16 package READMEs, all 25 .specify/ feature specs, and all docs/ content
+- Package READMEs: **0 drift** — all 16 packages clean
+- Found 8 drift issues (3 HIGH, 5 MEDIUM) in .specify/ specs — all fixed
+
+### HIGH Fixes (3)
+
+**`.specify/features/sample-git.md`**
+- Updated 9 stale dependency versions including 3 major bumps: `@astrojs/preact` ^4.1.0 → ^5.1.1, `@astrojs/vercel` ^9.2.0 → ^10.0.4, `typescript` ^5.7.0 → ^6.0.3
+- Also updated: `astro` ^6.0.0 → ^6.1.7, `@astrojs/sitemap` ^3.7.0 → ^3.7.2, `@tailwindcss/vite` ^4.2.0 → ^4.2.2, `tailwindcss` ^4.2.0 → ^4.2.2, `marked` ^18.0.0 → ^18.0.1, `yaml` ^2.7.0 → ^2.8.3, `@astrojs/check` ^0.9.0 → ^0.9.8, `pagefind` ^1.5.0 → ^1.5.2, `preact` ^10.29.0 → ^10.29.1
+
+**`.specify/features/sample-events.md`**
+- Updated 4 stale dependency versions including 2 major bumps: `@astrojs/preact` ^4.1.0 → ^5.1.1, `typescript` ^5.7.0 → ^6.0.3
+- Also updated: `astro` ^6.0.0 → ^6.1.7, `@astrojs/sitemap` ^3.7.0 → ^3.7.2, `@tailwindcss/vite` ^4.2.0 → ^4.2.2, `tailwindcss` ^4.2.0 → ^4.2.2, `yaml` ^2.7.0 → ^2.8.3
+- Added missing `@ever-works/astro-integration`, `pagefind` to spec dependency lists
+
+**`.specify/features/testing.md`**
+- Updated test count: 1030 → 1165 (135 tests added since spec last updated)
+- Updated coverage baselines reference: Iteration 85 → 87
+
+### MEDIUM Fixes (5)
+
+**`.specify/features/data-layer.md`** — Added missing `marked` to dependency list
+**`.specify/features/sample-git.md`** — Fixed: `@tailwindcss/typography` → custom `.prose` CSS styles in `global.css` (2 locations)
+**`.specify/features/sample-events.md`** — Added missing `@ever-works/astro-integration` and `pagefind` deps
+**`.specify/features/lighthouse-ci.md`** — Fixed: `@lhci/cli` root dep → `treosh/lighthouse-ci-action@v12` GitHub Action
+
+### Dependencies
+- All at latest: Astro 6.1.7, Preact 10.29.1, Tailwind 4.2.2, TS 6.0.3, Vitest 4.1.4, Playwright 1.59.1, Turbo 2.9.6, Prettier 3.8.3
+- React 18→19 in docs app still blocked by Docusaurus compatibility
+- Zero security vulnerabilities (pnpm audit clean)
+
+### Verification
+- All 1165 unit tests passing across 16 suites (0 failures)
+- All 8 apps build successfully (sample-git: 5030 pages in ~118s)
+- All 41 lint + typecheck tasks pass (0 errors)
+- 16/16 packages at 100% branch coverage (no regression)
+
 ## 2026-04-17 — Iteration 86: Comprehensive drift audit, fix 30 issues across 17 files
 
 ### Comprehensive Spec Drift Audit (3 parallel agents)

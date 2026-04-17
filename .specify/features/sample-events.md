@@ -693,17 +693,18 @@ apps/sample-events/
 ## Dependencies
 
 ### Runtime
-- `astro` ^6.0.0
-- `@astrojs/preact` ^4.1.0
-- `@astrojs/sitemap` ^3.7.0
-- `@tailwindcss/vite` ^4.2.0
-- `tailwindcss` ^4.2.0
-- `preact` ^10.29.0
-- `yaml` ^2.7.0
+- `astro` ^6.1.7
+- `@astrojs/preact` ^5.1.1
+- `@astrojs/sitemap` ^3.7.2
+- `@tailwindcss/vite` ^4.2.2
+- `tailwindcss` ^4.2.2
+- `preact` ^10.29.1
+- `yaml` ^2.8.3
 - `@ever-works/core` workspace:*
 - `@ever-works/plugins` workspace:*
 - `@ever-works/adapters` workspace:*
 - `@ever-works/ui` workspace:*
+- `@ever-works/astro-integration` workspace:*
 - `@ever-works/plugin-seo` workspace:*
 - `@ever-works/plugin-pagination` workspace:*
 - `@ever-works/plugin-filters` workspace:*
@@ -714,12 +715,12 @@ apps/sample-events/
 - `@ever-works/plugin-rss` workspace:*
 - `@ever-works/plugin-analytics` workspace:*
 - `@ever-works/plugin-related-items` workspace:*
-- `@ever-works/astro-integration` workspace:*
 
 ### Dev
 - `@ever-works/tsconfig` workspace:*
 - `@astrojs/check` ^0.9.8
-- `typescript` ^5.7.0
+- `pagefind` ^1.5.2
+- `typescript` ^6.0.3
 
 ## Non-Goals
 

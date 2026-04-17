@@ -48,4 +48,4 @@ Automated performance testing using Lighthouse CI in the GitHub Actions pipeline
 | SEO | ≥ 90 | warn |
 
 ## Dependencies
-- `@lhci/cli` — Lighthouse CI CLI (dev dependency in root)
+- `treosh/lighthouse-ci-action@v12` — GitHub Action for Lighthouse CI (no local `@lhci/cli` install needed)

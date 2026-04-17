@@ -158,7 +158,7 @@ The build demonstrates that the template architecture scales to large datasets w
 ### Tailwind CSS v4 + shadcn/ui-Inspired Theme
 
 - Uses `@tailwindcss/vite` plugin (Tailwind v4 API)
-- Uses `@tailwindcss/typography` for prose/Markdown rendering
+- Uses custom `.prose` CSS styles in `global.css` for Markdown rendering
 - CSS custom properties mapped to Tailwind color tokens via `@theme inline`
 - shadcn/ui naming conventions: `--background`, `--foreground`, `--card`, `--primary`, `--muted`, `--accent`, `--destructive`, `--border`, `--input`, `--ring`
 - Colors use oklch color space for perceptual uniformity
@@ -206,7 +206,7 @@ The build demonstrates that the template architecture scales to large datasets w
 | **Styling theme** | Slate-based with indigo accent | shadcn/ui-inspired zinc dark theme (oklch) |
 | **Dark mode** | System preference default | Dark mode default |
 | **Markdown rendering** | Not needed (minimal descriptions) | Full prose styles with `marked` library |
-| **Typography plugin** | Not used | `@tailwindcss/typography` included |
+| **Typography plugin** | Not used | Custom `.prose` CSS styles in `global.css` |
 | **Primary purpose** | Demonstrate basic template usage | Validate Git adapter and scale performance |
 
 ## File Structure
@@ -262,21 +262,21 @@ apps/sample-git/
 ## Dependencies
 
 ### Runtime
-- `astro` ^6.0.0
-- `@astrojs/preact` ^4.1.0
-- `@astrojs/sitemap` ^3.7.0
-- `@tailwindcss/vite` ^4.2.0
-- `tailwindcss` ^4.2.0
-- `preact` ^10.29.0
-- `marked` ^18.0.0
-- `yaml` ^2.7.0
+- `astro` ^6.1.7
+- `@astrojs/preact` ^5.1.1
+- `@astrojs/sitemap` ^3.7.2
+- `@astrojs/vercel` ^10.0.4
+- `@tailwindcss/vite` ^4.2.2
+- `tailwindcss` ^4.2.2
+- `preact` ^10.29.1
+- `marked` ^18.0.1
+- `yaml` ^2.8.3
 - `@ever-works/core` workspace:*
 - `@ever-works/plugins` workspace:*
 - `@ever-works/adapters` workspace:*
 - `@ever-works/ui` workspace:*
 - `@ever-works/astro-integration` workspace:*
 - `@ever-works/sync` workspace:*
-- `@astrojs/vercel` ^9.2.0
 - `@ever-works/plugin-seo` workspace:*
 - `@ever-works/plugin-pagination` workspace:*
 - `@ever-works/plugin-filters` workspace:*
@@ -290,9 +290,9 @@ apps/sample-git/
 
 ### Dev
 - `@ever-works/tsconfig` workspace:*
-- `@astrojs/check` ^0.9.0
-- `pagefind` ^1.5.0
-- `typescript` ^5.7.0
+- `@astrojs/check` ^0.9.8
+- `pagefind` ^1.5.2
+- `typescript` ^6.0.3
 
 ## Build Verification Steps
 

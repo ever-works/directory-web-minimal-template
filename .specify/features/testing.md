@@ -21,7 +21,7 @@ Vitest-based unit testing alongside the existing Playwright E2E tests. Provides 
 7. `packages/plugin-*` each have tests for their core logic (all plugin packages covered)
 8. Tests use `vi.mock()` for filesystem/IO mocking
 9. All tests pass in CI (add to CI workflow)
-10. Total test coverage: 1030 unit tests across 76 test files, 16 suites, 16 packages
+10. Total test coverage: 1165 unit tests across 76 test files, 16 suites, 16 packages
 11. Plugin pipeline integration tests validate end-to-end data flow, chaining, error handling, ordering, and context propagation
 
 ## Technical Design
@@ -76,7 +76,7 @@ packages/plugin-sitemap/src/__tests__/plugin.test.ts   — 14 tests
 
 V8 coverage is configured across all 16 test suites via `@vitest/coverage-v8`. Run `pnpm test:coverage` to generate reports.
 
-### Coverage Baselines (Iteration 85)
+### Coverage Baselines (Iteration 87)
 
 | Package | Stmts | Branch | Funcs | Lines |
 |---------|-------|--------|-------|-------|
