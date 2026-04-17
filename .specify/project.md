@@ -75,10 +75,10 @@ A minimal, static-rendered Astro template for AI-generated directory websites. L
 | Phase 16 | Analytics plugin: Plausible, Umami, Fathom, GA4, custom | Complete |
 | Phase 17 | Related items plugin: tag/category scoring, build-time computation | Complete |
 
-## Current State (Iteration 72)
+## Current State (Iteration 73)
 
 - **8 apps**: web, web-e2e, docs, sample-basic, sample-jobs, sample-events, sample-real-estate, sample-git
 - **18 packages**: core, ui, plugins, adapters, sync, astro-integration, 10 plugin-* packages (seo, rss, pagination, filters, search, sort, sitemap, breadcrumbs, analytics, related-items), tsconfig, eslint-config
-- **1106 unit tests** (Vitest) across 16 test suites — all passing
+- **1030 unit tests** (Vitest) across 76 test files, 16 suites — all passing
 - **367 E2E test cases** across 57 spec files, 11 Playwright projects, 5 sample apps
 - **All dependencies at latest versions** (Astro 6.1.7, Preact 10.29.1, Tailwind 4.2.2, TS 6.0.3, Prettier 3.8.3)

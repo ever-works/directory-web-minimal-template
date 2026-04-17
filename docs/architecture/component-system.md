@@ -42,6 +42,14 @@ These render at build time with zero client-side JavaScript:
 | `EmptyState` | No results message | `message: string` |
 | `ComparisonTable` | Side-by-side comparison | `comparison: ComparisonData` |
 | `SEO` | Meta tags, JSON-LD, Open Graph | `title, description, config, ...` |
+| `AnalyticsScript` | Analytics provider script injection | `config: AnalyticsConfig` |
+| `FeaturedBadge` | Featured item badge indicator | `text?: string` |
+| `FeaturedSection` | Featured items highlight section | `items: ItemData[], title?: string` |
+| `ItemContent` | Renders item markdown/HTML content | `html: string` |
+| `ItemCTA` | Item call-to-action button | `url: string, text?: string` |
+| `ItemMetadata` | Item metadata display (date, category) | `item: ItemData` |
+| `ShareButton` | Social/URL sharing button | `url: string, title: string` |
+| `SimilarItems` | Related/similar items section | `items: ItemData[], title?: string` |
 
 ### Interactive Components (Preact `.tsx`)
 
@@ -212,28 +220,40 @@ packages/ui/
 ├── src/
 │   ├── index.ts              — Barrel export
 │   ├── types.ts              — All component prop types
-│   ├── astro/                — Astro components (.astro)
+│   ├── astro/                — Astro components (.astro) — 25 components
+│   │   ├── AnalyticsScript.astro
+│   │   ├── Breadcrumbs.astro
+│   │   ├── CategoryBadge.astro
+│   │   ├── CategoryList.astro
+│   │   ├── CollectionCard.astro
+│   │   ├── ComparisonTable.astro
+│   │   ├── EmptyState.astro
+│   │   ├── FeaturedBadge.astro
+│   │   ├── FeaturedSection.astro
+│   │   ├── Hero.astro
 │   │   ├── ItemCard.astro
+│   │   ├── ItemContent.astro
+│   │   ├── ItemCTA.astro
+│   │   ├── ItemDetail.astro
 │   │   ├── ItemGrid.astro
 │   │   ├── ItemList.astro
-│   │   ├── ItemDetail.astro
-│   │   ├── CategoryList.astro
-│   │   ├── CategoryBadge.astro
-│   │   ├── TagList.astro
-│   │   ├── TagBadge.astro
-│   │   ├── CollectionCard.astro
-│   │   ├── Breadcrumbs.astro
+│   │   ├── ItemMetadata.astro
 │   │   ├── Pagination.astro
-│   │   ├── SiteHeader.astro
+│   │   ├── SEO.astro
+│   │   ├── ShareButton.astro
+│   │   ├── SimilarItems.astro
 │   │   ├── SiteFooter.astro
-│   │   ├── Hero.astro
-│   │   ├── EmptyState.astro
-│   │   └── ComparisonTable.astro
-│   └── preact/               — Preact interactive components (.tsx)
-│       ├── SearchInput.tsx
-│       ├── FilterBar.tsx
-│       ├── SortSelect.tsx
+│   │   ├── SiteHeader.astro
+│   │   ├── TagBadge.astro
+│   │   └── TagList.astro
+│   └── preact/               — Preact interactive components (.tsx) — 8 components
 │       ├── BackToTop.tsx
+│       ├── FilterBar.tsx
+│       ├── ItemBrowser.tsx
+│       ├── LayoutSwitcher.tsx
+│       ├── MobileMenu.tsx
+│       ├── SearchInput.tsx
+│       ├── SortSelect.tsx
 │       └── ThemeToggle.tsx
 ├── package.json
 └── tsconfig.json

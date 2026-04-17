@@ -74,7 +74,8 @@ Each package in the monorepo owns a specific part of the sync pipeline:
 | `@ever-works/adapters` | Adapter `refresh()` method — pulls latest content from the data source (git fetch/fast-forward for GitAdapter, mtime check for FilesystemAdapter) |
 | `@ever-works/core` | `ContentCache` — in-memory cache with TTL, deduplication, and invalidation API |
 | `@ever-works/sync` | `SyncManager` — orchestrates polling, mutex locking, timeout/retry logic, and emits sync events |
-| `@ever-works/astro-integration` | `WebhookHandler` — receives and validates incoming webhook POSTs; `DeployHookTrigger` — fires Vercel deploy hooks in static mode |
+| `@ever-works/sync` | `WebhookHandler` — receives and validates incoming webhook POSTs; `DeployHookTrigger` — fires Vercel deploy hooks in static mode |
+| `@ever-works/astro-integration` | Exposes webhook POST endpoint at `/api/webhook` using `WebhookHandler` from `@ever-works/sync` |
 
 ## isomorphic-git Usage
 
@@ -153,7 +154,7 @@ Key behaviors:
 
 ## WebhookHandler
 
-The `WebhookHandler` in `@ever-works/astro-integration` exposes a POST endpoint at `/api/webhook` to receive push notifications from GitHub:
+The `WebhookHandler` (from `@ever-works/sync`, integrated via `@ever-works/astro-integration`) exposes a POST endpoint at `/api/webhook` to receive push notifications from GitHub:
 
 1. **HMAC-SHA256 validation** — The handler reads the `X-Hub-Signature-256` header, computes `HMAC-SHA256(secret, body)`, and performs a timing-safe comparison. Requests with missing or invalid signatures are rejected with `401`.
 2. **GitHub payload parsing** — The handler extracts the `ref` field from the JSON body and verifies it matches the configured branch (e.g., `refs/heads/main`). Pushes to other branches are ignored with `200 OK` (no-op).

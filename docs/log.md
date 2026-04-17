@@ -3,6 +3,29 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-17 — Iteration 73: documentation accuracy audit, security fix
+
+### Security Fix
+- **`package.json`** — Added `dompurify: ">=3.4.0"` pnpm override to resolve moderate vulnerability (GHSA-39q2-94rc-95cp) in transitive dependency via `@docusaurus/theme-mermaid > mermaid > dompurify@3.3.3`
+
+### Documentation Fixes
+- **`README.md`** — Fixed unit test count: "1106 tests, 16 suites" → "1030 tests, 76 test files, 16 suites" (previous iterations miscounted by including cached replay totals)
+- **`.specify/project.md`** — Fixed unit test count: "1106 unit tests across 16 test suites" → "1030 unit tests across 76 test files, 16 suites". Updated iteration 72 → 73.
+- **`.specify/features/testing.md`** — Fixed unit test count: "1106 unit tests across 16 test suites" → "1030 unit tests across 76 test files, 16 suites"
+- **`docs/architecture/component-system.md`** — Added 8 missing Astro components to static components table (AnalyticsScript, FeaturedBadge, FeaturedSection, ItemContent, ItemCTA, ItemMetadata, ShareButton, SimilarItems). Updated directory structure tree to include all 25 Astro components and all 8 Preact components (was missing 9 Astro + 3 Preact).
+- **`docs/architecture/content-sync.md`** — Fixed `WebhookHandler` attribution: was incorrectly listed under `@ever-works/astro-integration`, actually lives in `@ever-works/sync`. Added separate row for `@ever-works/astro-integration`'s actual role.
+- **`docs/architecture/data-layer.md`** — Added missing `meta?: Record<string, unknown>` and `_breadcrumbs?` fields to `ItemData` interface documentation (existed in code since iteration 52).
+
+### Verification
+- **23/23 typecheck tasks** pass (0 errors)
+- **16/16 test suites** pass (1030 tests, 76 test files)
+- **18/18 lint tasks** pass
+- **7/7 builds** pass (web, sample-basic, sample-events, sample-jobs, sample-real-estate, sample-git, docs)
+- **0 security vulnerabilities** (pnpm audit clean)
+- **Component counts verified**: 60 total (25 Astro + 8 Preact + 22 primitives + 5 shadcn-style) — accurate
+
+---
+
 ## 2026-04-17 — Iteration 72: spec accuracy audit, dependency update
 
 ### Spec Fixes

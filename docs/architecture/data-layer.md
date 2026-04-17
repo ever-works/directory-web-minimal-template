@@ -97,6 +97,10 @@ interface ItemData {
     status: 'draft' | 'pending' | 'approved' | 'rejected';
     /** Markdown content body */
     markdown?: string;
+    /** Domain-specific metadata bucket for vertical templates (events, jobs, real-estate) */
+    meta?: Record<string, unknown>;
+    /** Breadcrumb data injected by plugin-breadcrumbs */
+    _breadcrumbs?: Array<{ label: string; href: string }>;
     /** All other fields are passed through as-is */
     [key: string]: unknown;
 }
