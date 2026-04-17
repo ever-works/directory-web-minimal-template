@@ -49,6 +49,10 @@ The core Astro application that assembles components, loads data, and generates 
 | `/comparisons` | `comparisons.astro` | comparisons |
 | `/comparison/[slug]` | `comparison/[slug].astro` | comparison data |
 | `/404` | `404.astro` | not found page |
+| `/pages/[slug]` | `pages/[slug].astro` | static content pages (from `.content/pages/`) |
+| `/rss.xml` | `rss.xml.ts` | RSS 2.0 feed |
+| `/atom.xml` | `atom.xml.ts` | Atom 1.0 feed |
+| `/robots.txt` | `robots.txt.ts` | robots.txt |
 
 ## Technical Design
 

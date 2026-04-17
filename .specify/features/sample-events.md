@@ -179,7 +179,7 @@ settings:
 
 #### react-summit-vs-next-conf
 
-**File**: `.content/comparisons/react-summit-vs-next-conf.yml`
+**File**: `.content/comparisons/react-summit-vs-next-conf/react-summit-vs-next-conf.yml`
 
 ```yaml
 id: "react-summit-vs-next-conf"
@@ -192,7 +192,7 @@ items:
 
 #### ai-dev-summit-vs-mlops-workshop
 
-**File**: `.content/comparisons/ai-dev-summit-vs-mlops-workshop.yml`
+**File**: `.content/comparisons/ai-dev-summit-vs-mlops-workshop/ai-dev-summit-vs-mlops-workshop.yml`
 
 ```yaml
 id: "ai-dev-summit-vs-mlops-workshop"
@@ -555,7 +555,7 @@ Same page routes as sample-basic and sample-jobs:
 
 ## Plugin Configuration
 
-All 7 built-in plugins enabled in `plugins.config.ts`:
+All 10 built-in plugins enabled in `plugins.config.ts`:
 
 ```typescript
 import { definePlugins } from '@ever-works/plugins';
@@ -564,20 +564,27 @@ import { paginationPlugin } from '@ever-works/plugin-pagination';
 import { filtersPlugin } from '@ever-works/plugin-filters';
 import { searchPlugin } from '@ever-works/plugin-search';
 import { sortPlugin } from '@ever-works/plugin-sort';
-import { breadcrumbsPlugin } from '@ever-works/plugin-breadcrumbs';
 import { sitemapPlugin } from '@ever-works/plugin-sitemap';
+import { breadcrumbsPlugin } from '@ever-works/plugin-breadcrumbs';
+import { rssPlugin } from '@ever-works/plugin-rss';
+import { analyticsPlugin } from '@ever-works/plugin-analytics';
+import { relatedItemsPlugin } from '@ever-works/plugin-related-items';
 
 export const plugins = definePlugins([
     seoPlugin({
         titleTemplate: '%s | Tech Events',
-        defaultImage: '/og-default.png',
     }),
     paginationPlugin({ itemsPerPage: 12 }),
     filtersPlugin(),
     searchPlugin(),
     sortPlugin({ defaultSort: 'name', defaultDirection: 'asc' }),
-    breadcrumbsPlugin(),
     sitemapPlugin(),
+    breadcrumbsPlugin(),
+    rssPlugin(),
+    relatedItemsPlugin({ maxItems: 4 }),
+    analyticsPlugin({
+        providers: [{ provider: 'custom', html: '<!-- analytics: demo -->' }],
+    }),
 ]);
 ```
 
@@ -613,8 +620,10 @@ apps/sample-events/
 │   ├── tags.yml
 │   ├── collections.yml
 │   ├── comparisons/
-│   │   ├── react-summit-vs-next-conf.yml
-│   │   └── ai-dev-summit-vs-mlops-workshop.yml
+│   │   ├── react-summit-vs-next-conf/
+│   │   │   └── react-summit-vs-next-conf.yml
+│   │   └── ai-dev-summit-vs-mlops-workshop/
+│   │       └── ai-dev-summit-vs-mlops-workshop.yml
 │   ├── pages/
 │   │   ├── about.md
 │   │   └── submit.md
@@ -643,7 +652,8 @@ apps/sample-events/
 │   └── clone-content.ts
 ├── src/
 │   ├── components/
-│   │   └── ThemeToggle.tsx       — Preact dark/light mode toggle island
+│   │   ├── BreadcrumbNav.astro   — Breadcrumb navigation component
+│   │   └── ItemBrowser.tsx       — Preact item browsing island
 │   ├── layouts/
 │   │   └── BaseLayout.astro      — Styled root layout (header, footer, theme)
 │   ├── lib/
@@ -719,7 +729,7 @@ apps/sample-events/
 - The sample uses the same `content.ts` and `plugins.config.ts` pattern as `apps/web/` and `apps/sample-basic/`
 - Event-specific metadata (dates, location, price, speakers) is stored in a `meta` object within each item's YAML file and rendered in the detail page sidebar
 - Styling is applied directly in `.astro` files via Tailwind utility classes — no shared component styles
-- The `ThemeToggle.tsx` is a Preact island (`client:load`) for client-side interactivity
+- The `ThemeToggle` is a Preact island (`client:load`) imported from `@ever-works/ui/preact/ThemeToggle` for client-side interactivity
 - The `.content/` directory is checked into the sample app (not cloned from a remote repo) so it works without environment variables
 - `clone-content.ts` is still included for consistency but `.content/` already exists, so it is a no-op
 - Collections and comparisons demonstrate the full plugin feature set beyond what sample-basic covers

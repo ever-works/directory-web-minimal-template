@@ -124,9 +124,8 @@ export const plugins = definePlugins([
 ```
 
 **Differences from sample-basic plugin config:**
-- Adds `breadcrumbsPlugin()` (sample-basic does not use breadcrumbs)
 - `seoPlugin()` uses default options (no custom `titleTemplate` or `defaultImage`)
-- All samples share `rssPlugin()`, `analyticsPlugin()`, and `relatedItemsPlugin()` since iteration 70
+- All samples share all 10 built-in plugins including `breadcrumbsPlugin()`, `rssPlugin()`, `analyticsPlugin()`, and `relatedItemsPlugin()`
 
 ## Astro Integration
 
@@ -139,7 +138,7 @@ everWorksIntegration({
 }),
 ```
 
-This is a pattern not present in `sample-basic` and demonstrates the full plugin lifecycle integration.
+Both `sample-basic` and `sample-git` use this pattern to demonstrate the full plugin lifecycle integration.
 
 ## Build Performance
 
@@ -201,8 +200,8 @@ The build demonstrates that the template architecture scales to large datasets w
 | **Collections** | Supported (rendered when data exists) | Supported (rendered when data exists) |
 | **Comparisons** | Supported (rendered when data exists) | Supported (rendered when data exists) |
 | **Static pages** | Supported via `/pages/[slug]` route | Supported via `/pages/[slug]` route |
-| **Breadcrumbs plugin** | Not used | Enabled with `BreadcrumbNav` component |
-| **Astro integration** | Not used | Uses `@ever-works/astro-integration` for plugin build hooks |
+| **Breadcrumbs plugin** | Enabled with `BreadcrumbNav` component | Enabled with `BreadcrumbNav` component |
+| **Astro integration** | Uses `@ever-works/astro-integration` for plugin build hooks | Uses `@ever-works/astro-integration` for plugin build hooks |
 | **Styling theme** | Slate-based with indigo accent | shadcn/ui-inspired zinc dark theme (oklch) |
 | **Dark mode** | System preference default | Dark mode default |
 | **Markdown rendering** | Not needed (minimal descriptions) | Full prose styles with `marked` library |

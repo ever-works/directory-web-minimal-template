@@ -24,8 +24,8 @@ This is a **minimal, static-rendered Astro template** for AI-generated directory
 │   ├── web-e2e/          — Playwright E2E tests
 │   ├── docs/             — Docusaurus documentation site
 │   ├── sample-basic/     — Reference implementation (React UI Components directory)
-│   ├── sample-git/       — Reference implementation using Git data adapter (3200+ items)
-│   ├── sample-jobs/      — Reference implementation (Remote Tech Jobs directory)
+│   ├── sample-git/       — Reference implementation: Time Tracking directory using Git data adapter (3200+ items)
+│   ├── sample-jobs/      — Reference implementation (job board directory)
 │   ├── sample-events/    — Reference implementation (Tech Events directory)
 │   └── sample-real-estate/ — Reference implementation (Property Listings directory)
 ├── packages/
@@ -133,7 +133,7 @@ pnpm clean                # Clean all build artifacts
 
 - Workspace packages: `@ever-works/<name>`
 - Plugins: `@ever-works/plugin-<name>`
-- Adapters: `@ever-works/adapter-<name>`
+- Adapters: `@ever-works/adapters` (all adapters co-located in one package)
 - UI components: `@ever-works/ui`
 
 ## Safe Operations

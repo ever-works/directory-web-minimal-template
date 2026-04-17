@@ -13,7 +13,7 @@ sidebar_label: "Component Catalog"
 
 **File**: `packages/ui/src/astro/ItemCard.astro`
 **Purpose**: Displays a single directory item as a card.
-**Slots**: `category`, `tags`, `actions`
+**Slots**: none (no named slots)
 
 ```typescript
 interface ItemCardProps {
@@ -27,16 +27,31 @@ interface ItemCardProps {
 
 **HTML structure**:
 ```html
-<article data-component="item-card" data-featured="true|undefined">
-  <div data-part="icon"><img /></div>
-  <div data-part="content">
-    <h3 data-part="title"><a href="/item/{slug}">{name}</a></h3>
-    <p data-part="description">{description}</p>
+<!-- Rendered via Card primitives -->
+<div data-slot="card" data-component="item-card" data-featured=""><!-- "" when featured, absent when not -->
+  <div data-slot="card-header">
+    <div><!-- flex row: icon + text -->
+      <img data-part="icon" /><!-- present only when item.icon_url is set -->
+      <div>
+        <div data-slot="card-title">
+          <a href="/item/{slug}" data-part="name">{name}</a>
+        </div>
+        <div data-slot="card-description" data-part="description">{description}</div>
+      </div>
+    </div>
   </div>
-  <div data-part="category"><slot name="category" /></div>
-  <div data-part="tags"><slot name="tags" /></div>
-  <div data-part="actions"><slot name="actions" /></div>
-</article>
+  <!-- Present only when showCategory or showTags is true -->
+  <div data-slot="card-content">
+    <div><!-- flex-wrap badge row -->
+      <a data-slot="badge" data-part="category" href="/category/{cat}">{cat}</a><!-- per category -->
+      <a data-slot="badge" data-part="tag" href="/tag/{tag}">{tag}</a><!-- per tag -->
+    </div>
+  </div>
+  <!-- Present only when item.source_url is set -->
+  <div data-slot="card-footer">
+    <a data-part="source-link" href="{source_url}">Visit →</a>
+  </div>
+</div>
 ```
 
 ---
@@ -81,7 +96,7 @@ interface ItemListProps {
 
 **File**: `packages/ui/src/astro/ItemDetail.astro`
 **Purpose**: Full detail view for a single item.
-**Slots**: `header`, `sidebar`, `content`, `footer`
+**Slots**: `default` (inserted after the main Card, before related items)
 
 ```typescript
 interface ItemDetailProps {
@@ -94,23 +109,39 @@ interface ItemDetailProps {
 **HTML structure**:
 ```html
 <article data-component="item-detail">
-  <header data-part="header">
-    <slot name="header">
-      <img data-part="icon" />
-      <h1 data-part="title">{name}</h1>
-      <p data-part="description">{description}</p>
-    </slot>
-  </header>
-  <div data-part="meta">
-    <span data-part="category">{category}</span>
-    <div data-part="tags">...</div>
-    <a data-part="source-link" href="{source_url}">Visit</a>
+  <!-- Card primitives -->
+  <div data-slot="card">
+    <div data-slot="card-header">
+      <div><!-- flex row: icon + text -->
+        <img data-part="icon" /><!-- present only when item.icon_url is set -->
+        <div>
+          <div data-slot="card-title"><span data-part="name">{name}</span></div>
+          <div data-slot="card-description" data-part="description">{description}</div>
+        </div>
+      </div>
+    </div>
+    <div data-slot="card-content">
+      <div data-part="meta"><!-- flex-wrap badge row -->
+        <a data-slot="badge" data-part="category" href="/category/{cat}">{cat}</a>
+        <a data-slot="badge" data-part="tag" href="/tag/{tag}">{tag}</a>
+      </div>
+      <div>
+        <a data-part="source-link" href="{source_url}">Visit Website →</a><!-- when source_url set -->
+        <time data-part="updated-at" datetime="{updated_at}">Updated: {updated_at}</time>
+      </div>
+    </div>
+    <!-- Present only when item.markdown is set -->
+    <div data-slot="separator"></div>
+    <div data-slot="card-content">
+      <div data-part="content" class="prose"><!-- markdown rendered via set:html --></div>
+    </div>
   </div>
-  <div data-part="content">
-    <slot name="content">{markdown rendered}</slot>
-  </div>
-  <aside data-part="sidebar"><slot name="sidebar" /></aside>
-  <footer data-part="footer"><slot name="footer" /></footer>
+  <slot /><!-- unnamed default slot -->
+  <!-- Present only when relatedItems.length > 0 -->
+  <section data-part="related">
+    <h2 data-part="related-heading">Related Items</h2>
+    <div data-part="related-items"><!-- ItemCard per related item --></div>
+  </section>
 </article>
 ```
 
@@ -152,7 +183,7 @@ interface CategoryBadgeProps {
 ```typescript
 interface TagListProps {
     tags: TagWithCount[];
-    showCounts?: boolean;  // default: false
+    showCounts?: boolean;  // default: true
     class?: string;
 }
 ```
@@ -251,7 +282,7 @@ interface SiteHeaderProps {
 ### SiteFooter
 
 **File**: `packages/ui/src/astro/SiteFooter.astro`
-**Slots**: `content`
+**Slots**: `default` (rendered inside `data-part="content"` between branding and copyright)
 
 ```typescript
 interface SiteFooterProps {
@@ -936,6 +967,35 @@ Merges Tailwind CSS classes with proper conflict resolution using `clsx` + `tail
 ```typescript
 cn(...inputs: ClassValue[]): string
 ```
+
+### handleKeyActivation()
+
+**File**: `packages/ui/src/lib/keyboard.ts`
+**Export**: `@ever-works/ui/lib/keyboard`
+
+Handles Enter/Space key activation for non-button interactive elements. Returns a `KeyboardEvent` handler that calls the provided callback and prevents default browser behavior when Enter or Space is pressed. Used inside Preact islands such as `FilterBar` and `ItemBrowser`.
+
+```typescript
+handleKeyActivation(callback: () => void): (e: KeyboardEvent) => void
+```
+
+---
+
+### getVisiblePages()
+
+**File**: `packages/ui/src/lib/pagination.ts`
+**Export**: `@ever-works/ui/lib/pagination`
+
+Computes the array of visible page numbers (with `'...'` ellipsis markers) for a pagination control, truncating long page ranges while always showing the first and last page. Shared between `Pagination.astro` and `ItemBrowser.tsx`.
+
+```typescript
+getVisiblePages(current: number, total: number, max?: number): (number | '...')[]
+// current — active page (1-indexed)
+// total   — total number of pages
+// max     — maximum page buttons to show (default: 7)
+```
+
+---
 
 ### sortItemsByOption()
 

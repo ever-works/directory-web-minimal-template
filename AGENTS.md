@@ -375,7 +375,7 @@ Directory-specific components that compose primitive components with domain type
 `TagList`, `TagBadge`, `CollectionCard`, `ComparisonTable`, `Breadcrumbs`, `Pagination`,
 `SiteHeader`, `SiteFooter`, `Hero`, `EmptyState`, `SEO`,
 `FeaturedBadge`, `FeaturedSection`, `ItemContent`, `ItemMetadata`, `ItemCTA`,
-`ShareButton`, `SimilarItems`
+`ShareButton`, `SimilarItems`, `AnalyticsScript`
 
 Import: `import ItemCard from '@ever-works/ui/astro/ItemCard.astro'`
 
@@ -388,10 +388,13 @@ Import: `import ItemCard from '@ever-works/ui/astro/ItemCard.astro'`
 Used inside Preact islands (e.g., `ItemBrowser`, `FilterBar`). Not for Astro components — use primitives instead.
 `Badge`, `Button`, `Input`, `Label`, `Select`
 
-Import: `import { Button } from '@ever-works/ui/components/ui/button'`
+These are internal to the `@ever-works/ui` package — imported via relative paths inside Preact islands (e.g., `import { Button } from '../components/ui/button'`). Not exported as package paths.
 
 ### Utility
 - `cn()` from `@ever-works/ui/lib/utils` — Tailwind class merging (clsx + tailwind-merge)
+- `sortItemsByOption()` from `@ever-works/ui/lib/sort-items` — Generic item sorting by name, date, featured
+- `handleKeyActivation()` from `packages/ui/src/lib/keyboard.ts` — Keyboard interaction helper (internal)
+- `getVisiblePages()` from `packages/ui/src/lib/pagination.ts` — Pagination page range helper (internal)
 
 ## Available Plugins (packages/plugin-*)
 

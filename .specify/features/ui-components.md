@@ -67,7 +67,24 @@ packages/ui/
 │   │   ├── SearchInput.tsx
 │   │   ├── SortSelect.tsx
 │   │   └── ThemeToggle.tsx
+│   ├── primitives/       — Headless primitive components
+│   │   ├── avatar/
+│   │   ├── badge/
+│   │   ├── button/
+│   │   ├── card/
+│   │   ├── empty/
+│   │   ├── separator/
+│   │   └── table/
+│   ├── components/
+│   │   └── ui/           — Styled UI components
+│   │       ├── badge.tsx
+│   │       ├── button.tsx
+│   │       ├── input.tsx
+│   │       ├── label.tsx
+│   │       └── select.tsx
 │   ├── lib/              — Shared utilities
+│   │   ├── keyboard.ts
+│   │   ├── pagination.ts
 │   │   ├── sort-items.ts
 │   │   └── utils.ts
 │   └── index.ts

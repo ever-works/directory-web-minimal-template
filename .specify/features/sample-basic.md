@@ -26,7 +26,7 @@ This sample serves two purposes:
 | Items count | 10 curated libraries |
 | Categories | 5 (Form, Data Display, Navigation, Layout, Feedback) |
 | Tags | 8+ (TypeScript, Accessible, Headless, Open Source, etc.) |
-| Plugins | All 10 built-in plugins enabled (seo, pagination, filters, search, sort, sitemap, breadcrumbs, rss, analytics, related-items) |
+| Plugins | All 10 built-in plugins enabled (seo, pagination, filters, search, sort, sitemap, breadcrumbs, rss, related-items, analytics) |
 | Styling | Tailwind CSS, modern clean design |
 | Theme | Dark/light mode with system preference detection |
 | Output | Fully static (Astro `output: 'static'`) |
@@ -378,7 +378,7 @@ The home page is the primary landing page. Layout sections from top to bottom:
 
 ## Plugin Configuration
 
-All 6 built-in plugins enabled in `plugins.config.ts`:
+All 10 built-in plugins enabled in `plugins.config.ts`:
 
 ```typescript
 import { definePlugins } from '@ever-works/plugins';
@@ -388,17 +388,24 @@ import { filtersPlugin } from '@ever-works/plugin-filters';
 import { searchPlugin } from '@ever-works/plugin-search';
 import { sortPlugin } from '@ever-works/plugin-sort';
 import { sitemapPlugin } from '@ever-works/plugin-sitemap';
+import { breadcrumbsPlugin } from '@ever-works/plugin-breadcrumbs';
+import { rssPlugin } from '@ever-works/plugin-rss';
+import { analyticsPlugin } from '@ever-works/plugin-analytics';
+import { relatedItemsPlugin } from '@ever-works/plugin-related-items';
 
 export const plugins = definePlugins([
-    seoPlugin({
-        titleTemplate: '%s | React UI Components',
-        defaultImage: '/og-default.png',
-    }),
+    seoPlugin(),
     paginationPlugin({ itemsPerPage: 12 }),
     filtersPlugin(),
     searchPlugin(),
     sortPlugin({ defaultSort: 'name', defaultDirection: 'asc' }),
     sitemapPlugin(),
+    breadcrumbsPlugin(),
+    rssPlugin(),
+    relatedItemsPlugin({ maxItems: 4 }),
+    analyticsPlugin({
+        providers: [{ provider: 'custom', html: '<!-- analytics: demo -->' }],
+    }),
 ]);
 ```
 
@@ -428,6 +435,8 @@ apps/sample-basic/
 │   ├── categories.yml
 │   ├── tags.yml
 │   ├── collections.yml
+│   ├── comparisons/
+│   ├── pages/
 │   └── data/
 │       ├── radix-ui/
 │       │   └── radix-ui.yml
@@ -453,7 +462,8 @@ apps/sample-basic/
 │   └── clone-content.ts
 ├── src/
 │   ├── components/
-│   │   └── ThemeToggle.tsx       — Preact dark/light mode toggle island
+│   │   ├── BreadcrumbNav.astro   — Breadcrumb navigation component
+│   │   └── ItemBrowser.tsx       — Interactive item browsing component
 │   ├── layouts/
 │   │   └── BaseLayout.astro      — Styled root layout (header, footer, theme)
 │   ├── lib/
@@ -462,12 +472,23 @@ apps/sample-basic/
 │   ├── pages/
 │   │   ├── index.astro           — Home (hero, search, categories, featured)
 │   │   ├── categories.astro      — Categories index
+│   │   ├── collections.astro     — Collections index
+│   │   ├── comparisons.astro     — Comparisons index
 │   │   ├── tags.astro            — Tags index
 │   │   ├── 404.astro             — Not found
+│   │   ├── atom.xml.ts           — Atom feed
+│   │   ├── robots.txt.ts         — robots.txt generation
+│   │   ├── rss.xml.ts            — RSS feed
 │   │   ├── item/
 │   │   │   └── [slug].astro      — Item detail
 │   │   ├── category/
 │   │   │   └── [slug].astro      — Category listing
+│   │   ├── collection/
+│   │   │   └── [slug].astro      — Collection detail
+│   │   ├── comparison/
+│   │   │   └── [slug].astro      — Comparison detail
+│   │   ├── pages/
+│   │   │   └── [slug].astro      — Static pages
 │   │   ├── tag/
 │   │   │   └── [slug].astro      — Tag listing
 │   │   └── page/
@@ -482,16 +503,17 @@ apps/sample-basic/
 ## Dependencies
 
 ### Runtime
-- `astro` ^6.0.0
-- `@astrojs/preact` ^4.1.0
-- `@astrojs/sitemap` ^3.7.0
-- `@tailwindcss/vite` ^4.2.0
-- `tailwindcss` ^4.2.0
-- `preact` ^10.29.0
-- `yaml` ^2.7.0
+- `astro` ^6.1.7
+- `@astrojs/preact` ^5.1.1
+- `@astrojs/sitemap` ^3.7.2
+- `@tailwindcss/vite` ^4.2.2
+- `tailwindcss` ^4.2.2
+- `preact` ^10.29.1
+- `yaml` ^2.8.3
 - `@ever-works/core` workspace:*
 - `@ever-works/plugins` workspace:*
 - `@ever-works/adapters` workspace:*
+- `@ever-works/astro-integration` workspace:*
 - `@ever-works/ui` workspace:*
 - `@ever-works/plugin-seo` workspace:*
 - `@ever-works/plugin-pagination` workspace:*
@@ -499,13 +521,16 @@ apps/sample-basic/
 - `@ever-works/plugin-search` workspace:*
 - `@ever-works/plugin-sort` workspace:*
 - `@ever-works/plugin-sitemap` workspace:*
+- `@ever-works/plugin-breadcrumbs` workspace:*
+- `@ever-works/plugin-rss` workspace:*
+- `@ever-works/plugin-analytics` workspace:*
+- `@ever-works/plugin-related-items` workspace:*
 
 ### Dev
 - `@ever-works/tsconfig` workspace:*
-- `@ever-works/eslint-config` workspace:*
 - `@astrojs/check` ^0.9.8
-- `tsx` ^4.19.0
-- `typescript` ^5.7.0
+- `pagefind` ^1.5.2
+- `typescript` ^6.0.3
 
 ## Technical Notes
 

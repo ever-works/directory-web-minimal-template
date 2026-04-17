@@ -3,6 +3,23 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-17 — Iteration 74: comprehensive documentation drift audit
+
+### Documentation Fixes (12 drift issues fixed)
+- **`AGENTS.md`** — Fixed wrong import path for Preact utility components (was `@ever-works/ui/components/ui/button`, now documented as internal relative imports). Added missing `AnalyticsScript` to directory wrappers list. Added `sortItemsByOption()`, `handleKeyActivation()`, `getVisiblePages()` to utility section.
+- **`CLAUDE.md`** — Fixed sample-git description ("Time Tracking directory" not generic). Fixed adapter naming convention (`@ever-works/adapters` not `@ever-works/adapter-<name>`). Fixed sample-jobs description ("job board directory" not "Remote Tech Jobs directory").
+- **`.specify/features/sample-basic.md`** — Fixed plugin count 6→10, added 4 missing plugins to code block, fixed seoPlugin() options, added 8 missing page routes to file structure, replaced ThemeToggle.tsx with actual components (BreadcrumbNav.astro, ItemBrowser.tsx), added @ever-works/astro-integration dependency, added comparisons/ and pages/ to .content tree, updated dependency versions.
+- **`.specify/features/sample-events.md`** — Fixed plugin count 7→10, added 3 missing plugins to code block, removed defaultImage from seoPlugin(), replaced ThemeToggle.tsx with actual components, fixed comparison path format to subdirectory pattern.
+- **`.specify/features/sample-git.md`** — Fixed comparison table: sample-basic now correctly shows breadcrumbs plugin and astro integration as used. Fixed prose claims about sample-basic not using these features.
+- **`.specify/features/ui-components.md`** — Added missing `primitives/` directory tree (7 subdirs), `components/ui/` directory (5 files), and 2 missing `lib/` files (keyboard.ts, pagination.ts).
+- **`.specify/features/web-app.md`** — Added 4 missing routes to pages table: `/pages/[slug]`, `/rss.xml`, `/atom.xml`, `/robots.txt` (12→16 routes).
+- **`docs/specs/component-catalog.md`** — Fixed ItemCard HTML structure (Card primitives, no named slots, data-part="name" not "title"). Fixed ItemDetail HTML structure (Card primitives, single default slot). Fixed TagList showCounts default (true not false). Fixed SiteFooter slot (unnamed default, not "content"). Fixed data-featured value ("" not "true"). Added handleKeyActivation() and getVisiblePages() utilities.
+
+### Summary
+- **4 HIGH severity issues fixed**: stale plugin counts in sample-basic/events/git specs, wrong sample-basic feature comparison
+- **6 MEDIUM severity issues fixed**: AGENTS.md import path, missing spec routes, missing component catalog entries
+- **~12 LOW severity issues fixed**: version drift, option mismatches, missing directory entries
+
 ## 2026-04-17 — Iteration 73: documentation accuracy audit, security fix
 
 ### Security Fix
