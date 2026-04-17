@@ -105,6 +105,73 @@ describe('resolveAnalyticsConfig', () => {
         ).toThrow('Custom: "html" is required');
     });
 
+    it('validates umami: accepts valid config', () => {
+        const resolved = resolveAnalyticsConfig({
+            providers: [
+                {
+                    provider: 'umami',
+                    websiteId: 'abc-123',
+                    scriptUrl: 'https://analytics.umami.is/script.js',
+                },
+            ],
+        });
+        expect(resolved.providers).toHaveLength(1);
+    });
+
+    it('validates umami: missing scriptUrl', () => {
+        expect(() =>
+            resolveAnalyticsConfig({
+                providers: [
+                    {
+                        provider: 'umami',
+                        websiteId: 'abc-123',
+                    } as never,
+                ],
+            }),
+        ).toThrow('Umami: "scriptUrl" must start with https://');
+    });
+
+    it('validates custom: accepts valid config', () => {
+        const resolved = resolveAnalyticsConfig({
+            providers: [
+                { provider: 'custom', html: '<script>track()</script>' },
+            ],
+        });
+        expect(resolved.providers).toHaveLength(1);
+    });
+
+    it('validates plausible: missing domain', () => {
+        expect(() =>
+            resolveAnalyticsConfig({
+                providers: [{ provider: 'plausible' } as never],
+            }),
+        ).toThrow('Plausible: "domain" is required');
+    });
+
+    it('validates fathom: missing siteId', () => {
+        expect(() =>
+            resolveAnalyticsConfig({
+                providers: [{ provider: 'fathom' } as never],
+            }),
+        ).toThrow('Fathom: "siteId" is required');
+    });
+
+    it('validates ga4: missing measurementId', () => {
+        expect(() =>
+            resolveAnalyticsConfig({
+                providers: [{ provider: 'ga4' } as never],
+            }),
+        ).toThrow('GA4: "measurementId" must match');
+    });
+
+    it('validates custom: missing html property', () => {
+        expect(() =>
+            resolveAnalyticsConfig({
+                providers: [{ provider: 'custom' } as never],
+            }),
+        ).toThrow('Custom: "html" is required');
+    });
+
     it('supports multiple providers', () => {
         const resolved = resolveAnalyticsConfig({
             providers: [

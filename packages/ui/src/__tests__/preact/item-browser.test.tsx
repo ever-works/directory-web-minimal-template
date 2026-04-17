@@ -302,6 +302,19 @@ describe('ItemBrowser', () => {
         expect(nextBtn.hasAttribute('disabled')).toBe(true);
     });
 
+    it('shows ellipsis in pagination when many pages', () => {
+        const manyItems = Array.from({ length: 20 }, (_, i) =>
+            makeItem({ slug: `item-${i}`, name: `Item ${i}` }),
+        );
+        const { container } = render(
+            <ItemBrowser items={manyItems} perPage={2} />,
+        );
+
+        const ellipsis = container.querySelectorAll('span');
+        const ellipsisTexts = Array.from(ellipsis).map(el => el.textContent);
+        expect(ellipsisTexts).toContain('...');
+    });
+
     /* ── Search by description ── */
 
     it('filters items by description match', () => {

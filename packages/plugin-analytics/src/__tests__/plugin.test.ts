@@ -79,6 +79,18 @@ describe('analyticsPlugin', () => {
             );
         });
 
+        it('does not log DNT debug when disabled', async () => {
+            const plugin = analyticsPlugin({
+                providers: [{ provider: 'plausible', domain: 'test.com' }],
+                respectDoNotTrack: false,
+            });
+            const ctx = createMockContext();
+            await plugin.hooks!.onInit!(ctx);
+            expect(ctx.log.debug).not.toHaveBeenCalledWith(
+                'Do-Not-Track: honored',
+            );
+        });
+
         it('logs dev disable debug when enabled', async () => {
             const plugin = analyticsPlugin({
                 providers: [{ provider: 'plausible', domain: 'test.com' }],
@@ -87,6 +99,18 @@ describe('analyticsPlugin', () => {
             const ctx = createMockContext();
             await plugin.hooks!.onInit!(ctx);
             expect(ctx.log.debug).toHaveBeenCalledWith(
+                'Dev mode: tracking disabled',
+            );
+        });
+
+        it('does not log dev disable debug when disabled', async () => {
+            const plugin = analyticsPlugin({
+                providers: [{ provider: 'plausible', domain: 'test.com' }],
+                disableInDev: false,
+            });
+            const ctx = createMockContext();
+            await plugin.hooks!.onInit!(ctx);
+            expect(ctx.log.debug).not.toHaveBeenCalledWith(
                 'Dev mode: tracking disabled',
             );
         });

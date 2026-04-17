@@ -123,4 +123,20 @@ describe('FilterBar', () => {
         fireEvent.click(tagX);
         expect(tagX.getAttribute('aria-pressed')).toBe('true');
     });
+
+    it('toggles tag via Enter key', () => {
+        const onTagsChange = vi.fn();
+        render(<FilterBar tags={tags} onTagsChange={onTagsChange} />);
+        const tagX = screen.getByText('Tag X');
+        fireEvent.keyDown(tagX, { key: 'Enter' });
+        expect(onTagsChange).toHaveBeenCalledWith(['tag-1']);
+    });
+
+    it('toggles tag via Space key', () => {
+        const onTagsChange = vi.fn();
+        render(<FilterBar tags={tags} onTagsChange={onTagsChange} />);
+        const tagX = screen.getByText('Tag X');
+        fireEvent.keyDown(tagX, { key: ' ' });
+        expect(onTagsChange).toHaveBeenCalledWith(['tag-1']);
+    });
 });

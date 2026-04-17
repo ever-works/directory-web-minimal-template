@@ -60,6 +60,14 @@ describe('MobileMenu', () => {
         expect(container.querySelector('[data-part="panel"]')).toBeNull();
     });
 
+    it('does not close menu on non-Escape key', () => {
+        const { container } = render(<MobileMenu items={items} />);
+        fireEvent.click(screen.getByLabelText('Open menu'));
+        expect(container.querySelector('[data-part="panel"]')).toBeTruthy();
+        fireEvent.keyDown(document, { key: 'Tab' });
+        expect(container.querySelector('[data-part="panel"]')).toBeTruthy();
+    });
+
     it('locks body scroll when open', () => {
         render(<MobileMenu items={items} />);
         fireEvent.click(screen.getByLabelText('Open menu'));
@@ -96,5 +104,28 @@ describe('MobileMenu', () => {
         fireEvent.click(screen.getByLabelText('Open menu'));
         const panel = container.querySelector('[data-part="panel"]');
         expect(panel?.getAttribute('aria-label')).toBe('Mobile navigation');
+    });
+
+    it('closes menu on click outside', () => {
+        const { container } = render(
+            <div>
+                <div data-testid="outside">Outside</div>
+                <MobileMenu items={items} />
+            </div>,
+        );
+        const menuContainer = container.querySelector('[data-component="mobile-menu"]');
+        expect(menuContainer).toBeTruthy();
+        fireEvent.click(screen.getByLabelText('Open menu'));
+        expect(container.querySelector('[data-part="panel"]')).toBeTruthy();
+        fireEvent.click(screen.getByTestId('outside'));
+        expect(container.querySelector('[data-part="panel"]')).toBeNull();
+    });
+
+    it('does not close menu when clicking inside', () => {
+        const { container } = render(<MobileMenu items={items} />);
+        fireEvent.click(screen.getByLabelText('Open menu'));
+        const panel = container.querySelector('[data-part="panel"]')!;
+        fireEvent.click(panel);
+        expect(container.querySelector('[data-part="panel"]')).toBeTruthy();
     });
 });

@@ -149,4 +149,11 @@ describe('ThemeToggle', () => {
         const button = screen.getByRole('button');
         expect(button.getAttribute('data-theme')).toBe('dark');
     });
+
+    it('ignores invalid stored theme value', () => {
+        localStorage.setItem('theme-preference', 'invalid');
+        render(<ThemeToggle />);
+        const button = screen.getByRole('button');
+        expect(button.getAttribute('data-theme')).toBe('light');
+    });
 });

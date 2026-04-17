@@ -295,6 +295,74 @@ verdict_winner: invalid
         expect(comparison!.verdict_winner).toBeUndefined();
     });
 
+    it('should handle non-string title (defaults to empty, skips)', async () => {
+        const numericTitleYaml = `
+title: 123
+item_a_slug: a
+item_b_slug: b
+`;
+        const adapter = createMockAdapter({
+            exists: vi.fn().mockResolvedValue(false),
+            readFile: vi.fn().mockResolvedValue(numericTitleYaml),
+        });
+
+        const comparison = await loadComparison(adapter, 'numeric-title');
+
+        expect(comparison).toBeNull();
+    });
+
+    it('should parse dimensions with missing optional fields', async () => {
+        const sparseYaml = `
+title: Sparse Dims
+item_a_slug: a
+item_b_slug: b
+dimensions:
+  - name: Feature X
+  - name: Feature Y
+    item_a_summary: Good
+    item_b_score: 8
+    winner: tie
+`;
+        const adapter = createMockAdapter({
+            exists: vi.fn().mockResolvedValue(false),
+            readFile: vi.fn().mockResolvedValue(sparseYaml),
+        });
+
+        const comparison = await loadComparison(adapter, 'sparse');
+
+        expect(comparison).not.toBeNull();
+        expect(comparison!.dimensions).toHaveLength(2);
+        expect(comparison!.dimensions![0]).toEqual({ name: 'Feature X' });
+        expect(comparison!.dimensions![1]).toEqual({
+            name: 'Feature Y',
+            item_a_summary: 'Good',
+            item_b_score: 8,
+            winner: 'tie',
+        });
+    });
+
+    it('should filter non-object and nameless dimensions', async () => {
+        const badDimsYaml = `
+title: Bad Dims
+item_a_slug: a
+item_b_slug: b
+dimensions:
+  - not-an-object
+  - name: Valid
+  - score: 5
+`;
+        const adapter = createMockAdapter({
+            exists: vi.fn().mockResolvedValue(false),
+            readFile: vi.fn().mockResolvedValue(badDimsYaml),
+        });
+
+        const comparison = await loadComparison(adapter, 'bad-dims');
+
+        expect(comparison).not.toBeNull();
+        expect(comparison!.dimensions).toHaveLength(1);
+        expect(comparison!.dimensions![0]!.name).toBe('Valid');
+    });
+
     it('should filter non-string sources', async () => {
         const mixedSourcesYaml = `
 title: Mixed Sources

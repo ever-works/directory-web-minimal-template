@@ -88,6 +88,15 @@ describe('SearchInput', () => {
         expect(onSearch).toHaveBeenCalledWith('');
     });
 
+    it('does not clear on non-Escape key', () => {
+        const onSearch = vi.fn();
+        render(<SearchInput onSearch={onSearch} />);
+        const input = screen.getByRole('searchbox') as HTMLInputElement;
+        fireEvent.input(input, { target: { value: 'text' } });
+        fireEvent.keyDown(input, { key: 'Enter' });
+        expect(input.value).toBe('text');
+    });
+
     it('has accessible label matching placeholder', () => {
         render(<SearchInput placeholder="Find tools..." />);
         const input = screen.getByRole('searchbox');

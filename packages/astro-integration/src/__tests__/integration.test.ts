@@ -337,6 +337,25 @@ describe('everWorksIntegration', () => {
         );
     });
 
+    it('should catch Error thrown from getContent in build:start', async () => {
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        const integration = everWorksIntegration({
+            getRunner: () => new PluginRunner([]),
+            getContent: async () => { throw new Error('content load failed in start'); },
+        });
+
+        const hook = integration.hooks['astro:build:start'];
+        if (hook) {
+            await (hook as () => Promise<void>)();
+        }
+
+        expect(warnSpy).toHaveBeenCalledWith(
+            expect.stringContaining('content load failed in start'),
+        );
+        warnSpy.mockRestore();
+    });
+
     it('should handle non-Error thrown in onBeforeBuild', async () => {
         const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 

@@ -160,6 +160,77 @@ describe('loadContent', () => {
         expect(content.total).toBe(0);
     });
 
+    it('should handle items with falsy category values', async () => {
+        const falsyCatItemYaml = `
+name: Falsy Cat
+description: Item with empty category
+category: ""
+tags:
+  - typescript
+status: approved
+`;
+        const adapter = createMockAdapter({
+            exists: vi.fn().mockImplementation((path: string) => {
+                if (path === 'categories.yml') return Promise.resolve(true);
+                if (path === 'data') return Promise.resolve(true);
+                return Promise.resolve(false);
+            }),
+            readFile: vi.fn().mockImplementation((path: string) => {
+                if (path === 'config.yml') return Promise.resolve(configYaml);
+                if (path === 'categories.yml') return Promise.resolve(categoriesYaml);
+                if (path.includes('falsy/falsy.yml')) return Promise.resolve(falsyCatItemYaml);
+                return Promise.reject(new Error('Not found'));
+            }),
+            listDirectories: vi.fn().mockImplementation((path: string) => {
+                if (path === 'data') return Promise.resolve(['falsy']);
+                return Promise.resolve([]);
+            }),
+        });
+
+        const content = await loadContent(adapter);
+
+        expect(content.items).toHaveLength(1);
+        const devTools = content.categories.find((c) => c.id === 'dev-tools');
+        expect(devTools!.count).toBe(0);
+    });
+
+    it('should handle items with falsy tag values', async () => {
+        const falsyTagItemYaml = `
+name: Falsy Tag
+description: Item with empty tag
+category: dev-tools
+tags:
+  - ""
+  - typescript
+status: approved
+`;
+        const adapter = createMockAdapter({
+            exists: vi.fn().mockImplementation((path: string) => {
+                if (path === 'categories.yml') return Promise.resolve(true);
+                if (path === 'tags.yml') return Promise.resolve(true);
+                if (path === 'data') return Promise.resolve(true);
+                return Promise.resolve(false);
+            }),
+            readFile: vi.fn().mockImplementation((path: string) => {
+                if (path === 'config.yml') return Promise.resolve(configYaml);
+                if (path === 'categories.yml') return Promise.resolve(categoriesYaml);
+                if (path === 'tags.yml') return Promise.resolve(tagsYaml);
+                if (path.includes('falsy/falsy.yml')) return Promise.resolve(falsyTagItemYaml);
+                return Promise.reject(new Error('Not found'));
+            }),
+            listDirectories: vi.fn().mockImplementation((path: string) => {
+                if (path === 'data') return Promise.resolve(['falsy']);
+                return Promise.resolve([]);
+            }),
+        });
+
+        const content = await loadContent(adapter);
+
+        expect(content.items).toHaveLength(1);
+        const tsTag = content.tags.find((t) => t.id === 'typescript');
+        expect(tsTag!.count).toBe(1);
+    });
+
     it('should compute category counts for multi-category items', async () => {
         const multiCatItemYaml = `
 name: Multi Cat

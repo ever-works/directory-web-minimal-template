@@ -74,4 +74,18 @@ describe('LayoutSwitcher', () => {
         expect(localStorage.getItem('custom-key')).toBe('list');
         expect(localStorage.getItem('ew-layout-mode')).toBeNull();
     });
+
+    it('does not persist when persistKey is empty', () => {
+        render(<LayoutSwitcher persistKey="" />);
+        const listButton = screen.getByLabelText('List view');
+        fireEvent.click(listButton);
+        expect(localStorage.getItem('ew-layout-mode')).toBeNull();
+    });
+
+    it('does not restore from localStorage when persistKey is empty', () => {
+        localStorage.setItem('ew-layout-mode', 'list');
+        render(<LayoutSwitcher persistKey="" />);
+        const gridButton = screen.getByLabelText('Grid view');
+        expect(gridButton.getAttribute('aria-checked')).toBe('true');
+    });
 });

@@ -3,6 +3,49 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-17 — Iteration 81: 15 packages at 100% branch, +25 tests
+
+### Test Coverage Improvements (+25 tests → 1158 total)
+
+**`@ever-works/plugin-analytics`** — Branch: 91.37% → 100% (all metrics now 100%)
+- Added 9 tests: onInit false branches for `respectDoNotTrack` and `disableInDev`, valid umami/custom/plausible/fathom/ga4 config acceptance, missing property validation
+
+**`@ever-works/core`** — Branch: 94.92% → 100% (all metrics now 100%)
+- Added 5 tests: items with falsy category values, items with falsy tag values, non-string title in comparisons, dimensions with missing optional fields, filtering non-object/nameless dimensions
+
+**`@ever-works/astro-integration`** — Branch: 97.91% → 100% (all metrics now 100%)
+- Added 1 test: Error thrown from getContent in build:start (covers `err instanceof Error` true branch)
+
+**`@ever-works/ui`** — Branch: 96.26% → 99.06%, Functions: 98.98% → 100%, Lines: 99.19% → 100%
+- Added 10 tests: FilterBar keyboard activation (Enter/Space), LayoutSwitcher with empty persistKey, SearchInput non-Escape key, MobileMenu click-outside close/non-close/non-Escape key, ThemeToggle invalid stored value, ItemBrowser pagination ellipsis
+
+### Coverage Summary (16 packages)
+| Package | Statements | Branches | Functions | Lines |
+|---------|-----------|----------|-----------|-------|
+| core | 100% | 100% | 100% | 100% |
+| plugins | 100% | 100% | 100% | 100% |
+| plugin-filters | 100% | 100% | 100% | 100% |
+| plugin-pagination | 100% | 100% | 100% | 100% |
+| plugin-search | 100% | 100% | 100% | 100% |
+| plugin-sitemap | 100% | 100% | 100% | 100% |
+| plugin-rss | 100% | 97.82% | 100% | 100% |
+| plugin-related-items | 100% | 100% | 100% | 100% |
+| plugin-sort | 100% | 100% | 100% | 100% |
+| plugin-analytics | 100% | 100% | 100% | 100% |
+| plugin-seo | 100% | 95.61% | 100% | 100% |
+| plugin-breadcrumbs | 97.36% | 100% | 100% | 97.36% |
+| astro-integration | 100% | 100% | 100% | 100% |
+| adapters | 99.42% | 98.68% | 97.14% | 99.42% |
+| sync | 96.29% | 98.59% | 95.45% | 95.83% |
+| ui | 99.25% | 99.06% | 100% | 100% |
+
+### Documentation Updates
+- Updated README.md test count: "1103" → "1158+"
+- Updated docs/index.md iteration reference: 80 → 81
+- Updated .specify/project.md: iteration 80 → 81, test count 1133 → 1158, 15 packages at 100% branch
+
+---
+
 ## 2026-04-17 — Iteration 80: coverage excellence, 13 packages at 100% branch
 
 ### Test Coverage Improvements (+30 tests → 1133 total)
