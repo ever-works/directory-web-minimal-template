@@ -121,6 +121,30 @@ describe('PluginRunner', () => {
             expect(order).toEqual(['b']);
         });
 
+        it('should handle non-Error thrown values in onInit', async () => {
+            const order: string[] = [];
+
+            const pluginA = createPlugin({
+                id: 'a',
+                hooks: {
+                    onInit: vi.fn().mockRejectedValue('string error'),
+                },
+            });
+            const pluginB = createPlugin({
+                id: 'b',
+                hooks: {
+                    onInit: vi.fn().mockImplementation(async () => {
+                        order.push('b');
+                    }),
+                },
+            });
+
+            const runner = new PluginRunner([pluginA, pluginB]);
+            await runner.runInit(createBaseContext());
+
+            expect(order).toEqual(['b']);
+        });
+
         it('should provide PluginContext with log and plugins to hooks', async () => {
             let capturedCtx: PluginContext | null = null;
 
@@ -237,9 +261,60 @@ describe('PluginRunner', () => {
 
             expect(result.total).toBe(7);
         });
+
+        it('should use previous data when a plugin returns undefined', async () => {
+            const pluginA = createPlugin({
+                id: 'a',
+                hooks: {
+                    onDataLoaded: vi.fn().mockImplementation(async (data: ContentData) => {
+                        return { ...data, total: 55 };
+                    }),
+                },
+            });
+            const pluginB = createPlugin({
+                id: 'b',
+                hooks: {
+                    onDataLoaded: vi.fn().mockResolvedValue(undefined),
+                },
+            });
+
+            const runner = new PluginRunner([pluginA, pluginB]);
+            const result = await runner.runDataLoaded(createTestContentData(), createBaseContext());
+
+            expect(result.total).toBe(55);
+        });
+
+        it('should handle non-Error thrown values in onDataLoaded', async () => {
+            const pluginA = createPlugin({
+                id: 'a',
+                hooks: {
+                    onDataLoaded: vi.fn().mockRejectedValue('string error'),
+                },
+            });
+
+            const runner = new PluginRunner([pluginA]);
+            const data = createTestContentData();
+            const result = await runner.runDataLoaded(data, createBaseContext());
+
+            expect(result.total).toBe(data.total);
+        });
     });
 
     describe('runBeforeBuild', () => {
+        it('should skip plugins without onBeforeBuild hook', async () => {
+            const buildFn = vi.fn();
+            const pluginA = createPlugin({ id: 'a' }); // no hooks
+            const pluginB = createPlugin({
+                id: 'b',
+                hooks: { onBeforeBuild: buildFn },
+            });
+
+            const runner = new PluginRunner([pluginA, pluginB]);
+            await runner.runBeforeBuild(createBaseContext());
+
+            expect(buildFn).toHaveBeenCalledOnce();
+        });
+
         it('should call onBeforeBuild on each plugin in order', async () => {
             const order: string[] = [];
 
@@ -285,9 +360,43 @@ describe('PluginRunner', () => {
 
             expect(pluginB.hooks!.onBeforeBuild).toHaveBeenCalledOnce();
         });
+
+        it('should handle non-Error thrown values in onBeforeBuild', async () => {
+            const pluginA = createPlugin({
+                id: 'a',
+                hooks: {
+                    onBeforeBuild: vi.fn().mockRejectedValue(42),
+                },
+            });
+            const pluginB = createPlugin({
+                id: 'b',
+                hooks: {
+                    onBeforeBuild: vi.fn(),
+                },
+            });
+
+            const runner = new PluginRunner([pluginA, pluginB]);
+            await runner.runBeforeBuild(createBaseContext());
+
+            expect(pluginB.hooks!.onBeforeBuild).toHaveBeenCalledOnce();
+        });
     });
 
     describe('runAfterBuild', () => {
+        it('should skip plugins without onAfterBuild hook', async () => {
+            const afterFn = vi.fn();
+            const pluginA = createPlugin({ id: 'a' }); // no hooks
+            const pluginB = createPlugin({
+                id: 'b',
+                hooks: { onAfterBuild: afterFn },
+            });
+
+            const runner = new PluginRunner([pluginA, pluginB]);
+            await runner.runAfterBuild(createBaseContext());
+
+            expect(afterFn).toHaveBeenCalledOnce();
+        });
+
         it('should call onAfterBuild on each plugin in order', async () => {
             const order: string[] = [];
 
@@ -319,6 +428,26 @@ describe('PluginRunner', () => {
                 id: 'a',
                 hooks: {
                     onAfterBuild: vi.fn().mockRejectedValue(new Error('After build failed')),
+                },
+            });
+            const pluginB = createPlugin({
+                id: 'b',
+                hooks: {
+                    onAfterBuild: vi.fn(),
+                },
+            });
+
+            const runner = new PluginRunner([pluginA, pluginB]);
+            await runner.runAfterBuild(createBaseContext());
+
+            expect(pluginB.hooks!.onAfterBuild).toHaveBeenCalledOnce();
+        });
+
+        it('should handle non-Error thrown values in onAfterBuild', async () => {
+            const pluginA = createPlugin({
+                id: 'a',
+                hooks: {
+                    onAfterBuild: vi.fn().mockRejectedValue({ code: 'CUSTOM' }),
                 },
             });
             const pluginB = createPlugin({

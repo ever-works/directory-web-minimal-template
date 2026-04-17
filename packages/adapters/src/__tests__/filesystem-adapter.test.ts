@@ -362,4 +362,24 @@ describe('FilesystemAdapter', () => {
             ).rejects.toThrow('failed to list directories');
         });
     });
+
+    // ------------------------------------------------------------------
+    // walkDir non-ENOENT error handling
+    // ------------------------------------------------------------------
+    describe('walkDir error handling', () => {
+        it('should silently ignore ENOENT when a directory disappears during walk', async () => {
+            const adapter = await createInitializedAdapter();
+            // Remove a directory after init — when refresh re-walks, the cached subdir is gone
+            const vanishDir = join(tempDir, 'vanish-dir');
+            await mkdir(vanishDir, { recursive: true });
+            await writeFile(join(vanishDir, 'file.txt'), 'temp');
+            // Refresh to pick up new dir in snapshot
+            await adapter.refresh();
+            // Now remove it — next refresh will encounter ENOENT
+            await rm(vanishDir, { recursive: true, force: true });
+            // Should not throw
+            const changed = await adapter.refresh();
+            expect(typeof changed).toBe('boolean');
+        });
+    });
 });

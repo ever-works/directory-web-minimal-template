@@ -76,11 +76,11 @@ A minimal, static-rendered Astro template for AI-generated directory websites. L
 | Phase 17 | Related items plugin: tag/category scoring, build-time computation | Complete |
 | Phase 18 | Code coverage infrastructure: V8 coverage across all 16 packages, CI hardening | Complete |
 
-## Current State (Iteration 78)
+## Current State (Iteration 79)
 
 - **8 apps**: web, web-e2e, docs, sample-basic, sample-jobs, sample-events, sample-real-estate, sample-git
 - **18 packages**: core, ui, plugins, adapters, sync, astro-integration, 10 plugin-* packages (seo, rss, pagination, filters, search, sort, sitemap, breadcrumbs, analytics, related-items), tsconfig, eslint-config
-- **1082 unit tests** (Vitest) across 76 test files, 16 suites — all passing
-- **V8 code coverage** enabled across all 16 packages (8 at 100%, UI at 98.5% statements, avg >97%)
+- **1103 unit tests** (Vitest) across 76 test files, 16 suites — all passing
+- **V8 code coverage** enabled across all 16 packages (10 at 100% branch: core, plugins, astro-integration, plugin-filters, plugin-pagination, plugin-search, plugin-sitemap, plugin-rss, plugin-related-items + plugins runner; UI at 98.5% statements, avg >97%)
 - **367 E2E test cases** across 57 spec files, 11 Playwright projects, 5 sample apps
 - **All dependencies at latest versions** (Astro 6.1.7, Preact 10.29.1, Tailwind 4.2.2, TS 6.0.3, Prettier 3.8.3)

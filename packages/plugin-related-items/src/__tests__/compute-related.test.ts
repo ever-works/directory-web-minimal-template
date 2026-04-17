@@ -75,6 +75,24 @@ describe('computeScore', () => {
         expect(computeScore(source, candidate, DEFAULT_CONFIG)).toBe(0);
     });
 
+    it('handles undefined tags', () => {
+        const source = makeItem({ slug: 'a', category: 'cat1', tags: undefined as unknown as string[] });
+        const candidate = makeItem({ slug: 'b', category: 'cat1', tags: undefined as unknown as string[] });
+        expect(computeScore(source, candidate, DEFAULT_CONFIG)).toBe(2);
+    });
+
+    it('handles empty string category (non-array)', () => {
+        const source = makeItem({ slug: 'a', category: '' });
+        const candidate = makeItem({ slug: 'b', category: '' });
+        expect(computeScore(source, candidate, DEFAULT_CONFIG)).toBe(0);
+    });
+
+    it('handles undefined category (non-array)', () => {
+        const source = makeItem({ slug: 'a', category: undefined as unknown as string });
+        const candidate = makeItem({ slug: 'b', category: undefined as unknown as string });
+        expect(computeScore(source, candidate, DEFAULT_CONFIG)).toBe(0);
+    });
+
     it('respects custom weights', () => {
         const config: ResolvedRelatedConfig = {
             ...DEFAULT_CONFIG,
@@ -199,5 +217,39 @@ describe('computeRelatedItems', () => {
         );
 
         expect(result[0]!.category).toBe('cat1');
+    });
+
+    it('sets category to undefined when candidate has empty string category', () => {
+        const source = makeItem({ slug: 'a', tags: ['shared'] });
+        const candidate = makeItem({
+            slug: 'b',
+            category: '',
+            tags: ['shared'],
+        });
+
+        const result = computeRelatedItems(
+            source,
+            [source, candidate],
+            DEFAULT_CONFIG,
+        );
+
+        expect(result[0]!.category).toBeUndefined();
+    });
+
+    it('handles candidates with no icon_url', () => {
+        const source = makeItem({ slug: 'a', category: 'cat1' });
+        const candidate = makeItem({
+            slug: 'b',
+            category: 'cat1',
+            icon_url: undefined,
+        });
+
+        const result = computeRelatedItems(
+            source,
+            [source, candidate],
+            DEFAULT_CONFIG,
+        );
+
+        expect(result[0]!.icon_url).toBeUndefined();
     });
 });

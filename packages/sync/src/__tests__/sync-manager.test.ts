@@ -254,4 +254,36 @@ describe('SyncManager', () => {
 		expect(result.durationMs).toBeGreaterThanOrEqual(0);
 		vi.useRealTimers();
 	});
+
+	it('should handle polling sync rejection without crashing', async () => {
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+		adapter.refresh = vi.fn().mockRejectedValue(new Error('poll failure'));
+
+		const manager = new SyncManager(adapter, {
+			...defaultConfig,
+			pollIntervalMs: 50,
+			maxRetries: 0,
+		});
+
+		manager.startPolling();
+		expect(manager.getStatus().isPolling).toBe(true);
+
+		// Wait for at least one poll cycle
+		await new Promise((r) => setTimeout(r, 120));
+
+		manager.stopPolling();
+		expect(manager.getStatus().isPolling).toBe(false);
+		warnSpy.mockRestore();
+	});
+
+	it('should handle non-Error thrown values in sync error path', async () => {
+		adapter.refresh = vi.fn().mockRejectedValue('string error');
+		const manager = new SyncManager(adapter, { ...defaultConfig, maxRetries: 0 });
+
+		const result = await manager.sync();
+
+		expect(result.success).toBe(false);
+		expect(result.message).toContain('string error');
+	});
 });

@@ -3,6 +3,36 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-17 — Iteration 79: branch coverage push, 2 packages to 100%
+
+### Test Coverage Improvements (21 new tests)
+
+**`@ever-works/plugins` (runner)** — Branch coverage: 88.46% → 100% (all metrics now 100%)
+- Added 7 tests: `onDataLoaded` returning undefined, non-Error thrown values in `onInit`/`onDataLoaded`/`onBeforeBuild`/`onAfterBuild`, skip plugins without `onBeforeBuild`/`onAfterBuild` hooks
+
+**`@ever-works/plugin-related-items`** — Branch coverage: 88.23% → 100% (all metrics now 100%)
+- Added 5 tests: undefined tags, empty/undefined category (non-array), empty string category in output refs, missing `icon_url`
+
+**`@ever-works/adapters`** — Branch coverage: 82.89% → 86.84%
+- Added 7 tests: `createAdapter()` without args (env resolution), `resolveAdapterConfig` edge cases (explicit localPath/repository skip env, token/branch env overrides), ENOENT walkDir recovery
+
+**`@ever-works/sync`** — Branch coverage: 94.36% → 97.18%, Functions: 90.9% → 95.45%
+- Added 2 tests: polling sync rejection handling, non-Error thrown values in sync error path
+
+### Documentation Drift Fixes (3 files)
+
+**`README.md`**: Fixed test count: "1058+" → "1103"
+**`docs/index.md`**: Updated iteration reference: 77 → 79
+**`.specify/project.md`**: Updated iteration 78 → 79, test count 1082 → 1103, 100% coverage package count 8 → 10
+
+### Summary
+- **21 new tests** bringing total from 1082 → 1103
+- **2 packages** reach 100% branch coverage (plugins runner, plugin-related-items)
+- **3 documentation files** updated
+- **0 regressions** — all builds, typechecks, lints, and tests pass
+
+---
+
 ## 2026-04-17 — Iteration 78: Preact component coverage, README accuracy
 
 ### Test Coverage Improvements (24 new tests)

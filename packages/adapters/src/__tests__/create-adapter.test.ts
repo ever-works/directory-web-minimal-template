@@ -136,3 +136,88 @@ describe('createAdapter', () => {
         expect(adapter).toBeInstanceOf(FilesystemAdapter);
     });
 });
+
+describe('createAdapter — env resolution', () => {
+    const originalEnv = process.env;
+
+    beforeEach(() => {
+        process.env = { ...originalEnv };
+        delete process.env['CONTENT_PATH'];
+        delete process.env['DATA_REPOSITORY'];
+        delete process.env['GH_TOKEN'];
+        delete process.env['GITHUB_BRANCH'];
+    });
+
+    afterEach(() => {
+        process.env = originalEnv;
+    });
+
+    it('should resolve config from env when called without arguments', () => {
+        process.env['DATA_REPOSITORY'] = 'https://github.com/env/repo';
+        process.env['GH_TOKEN'] = 'env-token';
+
+        const adapter = createAdapter();
+
+        expect(adapter).toBeInstanceOf(GitAdapter);
+    });
+
+    it('should return FilesystemAdapter when called without arguments and no env vars', () => {
+        const adapter = createAdapter();
+
+        expect(adapter).toBeInstanceOf(FilesystemAdapter);
+    });
+});
+
+describe('resolveAdapterConfig — branch edge cases', () => {
+    const originalEnv = process.env;
+
+    beforeEach(() => {
+        vi.restoreAllMocks();
+        process.env = { ...originalEnv };
+        delete process.env['CONTENT_PATH'];
+        delete process.env['DATA_REPOSITORY'];
+        delete process.env['GH_TOKEN'];
+        delete process.env['GITHUB_BRANCH'];
+    });
+
+    afterEach(() => {
+        process.env = originalEnv;
+    });
+
+    it('should not fill env vars when localPath is already set', () => {
+        process.env['DATA_REPOSITORY'] = 'https://github.com/env/repo';
+
+        const config = resolveAdapterConfig({ localPath: '/explicit' });
+
+        expect(config.localPath).toBe('/explicit');
+        expect(config.repository).toBeUndefined();
+    });
+
+    it('should not fill env vars when repository is already set', () => {
+        process.env['CONTENT_PATH'] = '/env/path';
+
+        const config = resolveAdapterConfig({ repository: 'https://github.com/explicit/repo' });
+
+        expect(config.repository).toBe('https://github.com/explicit/repo');
+        expect(config.localPath).toBeUndefined();
+    });
+
+    it('should set branch from env when token is already provided', () => {
+        process.env['DATA_REPOSITORY'] = 'https://github.com/env/repo';
+        process.env['GITHUB_BRANCH'] = 'staging';
+
+        const config = resolveAdapterConfig({ token: 'already-set' });
+
+        expect(config.token).toBe('already-set');
+        expect(config.branch).toBe('staging');
+    });
+
+    it('should not override explicit branch with env var', () => {
+        process.env['DATA_REPOSITORY'] = 'https://github.com/env/repo';
+        process.env['GITHUB_BRANCH'] = 'staging';
+
+        const config = resolveAdapterConfig({ branch: 'my-branch' });
+
+        expect(config.branch).toBe('my-branch');
+    });
+});
