@@ -11,6 +11,8 @@ import { sortPlugin } from '@ever-works/plugin-sort';
 import { sitemapPlugin } from '@ever-works/plugin-sitemap';
 import { breadcrumbsPlugin } from '@ever-works/plugin-breadcrumbs';
 import { rssPlugin } from '@ever-works/plugin-rss';
+import { analyticsPlugin } from '@ever-works/plugin-analytics';
+import { relatedItemsPlugin } from '@ever-works/plugin-related-items';
 
 export const plugins = definePlugins([
     seoPlugin(),
@@ -21,4 +23,8 @@ export const plugins = definePlugins([
     sitemapPlugin(),
     breadcrumbsPlugin(),
     rssPlugin(),
+    relatedItemsPlugin({ maxItems: 4 }),
+    analyticsPlugin({
+        providers: [{ provider: 'custom', html: '<!-- analytics: demo -->' }],
+    }),
 ]);

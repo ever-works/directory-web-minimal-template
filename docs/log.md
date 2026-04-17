@@ -3,6 +3,28 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-17 — Iteration 70: plugin parity across samples, CI optimization
+
+### CI Optimization
+- **`.github/workflows/ci.yml`** — Consolidated 6 separate E2E test invocations into a single `npx playwright test --project=chromium --project=events-chromium --project=jobs-chromium --project=re-chromium --project=git-chromium` command. Previously, each separate `npx playwright test --project=xxx` call started all 5 web servers redundantly.
+
+### Plugin Parity Across Sample Apps
+- **sample-events, sample-jobs, sample-real-estate, sample-git** — Added `@ever-works/plugin-analytics` and `@ever-works/plugin-related-items` dependencies (were only in sample-basic since iteration 66-67)
+- **plugins.config.ts** (4 files) — Registered `relatedItemsPlugin({ maxItems: 4 })` and `analyticsPlugin({ providers: [{ provider: 'custom', html: '<!-- analytics: demo -->' }] })` in all 4 sample apps
+- **BaseLayout.astro** (4 files) — Added `AnalyticsScript` component import and rendering in sample-events, sample-jobs, sample-real-estate, and sample-git layouts
+
+### Documentation Accuracy
+- **`README.md`** — Fixed unit test count: 1030 → 1106 (76 tests added in iterations 64-67 without updating count)
+
+### Verification
+- **23/23 typecheck tasks** pass (0 errors)
+- **16/16 test suites** pass (1106 tests)
+- **7/7 builds** pass (web, sample-basic, sample-events, sample-jobs, sample-real-estate, sample-git, docs)
+- **18/18 lint tasks** pass
+- **Component counts verified**: 60 total (25 Astro + 8 Preact + 22 primitives + 5 shadcn-style) — accurate
+
+---
+
 ## 2026-04-17 — Iteration 69: CI security audit, documentation accuracy
 
 ### CI Improvements

@@ -205,6 +205,9 @@ importers:
       '@ever-works/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@ever-works/plugin-analytics':
+        specifier: workspace:*
+        version: link:../../packages/plugin-analytics
       '@ever-works/plugin-breadcrumbs':
         specifier: workspace:*
         version: link:../../packages/plugin-breadcrumbs
@@ -214,6 +217,9 @@ importers:
       '@ever-works/plugin-pagination':
         specifier: workspace:*
         version: link:../../packages/plugin-pagination
+      '@ever-works/plugin-related-items':
+        specifier: workspace:*
+        version: link:../../packages/plugin-related-items
       '@ever-works/plugin-rss':
         specifier: workspace:*
         version: link:../../packages/plugin-rss
@@ -284,6 +290,9 @@ importers:
       '@ever-works/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@ever-works/plugin-analytics':
+        specifier: workspace:*
+        version: link:../../packages/plugin-analytics
       '@ever-works/plugin-breadcrumbs':
         specifier: workspace:*
         version: link:../../packages/plugin-breadcrumbs
@@ -293,6 +302,9 @@ importers:
       '@ever-works/plugin-pagination':
         specifier: workspace:*
         version: link:../../packages/plugin-pagination
+      '@ever-works/plugin-related-items':
+        specifier: workspace:*
+        version: link:../../packages/plugin-related-items
       '@ever-works/plugin-rss':
         specifier: workspace:*
         version: link:../../packages/plugin-rss
@@ -366,6 +378,9 @@ importers:
       '@ever-works/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@ever-works/plugin-analytics':
+        specifier: workspace:*
+        version: link:../../packages/plugin-analytics
       '@ever-works/plugin-breadcrumbs':
         specifier: workspace:*
         version: link:../../packages/plugin-breadcrumbs
@@ -375,6 +390,9 @@ importers:
       '@ever-works/plugin-pagination':
         specifier: workspace:*
         version: link:../../packages/plugin-pagination
+      '@ever-works/plugin-related-items':
+        specifier: workspace:*
+        version: link:../../packages/plugin-related-items
       '@ever-works/plugin-rss':
         specifier: workspace:*
         version: link:../../packages/plugin-rss
@@ -442,6 +460,9 @@ importers:
       '@ever-works/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@ever-works/plugin-analytics':
+        specifier: workspace:*
+        version: link:../../packages/plugin-analytics
       '@ever-works/plugin-breadcrumbs':
         specifier: workspace:*
         version: link:../../packages/plugin-breadcrumbs
@@ -451,6 +472,9 @@ importers:
       '@ever-works/plugin-pagination':
         specifier: workspace:*
         version: link:../../packages/plugin-pagination
+      '@ever-works/plugin-related-items':
+        specifier: workspace:*
+        version: link:../../packages/plugin-related-items
       '@ever-works/plugin-rss':
         specifier: workspace:*
         version: link:../../packages/plugin-rss
