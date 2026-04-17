@@ -104,53 +104,68 @@ This approach avoids filesystem watchers (which can be unreliable in containers)
 The `ContentCache` class in `@ever-works/core` provides a single-layer in-memory cache for loaded content data:
 
 ```typescript
-interface ContentCache {
-    /** Retrieve cached content, or null if expired/missing */
-    get(key: string): ContentData | null;
+class ContentCache {
+    constructor(config?: Partial<ContentCacheConfig>);
 
-    /** Store content with a TTL */
-    set(key: string, data: ContentData, ttlMs: number): void;
+    /** Get content via loader function; returns cached data if valid, otherwise invokes loader */
+    get(loader: () => Promise<ContentData>): Promise<ContentData>;
 
-    /** Invalidate a specific key */
-    invalidate(key: string): void;
+    /** Invalidate all cached content, forcing next get() to reload */
+    invalidate(): void;
 
-    /** Invalidate all cached content */
-    invalidateAll(): void;
+    /** Check if cached data is present and within TTL */
+    isValid(): boolean;
+
+    /** Get cache status metadata (cached, loadedAt, ageMs, ttlMs) */
+    getStatus(): CacheStatus;
+}
+
+interface ContentCacheConfig {
+    /** TTL in milliseconds. 0 = cache forever (static mode). Default: 0 */
+    ttlMs: number;
+    /** Called when cache is invalidated */
+    onInvalidate?: () => void;
 }
 ```
 
 Key behaviors:
 
-- **TTL** — Each cache entry expires after a configurable duration (default: 5 minutes (300000 ms)). Controlled by the `CONTENT_CACHE_TTL_MS` environment variable.
-- **Deduplication** — Concurrent requests for the same content key share a single in-flight load. The first request triggers the load; subsequent requests await the same promise.
-- **Invalidation** — Explicit invalidation (via webhook or sync event) clears the cache immediately, regardless of remaining TTL.
+- **TTL** — Cached data expires after a configurable duration (default: 300000 ms / 5 min in ISR mode, 0 / forever in static mode). Controlled by the `CONTENT_CACHE_TTL_MS` environment variable.
+- **Deduplication** — Concurrent `get()` calls share a single in-flight Promise. The first call triggers the loader; subsequent calls await the same promise.
+- **Invalidation** — `invalidate()` clears the cache immediately, regardless of remaining TTL. The next `get()` call will invoke the loader.
 
 ## SyncManager
 
 The `SyncManager` in `@ever-works/sync` coordinates periodic content synchronization:
 
+The `SyncManager` constructor takes a `DataAdapter` and a `SyncConfig` object:
+
 ```typescript
-interface SyncManagerOptions {
-    /** Polling interval in milliseconds (0 = disabled) */
+const syncManager = new SyncManager(adapter, config);
+
+interface SyncConfig {
+    /** Polling interval in milliseconds (0 = disabled). Default: 0 */
     pollIntervalMs: number;
-    /** Maximum time for a single sync operation */
+    /** Sync operation timeout in milliseconds. Default: 60000 */
     syncTimeoutMs: number;
-    /** Number of retry attempts on failure */
+    /** Max retry attempts on failure. Default: 3 */
     maxRetries: number;
-    /** Adapter instance to refresh */
-    adapter: DataAdapter;
-    /** Cache instance to invalidate */
-    cache: ContentCache;
+    /** GitHub webhook HMAC-SHA256 secret */
+    webhookSecret?: string;
+    /** Vercel Deploy Hook URL (for static mode rebuilds) */
+    deployHookUrl?: string;
+    /** Content cache TTL in milliseconds. Default: 300000 (5 min) */
+    cacheTtlMs: number;
 }
 ```
 
 Key behaviors:
 
-- **Polling** — When `SYNC_POLL_INTERVAL_MS` is set, the manager starts a `setInterval` loop that checks for remote changes. Each tick calls `resolveRef` to compare the local and remote HEAD SHAs.
+- **Polling** — When `SYNC_POLL_INTERVAL_MS` is set, the manager starts a `setInterval` loop that checks for remote changes via `adapter.refresh()`.
 - **Mutex** — A lock prevents overlapping sync operations. If a sync is already in progress when a webhook or poll tick fires, the new request is queued, not dropped.
 - **Timeout** — Each sync operation has a deadline (default: 60 seconds). If the adapter refresh exceeds this, the operation is aborted and retried.
 - **Retry** — Failed syncs are retried up to `maxRetries` times (default: 3) with exponential backoff.
-- **Events** — The manager emits events for observability: `sync:start`, `sync:complete`, `sync:error`, and `sync:skip` (when no changes are detected).
+- **Events** — The manager emits events for observability: `sync:start`, `sync:complete`, `sync:error`, and `sync:content-changed` (when content actually changed).
 
 ## WebhookHandler
 

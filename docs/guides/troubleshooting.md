@@ -113,7 +113,7 @@ A plugin is enabled but its feature does not appear on the site.
    import { definePlugins } from '@ever-works/plugins';
    import { searchPlugin } from '@ever-works/plugin-search';
 
-   export default definePlugins([
+   export const plugins = definePlugins([
        searchPlugin(),
        // Other plugins...
    ]);
@@ -178,7 +178,7 @@ A flash of the wrong color scheme appears on page load before dark mode kicks in
     <script is:inline>
       // Prevent dark mode flash — runs synchronously before paint
       (function () {
-        const theme = localStorage.getItem('theme');
+        const theme = localStorage.getItem('theme-preference');
         if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
           document.documentElement.classList.add('dark');
         }

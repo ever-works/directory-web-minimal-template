@@ -99,8 +99,6 @@ interface ItemData {
     markdown?: string;
     /** Domain-specific metadata bucket for vertical templates (events, jobs, real-estate) */
     meta?: Record<string, unknown>;
-    /** Breadcrumb data injected by plugin-breadcrumbs */
-    _breadcrumbs?: Array<{ label: string; href: string }>;
     /** All other fields are passed through as-is */
     [key: string]: unknown;
 }
@@ -301,7 +299,7 @@ function loadPages(adapter: DataAdapter): Promise<PageData[]>;
 function loadPage(adapter: DataAdapter, slug: string): Promise<PageData | null>;
 ```
 
-Note: The `loadContent()` utility in `apps/web/src/lib/content.ts` composes these loaders together and computes `CategoryWithCount[]` / `TagWithCount[]` with item counts.
+Note: The `loadContent()` utility in `packages/core/src/content-reader.ts` composes these loaders together and computes `CategoryWithCount[]` / `TagWithCount[]` with item counts. Each app's `src/lib/content.ts` exports a `getContent()` wrapper that adds caching and plugin pipeline support.
 
 ## Adapter Interface
 
@@ -370,15 +368,15 @@ interface AdapterConfig {
 
 ## Build-Time Data Loading
 
-All data is loaded at build time in Astro:
+Data is loaded via `getContent()` from the app's `content.ts` module, which uses `ContentCache` and `loadContent()` under the hood:
 
 ```typescript
 // In an Astro page or component:
-import { loadItems, loadConfig } from '@ever-works/core';
+import { getContent } from '../lib/content';
 
-const contentPath = import.meta.env.CONTENT_PATH || '.content';
-const config = await loadConfig(contentPath);
-const { items, categories, tags } = await loadItems(contentPath);
+const { items, categories, tags, config } = await getContent();
 ```
 
-There is NO runtime data fetching. All content is baked into the static HTML at build time. Content changes require a rebuild and redeploy.
+`getContent()` calls `loadContent(adapter)` (from `@ever-works/core`) which takes a `DataAdapter` and returns a `ContentData` object containing all items, categories, tags, collections, comparisons, pages, and config.
+
+In **static mode** (`ENABLE_ISR=false`), all content is baked into HTML at build time — content changes require a rebuild and redeploy. In **ISR mode** (default), content is cached with a TTL and refreshed on demand via webhooks or polling.

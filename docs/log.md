@@ -3,34 +3,48 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
-## 2026-04-17 — Iteration 87: Spec drift audit, fix 8 issues across 5 files
+## 2026-04-17 — Iteration 87: Spec drift audit, fix 18 issues across 9 files
 
 ### Spec Drift Audit (3 parallel agents)
 - Audited all 16 package READMEs, all 25 .specify/ feature specs, and all docs/ content
 - Package READMEs: **0 drift** — all 16 packages clean
-- Found 8 drift issues (3 HIGH, 5 MEDIUM) in .specify/ specs — all fixed
+- .specify/ specs: 8 issues (3 HIGH, 5 MEDIUM) — all fixed
+- docs/ content: 10 issues (3 HIGH, 7 MEDIUM) — all fixed
 
-### HIGH Fixes (3)
+### HIGH Fixes (6)
 
 **`.specify/features/sample-git.md`**
 - Updated 9 stale dependency versions including 3 major bumps: `@astrojs/preact` ^4.1.0 → ^5.1.1, `@astrojs/vercel` ^9.2.0 → ^10.0.4, `typescript` ^5.7.0 → ^6.0.3
-- Also updated: `astro` ^6.0.0 → ^6.1.7, `@astrojs/sitemap` ^3.7.0 → ^3.7.2, `@tailwindcss/vite` ^4.2.0 → ^4.2.2, `tailwindcss` ^4.2.0 → ^4.2.2, `marked` ^18.0.0 → ^18.0.1, `yaml` ^2.7.0 → ^2.8.3, `@astrojs/check` ^0.9.0 → ^0.9.8, `pagefind` ^1.5.0 → ^1.5.2, `preact` ^10.29.0 → ^10.29.1
 
 **`.specify/features/sample-events.md`**
 - Updated 4 stale dependency versions including 2 major bumps: `@astrojs/preact` ^4.1.0 → ^5.1.1, `typescript` ^5.7.0 → ^6.0.3
-- Also updated: `astro` ^6.0.0 → ^6.1.7, `@astrojs/sitemap` ^3.7.0 → ^3.7.2, `@tailwindcss/vite` ^4.2.0 → ^4.2.2, `tailwindcss` ^4.2.0 → ^4.2.2, `yaml` ^2.7.0 → ^2.8.3
 - Added missing `@ever-works/astro-integration`, `pagefind` to spec dependency lists
 
 **`.specify/features/testing.md`**
 - Updated test count: 1030 → 1165 (135 tests added since spec last updated)
 - Updated coverage baselines reference: Iteration 85 → 87
 
-### MEDIUM Fixes (5)
+**`docs/architecture/data-layer.md`**
+- Fixed build-time data loading example: wrong API (`loadConfig(path)` → `getContent()` via ContentCache)
+- Fixed false claim "NO runtime data fetching" — true only in static mode, not ISR (default)
+
+**`docs/architecture/content-sync.md`**
+- Replaced wrong `ContentCache` interface (key-value `get/set/invalidate/invalidateAll`) with actual class API (`get(loader)`, `invalidate()`, `isValid()`, `getStatus()`)
+
+### MEDIUM Fixes (12)
 
 **`.specify/features/data-layer.md`** — Added missing `marked` to dependency list
-**`.specify/features/sample-git.md`** — Fixed: `@tailwindcss/typography` → custom `.prose` CSS styles in `global.css` (2 locations)
+**`.specify/features/sample-git.md`** — Fixed: `@tailwindcss/typography` → custom `.prose` CSS in `global.css` (2 locations)
 **`.specify/features/sample-events.md`** — Added missing `@ever-works/astro-integration` and `pagefind` deps
 **`.specify/features/lighthouse-ci.md`** — Fixed: `@lhci/cli` root dep → `treosh/lighthouse-ci-action@v12` GitHub Action
+**`docs/architecture/data-layer.md`** — Removed `_breadcrumbs` from `ItemData` (it's on `ContentData`, not `ItemData`)
+**`docs/architecture/data-layer.md`** — Fixed `loadContent()` location: `apps/web/src/lib/content.ts` → `packages/core/src/content-reader.ts`
+**`docs/architecture/content-sync.md`** — Fixed `SyncManagerOptions` → `SyncConfig` interface with correct fields
+**`docs/architecture/content-sync.md`** — Fixed event name: `sync:skip` → `sync:content-changed`
+**`docs/architecture/adapter-system.md`** — Added missing `cloneDepth` and index signature to `AdapterConfig`
+**`docs/architecture/adapter-system.md`** — Added missing `refresh()` and `getHeadRef()` to hypothetical `ApiAdapter` example
+**`docs/guides/troubleshooting.md`** — Fixed theme localStorage key: `'theme'` → `'theme-preference'`
+**`docs/guides/troubleshooting.md`** — Fixed plugin export: `export default definePlugins(...)` → `export const plugins = definePlugins(...)`
 
 ### Dependencies
 - All at latest: Astro 6.1.7, Preact 10.29.1, Tailwind 4.2.2, TS 6.0.3, Vitest 4.1.4, Playwright 1.59.1, Turbo 2.9.6, Prettier 3.8.3

@@ -88,6 +88,10 @@ interface AdapterConfig {
     branch?: string;
     /** Local filesystem path */
     localPath?: string;
+    /** Clone depth for git (default: 1 for shallow clone) */
+    cloneDepth?: number;
+    /** Additional adapter-specific options */
+    [key: string]: unknown;
 }
 ```
 
@@ -187,6 +191,17 @@ export class ApiAdapter implements DataAdapter {
 
     getContentPath(): string {
         return this.baseUrl;
+    }
+
+    async refresh(): Promise<boolean> {
+        // Check API for content changes, return true if changed
+        const res = await fetch(`${this.baseUrl}/changes`);
+        return res.ok;
+    }
+
+    async getHeadRef(): Promise<string | null> {
+        const res = await fetch(`${this.baseUrl}/version`);
+        return res.ok ? res.text() : null;
     }
 }
 ```
