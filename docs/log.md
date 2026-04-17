@@ -3,6 +3,36 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-17 — Iteration 75: code coverage infrastructure, CI hardening
+
+### Code Coverage
+- **`@vitest/coverage-v8`** — Installed as root devDependency
+- **16 vitest.config.ts files** — Added V8 coverage configuration (provider, reporters, include/exclude)
+- **16 package.json files** — Added `test:coverage` script (`vitest run --coverage`)
+- **`turbo.json`** — Added `test:coverage` task (no cache, outputs `coverage/**`)
+- **`package.json`** (root) — Added `pnpm test:coverage` command
+
+### Coverage Baselines (All 16 packages)
+- **100% statements**: core, plugin-filters, plugin-pagination, plugin-search, plugin-sitemap, plugin-seo, plugin-related-items
+- **90-99%**: plugins (96.1%), sync (95.4%), ui (94.0%), plugin-sort (93.3%), plugin-analytics (91.4%), astro-integration (89.9%)
+- **Below 90%**: adapters (82.3%), plugin-rss (74.4%)
+
+### CI Hardening
+- **`.github/workflows/ci.yml`** — Removed `continue-on-error: true` from security audit step (was silently passing). Changed `--audit-level=moderate` to `--audit-level=high` (moderate vulns handled via pnpm overrides)
+
+### Other
+- **`.gitignore`** — Added `coverage/` to ignored paths
+
+### Verification
+- **23/23 typecheck tasks** pass (0 errors)
+- **16/16 test suites** pass (1030 tests, 76 test files)
+- **16/16 coverage reports** generated successfully
+- **18/18 lint tasks** pass
+- **7/7 builds** pass (web, sample-basic, sample-events, sample-jobs, sample-real-estate, sample-git, docs)
+- **0 security vulnerabilities** (pnpm audit clean)
+
+---
+
 ## 2026-04-17 — Iteration 74: comprehensive documentation drift audit
 
 ### Documentation Fixes (12 drift issues fixed)

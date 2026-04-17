@@ -113,6 +113,7 @@ pnpm lint                 # Lint all packages
 pnpm lint:fix             # Lint and auto-fix all packages
 pnpm typecheck            # Type-check all packages
 pnpm test                 # Run all unit tests (Vitest)
+pnpm test:coverage        # Run unit tests with V8 coverage reports
 pnpm test:e2e             # Run E2E tests (Playwright)
 pnpm format               # Format code with Prettier
 pnpm clean                # Clean all build artifacts
@@ -145,6 +146,7 @@ These commands are always safe to run:
 - `pnpm lint`
 - `pnpm typecheck`
 - `pnpm test`
+- `pnpm test:coverage`
 - `pnpm test:e2e`
 - `pnpm format`
 - `pnpm clean`

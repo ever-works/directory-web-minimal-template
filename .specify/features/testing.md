@@ -72,6 +72,53 @@ packages/plugin-search/src/__tests__/plugin.test.ts    — 18 tests
 packages/plugin-sitemap/src/__tests__/plugin.test.ts   — 14 tests
 ```
 
+## Code Coverage
+
+V8 coverage is configured across all 16 test suites via `@vitest/coverage-v8`. Run `pnpm test:coverage` to generate reports.
+
+### Coverage Baselines (Iteration 75)
+
+| Package | Stmts | Branch | Funcs | Lines |
+|---------|-------|--------|-------|-------|
+| core | 100% | 94.9% | 100% | 100% |
+| plugins | 96.1% | 88.5% | 100% | 98.6% |
+| plugin-filters | 100% | 100% | 100% | 100% |
+| plugin-pagination | 100% | 100% | 100% | 100% |
+| plugin-search | 100% | 100% | 100% | 100% |
+| plugin-sitemap | 100% | 100% | 100% | 100% |
+| plugin-seo | 100% | 95.6% | 100% | 100% |
+| plugin-related-items | 100% | 88.2% | 100% | 100% |
+| plugin-sort | 93.3% | 94.7% | 100% | 93.3% |
+| plugin-breadcrumbs | 97.4% | 100% | 100% | 97.4% |
+| plugin-rss | 74.4% | 71.7% | 78.6% | 73.8% |
+| plugin-analytics | 91.4% | 86.2% | 100% | 91.4% |
+| adapters | 82.3% | 75.0% | 85.7% | 82.8% |
+| astro-integration | 89.9% | 85.4% | 92.3% | 89.2% |
+| sync | 95.4% | 94.4% | 90.9% | 94.8% |
+| ui | 94.0% | 93.0% | 90.9% | 94.4% |
+
+### Configuration
+
+Turbo task:
+```json
+"test:coverage": {
+    "dependsOn": ["^build"],
+    "outputs": ["coverage/**"],
+    "cache": false
+}
+```
+
+Per-package `vitest.config.ts` includes:
+```typescript
+coverage: {
+    provider: 'v8',
+    reporter: ['text', 'json-summary'],
+    include: ['src/**/*.ts'],
+    exclude: ['src/**/__tests__/**', 'src/**/*.test.ts'],
+}
+```
+
 ## Dependencies
 
 - `vitest` ^4.x (devDependency at root)
+- `@vitest/coverage-v8` ^4.x (devDependency at root)
