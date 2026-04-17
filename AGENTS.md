@@ -398,15 +398,17 @@ These are internal to the `@ever-works/ui` package — imported via relative pat
 
 ## Available Plugins (packages/plugin-*)
 
-| Plugin | Purpose |
-|--------|---------|
-| `plugin-seo` | Meta tags, Open Graph, JSON-LD, robots.txt |
-| `plugin-pagination` | Paginate item arrays |
-| `plugin-filters` | Client-side category/tag filtering |
-| `plugin-search` | Static search via Pagefind |
-| `plugin-sort` | Sort items by name, date, featured |
-| `plugin-sitemap` | XML sitemap generation |
-| `plugin-rss` | RSS 2.0 and Atom 1.0 feed generation |
-| `plugin-breadcrumbs` | Auto-generate breadcrumb trails for all page types |
-| `plugin-analytics` | Privacy-friendly analytics (Plausible, Umami, Fathom, GA4, custom) |
-| `plugin-related-items` | Compute related items based on shared tags/categories |
+All 10 plugins are available as packages. The **web template** (`apps/web`) registers 7 by default; the **sample apps** register all 10. To enable an opt-in plugin, import it in your `plugins.config.ts` and add it to the `definePlugins([])` array.
+
+| Plugin | Purpose | Default |
+|--------|---------|---------|
+| `plugin-seo` | Meta tags, Open Graph, JSON-LD, robots.txt | Yes |
+| `plugin-pagination` | Paginate item arrays | Yes |
+| `plugin-filters` | Client-side category/tag filtering | Yes |
+| `plugin-search` | Static search via Pagefind | Yes |
+| `plugin-sort` | Sort items by name, date, featured | Yes |
+| `plugin-sitemap` | XML sitemap generation | Yes |
+| `plugin-rss` | RSS 2.0 and Atom 1.0 feed generation | Yes |
+| `plugin-breadcrumbs` | Auto-generate breadcrumb trails for all page types | Opt-in |
+| `plugin-analytics` | Privacy-friendly analytics (Plausible, Umami, Fathom, GA4, custom) | Opt-in |
+| `plugin-related-items` | Compute related items based on shared tags/categories | Opt-in |

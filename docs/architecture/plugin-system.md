@@ -183,7 +183,9 @@ export const plugins = definePlugins([
 
 ## Built-in Plugins
 
-### Implemented
+All 10 plugins are implemented and available as packages. The web template (`apps/web`) registers 7 by default; the remaining 3 are opt-in (import and add to `plugins.config.ts`). Sample apps register all 10.
+
+### Default (registered in web template)
 
 | Plugin | Type | Description |
 |--------|------|-------------|
@@ -193,9 +195,13 @@ export const plugins = definePlugins([
 | `plugin-seo` | Build | Meta tags, JSON-LD, Open Graph |
 | `plugin-sitemap` | Build | XML sitemap generation |
 | `plugin-sort` | UI + Data | Sort controls (name, date, featured) |
-
-| `plugin-breadcrumbs` | UI + Data | Breadcrumb navigation with structured data |
 | `plugin-rss` | Build | RSS 2.0 and Atom 1.0 feed generation |
+
+### Opt-in (available but not registered by default)
+
+| Plugin | Type | Description |
+|--------|------|-------------|
+| `plugin-breadcrumbs` | UI + Data | Breadcrumb navigation with structured data |
 | `plugin-analytics` | Build | Privacy-friendly analytics (Plausible, Umami, Fathom, GA4, custom) |
 | `plugin-related-items` | Data | Compute related items based on shared tags/categories |
 

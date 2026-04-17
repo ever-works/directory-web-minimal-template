@@ -30,6 +30,6 @@
         "vitest": "^4.1.4"
     },
     "peerDependencies": {
-        "astro": "^6.1.5"
+        "astro": "^6.1.7"
     }
 }

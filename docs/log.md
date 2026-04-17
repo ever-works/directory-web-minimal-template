@@ -3,6 +3,36 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-18 — Iteration 88: Health audit, peerDep alignment, doc freshness verification
+
+### Health Audit
+- Full monorepo build: **7/7 tasks pass** (all cached)
+- Full test suite: **16/16 suites pass**, **1165 tests** all green
+- Lint: **18/18 tasks pass**
+- Typecheck: **23/23 tasks pass**
+- Test coverage: **16/16 packages at 100% branch coverage**
+- Docs app (Docusaurus): builds successfully
+- No outdated dependencies detected (`pnpm outdated` clean)
+- No TODO/FIXME comments in source code
+
+### Fixes
+- **`packages/astro-integration/package.json`** — Updated peerDependency `astro` from `^6.1.5` to `^6.1.7` to match devDependency
+- **`packages/ui/package.json`** — Updated peerDependency `astro` from `^6.1.5` to `^6.1.7` to match devDependency
+- **`AGENTS.md`** — Clarified plugin table: added "Default" column distinguishing 7 default plugins from 3 opt-in plugins (breadcrumbs, analytics, related-items)
+- **`docs/architecture/plugin-system.md`** — Split plugin table into "Default" and "Opt-in" sections with explanation
+
+### Documentation Updates
+- Updated `docs/index.md` — iteration 88 date and description
+- Updated `.specify/project.md` — iteration number to 88
+
+### Verification
+- All page routes (16) match AGENTS.md "Available Pages" table
+- All UI components (25 Astro + 8 Preact + 7 primitives + 5 shadcn-style) match docs
+- Unit test count (1165) matches .specify/project.md claim
+- SKILLS.md, CLAUDE.md, AGENTS.md all verified accurate against codebase
+- CI workflows (ci.yml, deploy.yml, lighthouse.yml) reviewed and correct
+- Plugin registration: 7 default + 3 opt-in correctly documented now
+
 ## 2026-04-17 — Iteration 87: Spec drift audit, fix 18 issues across 9 files
 
 ### Spec Drift Audit (3 parallel agents)
