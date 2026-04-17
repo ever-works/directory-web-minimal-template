@@ -34,7 +34,7 @@ This template is an **intentionally blank canvas** with headless, composable bui
 | Data | YAML in Git repos |
 | Package Manager | pnpm 10 |
 | Deployment | Vercel |
-| Testing | Playwright (E2E) |
+| Testing | Vitest (unit), Playwright (E2E) |
 
 ## Quick Start
 
@@ -54,13 +54,13 @@ pnpm dev
 │   ├── web-e2e/          — Playwright E2E tests
 │   ├── docs/             — Docusaurus documentation site
 │   ├── sample-basic/     — Reference implementation (React UI Components directory)
-│   ├── sample-git/       — Git adapter reference (1495 pages)
+│   ├── sample-git/       — Git adapter reference (5030 pages)
 │   ├── sample-jobs/      — Job board directory sample
 │   ├── sample-events/    — Tech events directory sample
 │   └── sample-real-estate/ — Property listings directory sample
 ├── packages/
 │   ├── core/             — Data layer, content reader, types, schemas
-│   ├── ui/               — Headless UI components (25 Astro + 8 Preact + 22 primitives)
+│   ├── ui/               — Headless UI components (25 Astro + 8 Preact + 22 primitives + 5 shadcn-style)
 │   ├── plugins/          — Plugin system (runner, types, define-plugins)
 │   ├── adapters/         — Data source adapters (git, filesystem)
 │   ├── astro-integration/— Astro integration for plugin build lifecycle
@@ -73,6 +73,8 @@ pnpm dev
 │   ├── plugin-sitemap/   — Sitemap plugin
 │   ├── plugin-rss/       — RSS/Atom feed plugin
 │   ├── plugin-breadcrumbs/— Breadcrumbs plugin
+│   ├── plugin-analytics/ — Analytics plugin (Plausible, Umami, Fathom, GA4)
+│   ├── plugin-related-items/ — Related items scoring plugin
 │   ├── tsconfig/         — Shared TypeScript configurations
 │   └── eslint-config/    — Shared ESLint configuration
 └── docs/                 — Documentation source (Markdown)

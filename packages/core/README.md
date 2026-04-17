@@ -23,15 +23,16 @@ src/
 │   ├── collection.ts           — CollectionData (curated groups)
 │   ├── comparison.ts           — ComparisonData, ComparisonDimension
 │   ├── config.ts               — SiteConfig, LogoConfig, PaginationConfig, SettingsConfig
+│   ├── page.ts                 — PageData (static pages)
 │   └── content-data.ts         — ContentData (aggregate of everything)
 └── loaders/
-    ├── index.ts                — Loader barrel export
     ├── config-loader.ts        — Loads config.yml with defaults
     ├── category-loader.ts      — Loads categories.yml (tries 2 paths)
     ├── tag-loader.ts           — Loads tags.yml, filters inactive
     ├── item-loader.ts          — Loads data/<slug>/<slug>.yml, filters to approved only
     ├── collection-loader.ts    — Loads collections.yml, filters inactive
-    └── comparison-loader.ts    — Loads comparisons/<slug>/<slug>.yml + optional .md
+    ├── comparison-loader.ts    — Loads comparisons/<slug>/<slug>.yml + optional .md
+    └── page-loader.ts          — Loads pages/*.yml, used for static pages
 ```
 
 ## Usage
@@ -77,10 +78,12 @@ This package reads from a `.content/` directory with this layout:
 ├── data/
 │   └── <item-slug>/
 │       └── <item-slug>.yml       — Item data
-└── comparisons/
-    └── <comparison-slug>/
-        ├── <comparison-slug>.yml — Comparison metadata
-        └── <comparison-slug>.md  — Optional long-form content
+├── comparisons/
+│   └── <comparison-slug>/
+│       ├── <comparison-slug>.yml — Comparison metadata
+│       └── <comparison-slug>.md  — Optional long-form content
+└── pages/
+    └── <slug>.md                 — Static pages (Markdown with frontmatter)
 ```
 
 This structure matches the full Next.js `directory-web-template` for compatibility.

@@ -35,7 +35,7 @@ This sample serves three purposes:
 | Styling | Tailwind CSS v4, shadcn/ui-inspired dark theme |
 | Theme | Dark mode default, light/dark toggle with system preference detection |
 | Output | Fully static (Astro `output: 'static'`) |
-| Build output | ~1494 pages |
+| Build output | ~5030 pages |
 
 ## Data Source
 
@@ -145,7 +145,7 @@ Both `sample-basic` and `sample-git` use this pattern to demonstrate the full pl
 
 | Metric | Value |
 |--------|-------|
-| Total pages generated | ~1494 |
+| Total pages generated | ~5030 |
 | Build time (observed) | ~24 seconds |
 | Pages per second | ~62 |
 | Clone strategy | `--depth 1 --single-branch` (shallow clone) |
@@ -294,7 +294,7 @@ apps/sample-git/
 1. `pnpm install` — All dependencies resolve
 2. Create `.env` with `DATA_REPOSITORY` and `GITHUB_BRANCH` values
 3. `pnpm --filter @ever-works/sample-git build` — Prebuild clones data, Astro build succeeds
-4. Verify ~1494 generated pages exist in `dist/`
+4. Verify ~5030 generated pages exist in `dist/`
 5. Spot-check key pages:
    - `dist/index.html` — Home page with ItemBrowser
    - `dist/item/*/index.html` — Item detail pages

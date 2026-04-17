@@ -3,6 +3,43 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-17 — Iteration 85: Spec drift audit, fix 7 doc issues
+
+### Spec Drift Audit (comprehensive, 3 parallel agents)
+- Audited all 18 package READMEs, all 25 .specify/ feature specs, and all docs/ content
+- Found 7 drift issues (3 HIGH, 4 MEDIUM) — all fixed
+
+### Fixes
+
+**`packages/core/README.md`** (3 HIGH)
+- Added missing `page.ts` to types file tree
+- Added missing `page-loader.ts` to loaders file tree
+- Removed fictional `loaders/index.ts` (file does not exist)
+- Added missing `pages/` directory to content repo structure diagram
+
+**`docs/overview.md`** (3 MEDIUM)
+- Fixed sample-git page count: "1495 pages" → "5030 pages" (actual build output)
+- Added missing `plugin-analytics/` and `plugin-related-items/` to monorepo structure
+- Added missing `+ 5 shadcn-style` to UI component count description
+- Added "Vitest (unit)" to Testing row in Tech Stack table
+
+**`.specify/features/sample-git.md`** (1 MEDIUM)
+- Updated page count `~1494` → `~5030` in 3 locations (Feature Overview, Performance Metrics, Acceptance Criteria)
+
+**`.specify/project.md`**
+- Updated "Current State" from Iteration 84 → 85
+
+### Dependencies
+- All at latest: Astro 6.1.7, Preact 10.29.1, Tailwind 4.2.2, TS 6.0.3, Vitest 4.1.4, Playwright 1.59.1, Turbo 2.9.6, Prettier 3.8.3
+- React 18→19 in docs app still blocked by Docusaurus compatibility
+- Zero security vulnerabilities (pnpm audit clean)
+
+### Verification
+- All 1165 unit tests passing across 16 suites (0 failures)
+- All 7 apps build successfully (sample-git: 5030 pages in ~100s)
+- All 41 lint + typecheck tasks pass (0 errors)
+- 16/16 packages at 100% branch coverage (no regression)
+
 ## 2026-04-17 — Iteration 84: Dependency updates, fix 17 doc drift issues
 
 ### Dependency Updates
