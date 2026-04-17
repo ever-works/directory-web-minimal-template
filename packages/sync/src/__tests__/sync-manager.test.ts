@@ -277,6 +277,27 @@ describe('SyncManager', () => {
 		warnSpy.mockRestore();
 	});
 
+	it('should invoke catch handler when sync() promise rejects during polling', async () => {
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+		const manager = new SyncManager(adapter, {
+			...defaultConfig,
+			pollIntervalMs: 50,
+		});
+
+		// Override sync to reject (simulates unexpected internal failure)
+		vi.spyOn(manager, 'sync').mockRejectedValue(new Error('unexpected rejection'));
+
+		manager.startPolling();
+
+		// Wait for at least one poll cycle
+		await new Promise((r) => setTimeout(r, 120));
+
+		manager.stopPolling();
+		expect(warnSpy).toHaveBeenCalledWith('[sync] Polling sync failed:', expect.any(Error));
+		warnSpy.mockRestore();
+	});
+
 	it('should handle non-Error thrown values in sync error path', async () => {
 		adapter.refresh = vi.fn().mockRejectedValue('string error');
 		const manager = new SyncManager(adapter, { ...defaultConfig, maxRetries: 0 });
@@ -311,6 +332,16 @@ describe('SyncManager', () => {
 		expect(errors).toHaveLength(1);
 		expect(errors[0]).toBeInstanceOf(Error);
 		expect((errors[0] as Error).message).toBe('raw string error');
+	});
+
+	it('should reach fallback path when maxRetries is negative', async () => {
+		const manager = new SyncManager(adapter, { ...defaultConfig, maxRetries: -1 });
+
+		const result = await manager.sync();
+
+		expect(result.success).toBe(false);
+		expect(result.message).toBe('Unexpected sync state');
+		expect(result.contentChanged).toBe(false);
 	});
 
 	it('should emit sync:error with original Error when Error is thrown', async () => {

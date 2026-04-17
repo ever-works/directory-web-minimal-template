@@ -20,17 +20,20 @@ type Theme = 'light' | 'dark';
 const STORAGE_KEY = 'theme-preference';
 
 function getStoredTheme(): Theme | null {
-  if (typeof window === 'undefined') return null;
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === 'light' || stored === 'dark') return stored;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored === 'light' || stored === 'dark') return stored;
+  } catch { /* SSR — localStorage unavailable */ }
   return null;
 }
 
 function getSystemTheme(): Theme {
-  if (typeof window === 'undefined') return 'light';
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light';
+  try {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light';
+  } catch { /* SSR — matchMedia unavailable */ }
+  return 'light';
 }
 
 function applyTheme(theme: Theme): void {

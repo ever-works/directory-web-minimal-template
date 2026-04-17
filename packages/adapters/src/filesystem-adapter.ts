@@ -261,13 +261,10 @@ export class FilesystemAdapter implements DataAdapter {
     private safePath(relativePath: string): string {
         const fullPath = resolve(this.contentPath, relativePath);
         const rel = relative(this.contentPath, fullPath);
-        if (rel.startsWith('..') || resolve(fullPath) !== fullPath.replace(/[\\/]+$/, '')) {
-            // Extra check: relative path must not escape content root
-            if (rel.startsWith('..')) {
-                throw new Error(
-                    `FilesystemAdapter: path traversal detected in "${relativePath}". Path must stay within content root.`,
-                );
-            }
+        if (rel.startsWith('..')) {
+            throw new Error(
+                `FilesystemAdapter: path traversal detected in "${relativePath}". Path must stay within content root.`,
+            );
         }
         return fullPath;
     }

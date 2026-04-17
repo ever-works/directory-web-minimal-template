@@ -137,6 +137,28 @@ describe('generateMetaTags', () => {
         expect(findTag(tags, 'og:type')?.content).toBe('article');
     });
 
+    it('omits description, og:description, and twitter:description when all sources are empty', () => {
+        const page: PageMeta = { title: 'No Desc', description: '' };
+        const options: SeoPluginOptions = {};
+
+        const tags = generateMetaTags(page, options);
+
+        expect(findTag(tags, 'description')).toBeUndefined();
+        expect(findTag(tags, 'og:description')).toBeUndefined();
+        expect(findTag(tags, 'twitter:description')).toBeUndefined();
+        expect(findTag(tags, 'og:title')?.content).toBe('No Desc');
+    });
+
+    it('omits og:image and twitter:image when no image from any source', () => {
+        const page: PageMeta = { title: 'Bare', description: 'Test' };
+        const options: SeoPluginOptions = {};
+
+        const tags = generateMetaTags(page, options);
+
+        expect(findTag(tags, 'og:image')).toBeUndefined();
+        expect(findTag(tags, 'twitter:image')).toBeUndefined();
+    });
+
     it('includes all expected tags with full options', () => {
         const page: PageMeta = {
             title: 'Full Page',

@@ -261,6 +261,22 @@ describe('generateJsonLd', () => {
             });
         });
 
+        it('includes offers when only priceCurrency is provided', () => {
+            const data: SoftwareApplicationInput = {
+                type: 'SoftwareApplication',
+                name: 'Tool',
+                url: 'https://example.com/tool',
+                priceCurrency: 'EUR',
+            };
+
+            const result = JSON.parse(generateJsonLd('SoftwareApplication', data));
+
+            expect(result.offers).toEqual({
+                '@type': 'Offer',
+                priceCurrency: 'EUR',
+            });
+        });
+
         it('omits aggregateRating when only ratingValue is provided', () => {
             const data: SoftwareApplicationInput = {
                 type: 'SoftwareApplication',

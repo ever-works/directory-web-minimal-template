@@ -76,12 +76,12 @@ A minimal, static-rendered Astro template for AI-generated directory websites. L
 | Phase 17 | Related items plugin: tag/category scoring, build-time computation | Complete |
 | Phase 18 | Code coverage infrastructure: V8 coverage across all 16 packages, CI hardening | Complete |
 
-## Current State (Iteration 81)
+## Current State (Iteration 82)
 
 - **8 apps**: web, web-e2e, docs, sample-basic, sample-jobs, sample-events, sample-real-estate, sample-git
 - **18 packages**: core, ui, plugins, adapters, sync, astro-integration, 10 plugin-* packages (seo, rss, pagination, filters, search, sort, sitemap, breadcrumbs, analytics, related-items), tsconfig, eslint-config
-- **1158 unit tests** (Vitest) across 76 test files, 16 suites — all passing
-- **V8 code coverage**: 15 packages at 100% branch (core, plugins, astro-integration, plugin-filters, plugin-pagination, plugin-search, plugin-sitemap, plugin-rss, plugin-related-items, plugin-sort, plugin-analytics, plugin-breadcrumbs, plugin-seo — plus **newly at 100%**: core content-reader, plugin-analytics); adapters at 98.68% branch; sync at 98.59% branch; UI at 99.06% branches / 100% lines
+- **1165 unit tests** (Vitest) across 76 test files, 16 suites — all passing
+- **V8 code coverage**: **16/16 packages at 100% branch coverage** — every package (core, plugins, astro-integration, adapters, sync, ui, plugin-filters, plugin-pagination, plugin-search, plugin-sitemap, plugin-rss, plugin-related-items, plugin-sort, plugin-analytics, plugin-breadcrumbs, plugin-seo) at 100% branch
 - **367 E2E test cases** across 57 spec files, 11 Playwright projects, 5 sample apps
 - **Zero documentation drift** across all specs, catalogs, and reference docs
 - **All dependencies at latest versions** (Astro 6.1.7, Preact 10.29.1, Tailwind 4.2.2, TS 6.0.3, Prettier 3.8.3)

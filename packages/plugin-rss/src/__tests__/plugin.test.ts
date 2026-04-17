@@ -106,6 +106,13 @@ describe('buildFeedEntries', () => {
         expect(entries[0]!.category).toBe('cat-a');
     });
 
+    it('handles falsy non-array category (undefined → category: undefined)', () => {
+        const items = [makeItem({ category: '' })];
+        const entries = buildFeedEntries(items, { siteUrl: 'https://example.com', limit: 50, sortBy: 'date-desc' });
+
+        expect(entries[0]!.category).toBeUndefined();
+    });
+
     it('handles empty items array', () => {
         const entries = buildFeedEntries([], { siteUrl: 'https://example.com', limit: 50, sortBy: 'date-desc' });
         expect(entries).toHaveLength(0);

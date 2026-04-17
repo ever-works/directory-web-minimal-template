@@ -136,7 +136,7 @@ export class SyncManager {
     /** Call adapter.refresh() with timeout protection */
     private async syncWithTimeout(): Promise<boolean> {
         const timeoutMs = this.config.syncTimeoutMs;
-        let timer: ReturnType<typeof setTimeout> | undefined;
+        let timer: ReturnType<typeof setTimeout>;
 
         try {
             return await Promise.race([
@@ -146,7 +146,7 @@ export class SyncManager {
                 }),
             ]);
         } finally {
-            if (timer !== undefined) clearTimeout(timer);
+            clearTimeout(timer!);
         }
     }
 

@@ -156,4 +156,10 @@ describe('ThemeToggle', () => {
         const button = screen.getByRole('button');
         expect(button.getAttribute('data-theme')).toBe('light');
     });
+
+    it('passes custom className via class prop', () => {
+        const { container } = render(<ThemeToggle class="custom-class" />);
+        const button = container.querySelector('[data-component="theme-toggle"]');
+        expect(button?.className).toContain('custom-class');
+    });
 });
