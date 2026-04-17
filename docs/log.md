@@ -3,6 +3,38 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-17 — Iteration 78: Preact component coverage, README accuracy
+
+### Test Coverage Improvements (24 new tests)
+
+**`@ever-works/ui` — ItemBrowser.tsx** — Coverage: 86.88% → 100% (statements), 74.07% → 100% (functions)
+- Added 20 tests: pagination navigation (Next/Previous/page number clicks, aria-current, disabled states), sort change, layout switch interaction, description search, tag toggle off, empty state clear button, compact/list layout, array category filtering, tag count display, keyboard activation, edge cases (no description, no tags, null counts)
+- Total ItemBrowser tests: 38 (was 18)
+
+**`@ever-works/ui` — ThemeToggle.tsx** — Coverage: 82.35% → 94.11% (statements), 79.16% → 91.66% (branches)
+- Added 4 tests: system theme change listener (follows/ignores based on stored preference), media query listener cleanup on unmount, system dark preference on initial render
+- Total ThemeToggle tests: 13 (was 9)
+
+**`@ever-works/ui` overall** — Coverage: 94% → 98.5% (statements), 92.99% → 96.26% (branches), 95.95% → 98.98% (functions)
+
+### Documentation Fixes (2 files)
+
+**`README.md`**:
+- Fixed test count: "1030 tests" → "1058+ tests" (was outdated since iteration 77)
+
+**`.specify/project.md`**:
+- Updated iteration counter: 77 → 78
+- Updated unit test count: 1058 → 1082
+- Updated coverage description to reflect UI package improvements
+
+### Summary
+- **24 new tests** bringing total from 1058 → 1082
+- **2 Preact components** with significant coverage improvements (ItemBrowser 100%, ThemeToggle 94%)
+- **2 documentation files** updated
+- **0 regressions** — all builds, typechecks, lints, and tests pass
+
+---
+
 ## 2026-04-17 — Iteration 77: coverage improvements, spec drift fixes
 
 ### Test Coverage Improvements (28 new tests)
