@@ -189,9 +189,9 @@ The build demonstrates that the template architecture scales to large datasets w
 | **Environment variables** | Not required | `DATA_REPOSITORY`, `GITHUB_BRANCH` (optional `GH_TOKEN`) |
 | **Prebuild step** | `clone-content.ts` is a no-op | `clone-content.ts` performs a shallow git clone |
 | **Content type** | React UI Component Libraries | Time Tracking Tools |
-| **Collections** | Not implemented | Supported (rendered when data exists) |
-| **Comparisons** | Not implemented | Supported (rendered when data exists) |
-| **Static pages** | Not implemented | Supported via `/pages/[slug]` route |
+| **Collections** | Supported (rendered when data exists) | Supported (rendered when data exists) |
+| **Comparisons** | Supported (rendered when data exists) | Supported (rendered when data exists) |
+| **Static pages** | Supported via `/pages/[slug]` route | Supported via `/pages/[slug]` route |
 | **Breadcrumbs plugin** | Not used | Enabled with `BreadcrumbNav` component |
 | **Astro integration** | Not used | Uses `@ever-works/astro-integration` for plugin build hooks |
 | **Styling theme** | Slate-based with indigo accent | shadcn/ui-inspired zinc dark theme (oklch) |

@@ -3,6 +3,28 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-17 — Iteration 69: CI security audit, documentation accuracy
+
+### CI Improvements
+- **`.github/workflows/ci.yml`** — Added `pnpm audit --audit-level=moderate` step (continue-on-error) to catch known vulnerabilities in CI
+
+### Documentation Fixes
+- **`README.md`** — Fixed E2E test count: 364 → 367 (3 tests added in iterations 58/62 without updating count)
+- **`docs/architecture/overview.md`** — Added `plugin-analytics` and `plugin-related-items` to plugin list (missing since iteration 66/67)
+- **`.specify/features/sample-git.md`** — Fixed stale comparison table: Collections, Comparisons, and Static Pages are now implemented in sample-basic (not "Not implemented")
+
+### Audit Results
+- **Security**: 1 moderate transitive vulnerability (DOMPurify via mermaid in docs app). Upstream fix pending.
+- **Dependencies**: Only docs app has outdated deps (cspell 8→10, react 18→19, react-player 2→3) — blocked by Docusaurus 3.x React 18 requirement
+- **Typecheck**: 23/23 pass (0 errors)
+- **Lint**: 18/18 pass
+- **Tests**: 16/16 suites pass (1030 unit tests)
+- **E2E**: 367 test cases across 57 spec files, 11 Playwright projects
+- **Builds**: All 6 apps build successfully (web, sample-basic, sample-events, sample-jobs, sample-real-estate, sample-git)
+- **Component counts**: 60 total (25 Astro + 8 Preact + 22 primitives + 5 shadcn-style) — verified accurate
+
+---
+
 ## 2026-04-17 — Iteration 68: dependency updates, TS 6.0.3 strict fixes
 
 ### Dependency Updates

@@ -64,6 +64,8 @@ The minimal directory template follows a **layered, plugin-based architecture** 
   - `plugin-sitemap` — XML sitemap generation
   - `plugin-rss` — RSS 2.0 and Atom 1.0 feed generation
   - `plugin-breadcrumbs` — Auto-generate breadcrumb trails
+  - `plugin-analytics` — Privacy-friendly analytics (Plausible, Umami, Fathom, GA4, custom)
+  - `plugin-related-items` — Compute related items based on shared tags/categories
 - Plugins can transform data, add build hooks, modify pipeline
 
 ### 4. Application Layer (`apps/web`)
