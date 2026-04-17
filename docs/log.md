@@ -3,6 +3,24 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-17 — Iteration 71: documentation accuracy audit, spec-reality alignment
+
+### Spec Fixes
+- **`.specify/features/sample-git.md`** — Updated plugin count: "7 built-in plugins" → "10 built-in plugins". Added `rssPlugin`, `analyticsPlugin`, `relatedItemsPlugin` to code snippet, dependencies list, and file structure annotation. These were added in iterations 66-70 but the spec was never updated.
+
+### Package Documentation Fixes
+- **`packages/plugins/README.md`** — Fixed test count: "39 unit tests (19 runner + 20 integration)" → "71 unit tests across 5 test suites". Tests expanded in iterations 52-64 without README update.
+- **`packages/sync/README.md`** — Fixed all API usage examples to match actual code: `WebhookHandler` uses static methods (not instance), `DeployHookTrigger.trigger()` is static, `SyncManager.sync()` not `.refresh()`, event listener uses callback (not event name). Added missing env vars (`SYNC_TIMEOUT_MS`, `SYNC_MAX_RETRIES`, `CONTENT_CACHE_TTL_MS`). Added test count (67 tests).
+
+### Verification
+- **23/23 typecheck tasks** pass (0 errors)
+- **16/16 test suites** pass (1106 tests)
+- **7/7 builds** pass (web, sample-basic, sample-events, sample-jobs, sample-real-estate, sample-git, docs)
+- **18/18 lint tasks** pass
+- **Component counts verified**: 60 total (25 Astro + 8 Preact + 22 primitives + 5 shadcn-style) — accurate
+
+---
+
 ## 2026-04-17 — Iteration 70: plugin parity across samples, CI optimization
 
 ### CI Optimization

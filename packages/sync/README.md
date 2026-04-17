@@ -29,33 +29,38 @@ src/
 import { SyncManager, WebhookHandler, resolveSyncConfig } from '@ever-works/sync';
 import { createAdapter, resolveAdapterConfig } from '@ever-works/adapters';
 
-const adapter = createAdapter(resolveAdapterConfig());
-await adapter.init(resolveAdapterConfig());
+const adapterConfig = resolveAdapterConfig();
+const adapter = createAdapter(adapterConfig);
+await adapter.init(adapterConfig);
 
 const syncConfig = resolveSyncConfig();
 const syncManager = new SyncManager(adapter, syncConfig);
-const webhookHandler = new WebhookHandler(syncConfig.webhookSecret);
 
 // In your webhook endpoint:
-const isValid = webhookHandler.verify(requestBody, signatureHeader);
+const isValid = WebhookHandler.validateSignature(rawBody, signatureHeader, syncConfig.webhookSecret!);
 if (isValid) {
-    const result = await syncManager.refresh();
-    // result.changed === true means content was updated
+    const pushData = WebhookHandler.parseGitHubPush(parsedBody);
+    if (pushData && WebhookHandler.isRelevantPush(pushData.branch, 'main')) {
+        const result = await syncManager.sync();
+        // result.contentChanged === true means content was updated
+    }
 }
 ```
 
 ### Polling-based refresh
 
 ```typescript
-const syncManager = new SyncManager(adapter, {
-    pollIntervalMs: 60_000, // check every minute
-});
+const syncConfig = resolveSyncConfig({ pollIntervalMs: 60_000 });
+const syncManager = new SyncManager(adapter, syncConfig);
 
-syncManager.on('refresh', (event) => {
-    console.log('Content updated:', event);
+syncManager.on((event) => {
+    if (event.type === 'sync:content-changed') {
+        console.log('Content updated:', event.result);
+    }
 });
 
 syncManager.startPolling();
+// Later: syncManager.stopPolling(); syncManager.destroy();
 ```
 
 ### Triggering Vercel deploy hooks (static mode)
@@ -63,9 +68,8 @@ syncManager.startPolling();
 ```typescript
 import { DeployHookTrigger } from '@ever-works/sync';
 
-const trigger = new DeployHookTrigger(process.env.VERCEL_DEPLOY_HOOK_URL!);
-const result = await trigger.trigger();
-// result.success, result.jobId
+const result = await DeployHookTrigger.trigger(process.env.VERCEL_DEPLOY_HOOK_URL!);
+// result.success, result.message, result.statusCode
 ```
 
 ## Environment Variables
@@ -74,6 +78,9 @@ const result = await trigger.trigger();
 |----------|---------|---------|
 | `WEBHOOK_SECRET` | HMAC secret for GitHub webhook validation | — |
 | `SYNC_POLL_INTERVAL_MS` | Polling interval in ms (`0` = disabled) | `0` |
+| `SYNC_TIMEOUT_MS` | Timeout for a single sync operation | `60000` |
+| `SYNC_MAX_RETRIES` | Max retries on sync failure (exponential backoff) | `3` |
+| `CONTENT_CACHE_TTL_MS` | Cache TTL in ms | `300000` (5 min) |
 | `VERCEL_DEPLOY_HOOK_URL` | Vercel deploy hook URL for static rebuilds | — |
 
 ## Dependencies
@@ -84,6 +91,8 @@ const result = await trigger.trigger();
 | `@ever-works/core` | `ContentData` types |
 
 ## Testing
+
+67 unit tests across 5 test suites (sync-manager, webhook-handler, deploy-hook, resolve-config, barrel-exports) covering sync lifecycle, retry logic, event emission, webhook HMAC validation, payload parsing, deploy hooks, and config resolution.
 
 ```bash
 pnpm --filter @ever-works/sync test

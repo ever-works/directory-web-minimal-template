@@ -30,7 +30,7 @@ This sample serves three purposes:
 | Tags | Defined in remote data repo |
 | Collections | Supported (pages rendered when data exists) |
 | Comparisons | Supported (pages rendered when data exists) |
-| Plugins | All 7 built-in plugins enabled |
+| Plugins | All 10 built-in plugins enabled |
 | Data source | Git adapter — clones `awesome-time-tracking-data` repo |
 | Styling | Tailwind CSS v4, shadcn/ui-inspired dark theme |
 | Theme | Dark mode default, light/dark toggle with system preference detection |
@@ -92,7 +92,7 @@ Content loading uses the adapter pattern from `@ever-works/adapters`:
 
 ## Plugin Configuration
 
-All 7 built-in plugins enabled in `plugins.config.ts`:
+All 10 built-in plugins enabled in `plugins.config.ts`:
 
 ```typescript
 import { definePlugins } from '@ever-works/plugins';
@@ -103,6 +103,9 @@ import { searchPlugin } from '@ever-works/plugin-search';
 import { sortPlugin } from '@ever-works/plugin-sort';
 import { sitemapPlugin } from '@ever-works/plugin-sitemap';
 import { breadcrumbsPlugin } from '@ever-works/plugin-breadcrumbs';
+import { rssPlugin } from '@ever-works/plugin-rss';
+import { analyticsPlugin } from '@ever-works/plugin-analytics';
+import { relatedItemsPlugin } from '@ever-works/plugin-related-items';
 
 export const plugins = definePlugins([
     seoPlugin(),
@@ -112,12 +115,18 @@ export const plugins = definePlugins([
     sortPlugin({ defaultSort: 'name', defaultDirection: 'asc' }),
     sitemapPlugin(),
     breadcrumbsPlugin(),
+    rssPlugin(),
+    relatedItemsPlugin({ maxItems: 4 }),
+    analyticsPlugin({
+        providers: [{ provider: 'custom', html: '<!-- analytics: demo -->' }],
+    }),
 ]);
 ```
 
 **Differences from sample-basic plugin config:**
 - Adds `breadcrumbsPlugin()` (sample-basic does not use breadcrumbs)
 - `seoPlugin()` uses default options (no custom `titleTemplate` or `defaultImage`)
+- All samples share `rssPlugin()`, `analyticsPlugin()`, and `relatedItemsPlugin()` since iteration 70
 
 ## Astro Integration
 
@@ -215,7 +224,7 @@ apps/sample-git/
 │   │   └── BaseLayout.astro      — Root layout (header, footer, theme, SEO)
 │   ├── lib/
 │   │   ├── content.ts            — Content loading via Git adapter + plugin runner
-│   │   └── plugins.config.ts     — Plugin configuration (7 plugins)
+│   │   └── plugins.config.ts     — Plugin configuration (10 plugins)
 │   ├── pages/
 │   │   ├── index.astro           — Home (hero + ItemBrowser island)
 │   │   ├── categories.astro      — Categories index
@@ -269,6 +278,9 @@ apps/sample-git/
 - `@ever-works/plugin-sort` workspace:*
 - `@ever-works/plugin-sitemap` workspace:*
 - `@ever-works/plugin-breadcrumbs` workspace:*
+- `@ever-works/plugin-rss` workspace:*
+- `@ever-works/plugin-analytics` workspace:*
+- `@ever-works/plugin-related-items` workspace:*
 
 ### Dev
 - `@ever-works/tsconfig` workspace:*
