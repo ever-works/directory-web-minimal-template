@@ -3,6 +3,29 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-17 — Iteration 68: dependency updates, TS 6.0.3 strict fixes
+
+### Dependency Updates
+- **Astro** 6.1.6 → 6.1.7 (all 6 Astro apps + 2 dev dependencies)
+- **TypeScript** 6.0.2 → 6.0.3 (all 22 workspace packages)
+- **postcss** 8.5.9 → 8.5.10 (docs app)
+
+### TypeScript 6.0.3 Strict Fixes
+- **`apps/docs/tsconfig.json`** — Added `ignoreDeprecations: "6.0"` for `baseUrl` (deprecated in TS 6, removed in TS 7)
+- **`apps/docs/src/components/HomepageFeatures/help.tsx`** — Added explicit type annotations for `{ title, description }` parameter (was implicit `any`)
+- **`apps/docs/src/components/HomepageFeatures/index.tsx`** — Added `React` type import and explicit type annotations for `{ Svg, title, description }` parameter (was implicit `any`)
+
+### Security Audit
+- 1 moderate vulnerability: DOMPurify ≤3.3.3 (via `@docusaurus/theme-mermaid > mermaid`). Transitive dependency, not directly exploitable in build-time docs site. Upstream fix pending in mermaid.
+
+### Verification
+- **23/23 typecheck tasks** pass (0 errors)
+- **16/16 test suites** pass (1030 tests)
+- **All sample builds** pass (web, sample-basic, sample-events, sample-jobs, sample-real-estate)
+- **Documentation accuracy** verified: test counts, package counts, dependency versions all correct
+
+---
+
 ## 2026-04-17 — Iteration 67: plugin-related-items, documentation audit (+35 tests)
 
 ### New Package: `@ever-works/plugin-related-items`

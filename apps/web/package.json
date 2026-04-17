@@ -32,7 +32,7 @@
         "@ever-works/sync": "workspace:*",
         "@ever-works/ui": "workspace:*",
         "@tailwindcss/vite": "^4.2.2",
-        "astro": "^6.1.6",
+        "astro": "^6.1.7",
         "preact": "^10.29.1",
         "tailwindcss": "^4.2.2",
         "yaml": "^2.8.3"
@@ -43,6 +43,6 @@
         "@ever-works/tsconfig": "workspace:*",
         "pagefind": "^1.5.2",
         "tsx": "^4.21.0",
-        "typescript": "^6.0.2"
+        "typescript": "^6.0.3"
     }
 }

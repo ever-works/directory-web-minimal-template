@@ -23,7 +23,7 @@
         "@ever-works/eslint-config": "workspace:*",
         "@ever-works/tsconfig": "workspace:*",
         "@types/node": "^25.6.0",
-        "typescript": "^6.0.2",
+        "typescript": "^6.0.3",
         "vitest": "^4.1.4"
     }
 }

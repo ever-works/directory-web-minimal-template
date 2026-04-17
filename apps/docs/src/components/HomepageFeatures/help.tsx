@@ -44,7 +44,7 @@ function getHelpListItems() {
   ];
 }
 
-function HelpFeature({ title, description }) {
+function HelpFeature({ title, description }: { title: string; description: string }) {
   return (
     <div className={clsx("col col--4")}>
       <div className="text--left padding-horiz--md">

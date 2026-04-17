@@ -1,3 +1,4 @@
+import type React from "react";
 import Heading from "@theme/Heading";
 import clsx from "clsx";
 import styles from "./styles.module.css";
@@ -35,7 +36,7 @@ const FeatureList = [
   },
 ];
 
-function Feature({ Svg, title, description }) {
+function Feature({ Svg, title, description }: { Svg: React.ComponentType<React.SVGProps<SVGSVGElement>>; title: string; description: React.ReactNode }) {
   return (
     <div className={clsx("col col--4")}>
       <div className="text--center">
