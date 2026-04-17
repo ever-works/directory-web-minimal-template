@@ -67,7 +67,7 @@ Same page routes as sample-basic:
 - Dependencies: Same as sample-basic
 - Static output only
 - Tailwind CSS for styling
-- Plugin pipeline: SEO, pagination, filters, search, sort, breadcrumbs, sitemap
+- Plugin pipeline: SEO, pagination, filters, search, sort, breadcrumbs, sitemap, rss, analytics, related-items
 
 ## CI Integration
 

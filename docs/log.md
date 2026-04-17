@@ -3,6 +3,30 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-17 — Iteration 72: spec accuracy audit, dependency update
+
+### Spec Fixes
+- **`.specify/features/sample-basic.md`** — Fixed plugin count: "All 8 built-in plugins" → "All 10 built-in plugins" (missing analytics, related-items since iteration 66-67). Fixed item count: "8+ curated libraries" → "10 curated libraries".
+- **`.specify/features/sample-events.md`** — Fixed plugin count: "All 7 built-in plugins" → "All 10 built-in plugins" (missing analytics, related-items, rss since iteration 66-70).
+- **`.specify/features/sample-jobs.md`** — Fixed plugin pipeline list: added rss, analytics, related-items (missing since iterations 50, 66, 67).
+- **`.specify/features/sample-real-estate.md`** — Fixed plugin count: "All 7 built-in plugins" → "All 10 built-in plugins" (same gap as sample-events).
+- **`.specify/project.md`** — Updated iteration 68 → 72. Fixed unit test count: 1030 → 1106. Added E2E test case count (367 cases, 11 projects).
+- **`.specify/features/testing.md`** — Fixed unit test count: "995 unit tests across 72 test files" → "1106 unit tests across 16 test suites".
+
+### Architecture Doc Fixes
+- **`docs/architecture/plugin-system.md`** — Replaced phantom plugin examples (`plugin-featured`, `plugin-comparison-pages`) with implemented plugins (`plugin-filters`, `plugin-sitemap`, `plugin-rss`).
+
+### Dependency Updates
+- **marked** 18.0.0 → 18.0.1 (packages/core, apps/sample-git)
+
+### Verification
+- **23/23 typecheck tasks** pass (0 errors)
+- **16/16 test suites** pass (1106 tests)
+- **18/18 lint tasks** pass
+- **Component counts verified**: 60 total (25 Astro + 8 Preact + 22 primitives + 5 shadcn-style) — accurate
+
+---
+
 ## 2026-04-17 — Iteration 71: documentation accuracy audit, spec-reality alignment
 
 ### Spec Fixes

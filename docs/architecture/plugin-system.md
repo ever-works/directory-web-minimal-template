@@ -100,7 +100,7 @@ interface DataPlugin extends Plugin {
 }
 ```
 
-Examples: `plugin-sort`, `plugin-featured`, `plugin-related-items`
+Examples: `plugin-sort`, `plugin-related-items`, `plugin-filters`
 
 ### UI Plugins
 Provide Astro/Preact components.
@@ -140,7 +140,7 @@ interface PageDefinition {
 }
 ```
 
-Examples: `plugin-comparison-pages`, `plugin-collection-pages`
+Examples: `plugin-sitemap`, `plugin-rss`
 
 ### Build Plugins
 Run during build pipeline (pre/post).

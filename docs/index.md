@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-17 (Iteration 71: documentation accuracy audit, spec-reality alignment)
+> Updated: 2026-04-17 (Iteration 72: spec accuracy audit, dependency update)
 
 ## Root Documents
 

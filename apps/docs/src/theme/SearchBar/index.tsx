@@ -94,13 +94,9 @@ export default function SearchBar(): JSX.Element {
     try {
       setIndexLoading(true);
       setError(null);
-      console.log("Loading search index with baseUrl:", searchBaseUrl);
-      // Dynamically import the search worker functions
       const { fetchIndexesByWorker } =
         await import("@easyops-cn/docusaurus-search-local/dist/client/client/theme/searchByWorker");
-      // Use searchBaseUrl to load the correct locale-specific search index
       await fetchIndexesByWorker(searchBaseUrl, "");
-      console.log("Search index loaded successfully");
       setIndexLoaded(true);
     } catch (err) {
       console.error("Failed to load search index:", err);
@@ -127,14 +123,6 @@ export default function SearchBar(): JSX.Element {
       try {
         setIsLoading(true);
         setError(null);
-        console.log(
-          "Searching with baseUrl:",
-          searchBaseUrl,
-          "query:",
-          searchQuery,
-          "indexLoaded:",
-          indexLoaded,
-        );
         const { searchByWorker } =
           (await import("@easyops-cn/docusaurus-search-local/dist/client/client/theme/searchByWorker")) as {
             searchByWorker: (

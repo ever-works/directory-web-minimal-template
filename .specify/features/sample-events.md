@@ -34,7 +34,7 @@ It follows the same architecture as `apps/sample-basic/` and `apps/sample-jobs/`
 | Tags | 10 (AI, Web, Mobile, DevOps, Cloud, Open Source, Beginner Friendly, Networking, Hands-On, Keynote) |
 | Collections | 2 ("Must-Attend 2026", "Free Events") |
 | Comparisons | 2 (react-summit-vs-next-conf, ai-dev-summit-vs-mlops-workshop) |
-| Plugins | All 7 built-in plugins enabled (including breadcrumbs) |
+| Plugins | All 10 built-in plugins enabled (seo, pagination, filters, search, sort, sitemap, breadcrumbs, rss, analytics, related-items) |
 | Styling | Tailwind CSS, modern clean design |
 | Theme | Dark/light mode with system preference detection |
 | Output | Fully static (Astro `output: 'static'`) |

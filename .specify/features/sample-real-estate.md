@@ -34,7 +34,7 @@ It follows the same architecture as `apps/sample-basic/`, `apps/sample-jobs/`, a
 | Tags | 10 (Downtown, Suburban, Waterfront, Garden, Parking, Furnished, Pet-Friendly, New Build, Investment, Luxury) |
 | Collections | 2 ("Under $500K", "Luxury Collection") |
 | Comparisons | 2 (downtown-loft-vs-suburban-house, office-space-vs-coworking) |
-| Plugins | All 7 built-in plugins enabled (including breadcrumbs) |
+| Plugins | All 10 built-in plugins enabled (seo, pagination, filters, search, sort, sitemap, breadcrumbs, rss, analytics, related-items) |
 | Styling | Tailwind CSS, modern clean design |
 | Theme | Dark/light mode with system preference detection |
 | Output | Fully static (Astro `output: 'static'`) |

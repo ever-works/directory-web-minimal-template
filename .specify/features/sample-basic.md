@@ -23,10 +23,10 @@ This sample serves two purposes:
 |--------|--------|
 | Directory name | React UI Components |
 | Item type | Component Library |
-| Items count | 8+ curated libraries |
+| Items count | 10 curated libraries |
 | Categories | 5 (Form, Data Display, Navigation, Layout, Feedback) |
 | Tags | 8+ (TypeScript, Accessible, Headless, Open Source, etc.) |
-| Plugins | All 8 built-in plugins enabled (seo, pagination, filters, search, sort, sitemap, breadcrumbs, rss) |
+| Plugins | All 10 built-in plugins enabled (seo, pagination, filters, search, sort, sitemap, breadcrumbs, rss, analytics, related-items) |
 | Styling | Tailwind CSS, modern clean design |
 | Theme | Dark/light mode with system preference detection |
 | Output | Fully static (Astro `output: 'static'`) |
