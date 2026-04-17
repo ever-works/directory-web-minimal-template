@@ -147,9 +147,12 @@ packages/plugin-analytics/
 ├── src/
 │   ├── index.ts                 — barrel exports (plugin, types, renderers)
 │   ├── plugin.ts                — plugin factory (onInit, onDataLoaded)
+│   ├── render.ts                — top-level render dispatcher (delegates to per-provider renderers)
 │   ├── types.ts                 — AnalyticsPluginOptions, ResolvedAnalyticsConfig, provider configs
 │   ├── resolve-config.ts        — validation + defaults
 │   ├── renderers/
+│   │   ├── escape.ts            — HTML attribute escaping utilities
+│   │   ├── index.ts             — barrel re-exports all renderer functions
 │   │   ├── plausible.ts         — renderPlausibleScript(config): string
 │   │   ├── umami.ts             — renderUmamiScript(config): string
 │   │   ├── fathom.ts            — renderFathomScript(config): string

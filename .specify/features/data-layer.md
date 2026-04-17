@@ -49,6 +49,8 @@ packages/core/
 │   │   ├── collection.ts
 │   │   ├── comparison.ts
 │   │   ├── config.ts
+│   │   ├── content-data.ts
+│   │   ├── page.ts
 │   │   └── index.ts
 │   ├── loaders/
 │   │   ├── item-loader.ts
@@ -57,7 +59,9 @@ packages/core/
 │   │   ├── collection-loader.ts
 │   │   ├── comparison-loader.ts
 │   │   └── config-loader.ts
+│   ├── content-cache.ts     — In-memory content cache with TTL support
 │   ├── content-reader.ts    — Orchestrates all loaders (YAML parsing done inline in loaders)
+│   ├── logger.ts            — Internal logger utility
 │   └── index.ts             — Public API
 ├── package.json
 ├── tsconfig.json

@@ -21,7 +21,7 @@ Vitest-based unit testing alongside the existing Playwright E2E tests. Provides 
 7. `packages/plugin-*` each have tests for their core logic (all plugin packages covered)
 8. Tests use `vi.mock()` for filesystem/IO mocking
 9. All tests pass in CI (add to CI workflow)
-10. Total test coverage: 1030 unit tests across 76 test files, 16 suites, 15 packages
+10. Total test coverage: 1030 unit tests across 76 test files, 16 suites, 16 packages
 11. Plugin pipeline integration tests validate end-to-end data flow, chaining, error handling, ordering, and context propagation
 
 ## Technical Design
@@ -50,7 +50,7 @@ export default defineConfig({ test: { globals: true } });
 
 ### Test Locations
 
-Tests live next to source files in `__tests__/` directories:
+Tests live next to source files in `__tests__/` directories. **Note:** the per-file listing below is a snapshot from early development and is incomplete (it covers ~17 of the 76 total test files). The total counts in Acceptance Criteria #10 are authoritative.
 ```
 packages/core/src/__tests__/item-loader.test.ts       — 13 tests
 packages/core/src/__tests__/config-loader.test.ts      — 8 tests
