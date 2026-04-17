@@ -204,6 +204,7 @@ export default definePlugins([
 | `plugin-breadcrumbs` | UI + Data | Breadcrumb navigation with structured data |
 | `plugin-rss` | Build | RSS 2.0 and Atom 1.0 feed generation |
 | `plugin-analytics` | Build | Privacy-friendly analytics (Plausible, Umami, Fathom, GA4, custom) |
+| `plugin-related-items` | Data | Compute related items based on shared tags/categories |
 
 ## Plugin Development Guide
 

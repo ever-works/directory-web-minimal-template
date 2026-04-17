@@ -3,6 +3,47 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-17 — Iteration 67: plugin-related-items, documentation audit (+35 tests)
+
+### New Package: `@ever-works/plugin-related-items`
+- **`packages/plugin-related-items/`** — Build-time related items computation plugin
+- **Types**: `RelatedItemRef`, `RelatedItemsPluginOptions`, `ResolvedRelatedConfig`
+- **Config resolution**: Sensible defaults (maxItems=5, tagWeight=1, categoryWeight=2, featuredBoost=0.5)
+- **Scoring algorithm**: Shared tags × tagWeight + shared category × categoryWeight + featured bonus
+- **Plugin factory**: `relatedItemsPlugin()` with `onInit` (logging) and `onDataLoaded` (inject `_relatedItems`)
+- **Zero runtime JS** — all computation happens at build time
+
+### New Specification
+- **`.specify/features/plugin-related-items.md`** — Full feature spec with goals, non-goals, options, scoring algorithm, data contract, package structure, testing strategy, acceptance criteria
+
+### Test Coverage
+- **35 new tests** across 4 test files (resolve-config: 8, compute-related: 16, plugin: 7, barrel: 4)
+- **Total: 1030 unit tests** (995 → 1030), **16 test suites** (15 → 16)
+
+### Sample Integration
+- **`apps/sample-basic`** — Registered `relatedItemsPlugin({ maxItems: 4 })` in plugins.config.ts
+
+### ContentData Extension
+- **`packages/core/src/types/content-data.ts`** — Added `_relatedItemsComputed?: boolean` field
+
+### Documentation Fixes (audit results)
+- **`README.md`** — Fixed Astro component count: 24 → 25; added plugin-related-items; test count 995 → 1030
+- **`AGENTS.md`** — Updated R4: "No analytics" → "Analytics available via `plugin-analytics`"; added plugin-related-items to plugin table
+- **`CLAUDE.md`** — Added related-items to plugin-* list
+- **`docs/specs/component-catalog.md`** — Added AnalyticsScript component entry
+- **`apps/docs/sidebarsTemplate.ts`** — Added missing sidebar entries: `guides/analytics` and `plans/phase-4b-plugin-analytics`
+- **`docs/architecture/plugin-system.md`** — Added plugin-related-items to implemented plugins table
+- **`.github/workflows/ci.yml`** — Added concurrency group for CI cancellation
+
+### Dependency Updates
+- **`prettier`** — `^3.8.2` → `^3.8.3` (patch bump)
+
+### Comprehensive Audit Results
+- **Documentation accuracy**: 3 drift issues found and fixed
+- **Dependency freshness**: All key dependencies at latest versions
+- **Test coverage**: 100% executable code coverage confirmed — all packages fully tested
+- **Build verification**: All 23 typecheck, 18 lint, 16 test suites (1030 tests) pass
+
 ## 2026-04-17 — Iteration 66: plugin-analytics implementation (+43 tests)
 
 ### New Package: `@ever-works/plugin-analytics`

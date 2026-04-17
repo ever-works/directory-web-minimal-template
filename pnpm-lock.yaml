@@ -15,8 +15,8 @@ importers:
   .:
     devDependencies:
       prettier:
-        specifier: ^3.8.2
-        version: 3.8.2
+        specifier: ^3.8.3
+        version: 3.8.3
       turbo:
         specifier: ^2.9.6
         version: 2.9.6
@@ -135,6 +135,9 @@ importers:
       '@ever-works/plugin-pagination':
         specifier: workspace:*
         version: link:../../packages/plugin-pagination
+      '@ever-works/plugin-related-items':
+        specifier: workspace:*
+        version: link:../../packages/plugin-related-items
       '@ever-works/plugin-rss':
         specifier: workspace:*
         version: link:../../packages/plugin-rss
@@ -174,7 +177,7 @@ importers:
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.8
-        version: 0.9.8(prettier@3.8.2)(typescript@6.0.2)
+        version: 0.9.8(prettier@3.8.3)(typescript@6.0.2)
       '@ever-works/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
@@ -250,7 +253,7 @@ importers:
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.8
-        version: 0.9.8(prettier@3.8.2)(typescript@6.0.2)
+        version: 0.9.8(prettier@3.8.3)(typescript@6.0.2)
       '@ever-works/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
@@ -335,7 +338,7 @@ importers:
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.8
-        version: 0.9.8(prettier@3.8.2)(typescript@6.0.2)
+        version: 0.9.8(prettier@3.8.3)(typescript@6.0.2)
       '@ever-works/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
@@ -411,7 +414,7 @@ importers:
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.8
-        version: 0.9.8(prettier@3.8.2)(typescript@6.0.2)
+        version: 0.9.8(prettier@3.8.3)(typescript@6.0.2)
       '@ever-works/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
@@ -487,7 +490,7 @@ importers:
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.8
-        version: 0.9.8(prettier@3.8.2)(typescript@6.0.2)
+        version: 0.9.8(prettier@3.8.3)(typescript@6.0.2)
       '@ever-works/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
@@ -566,7 +569,7 @@ importers:
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.8
-        version: 0.9.8(prettier@3.8.2)(typescript@6.0.2)
+        version: 0.9.8(prettier@3.8.3)(typescript@6.0.2)
       '@ever-works/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
@@ -755,6 +758,31 @@ importers:
         version: 4.1.4(@types/node@25.6.0)(jsdom@29.0.2)(vite@7.3.2(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/plugin-pagination:
+    dependencies:
+      '@ever-works/core':
+        specifier: workspace:*
+        version: link:../core
+      '@ever-works/plugins':
+        specifier: workspace:*
+        version: link:../plugins
+    devDependencies:
+      '@ever-works/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@ever-works/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      '@types/node':
+        specifier: ^25.6.0
+        version: 25.6.0
+      typescript:
+        specifier: ^6.0.2
+        version: 6.0.2
+      vitest:
+        specifier: ^4.1.4
+        version: 4.1.4(@types/node@25.6.0)(jsdom@29.0.2)(vite@7.3.2(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/plugin-related-items:
     dependencies:
       '@ever-works/core':
         specifier: workspace:*
@@ -8096,8 +8124,8 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
 
-  prettier@3.8.2:
-    resolution: {integrity: sha512-8c3mgTe0ASwWAJK+78dpviD+A8EqhndQPUBpNUIPt6+xWlIigCwfN01lWr9MAede4uqXGTEKeQWTvzb3vjia0Q==}
+  prettier@3.8.3:
+    resolution: {integrity: sha512-7igPTM53cGHMW8xWuVTydi2KO233VFiTNyF5hLJqpilHfmn8C8gPf+PS7dUT64YcXFbiMGZxS9pCSxL/Dxm/Jw==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -9878,9 +9906,9 @@ snapshots:
 
   '@asamuzakjp/nwsapi@2.3.9': {}
 
-  '@astrojs/check@0.9.8(prettier@3.8.2)(typescript@6.0.2)':
+  '@astrojs/check@0.9.8(prettier@3.8.3)(typescript@6.0.2)':
     dependencies:
-      '@astrojs/language-server': 2.16.6(prettier@3.8.2)(typescript@6.0.2)
+      '@astrojs/language-server': 2.16.6(prettier@3.8.3)(typescript@6.0.2)
       chokidar: 4.0.3
       kleur: 4.1.5
       typescript: 6.0.2
@@ -9897,7 +9925,7 @@ snapshots:
     dependencies:
       picomatch: 4.0.4
 
-  '@astrojs/language-server@2.16.6(prettier@3.8.2)(typescript@6.0.2)':
+  '@astrojs/language-server@2.16.6(prettier@3.8.3)(typescript@6.0.2)':
     dependencies:
       '@astrojs/compiler': 2.13.1
       '@astrojs/yaml2ts': 0.2.3
@@ -9911,14 +9939,14 @@ snapshots:
       volar-service-css: 0.0.70(@volar/language-service@2.4.28)
       volar-service-emmet: 0.0.70(@volar/language-service@2.4.28)
       volar-service-html: 0.0.70(@volar/language-service@2.4.28)
-      volar-service-prettier: 0.0.70(@volar/language-service@2.4.28)(prettier@3.8.2)
+      volar-service-prettier: 0.0.70(@volar/language-service@2.4.28)(prettier@3.8.3)
       volar-service-typescript: 0.0.70(@volar/language-service@2.4.28)
       volar-service-typescript-twoslash-queries: 0.0.70(@volar/language-service@2.4.28)
       volar-service-yaml: 0.0.70(@volar/language-service@2.4.28)
       vscode-html-languageservice: 5.6.2
       vscode-uri: 3.1.0
     optionalDependencies:
-      prettier: 3.8.2
+      prettier: 3.8.3
     transitivePeerDependencies:
       - typescript
 
@@ -18465,7 +18493,7 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier@3.8.2: {}
+  prettier@3.8.3: {}
 
   pretty-error@4.0.0:
     dependencies:
@@ -19895,12 +19923,12 @@ snapshots:
     optionalDependencies:
       '@volar/language-service': 2.4.28
 
-  volar-service-prettier@0.0.70(@volar/language-service@2.4.28)(prettier@3.8.2):
+  volar-service-prettier@0.0.70(@volar/language-service@2.4.28)(prettier@3.8.3):
     dependencies:
       vscode-uri: 3.1.0
     optionalDependencies:
       '@volar/language-service': 2.4.28
-      prettier: 3.8.2
+      prettier: 3.8.3
 
   volar-service-typescript-twoslash-queries@0.0.70(@volar/language-service@2.4.28):
     dependencies:
@@ -20239,7 +20267,7 @@ snapshots:
       '@vscode/l10n': 0.0.18
       ajv: 8.18.0
       ajv-draft-04: 1.0.0(ajv@8.18.0)
-      prettier: 3.8.2
+      prettier: 3.8.3
       request-light: 0.5.8
       vscode-json-languageservice: 4.1.8
       vscode-languageserver: 9.0.1

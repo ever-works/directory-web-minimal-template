@@ -646,6 +646,34 @@ interface SimilarItemsProps {
 
 ---
 
+### AnalyticsScript
+
+**File**: `packages/ui/src/astro/AnalyticsScript.astro`
+**Purpose**: Renders analytics tracking script tags from resolved plugin config. Emits zero output when no config is provided, no providers are configured, or tracking is disabled in dev mode.
+
+```typescript
+interface Props {
+    config?: ResolvedAnalyticsConfig;
+}
+```
+
+**HTML structure**:
+Renders raw `<script>` tags for each configured provider (Plausible, Umami, Fathom, GA4, or custom HTML). Output varies by provider. Renders nothing when disabled.
+
+**Usage**:
+```astro
+---
+import AnalyticsScript from '@ever-works/ui/astro/AnalyticsScript.astro';
+import type { ResolvedAnalyticsConfig } from '@ever-works/plugin-analytics';
+const config: ResolvedAnalyticsConfig = { /* from plugin pipeline */ };
+---
+<head>
+  <AnalyticsScript config={config} />
+</head>
+```
+
+---
+
 ### ItemBrowser
 
 **File**: `packages/ui/src/preact/ItemBrowser.tsx`

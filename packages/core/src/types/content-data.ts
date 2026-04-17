@@ -50,4 +50,11 @@ export interface ContentData {
      * Type: `ResolvedAnalyticsConfig` from `@ever-works/plugin-analytics`.
      */
     _analytics?: unknown;
+
+    /**
+     * Plugin-injected related items.
+     * Populated by `@ever-works/plugin-related-items` via `onDataLoaded` hook.
+     * Each item receives a `_relatedItems` array via index signature.
+     */
+    _relatedItemsComputed?: boolean;
 }

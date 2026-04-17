@@ -63,7 +63,7 @@ apps/
 
 packages/
   core/               Data layer, types, content reader
-  ui/                 Headless UI components (24 Astro + 8 Preact + 22 primitives + 5 shadcn-style)
+  ui/                 Headless UI components (25 Astro + 8 Preact + 22 primitives + 5 shadcn-style)
   plugins/            Plugin system (runner, lifecycle hooks)
   adapters/           Data source adapters (git, filesystem)
   astro-integration/  Astro integration for plugin build lifecycle
@@ -77,6 +77,7 @@ packages/
   plugin-breadcrumbs/ Auto-generate breadcrumb trails
   plugin-rss/         RSS 2.0 + Atom 1.0 feed generation
   plugin-analytics/   Privacy-friendly analytics (Plausible, Umami, Fathom, GA4, custom)
+  plugin-related-items/ Compute related items based on shared tags/categories
   tsconfig/           Shared TypeScript configurations
   eslint-config/      Shared ESLint configuration
 ```
@@ -91,7 +92,7 @@ packages/
 | `pnpm build` | Build all apps |
 | `pnpm lint` | Lint all packages |
 | `pnpm typecheck` | Type-check all packages |
-| `pnpm test` | Run all unit tests — 995 tests, 15 suites (Vitest) |
+| `pnpm test` | Run all unit tests — 1030 tests, 16 suites (Vitest) |
 | `pnpm test:e2e` | Run E2E tests — 364 tests, 57 specs, 11 projects (Playwright) |
 | `pnpm clean` | Clean all build artifacts |
 

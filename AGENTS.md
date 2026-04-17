@@ -31,7 +31,7 @@ Every document, specification, code file, and decision MUST comply with these ru
 - No payments / billing / subscriptions
 - No geo / maps / location services
 - No CRM integration
-- No analytics (can be added as plugin later)
+- Analytics available via `plugin-analytics` (opt-in, privacy-friendly defaults)
 - No i18n (can be added as plugin later)
 - No rich text editor
 
@@ -406,3 +406,4 @@ Import: `import { Button } from '@ever-works/ui/components/ui/button'`
 | `plugin-rss` | RSS 2.0 and Atom 1.0 feed generation |
 | `plugin-breadcrumbs` | Auto-generate breadcrumb trails for all page types |
 | `plugin-analytics` | Privacy-friendly analytics (Plausible, Umami, Fathom, GA4, custom) |
+| `plugin-related-items` | Compute related items based on shared tags/categories |
