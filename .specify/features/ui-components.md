@@ -33,7 +33,8 @@ See:
 packages/ui/
 ├── src/
 │   ├── types.ts          — All component prop interfaces
-│   ├── astro/            — Static Astro components (24 total)
+│   ├── astro/            — Static Astro components (25 total)
+│   │   ├── AnalyticsScript.astro    — Added in Phase 16
 │   │   ├── Breadcrumbs.astro
 │   │   ├── CategoryBadge.astro
 │   │   ├── CategoryList.astro

@@ -69,7 +69,7 @@ Both hooks catch and log errors as warnings rather than failing the build. If a 
 
 ## Testing
 
-9 unit tests covering hook registration, lifecycle bridging, output directory conversion, custom content paths, and error handling.
+51 unit tests across 3 test files covering hook registration, lifecycle bridging, output directory conversion, custom content paths, and error handling.
 
 ```bash
 pnpm --filter @ever-works/astro-integration test

@@ -85,7 +85,7 @@ export default definePlugins([
 
 ## Testing
 
-27 unit tests covering category filtering, tag filtering, search, combined filters, and edge cases.
+67 unit tests across 4 test files covering category filtering, tag filtering, search, combined filters, and edge cases.
 
 ```bash
 pnpm --filter @ever-works/plugin-filters test

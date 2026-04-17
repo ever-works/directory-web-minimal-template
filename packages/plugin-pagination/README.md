@@ -88,7 +88,7 @@ Returns `{ params: { page: string } }[]` compatible with Astro's `getStaticPaths
 
 ## Testing
 
-16 unit tests covering page slicing, clamping, metadata, static path generation, and edge cases.
+34 unit tests across 3 test files covering page slicing, clamping, metadata, static path generation, and edge cases.
 
 ```bash
 pnpm --filter @ever-works/plugin-pagination test

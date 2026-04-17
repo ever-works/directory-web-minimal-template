@@ -132,7 +132,7 @@ Plugins can declare dependencies on other plugins:
 
 ## Testing
 
-71 unit tests across 5 test suites (runner, define-plugins, logger, integration, barrel-exports) covering lifecycle execution, dependency ordering, error isolation, transform pipelines, and context propagation.
+86 unit tests across 5 test files (runner, define-plugins, logger, integration, barrel-exports) covering lifecycle execution, dependency ordering, error isolation, transform pipelines, and context propagation.
 
 ```bash
 pnpm --filter @ever-works/plugins test

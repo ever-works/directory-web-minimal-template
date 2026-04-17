@@ -92,7 +92,7 @@ const result = await DeployHookTrigger.trigger(process.env.VERCEL_DEPLOY_HOOK_UR
 
 ## Testing
 
-67 unit tests across 5 test suites (sync-manager, webhook-handler, deploy-hook, resolve-config, barrel-exports) covering sync lifecycle, retry logic, event emission, webhook HMAC validation, payload parsing, deploy hooks, and config resolution.
+74 unit tests across 5 test files (sync-manager, webhook-handler, deploy-hook, resolve-config, barrel-exports) covering sync lifecycle, retry logic, event emission, webhook HMAC validation, payload parsing, deploy hooks, and config resolution.
 
 ```bash
 pnpm --filter @ever-works/sync test

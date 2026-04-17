@@ -72,7 +72,7 @@ If Pagefind is not installed or fails to run, the plugin logs a warning and cont
 
 ## Testing
 
-18 unit tests covering plugin metadata, config resolution, Pagefind CLI invocation (mocked), error handling, and barrel exports.
+20 unit tests across 2 test files covering plugin metadata, config resolution, Pagefind CLI invocation (mocked), error handling, and barrel exports.
 
 ```bash
 pnpm --filter @ever-works/plugin-search test

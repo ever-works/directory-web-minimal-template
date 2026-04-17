@@ -92,7 +92,7 @@ const jsonLd = generateJsonLd('WebSite', {
 
 ## Testing
 
-19 unit tests covering meta tag generation (title templates, fallbacks, OG, Twitter) and JSON-LD generation (WebSite, ItemList, Product).
+64 unit tests across 5 test files covering meta tag generation (title templates, fallbacks, OG, Twitter) and JSON-LD generation (WebSite, ItemList, Product).
 
 ```bash
 pnpm --filter @ever-works/plugin-seo test

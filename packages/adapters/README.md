@@ -109,7 +109,7 @@ When using `DATA_REPOSITORY`, the factory also reads `GH_TOKEN` and `GITHUB_BRAN
 
 ## Testing
 
-37 unit tests covering filesystem adapter operations, adapter factory config resolution, path traversal protection, and error handling.
+104 unit tests across 4 test files covering filesystem adapter operations, adapter factory config resolution, path traversal protection, and error handling.
 
 ```bash
 pnpm --filter @ever-works/adapters test

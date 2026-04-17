@@ -60,7 +60,7 @@ Without any options, the plugin uses:
 
 ## Testing
 
-14 unit tests covering plugin metadata, default config, user overrides, partial merging, and edge cases.
+16 unit tests across 2 test files covering plugin metadata, default config, user overrides, partial merging, and edge cases.
 
 ```bash
 pnpm --filter @ever-works/plugin-sitemap test

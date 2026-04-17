@@ -120,7 +120,7 @@ const status = cache.status();       // { state: 'fresh' | 'stale' | 'empty', la
 
 ## Testing
 
-67 unit tests across 7 test files covering all loaders and the content reader orchestration.
+213 unit tests across 11 test files covering all loaders and the content reader orchestration.
 
 ```bash
 pnpm --filter @ever-works/core test

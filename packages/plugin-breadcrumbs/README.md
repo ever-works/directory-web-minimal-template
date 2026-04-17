@@ -78,7 +78,7 @@ const breadcrumbMap = generateBreadcrumbs(contentData, {
 
 ## Testing
 
-22 unit tests covering breadcrumb generation for all page types, custom labels, edge cases.
+37 unit tests across 3 test files covering breadcrumb generation for all page types, custom labels, edge cases.
 
 ```bash
 pnpm --filter @ever-works/plugin-breadcrumbs test

@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-17 (Iteration 83: spec drift fixes, 5 new plugin specs, plugin system docs corrected)
+> Updated: 2026-04-17 (Iteration 84: dependency updates, fix 17 doc drift issues across 15 files)
 
 ## Root Documents
 

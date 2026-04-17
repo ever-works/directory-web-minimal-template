@@ -3,6 +3,29 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-17 — Iteration 84: Dependency updates, fix 17 doc drift issues
+
+### Dependency Updates
+- `react-player` 2.16.1 → 3.4.0 in `apps/docs` (major, safe — React 18 compatible)
+- `cspell` 8.19.4 → 10.0.0 in `apps/docs` (major, dev-only spell checker)
+- All other dependencies remain at latest: Astro 6.1.7, Preact 10.29.1, Tailwind 4.2.2, TS 6.0.3, Vitest 4.1.4, Playwright 1.59.1, Turbo 2.9.6
+- Zero security vulnerabilities (pnpm audit clean)
+
+### Spec Drift Fixes (17 issues: 5 HIGH, 9 MEDIUM, 3 LOW)
+- **12 package READMEs**: Updated stale test counts to match actual values (e.g., core 67→213, adapters 37→104, plugin-seo 19→64, astro-integration 9→51)
+- **`packages/ui/README.md`**: Added missing AnalyticsScript.astro to file tree and domain components table
+- **`packages/ui/README.md`**: Fixed LayoutSwitcher hydration directive `client:visible` → `client:load` (correct per component-catalog spec)
+- **`docs/overview.md`**: Fixed "24 Astro" → "25 Astro" component count (2 occurrences), updated ISR description
+- **`.specify/features/ui-components.md`**: Added missing AnalyticsScript.astro to file tree, updated count 24→25
+- **`.specify/project.md`**: Updated "Current State" from Iteration 82 → 83, added "All 25 .specify/ feature specs" line
+
+### Verification
+- All 1165 unit tests passing across 16 suites (0 failures)
+- All 7 apps build successfully
+- All 41 lint + typecheck tasks pass (0 errors)
+- Docs site builds with updated dependencies
+- Zero security vulnerabilities
+
 ## 2026-04-17 — Iteration 83: Spec drift fixes, 5 new plugin specs
 
 ### Spec Drift Audit

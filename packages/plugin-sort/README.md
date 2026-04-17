@@ -68,7 +68,7 @@ When used as a plugin, sorting is applied during `onDataLoaded` — all downstre
 
 ## Testing
 
-9 unit tests covering all sort fields, both directions, immutability, and edge cases.
+27 unit tests across 3 test files covering all sort fields, both directions, immutability, and edge cases.
 
 ```bash
 pnpm --filter @ever-works/plugin-sort test

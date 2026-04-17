@@ -15,6 +15,7 @@ src/
 │   ├── separator/
 │   └── table/
 ├── astro/             Astro — directory-specific components built on primitives
+│   ├── AnalyticsScript.astro
 │   ├── Breadcrumbs.astro
 │   ├── CategoryBadge.astro
 │   ├── CategoryList.astro
@@ -92,6 +93,7 @@ These are the directory-specific components that combine primitives with data ty
 
 | Component | Wraps | Purpose |
 |-----------|-------|---------|
+| **AnalyticsScript** | — | Analytics script injection (Plausible, Umami, Fathom, GA4, custom) |
 | **Breadcrumbs** | — | Breadcrumb nav with JSON-LD structured data |
 | **CategoryBadge** | Badge (outline) | Single category label |
 | **CategoryList** | — | Grid of CategoryBadge components |
@@ -131,7 +133,7 @@ These handle features that require client-side JavaScript: search, filtering, so
 | **BackToTop** | Scroll-to-top button (appears after scroll threshold) | `client:visible` |
 | **FilterBar** | Category (single-select) + tag (multi-select) filters | `client:visible` |
 | **ItemBrowser** | Combined browse interface (search + filters + sort + pagination + layout) | `client:load` |
-| **LayoutSwitcher** | Grid/list/compact layout toggle | `client:visible` |
+| **LayoutSwitcher** | Grid/list/compact layout toggle | `client:load` |
 | **MobileMenu** | Hamburger menu for mobile navigation | `client:load` |
 | **SearchInput** | Debounced search input with clear button | `client:load` |
 | **SortSelect** | Sort dropdown (name, date, featured) | `client:visible` |
