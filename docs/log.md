@@ -3,6 +3,39 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-18 — Iteration 92: Patch deps bump (astro 6.1.8, marked 18.0.2), peerDep alignment, spec drift sweep
+
+### Dependency Updates
+- **astro** 6.1.7 → 6.1.8 across all 8 apps and packages (5 sample apps + web + ui + astro-integration)
+- **marked** 18.0.1 → 18.0.2 in `packages/core` and `apps/sample-git`
+- React 18→19 in `apps/docs` still blocked by Docusaurus compatibility (deferred)
+
+### PeerDependency Alignment
+- **`packages/astro-integration/package.json`** — Updated peerDependency `astro` from `^6.1.7` to `^6.1.8` to match devDependency
+- **`packages/ui/package.json`** — Updated peerDependency `astro` from `^6.1.7` to `^6.1.8` to match devDependency
+
+### Spec Drift Fixes (5 stale version pins)
+- **`.specify/features/sample-basic.md:534`** — `astro` ^6.1.7 → ^6.1.8
+- **`.specify/features/sample-events.md:696`** — `astro` ^6.1.7 → ^6.1.8
+- **`.specify/features/sample-git.md:265`** — `astro` ^6.1.7 → ^6.1.8
+- **`.specify/features/sample-git.md:272`** — `marked` ^18.0.1 → ^18.0.2
+- **`.specify/project.md:88`** — "Astro 6.1.7" → "Astro 6.1.8" in Current State summary
+
+### Iteration Reference Updates
+- **`.specify/project.md:79`** — Bumped iteration label 91 → 92
+- **`docs/index.md:10`** — Updated iteration descriptor to 92
+
+### Audit Findings (verified clean — no action needed)
+- Documented file paths/exports in `data-layer.md`, `plugin-system.md`, `component-system.md` all match disk reality
+- All 10 `packages/plugin-*/src/index.ts` exist with non-trivial exports
+- Zero TODO/FIXME in production source
+- Zero `as any` outside test files / Docusaurus swizzle
+- `console.log` in `packages/core/src/logger.ts` and `packages/plugins/src/logger.ts` are intentional logger implementations (pre-existing, not regressions)
+
+### Verification
+- Typecheck: **23/23 tasks pass**, 0 errors
+- Tests: core 213/213 pass, adapters 104/104 pass
+
 ## 2026-04-18 — Iteration 91: Vite externalization, vitest deprecation fix, doc accuracy audit
 
 ### Bug Fixes

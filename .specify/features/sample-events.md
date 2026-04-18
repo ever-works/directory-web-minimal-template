@@ -693,7 +693,7 @@ apps/sample-events/
 ## Dependencies
 
 ### Runtime
-- `astro` ^6.1.7
+- `astro` ^6.1.8
 - `@astrojs/preact` ^5.1.1
 - `@astrojs/sitemap` ^3.7.2
 - `@tailwindcss/vite` ^4.2.2

@@ -32,8 +32,8 @@
         "@ever-works/sync": "workspace:*",
         "@ever-works/ui": "workspace:*",
         "@tailwindcss/vite": "^4.2.2",
-        "astro": "^6.1.7",
-        "marked": "^18.0.1",
+        "astro": "^6.1.8",
+        "marked": "^18.0.2",
         "preact": "^10.29.1",
         "tailwindcss": "^4.2.2",
         "yaml": "^2.8.3"
