@@ -24,9 +24,6 @@ export class FilesystemAdapter implements DataAdapter {
     /** Snapshot of file mtimes from last refresh/init for change detection */
     private mtimeSnapshot: Map<string, number> = new Map();
 
-    /** Cached hash of current snapshot (recomputed on init/refresh) */
-    private cachedHeadRef: string | null = null;
-
     /**
      * Initialize the adapter by validating the local path.
      * @param config - Must include `localPath` pointing to an existing directory.
@@ -59,7 +56,6 @@ export class FilesystemAdapter implements DataAdapter {
 
         this.contentPath = resolved;
         this.mtimeSnapshot = await this.captureSnapshot();
-        this.cachedHeadRef = this.computeHash(this.mtimeSnapshot);
     }
 
     /**
@@ -181,7 +177,6 @@ export class FilesystemAdapter implements DataAdapter {
         }
 
         this.mtimeSnapshot = current;
-        this.cachedHeadRef = this.computeHash(current);
         return changed;
     }
 

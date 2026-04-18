@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-18 (Iteration 89: critical bug fixes, security hardening, accessibility improvements)
+> Updated: 2026-04-18 (Iteration 90: dead code removal, typecheck fix, test stability)
 
 ## Root Documents
 

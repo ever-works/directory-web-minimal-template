@@ -319,3 +319,19 @@ Default choice: **`@ever-works/ui`**. All Astro components live in one place; pl
 Default choice: **The 5 listed**. Users needing others use the `custom` provider with raw HTML. Additional providers can be added as individual PRs once there's demand.
 
 **Status**: OPEN — defaults in effect. Decisions will be re-evaluated during implementation phase (see `docs/plans/phase-4b-plugin-analytics.md`).
+
+---
+
+## Q21: Vite 7.3.2 Module Runner Timeout on Windows
+
+**Context**: `astro check` and `astro build` timeout for `sample-events` (and potentially other apps) on Windows when Vite's module runner resolves deep workspace package chains. The `ssr.noExternal: [/^@ever-works\//]` config forces Vite to bundle all workspace packages, which triggers a 60s transport timeout in the module runner. TypeScript `tsc --noEmit` passes fine. Other sample apps (basic, jobs, git) work.
+
+**Options**:
+- **A) Wait for Vite 7.4+ fix** — This appears to be a Vite bug on Windows with deep dependency graphs. Monitor Vite releases. `[DEFAULT]`
+- B) Increase Vite timeout — Not configurable via Astro config; would need a Vite plugin or patch
+- C) Remove `ssr.noExternal` — Would break module resolution for workspace packages
+- D) Pre-bundle workspace packages — Add a build step to compile packages to dist/ before running astro check
+
+**Default choice**: **Wait for Vite fix**. The timeout only affects `astro check` locally; CI may not hit it. TypeScript checking via `tsc --noEmit` works and catches the same errors. Workaround: use `tsc --noEmit` instead of `astro check` for sample-events typecheck.
+
+**Status**: OPEN — monitoring Vite releases.

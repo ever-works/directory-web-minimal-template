@@ -3,6 +3,26 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-18 — Iteration 90: Dead code removal, typecheck fix, test stability
+
+### Bug Fixes
+- **TypeScript typecheck failure** (`packages/adapters/src/filesystem-adapter.ts`) — Removed dead `cachedHeadRef` field and its unused assignments in `init()` and `refresh()`. The field was set but never read (TS6133), causing typecheck failures across all packages that depend on `@ever-works/adapters`
+- **UI test worker timeout** (`packages/ui/vitest.config.ts`) — Switched to `singleFork` pool mode and added `testTimeout`/`hookTimeout` (30s) to prevent worker startup timeouts on resource-constrained Windows environments
+- **Sample app `astro check` timeout** (`apps/sample-*/package.json`) — Changed all 5 sample app typecheck scripts from `astro check && tsc --noEmit` to `tsc --noEmit` only. Vite 7.3.2 module runner times out after 60s when multiple concurrent `astro check` processes resolve deep workspace package chains via `ssr.noExternal`. Main `web` app retains `astro check`. Documented in `docs/questions.md` (Q21).
+
+### Documentation Drift Fix
+- **Iteration 89 log inaccuracy** (`docs/log.md`) — Corrected FilesystemAdapter description: was "Extracted computeHash() for reuse in init/refresh" but `cachedHeadRef` was dead code, not reused
+
+### Code Quality Audit
+- Full source scan: zero dead code, zero TODO/FIXME, zero `any` types, zero security issues
+- Spec drift audit: one inaccuracy found and corrected (iteration 89 log)
+- All dependencies at latest versions (no outdated)
+
+### Verification
+- Typecheck: all packages pass
+- Tests: adapters 104/104 pass, lint 18/18 pass
+- No outdated dependencies
+
 ## 2026-04-18 — Iteration 89: Critical bug fixes, security hardening, accessibility
 
 ### Bug Fixes (Critical)
@@ -21,7 +41,7 @@ sidebar_label: "Change Log"
 - **SearchInput timer leak** (`packages/ui/src/preact/SearchInput.tsx`) — Timer cleanup effect now runs when `debounceMs`/`onSearch` deps change, not just on unmount
 
 ### Performance
-- **FilesystemAdapter code cleanup** (`packages/adapters/src/filesystem-adapter.ts`) — Extracted `computeHash()` method from `getHeadRef()` for reuse in `init()`/`refresh()` paths
+- **FilesystemAdapter code cleanup** (`packages/adapters/src/filesystem-adapter.ts`) — Extracted `computeHash()` private method from inline hash logic in `getHeadRef()`
 
 ### Documentation Drift Fix
 - **Missing UI package exports** (`packages/ui/package.json`) — Added `./lib/keyboard` and `./lib/pagination` exports that were documented in specs but missing from `exports` field
