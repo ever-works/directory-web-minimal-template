@@ -51,6 +51,8 @@ sidebar_label: "Questions"
 
 **Default choice**: **Simple git clone** — Simplest approach. Static build happens in CI where git is always available. No need for isomorphic-git complexity since we don't do runtime sync. Falls back to `degit` if git unavailable.
 
+**Status**: SUPERSEDED by Q18 — GitAdapter now uses `isomorphic-git` (pure JS). See Q18 for details.
+
 ---
 
 ## Q4: Plugin Registration Mechanism

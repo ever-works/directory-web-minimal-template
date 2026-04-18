@@ -37,6 +37,7 @@ export default defineConfig({
         // Bundle workspace packages through Vite instead of Node's ESM resolver
         ssr: {
             noExternal: [/^@ever-works\//],
+            external: ['isomorphic-git'],
         },
     },
 });

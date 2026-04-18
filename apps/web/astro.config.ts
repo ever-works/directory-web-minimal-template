@@ -65,9 +65,12 @@ export default defineConfig({
 			include: ['preact', 'yaml'],
 		},
 		// Bundle workspace packages through Vite instead of Node's ESM resolver
-		// so extensionless TypeScript imports resolve correctly during SSR
+		// so extensionless TypeScript imports resolve correctly during SSR.
+		// Externalize isomorphic-git to avoid Vite module runner timeout on Windows
+		// (Vite 7.3.x bug — deep dependency chain resolution exceeds 60s timeout).
 		ssr: {
 			noExternal: [/^@ever-works\//],
+			external: ['isomorphic-git'],
 		},
 	},
 });

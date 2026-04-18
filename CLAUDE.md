@@ -79,10 +79,14 @@ The template connects to the same git-backed data repositories as the full Next.
 - `DATA_REPOSITORY` — GitHub URL of content repo (required)
 - `GH_TOKEN` — GitHub PAT for private repos (optional)
 - `GITHUB_BRANCH` — Branch to sync (default: `main`)
+- `CONTENT_PATH` — Local path to content directory, overrides `DATA_REPOSITORY` for dev (optional)
+- `SITE_URL` — Deployed site URL for sitemap and canonical links (default: `https://example.com`)
 - `ENABLE_ISR` — Set to `false` for pure static output (default: `true`)
 - `CONTENT_CACHE_TTL_MS` — Cache TTL in ms (default: `300000` = 5 min)
 - `WEBHOOK_SECRET` — HMAC secret for GitHub webhooks
 - `SYNC_POLL_INTERVAL_MS` — Polling interval in ms (default: `0` = disabled)
+- `SYNC_TIMEOUT_MS` — Sync operation timeout in ms (default: `60000` = 1 min)
+- `SYNC_MAX_RETRIES` — Max retry attempts on sync failure (default: `3`)
 - `VERCEL_DEPLOY_HOOK_URL` — Vercel deploy hook (static mode only)
 
 ## Content Sync & ISR

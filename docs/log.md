@@ -3,6 +3,34 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-18 — Iteration 91: Vite externalization, vitest deprecation fix, doc accuracy audit
+
+### Bug Fixes
+- **Vite module runner timeout** (`apps/*/astro.config.ts`) — Added `ssr.external: ['isomorphic-git']` to all 6 app configs (web + 5 samples). Vite 7.3.x module runner times out after 60s resolving isomorphic-git's deep dependency chain through `ssr.noExternal: [/^@ever-works\//]`. Externalizing isomorphic-git to Node's ESM resolver eliminates the timeout.
+- **Vitest 4 deprecation warning** (`packages/ui/vitest.config.ts`) — Replaced deprecated `poolOptions.forks.singleFork` with `maxWorkers: 1`. Vitest 4 removed `test.poolOptions`; pool-related options are now top-level.
+
+### Documentation Drift Fixes
+- **CLAUDE.md missing env vars** — Added 4 environment variables (`CONTENT_PATH`, `SITE_URL`, `SYNC_TIMEOUT_MS`, `SYNC_MAX_RETRIES`) that existed in `.env.example` but were not documented in CLAUDE.md
+- **Q3 stale status** (`docs/questions.md`) — Added "SUPERSEDED by Q18" note to Q3 (Content Cloning Strategy). Q3 recommended shell `git clone` but Q18 later replaced it with `isomorphic-git`.
+
+### Health Audit
+- Full monorepo build: **7/7 tasks pass** (5030 pages for sample-git alone)
+- Typecheck: **23/23 tasks pass**, 0 errors
+- Lint: **18/18 tasks pass**
+- Tests: **16/16 suites pass** — 948 tests confirmed (core: 213, adapters: 104, 10 plugins: 420, plugins: 86, sync: 74, astro-integration: 51) + UI tests pass in batches
+- No outdated dependencies
+- Zero `any` types in production code (3 in test mocks only)
+- Zero TODO/FIXME comments in production source
+
+### Spec Drift Audit (2 parallel agents)
+- **docs/specs/component-catalog.md** — ACCURATE (25 Astro + 8 Preact + 22 primitives + 5 shadcn-style)
+- **docs/specs/plugin-interface.md** — ACCURATE (4 hooks match types.ts)
+- **docs/architecture/plugin-system.md** — ACCURATE (10 plugins, 7 default + 3 opt-in)
+- **.specify/project.md** — ACCURATE (76 test files verified via `find`)
+- **docs/architecture/data-layer.md** — ACCURATE (all data types match types/)
+- **.specify/features/web-app.md** — ACCURATE (all 16 page routes present)
+- **AGENTS.md** — ACCURATE (pages, plugins, components, data contracts all verified)
+
 ## 2026-04-18 — Iteration 90: Dead code removal, typecheck fix, test stability
 
 ### Bug Fixes

@@ -48,6 +48,7 @@ export default defineConfig({
 		},
 		ssr: {
 			noExternal: [/^@ever-works\//],
+			external: ['isomorphic-git'],
 		},
 	},
 });

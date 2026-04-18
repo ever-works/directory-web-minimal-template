@@ -19,13 +19,9 @@ export default defineConfig({
         environment: 'jsdom',
         setupFiles: [resolve(__dirname, 'src/__tests__/setup.ts')],
         pool: 'forks',
+        maxWorkers: 1,
         testTimeout: 30_000,
         hookTimeout: 30_000,
-        poolOptions: {
-            forks: {
-                singleFork: true,
-            },
-        },
         coverage: {
             provider: 'v8',
             reporter: ['text', 'json-summary'],
