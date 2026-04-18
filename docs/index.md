@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-18 (Iteration 92: Patch deps bump — astro 6.1.8, marked 18.0.2; peerDep alignment; spec drift sweep)
+> Updated: 2026-04-19 (Iteration 93: Health audit — all builds pass, plugin guide fix, docs app verified)
 
 ## Root Documents
 

@@ -35,7 +35,7 @@ Create `packages/plugin-my-feature/package.json`:
         "@ever-works/plugins": "workspace:*"
     },
     "devDependencies": {
-        "typescript": "^5.7.0"
+        "typescript": "^6.0.3"
     }
 }
 ```
@@ -87,8 +87,13 @@ export function myFeaturePlugin(options: MyFeatureOptions = {}): Plugin {
                 return data;
             },
 
+            onBeforeBuild: async (context) => {
+                // Pre-build processing (e.g. generate assets, validate data)
+                context.log.info('My Feature Plugin pre-build');
+            },
+
             onAfterBuild: async (context) => {
-                // Post-build processing here
+                // Post-build processing (e.g. generate feeds, create indexes)
                 context.log.info('My Feature Plugin post-build complete');
             },
         },

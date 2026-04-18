@@ -3,6 +3,27 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-19 — Iteration 93: Health audit, plugin guide fix, troubleshooting additions
+
+### Documentation Fixes
+- **`docs/guides/creating-a-plugin.md`** — Added missing `onBeforeBuild` hook to code example (all 4 hooks now shown: onInit, onDataLoaded, onBeforeBuild, onAfterBuild); Updated TypeScript version in package.json example from ^5.7.0 to ^6.0.3
+- **`docs/guides/troubleshooting.md`** — Added "Vite Module Runner Timeout" section documenting the `isomorphic-git` externalization fix; Added Windows alternative (`netstat`) to "Port Already in Use" section alongside `lsof`
+
+### Iteration Updates
+- **`.specify/project.md`** — Iteration label 92 → 93
+- **`docs/index.md`** — Updated iteration descriptor to 93
+
+### Full Health Audit (all clean)
+- **Builds**: All 6 apps build successfully (web: 15 pages, sample-basic: 42, sample-jobs: 36, sample-events: 37, sample-real-estate: 37, sample-git: 5030) + docs app (48 pages)
+- **Typecheck**: 23/23 tasks pass, 0 errors
+- **Lint**: 18/18 tasks pass, 0 warnings
+- **Tests**: core 213, adapters 104, plugins 86, sync 74, 10 plugin packages 420, astro-integration 51, ui ~217 = 1165 total — all passing
+- **Security**: `pnpm audit` — 0 vulnerabilities
+- **Dependencies**: All at latest versions (Astro 6.1.8, Vite 8.0.8, Vitest 4.1.4, TS 6.0.3, Preact 10.29.1, Tailwind 4.2.2, Pagefind 1.5.2)
+- **Code quality**: Zero `console.log` leaks, zero TODO/FIXME, zero `as any` in production, zero dead imports, zero security concerns
+- **Spec drift**: Zero drift (verified .specify/project.md, CLAUDE.md, docs/index.md, all package.json workspace dependencies)
+- **Outdated deps**: Only React 18→19 in docs app (blocked by Docusaurus compatibility)
+
 ## 2026-04-18 — Iteration 92: Patch deps bump (astro 6.1.8, marked 18.0.2), peerDep alignment, spec drift sweep
 
 ### Dependency Updates

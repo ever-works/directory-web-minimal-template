@@ -224,6 +224,25 @@ Available directives:
 
 If you forget the `client:` directive, the component renders as static HTML with no JavaScript — event handlers will not fire.
 
+## Vite Module Runner Timeout
+
+Build hangs or times out with a message about Vite module runner failing to resolve a deep dependency chain (commonly `isomorphic-git`).
+
+**Solution**: Ensure `isomorphic-git` is externalized in your Astro config:
+
+```typescript
+// astro.config.ts
+export default defineConfig({
+    vite: {
+        ssr: {
+            external: ['isomorphic-git'],
+        },
+    },
+});
+```
+
+This prevents Vite from bundling `isomorphic-git`'s deep dependency tree through the module runner, which can time out after 60s.
+
 ## Port Already in Use
 
 The dev server fails to start because port 4321 is already taken.
@@ -231,8 +250,11 @@ The dev server fails to start because port 4321 is already taken.
 **Solution**:
 
 ```bash
-# Find what is using the port
+# Linux/macOS — find what is using the port
 lsof -i :4321
+
+# Windows — find what is using the port
+netstat -ano | findstr :4321
 
 # Kill the process or use a different port
 pnpm --filter @ever-works/web-minimal dev -- --port 4322
