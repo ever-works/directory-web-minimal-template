@@ -4,10 +4,22 @@
  */
 
 import { parse as parseYaml } from 'yaml';
-import { marked } from 'marked';
+import { Marked } from 'marked';
 import type { DataAdapter } from '@ever-works/adapters';
 import type { PageData } from '../types/index.js';
 import { coreLogger } from '../logger.js';
+
+// Sanitized marked instance — escapes raw HTML in markdown content
+const sanitizedMarked = new Marked({
+    renderer: {
+        html(token) {
+            return token.text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        },
+    },
+});
 
 /**
  * Split a markdown file into frontmatter and body content.
@@ -59,7 +71,7 @@ async function parsePage(adapter: DataAdapter, filename: string): Promise<PageDa
             : slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
         // Convert markdown body to HTML for rendering via set:html
-        const htmlContent = await marked.parse(body);
+        const htmlContent = await sanitizedMarked.parse(body);
 
         const page: PageData = {
             ...frontmatter,

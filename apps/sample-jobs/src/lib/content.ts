@@ -11,7 +11,7 @@ import { plugins } from './plugins.config.js';
 
 let _cached: ContentData | null = null;
 const runner = new PluginRunner(plugins);
-let _initialized = false;
+let _initPromise: Promise<void> | null = null;
 
 export async function getContent(): Promise<ContentData> {
     if (_cached) return _cached;
@@ -28,10 +28,10 @@ export async function getContent(): Promise<ContentData> {
         outDir: 'dist',
     };
 
-    if (!_initialized) {
-        await runner.runInit(baseContext);
-        _initialized = true;
+    if (!_initPromise) {
+        _initPromise = runner.runInit(baseContext);
     }
+    await _initPromise;
 
     data = await runner.runDataLoaded(data, baseContext);
 

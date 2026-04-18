@@ -3,6 +3,34 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-18 — Iteration 89: Critical bug fixes, security hardening, accessibility
+
+### Bug Fixes (Critical)
+- **ContentCache stale write-back** (`packages/core/src/content-cache.ts`) — Added generation counter to prevent invalidated cache from being overwritten by a stale in-flight load that resolves after invalidation
+- **Plugin init race condition** (`apps/*/src/lib/content.ts`) — Replaced `_initialized` boolean flag with `_initPromise` promise to prevent double-initialization under concurrent SSR requests. Fixed in all 6 apps (web, sample-basic, sample-events, sample-jobs, sample-real-estate, sample-git)
+
+### Security
+- **Markdown XSS prevention** (`packages/core/src/loaders/page-loader.ts`) — Replaced global `marked` instance with a sanitized `Marked` instance that escapes raw HTML in markdown content, preventing potential XSS via `set:html`
+
+### Accessibility
+- **MobileMenu focus trap** (`packages/ui/src/preact/MobileMenu.tsx`) — Added keyboard focus trap when menu is open; Tab/Shift+Tab now cycles only within focusable elements inside the menu panel (WCAG 2.1 SC 2.1.2)
+
+### Preact Component Fixes
+- **FilterBar controlled/uncontrolled sync** (`packages/ui/src/preact/FilterBar.tsx`) — Added `useEffect` hooks to sync internal state when parent changes `selectedCategory`/`selectedTags` props
+- **LayoutSwitcher hydration mismatch** (`packages/ui/src/preact/LayoutSwitcher.tsx`) — Moved `localStorage` read from `useState` initializer to `useEffect` to prevent SSR/client hydration mismatch and visual flash
+- **SearchInput timer leak** (`packages/ui/src/preact/SearchInput.tsx`) — Timer cleanup effect now runs when `debounceMs`/`onSearch` deps change, not just on unmount
+
+### Performance
+- **FilesystemAdapter code cleanup** (`packages/adapters/src/filesystem-adapter.ts`) — Extracted `computeHash()` method from `getHeadRef()` for reuse in `init()`/`refresh()` paths
+
+### Documentation Drift Fix
+- **Missing UI package exports** (`packages/ui/package.json`) — Added `./lib/keyboard` and `./lib/pagination` exports that were documented in specs but missing from `exports` field
+
+### Verification
+- Typecheck: **23/23 tasks pass**, 0 errors
+- Tests: **16/16 suites pass** (core: 213 tests, adapters: 104 tests, all green)
+- All builds pass
+
 ## 2026-04-18 — Iteration 88: Health audit, peerDep alignment, doc freshness verification
 
 ### Health Audit

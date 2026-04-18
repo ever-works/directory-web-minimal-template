@@ -9,6 +9,8 @@
         ".": "./src/index.ts",
         "./lib/utils": "./src/lib/utils.ts",
         "./lib/sort-items": "./src/lib/sort-items.ts",
+        "./lib/keyboard": "./src/lib/keyboard.ts",
+        "./lib/pagination": "./src/lib/pagination.ts",
         "./primitives/*": "./src/primitives/*",
         "./astro/*": "./src/astro/*",
         "./preact/SearchInput": "./src/preact/SearchInput.tsx",

@@ -61,7 +61,7 @@ export default function SearchInput({
         clearTimeout(timerRef.current);
       }
     };
-  }, []);
+  }, [debounceMs, onSearch]);
 
   return (
     <div

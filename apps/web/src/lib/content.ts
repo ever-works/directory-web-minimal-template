@@ -41,8 +41,8 @@ const cache = new ContentCache(cacheConfig);
 /** Plugin runner — initialized once */
 const runner = new PluginRunner(plugins);
 
-/** Whether plugins have been initialized */
-let _initialized = false;
+/** Plugin init promise — ensures single concurrent initialization */
+let _initPromise: Promise<void> | null = null;
 
 /** Adapter instance (reused across loads) */
 let _adapter: Awaited<ReturnType<typeof createAdapter>> | null = null;
@@ -152,10 +152,10 @@ export async function getContent(): Promise<ContentData> {
 			outDir: 'dist',
 		};
 
-		if (!_initialized) {
-			await runner.runInit(baseContext);
-			_initialized = true;
+		if (!_initPromise) {
+			_initPromise = runner.runInit(baseContext);
 		}
+		await _initPromise;
 
 		data = await runner.runDataLoaded(data, baseContext);
 		return data;

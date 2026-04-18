@@ -24,6 +24,9 @@ export class FilesystemAdapter implements DataAdapter {
     /** Snapshot of file mtimes from last refresh/init for change detection */
     private mtimeSnapshot: Map<string, number> = new Map();
 
+    /** Cached hash of current snapshot (recomputed on init/refresh) */
+    private cachedHeadRef: string | null = null;
+
     /**
      * Initialize the adapter by validating the local path.
      * @param config - Must include `localPath` pointing to an existing directory.
@@ -56,6 +59,7 @@ export class FilesystemAdapter implements DataAdapter {
 
         this.contentPath = resolved;
         this.mtimeSnapshot = await this.captureSnapshot();
+        this.cachedHeadRef = this.computeHash(this.mtimeSnapshot);
     }
 
     /**
@@ -177,6 +181,7 @@ export class FilesystemAdapter implements DataAdapter {
         }
 
         this.mtimeSnapshot = current;
+        this.cachedHeadRef = this.computeHash(current);
         return changed;
     }
 
@@ -188,18 +193,21 @@ export class FilesystemAdapter implements DataAdapter {
     async getHeadRef(): Promise<string | null> {
         this.ensureInitialized();
         const snapshot = await this.captureSnapshot();
-        // Simple hash: join all path:mtime pairs and hash
+        return this.computeHash(snapshot);
+    }
+
+    /** Compute a hash from a snapshot map */
+    private computeHash(snapshot: Map<string, number>): string {
         const entries = [...snapshot.entries()]
             .sort(([a], [b]) => a.localeCompare(b))
             .map(([path, mtime]) => `${path}:${mtime}`)
             .join('|');
 
-        // Use a simple string hash (no crypto needed for fingerprinting)
         let hash = 0;
         for (let i = 0; i < entries.length; i++) {
             const char = entries.charCodeAt(i);
             hash = ((hash << 5) - hash) + char;
-            hash = hash & hash; // Convert to 32-bit integer
+            hash = hash & hash;
         }
         return hash.toString(16);
     }

@@ -34,6 +34,7 @@ export class ContentCache {
     private data: ContentData | null = null;
     private loadedAt = 0;
     private inflight: Promise<ContentData> | null = null;
+    private generation = 0;
     private readonly config: ContentCacheConfig;
 
     constructor(config?: Partial<ContentCacheConfig>) {
@@ -57,9 +58,13 @@ export class ContentCache {
             return this.inflight;
         }
 
+        const loadGeneration = this.generation;
         this.inflight = loader().then((result) => {
-            this.data = result;
-            this.loadedAt = Date.now();
+            // Only commit if no invalidation occurred during load
+            if (this.generation === loadGeneration) {
+                this.data = result;
+                this.loadedAt = Date.now();
+            }
             this.inflight = null;
             return result;
         }).catch((error) => {
@@ -75,6 +80,7 @@ export class ContentCache {
         this.data = null;
         this.loadedAt = 0;
         this.inflight = null;
+        this.generation++;
         this.config.onInvalidate?.();
     }
 

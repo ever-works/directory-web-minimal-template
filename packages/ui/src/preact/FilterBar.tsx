@@ -15,7 +15,7 @@
  * />
  * ```
  */
-import { useState, useCallback } from 'preact/hooks';
+import { useState, useCallback, useEffect } from 'preact/hooks';
 import type { FilterBarProps } from '../types.js';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
@@ -35,6 +35,15 @@ export default function FilterBar({
     initialCategory ?? null,
   );
   const [activeTags, setActiveTags] = useState<string[]>(initialTags);
+
+  // Sync internal state when parent changes props (controlled mode)
+  useEffect(() => {
+    setActiveCategory(initialCategory ?? null);
+  }, [initialCategory]);
+
+  useEffect(() => {
+    setActiveTags(initialTags);
+  }, [initialTags]);
 
   const handleCategoryClick = useCallback(
     (categoryId: string) => {

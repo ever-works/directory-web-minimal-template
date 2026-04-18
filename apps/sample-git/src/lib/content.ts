@@ -31,7 +31,7 @@ const cacheConfig: Partial<ContentCacheConfig> = {
 
 const cache = new ContentCache(cacheConfig);
 const runner = new PluginRunner(plugins);
-let _initialized = false;
+let _initPromise: Promise<void> | null = null;
 let _adapter: Awaited<ReturnType<typeof createAdapter>> | null = null;
 let _syncManager: SyncManager | null = null;
 
@@ -80,10 +80,10 @@ export async function getContent(): Promise<ContentData> {
 			outDir: 'dist',
 		};
 
-		if (!_initialized) {
-			await runner.runInit(baseContext);
-			_initialized = true;
+		if (!_initPromise) {
+			_initPromise = runner.runInit(baseContext);
 		}
+		await _initPromise;
 
 		data = await runner.runDataLoaded(data, baseContext);
 		return data;

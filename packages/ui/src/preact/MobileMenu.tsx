@@ -65,6 +65,35 @@ export default function MobileMenu({
     };
   }, [isOpen]);
 
+  // Trap focus inside menu when open
+  useEffect(() => {
+    if (!isOpen) return;
+    const menuEl = menuRef.current;
+    if (!menuEl) return;
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      const focusable = menuEl.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0]!;
+      const last = focusable[focusable.length - 1]!;
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleTab);
+    return () => {
+      document.removeEventListener('keydown', handleTab);
+    };
+  }, [isOpen]);
+
   // Close on click outside
   useEffect(() => {
     if (!isOpen) return;

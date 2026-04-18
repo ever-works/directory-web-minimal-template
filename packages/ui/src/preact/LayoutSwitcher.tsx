@@ -38,18 +38,20 @@ export default function LayoutSwitcher({
 	persistKey = STORAGE_KEY,
 	class: className,
 }: LayoutSwitcherProps) {
-	const [active, setActive] = useState<LayoutMode>(() => {
-		if (typeof window !== 'undefined' && persistKey) {
+	const [active, setActive] = useState<LayoutMode>(initialSelected);
+
+	// Read persisted value after mount to avoid SSR/hydration mismatch
+	useEffect(() => {
+		if (persistKey) {
 			const stored = localStorage.getItem(persistKey);
 			if (stored && modes.includes(stored as LayoutMode)) {
-				return stored as LayoutMode;
+				setActive(stored as LayoutMode);
 			}
 		}
-		return initialSelected;
-	});
+	}, [persistKey, modes]);
 
 	useEffect(() => {
-		if (persistKey && typeof window !== 'undefined') {
+		if (persistKey) {
 			localStorage.setItem(persistKey, active);
 		}
 	}, [active, persistKey]);
