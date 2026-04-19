@@ -3,6 +3,24 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-19 — Iteration 94: Full health audit, spec iteration bump
+
+### Spec Updates
+- **`.specify/project.md`** — Bumped iteration label 93 → 94
+- **`.specify/features/testing.md`** — Updated coverage baselines header from "Iteration 87" to "Iteration 94" (coverage maintained at 100% across all 16 packages)
+- **`docs/index.md`** — Updated iteration descriptor to 94
+
+### Full Health Audit (all clean)
+- **Builds**: All 6 apps build successfully (web: 15 pages, sample-basic: 42, sample-jobs: 36, sample-events: 37, sample-real-estate: 37, sample-git: 5030) + docs app (48 pages)
+- **Typecheck**: 23/23 tasks pass, 0 errors
+- **Lint**: 18/18 tasks pass, 0 warnings
+- **Tests**: core 213, adapters 104, plugins 86, sync 74, astro-integration 51, 10 plugin packages 420, ui ~217 = 1165 total — all passing
+- **Security**: `pnpm audit` — 0 vulnerabilities
+- **Dependencies**: All at latest versions (Astro 6.1.8, Vite 8.0.8, Vitest 4.1.4, TS 6.0.3, Preact 10.29.1, Tailwind 4.2.2, Pagefind 1.5.2)
+- **Code quality**: Zero `console.log` leaks, zero TODO/FIXME, zero `as any` in production, zero dead imports
+- **Spec drift**: Zero drift — package count (18), test count (1165), page counts, dependency versions all match documentation
+- **Outdated deps**: Only React 18→19 in docs app (blocked by Docusaurus compatibility)
+
 ## 2026-04-19 — Iteration 93: Health audit, plugin guide fix, troubleshooting additions
 
 ### Documentation Fixes

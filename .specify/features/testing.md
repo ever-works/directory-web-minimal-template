@@ -76,7 +76,7 @@ packages/plugin-sitemap/src/__tests__/plugin.test.ts   — 14 tests
 
 V8 coverage is configured across all 16 test suites via `@vitest/coverage-v8`. Run `pnpm test:coverage` to generate reports.
 
-### Coverage Baselines (Iteration 87)
+### Coverage Baselines (Iteration 94)
 
 | Package | Stmts | Branch | Funcs | Lines |
 |---------|-------|--------|-------|-------|
