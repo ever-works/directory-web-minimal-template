@@ -3,6 +3,24 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-19 — Iteration 95: Doc drift fixes, health audit
+
+### Documentation Fixes
+- **`docs/architecture/content-sync.md`** — Fixed 2 instances of `SyncManager.triggerSync()` → `SyncManager.sync()` to match actual implementation in `packages/sync/src/sync-manager.ts`
+- **`docs/architecture/data-layer.md`** — Clarified DataAdapter parameter names (`path` → `relativePath`, `dir` → `relativeDir`) and JSDoc descriptions to match implementation
+
+### Spec Updates
+- **`.specify/project.md`** — Bumped iteration label 94 → 95
+- **`docs/index.md`** — Updated iteration descriptor to 95
+
+### Full Health Audit
+- **Builds**: All 6 apps build successfully (web: 15 pages, sample-basic: 42, sample-jobs: 36, sample-events: 37, sample-real-estate: 37, sample-git: 5030)
+- **Typecheck**: 23/23 tasks pass, 0 errors (all cached — FULL TURBO)
+- **Tests**: 1165+ unit tests — all passing
+- **Dependencies**: All at latest versions; only React 18→19 in docs app (blocked by Docusaurus 3.x)
+- **Spec drift**: Fixed 1 method name drift (triggerSync→sync in content-sync.md)
+- **Code quality**: Minor `as any` casts in Docusaurus theme files only (docs app, not production)
+
 ## 2026-04-19 — Iteration 94: Full health audit, spec iteration bump
 
 ### Spec Updates

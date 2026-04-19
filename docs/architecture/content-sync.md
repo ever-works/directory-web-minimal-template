@@ -173,7 +173,7 @@ The `WebhookHandler` (from `@ever-works/sync`, integrated via `@ever-works/astro
 
 1. **HMAC-SHA256 validation** — The handler reads the `X-Hub-Signature-256` header, computes `HMAC-SHA256(secret, body)`, and performs a timing-safe comparison. Requests with missing or invalid signatures are rejected with `401`.
 2. **GitHub payload parsing** — The handler extracts the `ref` field from the JSON body and verifies it matches the configured branch (e.g., `refs/heads/main`). Pushes to other branches are ignored with `200 OK` (no-op).
-3. **Trigger sync** — On a valid push to the target branch, the handler calls `SyncManager.triggerSync()`, which starts the adapter refresh and cache invalidation flow.
+3. **Trigger sync** — On a valid push to the target branch, the handler calls `SyncManager.sync()`, which starts the adapter refresh and cache invalidation flow.
 
 ```
 POST /api/webhook
@@ -231,7 +231,7 @@ GitHub          WebhookHandler       SyncManager        GitAdapter        Conten
   │                  │ validate HMAC     │                   │                  │
   │                  │ parse branch      │                   │                  │
   │                  │                   │                   │                  │
-  │                  │ triggerSync()     │                   │                  │
+  │                  │ sync()            │                   │                  │
   │                  │──────────────────▶│                   │                  │
   │                  │                   │                   │                  │
   │                  │                   │ acquire mutex     │                  │

@@ -316,17 +316,17 @@ interface DataAdapter {
     /** Initialize the data source (e.g., clone repo) */
     init(config: AdapterConfig): Promise<void>;
 
-    /** Read a single file's contents */
-    readFile(path: string): Promise<string>;
+    /** Read a file's raw contents as a UTF-8 string */
+    readFile(relativePath: string): Promise<string>;
 
-    /** List files in a directory */
-    listFiles(dir: string): Promise<string[]>;
+    /** List all files (not directories) in a directory */
+    listFiles(relativeDir: string): Promise<string[]>;
 
-    /** List immediate subdirectories in a directory */
-    listDirectories(dir: string): Promise<string[]>;
+    /** List all immediate subdirectories in a directory */
+    listDirectories(relativeDir: string): Promise<string[]>;
 
-    /** Check if a path exists */
-    exists(path: string): Promise<boolean>;
+    /** Check if a file or directory exists */
+    exists(relativePath: string): Promise<boolean>;
 
     /** Get the resolved content root path */
     getContentPath(): string;

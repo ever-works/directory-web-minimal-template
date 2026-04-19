@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-19 (Iteration 94: Full health audit — all builds pass, all 1165 tests pass, zero drift, deps current)
+> Updated: 2026-04-19 (Iteration 95: Health audit — doc drift fix (triggerSync→sync), data-layer doc param clarification, builds/typecheck clean)
 
 ## Root Documents
 
