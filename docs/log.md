@@ -3,6 +3,53 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 106: Q23 opened — `layout-switcher.test.tsx` exhibits Q22-shaped Vitest hang
+
+### Background
+
+Iteration 105's Q22 entry called out that `layout-switcher.test.tsx` "now exhibits Q22-shaped symptoms — likely Q23 candidate" and recommended opening Q23 for it. This iteration formalizes that finding with a fresh local repro on the iteration-105 codebase.
+
+### What was done
+
+Doc-only iteration. **No code, dependency, or config changes.**
+
+1. **`docs/questions.md`** — Added **Q23: Vitest UI hang — `layout-switcher.test.tsx` (Q22-shaped, post-iteration 105)**. The entry covers:
+   - Fresh repro on Windows 10 + Node 24.14.0 + Vitest 4.1.5: hangs at `RUN v4.1.5` banner with 0 bytes of test output for 180+ seconds; killed manually.
+   - Why this is a separate question, not a Q22 reopening — the hang fingerprint differs (Q22 hangs *after* 3-4 entries reported; Q23 hangs *before* any test reports), Q22's CT migration did not regress, and the iteration-100 diagnostic matrix originally reported `layout-switcher` as "12/12 individually" so the regression is environment-drift or latent-fingerprint variation.
+   - Affected file: `packages/ui/src/__tests__/preact/layout-switcher.test.tsx` (12 cases, all `fireEvent.click` against `screen.getByLabelText` returns, with `localStorage` reads in `beforeEach` and on render).
+   - Suspect layer: same as Q22 — `@testing-library/preact` `fireEvent` × jsdom × Node 24 IPC. Possibly compounded by a `useState`/`useEffect` allocation bug analogous to the `EMPTY_TAGS` issue caught and fixed in `FilterBar.tsx` in iteration 105.
+   - **Default choice (A)**: replicate the Q22 Playwright CT migration for this file. Toolchain already in place (CT scaffold, alias config, scripts). Only new code is `packages/ui/src/__tests__/ct/layout-switcher.ct.test.tsx`. Estimated ~2-3 hours.
+   - Alternative options B/C/D documented (audit-first, combined approach, batch with `MobileMenu`).
+
+### Independent verification this iteration
+
+- `pnpm exec vitest run packages/ui/src/__tests__/preact/layout-switcher.test.tsx` — hangs at `RUN v4.1.5` banner; 0 bytes captured after 180+ seconds; killed.
+- `pnpm exec vitest run packages/ui/src/__tests__/preact/back-to-top.test.tsx` — passes 6/6 in 11.48s under identical configuration. Confirms the regression is per-file, not environment-wide.
+- `pnpm typecheck` (turbo, all packages) — 23/23 successful (16 cached + 7 fresh), 0 errors.
+- `pnpm lint` (turbo, all packages) — 18/18 successful, 0 warnings.
+- `pnpm --filter @ever-works/ui test:ct` — Q22 fix verification: 16/16 still pass in ~7.5 s on Windows + Node 24.14.0.
+
+### Files touched
+
+- `docs/questions.md` — appended Q23 entry (~60 lines).
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 105 → 106.
+- `.specify/project.md` — Current State header bumped 105 → 106; added Q23 OPEN reference.
+
+### Next Steps (for next scheduled run)
+
+Execute Q23 default choice **A** for `layout-switcher.test.tsx`:
+
+1. Audit `packages/ui/src/preact/LayoutSwitcher.tsx` for the same default-`[]`-allocation bug as `FilterBar` (Q23 Option B, in parallel — does not block A).
+2. Create `packages/ui/src/__tests__/ct/layout-switcher.ct.test.tsx` with all 12 cases ported using the Vitest→CT translation table from `docs/architecture/testing-runners.md`.
+3. Verify locally with `pnpm test:ct -- --grep "LayoutSwitcher"`.
+4. Delete `packages/ui/src/__tests__/preact/layout-switcher.test.tsx`.
+5. Update `packages/ui/vitest.config.ts` `coverage.exclude` to add `'src/preact/LayoutSwitcher.tsx'` (with the same comment pattern as `FilterBar.tsx`, pointing at Q22 follow-up #3).
+6. Update `.specify/features/testing.md` AC #10 test count if it changes (12 Vitest cases → 12 Playwright CT cases, same total).
+7. Flip Q23 status to RESOLVED and append the iteration outcome.
+
+The CI matrix added in iteration 105 already runs all `*.ct.test.tsx` files, so the new file will be exercised automatically — no `.github/workflows/ci.yml` change needed.
+
 ## 2026-04-27 — Iteration 105: Q22 ✅ RESOLVED — all 16 `FilterBar` cases ported to Playwright CT, real bug in `FilterBar` discovered and fixed
 
 ### Headline

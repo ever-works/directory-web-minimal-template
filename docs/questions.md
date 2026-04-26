@@ -674,3 +674,39 @@ Independent confirmation that the iteration-105 changes are sound:
 - `pnpm --filter @ever-works/ui typecheck:ct`: 0 errors.
 - `pnpm --filter @ever-works/ui typecheck`: 0 errors.
 - `pnpm --filter @ever-works/ui lint`: 0 errors.
+
+---
+
+## Q23: Vitest UI hang — `layout-switcher.test.tsx` (Q22-shaped, post-iteration 105)
+
+**Context**: Discovered as a side effect of the iteration-105 verification pass and re-confirmed in iteration 106 (2026-04-27, Windows 10 + Node 24.14.0 + Vitest 4.1.5 + jsdom 29.0.2 + Preact 10.29.1).
+
+`pnpm exec vitest run src/__tests__/preact/layout-switcher.test.tsx` hangs at the `RUN v4.1.5` banner with **zero test output** for 3+ minutes. Same shape as Q22's filter-bar hang, applied to `LayoutSwitcher`. Other Preact files (e.g. `back-to-top.test.tsx`) still complete cleanly under the same config (verified: 6/6 pass in 11.48s on iteration 106).
+
+**Why this is a separate question, not a Q22 reopening**:
+- Q22 has a known fix in place for `FilterBar` (Playwright CT, iteration 105 commit `1dedb3b`). That fix did not regress.
+- Q22's hang fingerprint was *test-walking after 3-4 entries reported*. `LayoutSwitcher`'s hang fires *before any test reports* — the 0-byte log indicates the worker dies during file load / first test discovery, not mid-suite.
+- The iteration-100 diagnostic matrix originally reported `layout-switcher.test.tsx` as "12/12 individually". Either the environment has drifted (Vitest 4.1.4 → 4.1.5 + Node 24 patch updates between iteration 100 and now) or this fingerprint variation was always latent and only surfaces under specific timing.
+
+**Affected file**: `packages/ui/src/__tests__/preact/layout-switcher.test.tsx` (12 cases, all using `fireEvent.click` against `screen.getByLabelText(...)` returns, with `localStorage` reads in `beforeEach` and on render).
+
+**Suspect**: Same root layer as Q22 — `@testing-library/preact` `fireEvent` × jsdom × Node 24 IPC. `LayoutSwitcher` shares with `FilterBar` the pattern of `useEffect` that touches state on `localStorage` reads and a controlled-mode style state sync. A single line in `LayoutSwitcher.tsx` likely mirrors the `EMPTY_TAGS = []` allocation bug fixed in `FilterBar.tsx` in iteration 105.
+
+**Options**:
+
+- **A) Migrate `layout-switcher.test.tsx` to Playwright CT** — same playbook as Q22, same toolchain (`@playwright/experimental-ct-react` + `react`→`preact/compat` Vite alias), same authoring conventions documented in `docs/architecture/testing-runners.md`. Estimated effort: ~2-3 hours (the heavy lifting of toolchain setup is already done).  `[DEFAULT]`
+- **B) Audit `LayoutSwitcher.tsx` for the same default-`[]`-allocation bug as `FilterBar`** — if found and fixed, the Vitest test may stabilize without migration. Lower-risk, faster to attempt, but does not address the underlying jsdom + Node 24 IPC fragility.
+- **C) Combine A + B** — fix any source-side bug discovered in B *and* migrate the tests in A. The migration still adds value as defense-in-depth.
+- **D) Defer until follow-up #1 (preemptive `MobileMenu` migration)** — bundle several CT migrations into a single iteration once 2-3 components have hit the wall.
+
+**Default choice**: **A** — replicate the Q22 fix directly. The Playwright CT scaffold is already in place; the only new code is `packages/ui/src/__tests__/ct/layout-switcher.ct.test.tsx`. Doing B in parallel is fine — if it surfaces a real bug, the CT tests will exercise the fix in a real browser. Defer D's aggregation logic until 2+ components actually need migration.
+
+**Status**: OPEN — diagnosed in iteration 106, formally documented for the next scheduled run.
+
+**Iteration 106 verification** (2026-04-27):
+- `pnpm exec vitest run packages/ui/src/__tests__/preact/layout-switcher.test.tsx` — hangs indefinitely at `RUN v4.1.5` banner; 0 bytes test output captured after 180+ seconds; killed manually.
+- `pnpm exec vitest run packages/ui/src/__tests__/preact/back-to-top.test.tsx` — passes 6/6 in 11.48s under identical configuration. Confirms the regression is per-file, not environment-wide.
+- `pnpm typecheck`, `pnpm lint` — both green; no source changes this iteration.
+- `pnpm test:ct` (Q22 verification) — 16/16 still pass; Q22 fix unaffected.
+
+The iteration-105 statement under Q22 ("Recommended next-iteration action: open **Q23**") is now satisfied by this entry.
