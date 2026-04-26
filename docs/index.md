@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-19 (Iteration 96: Health audit — fixed Vite version drift in log.md (8.0.8→7.3.2), all builds/tests/typecheck clean)
+> Updated: 2026-04-26 (Iteration 97: Patch deps bump — Astro 6.1.8→6.1.9, @astrojs/preact 5.1.1→5.1.2, @astrojs/vercel 10.0.4→10.0.5, Vitest 4.1.4→4.1.5, Tailwind 4.2.2→4.2.4, postcss 8.5.10→8.5.11; spec drift sweep)
 
 ## Root Documents
 

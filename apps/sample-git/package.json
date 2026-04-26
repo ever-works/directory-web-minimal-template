@@ -12,9 +12,9 @@
         "clean": "rm -rf dist .astro .content"
     },
     "dependencies": {
-        "@astrojs/preact": "^5.1.1",
+        "@astrojs/preact": "^5.1.2",
         "@astrojs/sitemap": "^3.7.2",
-        "@astrojs/vercel": "^10.0.4",
+        "@astrojs/vercel": "^10.0.5",
         "@ever-works/adapters": "workspace:*",
         "@ever-works/astro-integration": "workspace:*",
         "@ever-works/core": "workspace:*",
@@ -31,11 +31,11 @@
         "@ever-works/plugins": "workspace:*",
         "@ever-works/sync": "workspace:*",
         "@ever-works/ui": "workspace:*",
-        "@tailwindcss/vite": "^4.2.2",
-        "astro": "^6.1.8",
+        "@tailwindcss/vite": "^4.2.4",
+        "astro": "^6.1.9",
         "marked": "^18.0.2",
         "preact": "^10.29.1",
-        "tailwindcss": "^4.2.2",
+        "tailwindcss": "^4.2.4",
         "yaml": "^2.8.3"
     },
     "devDependencies": {

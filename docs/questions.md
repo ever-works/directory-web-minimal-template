@@ -337,3 +337,38 @@ Default choice: **The 5 listed**. Users needing others use the `custom` provider
 **Default choice**: **Wait for Vite fix**. The timeout only affects `astro check` locally; CI may not hit it. TypeScript checking via `tsc --noEmit` works and catches the same errors. Workaround: use `tsc --noEmit` instead of `astro check` for sample-events typecheck.
 
 **Status**: OPEN — monitoring Vite releases.
+
+---
+
+## Q22: Vitest UI full-suite hang on Windows (Worker forks emitted error)
+
+**Context**: Discovered in iteration 97 (2026-04-26). Running `vitest run` for `packages/ui` (which has Preact + jsdom tests) hangs after the first ~4 test files complete with the error:
+
+```
+Error: [vitest-pool]: Worker forks emitted error.
+Caused by: Error: Worker exited unexpectedly
+```
+
+The vitest config already uses `pool: 'forks'` and `maxWorkers: 1` (sequential single-fork). Reproduces with both Vitest 4.1.4 and 4.1.5, so it is **not** introduced by the patch bump in this iteration. Each test file passes individually when run in isolation:
+- `back-to-top.test.tsx` — 6/6
+- `filter-bar.test.tsx` — 16/16
+- `item-browser.test.tsx` — 39/39
+- `layout-switcher.test.tsx` — 12/12
+- `mobile-menu.test.tsx` — 15/15
+- `search-input.test.tsx` — 10/10
+- `sort-select.test.tsx` — 7/7
+- `theme-toggle.test.tsx` — 15/15
+- `ui-components.test.tsx` — 34/34
+
+Other packages (core, adapters, sync, plugin-*, plugin-analytics, plugin-search, plugin-related-items) run their suites cleanly via turbo cache replay. Only the UI package combined run fails.
+
+**Options**:
+- **A) Workaround: split UI test runs by file in CI / pre-commit** — Run each `*.test.tsx` file as a separate vitest invocation; pass if all pass `[DEFAULT]`
+- B) Investigate worker-exit root cause — Likely jsdom or Preact teardown leaking handles between fork lifecycles. Could require GC tuning, isolated execution, or stable `globalThis` patching
+- C) Switch UI tests to `pool: 'threads'` — May avoid fork lifecycle issues but loses isolation
+- D) Migrate UI tests to Playwright component testing — Heavier but more reliable on Windows; matches our existing E2E stack
+- E) Pin Node.js — Verify whether the regression is bound to a specific Node major; current local runs use Node 24.14.0
+
+**Default choice**: **A** — implement a `pnpm test:ui:safe` script that runs each UI test file individually and aggregates pass/fail. Keeps individual file verification as the canonical signal until upstream is debugged.
+
+**Status**: OPEN — added in iteration 97. Build/typecheck/lint all pass; this only affects local Windows full-suite UI verification. CI on Linux likely unaffected (turbo cache hits would mask it).

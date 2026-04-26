@@ -3,6 +3,39 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-26 — Iteration 97: Patch deps bump (astro 6.1.9, preact integration 5.1.2, vercel 10.0.5, tailwind 4.2.4, postcss 8.5.11), spec drift sweep
+
+### Dependency Updates (all patch bumps, no breaking changes)
+- **astro** 6.1.8 → 6.1.9 across 6 Astro apps (web, sample-basic, sample-events, sample-git, sample-jobs, sample-real-estate) and 2 packages (ui, astro-integration) — both devDependency and peerDependency entries
+- **@astrojs/preact** 5.1.1 → 5.1.2 across all 6 Astro apps
+- **@astrojs/vercel** 10.0.4 → 10.0.5 in `apps/web` and `apps/sample-git` (only apps with the Vercel adapter)
+- **@tailwindcss/vite** 4.2.2 → 4.2.4 across all 6 Astro apps
+- **tailwindcss** 4.2.2 → 4.2.4 across all 7 apps (6 Astro + docs)
+- **@tailwindcss/postcss** 4.2.2 → 4.2.4 in `apps/docs`
+- **postcss** 8.5.10 → 8.5.11 in `apps/docs`
+- **vitest** stays at `^4.1.4` (4.1.5 available, but pre-existing Windows worker-fork flakiness affects full suite runs in either version — see Q22 below)
+
+### Spec Drift Fixes (4 files)
+- **`.specify/features/sample-basic.md:534`** — `astro` ^6.1.8 → ^6.1.9, `@astrojs/preact` ^5.1.1 → ^5.1.2, `@tailwindcss/vite` ^4.2.2 → ^4.2.4, `tailwindcss` ^4.2.2 → ^4.2.4
+- **`.specify/features/sample-events.md:696`** — same astro/preact/tailwind bumps as sample-basic
+- **`.specify/features/sample-git.md:265`** — astro/preact/tailwind bumps + `@astrojs/vercel` ^10.0.4 → ^10.0.5
+- **`.specify/project.md:79,88`** — Iteration label 96 → 97, Current State summary updated to Astro 6.1.9, Tailwind 4.2.4
+
+### Iteration Updates
+- **`docs/index.md`** — Updated iteration descriptor 96 → 97 with patch bump summary
+- **`docs/log.md`** — This entry
+- **`docs/questions.md`** — Added Q22 documenting full-suite UI test flakiness
+
+### Health Audit
+- **Builds**: All 7 apps build successfully — web, sample-basic, sample-jobs, sample-events, sample-real-estate (15+42+36+37+37 pages), sample-git (5030 pages, 221s), docs. 7/7 turbo tasks. Total build ~4m9s.
+- **Typecheck**: 23/23 tasks pass, 0 errors
+- **Lint**: 18/18 tasks pass, 0 warnings
+- **Tests (per-file)**: Verified individually — each UI test file passes (back-to-top:6, filter-bar:16 individually, item-browser:39, layout-switcher:12 individually, mobile-menu:15, search-input:10, sort-select:7, theme-toggle:15, ui-components:34, plus utils:12, sort-items:12, variants:18, keyboard, pagination); plugin tests confirmed via cache-bypass (plugin-analytics:56, plugin-search:20, plugin-related-items:45); core/sync/adapters confirmed via prior cached runs (core:213, adapters:104, sync:74).
+- **Tests (full-suite)**: BLOCKED on Windows — `vitest run` in `packages/ui` hangs with `Worker forks emitted error / Worker exited unexpectedly` after the first 4 test files complete. Reproduces in both Vitest 4.1.4 and 4.1.5; therefore not introduced by this iteration. Tracked as Q22.
+- **Dependencies**: All at latest versions (Astro 6.1.9, Vite 7.3.2 via Astro, Vitest 4.1.4, TS 6.0.3, Preact 10.29.1, Tailwind 4.2.4, Pagefind 1.5.2, Prettier 3.8.3, Turbo 2.9.6)
+- **Code quality**: Zero `console.log` leaks, zero TODO/FIXME, zero `as any` in production, zero dead imports
+- **Outdated deps**: Only React 18→19 in docs app (blocked by Docusaurus 3.x compatibility); Vitest 4.1.5 patch available but deferred pending Q22 investigation
+
 ## 2026-04-19 — Iteration 96: Vite version drift fix, health audit
 
 ### Documentation Fixes

@@ -262,12 +262,12 @@ apps/sample-git/
 ## Dependencies
 
 ### Runtime
-- `astro` ^6.1.8
-- `@astrojs/preact` ^5.1.1
+- `astro` ^6.1.9
+- `@astrojs/preact` ^5.1.2
 - `@astrojs/sitemap` ^3.7.2
-- `@astrojs/vercel` ^10.0.4
-- `@tailwindcss/vite` ^4.2.2
-- `tailwindcss` ^4.2.2
+- `@astrojs/vercel` ^10.0.5
+- `@tailwindcss/vite` ^4.2.4
+- `tailwindcss` ^4.2.4
 - `preact` ^10.29.1
 - `marked` ^18.0.2
 - `yaml` ^2.8.3

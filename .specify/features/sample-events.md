@@ -693,11 +693,11 @@ apps/sample-events/
 ## Dependencies
 
 ### Runtime
-- `astro` ^6.1.8
-- `@astrojs/preact` ^5.1.1
+- `astro` ^6.1.9
+- `@astrojs/preact` ^5.1.2
 - `@astrojs/sitemap` ^3.7.2
-- `@tailwindcss/vite` ^4.2.2
-- `tailwindcss` ^4.2.2
+- `@tailwindcss/vite` ^4.2.4
+- `tailwindcss` ^4.2.4
 - `preact` ^10.29.1
 - `yaml` ^2.8.3
 - `@ever-works/core` workspace:*
