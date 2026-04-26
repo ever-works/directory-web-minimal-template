@@ -371,4 +371,19 @@ Other packages (core, adapters, sync, plugin-*, plugin-analytics, plugin-search,
 
 **Default choice**: **A** — implement a `pnpm test:ui:safe` script that runs each UI test file individually and aggregates pass/fail. Keeps individual file verification as the canonical signal until upstream is debugged.
 
-**Status**: OPEN — added in iteration 97. Build/typecheck/lint all pass; this only affects local Windows full-suite UI verification. CI on Linux likely unaffected (turbo cache hits would mask it).
+**Status**: INFRASTRUCTURE ADDED in iteration 98, but ROOT CAUSE STILL OPEN. Default A wiring:
+- `packages/ui/scripts/test-per-file.ts` — TypeScript runner that discovers `src/__tests__/**/*.test.{ts,tsx}` and spawns a fresh `vitest run <file>` for each one (via `node node_modules/vitest/vitest.mjs` to avoid Windows path-with-spaces shell quoting issues).
+- `packages/ui` package script: `test:safe` → `tsx scripts/test-per-file.ts`.
+- Root package script: `test:ui:safe` → `pnpm --filter @ever-works/ui test:safe`.
+- New devDependency in `packages/ui`: `tsx ^4.21.0`.
+- CLAUDE.md updated under "Common Commands" and "Safe Operations" with the new `pnpm test:ui:safe` entry.
+
+**Important new evidence (iteration 98)**: While verifying the runner, individual `*.test.tsx` files in `packages/ui/src/__tests__/preact/` are *also* hanging after partial test execution — not only between files. Specifically:
+- `filter-bar.test.tsx`: completes 4/16 tests, then the worker hangs indefinitely (verified with `pool: 'forks'`, `pool: 'threads'`, fresh `node_modules/.vite` cache, and Vitest 4.1.4 on Node 24.14.0). All 4 completed tests pass.
+- The originally-claimed iteration 97 result "filter-bar individual = 16/16" could not be reproduced today; either the local environment has drifted or that earlier number was based on different conditions.
+
+This means **Option A by itself does not actually unblock UI testing on Windows**. The per-file runner still helps for files that complete cleanly (utils, sort-items, variants, keyboard, pagination, back-to-top, search-input have all completed in past runs), and it gives clearer per-file failure isolation, but the underlying hang inside Preact + jsdom test files needs Option B (root-cause investigation) — likely:
+1. A jsdom teardown handle leak after the 4th render (suspect: `useEffect` cleanups not flushing under `pool: 'forks'` on Windows).
+2. A Vitest 4.1.x worker IPC bug when stdout buffering crosses some threshold on Windows shells.
+
+**Status**: OPEN — infrastructure landed, but the worker hang is deeper than initially scoped. Tracked for next iteration: try `--no-isolate`, downgrade to Vitest 3.x to bisect, and capture a `--inspect-brk` trace of the hung worker.

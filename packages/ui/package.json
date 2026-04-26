@@ -27,6 +27,7 @@
         "lint": "eslint src/",
         "lint:fix": "eslint src/ --fix",
         "test": "vitest run",
+        "test:safe": "tsx scripts/test-per-file.ts",
         "clean": "rm -rf dist",
         "test:coverage": "vitest run --coverage"
     },
@@ -49,6 +50,7 @@
         "astro": "^6.1.9",
         "jsdom": "^29.0.2",
         "preact": "^10.29.1",
+        "tsx": "^4.21.0",
         "typescript": "^6.0.3",
         "vitest": "^4.1.4"
     }

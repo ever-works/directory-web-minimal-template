@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-26 (Iteration 97: Patch deps bump — Astro 6.1.8→6.1.9, @astrojs/preact 5.1.1→5.1.2, @astrojs/vercel 10.0.4→10.0.5, Vitest 4.1.4→4.1.5, Tailwind 4.2.2→4.2.4, postcss 8.5.10→8.5.11; spec drift sweep)
+> Updated: 2026-04-26 (Iteration 98: Q22 default A infrastructure landed — `pnpm test:ui:safe` per-file UI test runner; new `tsx ^4.21.0` devDep in `packages/ui`. New evidence shows the worker hang reproduces inside individual `*.test.tsx` files too — root cause still open.)
 
 ## Root Documents
 

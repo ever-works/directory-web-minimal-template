@@ -23,6 +23,7 @@
         "format": "prettier --write \"**/*.{ts,tsx,js,jsx,md,json}\"",
         "test": "turbo run test",
         "test:coverage": "turbo run test:coverage",
+        "test:ui:safe": "pnpm --filter @ever-works/ui test:safe",
         "typecheck": "turbo run typecheck"
     },
     "devDependencies": {

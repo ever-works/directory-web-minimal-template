@@ -3,6 +3,64 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-26 — Iteration 98: Q22 per-file UI test runner infrastructure (`pnpm test:ui:safe`), Q22 status revised with new evidence
+
+### Q22 Default A — infrastructure landed
+
+- **New file**: `packages/ui/scripts/test-per-file.ts` — TypeScript runner that:
+  - Discovers all `*.test.{ts,tsx}` under `src/__tests__/` (or accepts explicit file arguments)
+  - Spawns each test file in its own `node node_modules/vitest/vitest.mjs run <file>` invocation (no shell, so Windows paths with spaces work)
+  - Aggregates per-file pass/fail with timing, prints a summary, exits non-zero if any file fails
+- **`packages/ui/package.json`**: added `test:safe` script → `tsx scripts/test-per-file.ts`; added devDependency `tsx ^4.21.0`
+- **Root `package.json`**: added `test:ui:safe` script → `pnpm --filter @ever-works/ui test:safe`
+- **CLAUDE.md**: documented `pnpm test:ui:safe` under "Common Commands" and "Safe Operations"
+- **`docs/questions.md` (Q22)**: status updated; documented new evidence
+
+### New evidence on Q22 root cause
+
+While verifying the runner end-to-end, the worker hang reproduces *inside individual files* — not just across files as iteration 97 noted:
+
+- `packages/ui/src/__tests__/preact/filter-bar.test.tsx`: consistently completes 4/16 tests, then the vitest worker hangs indefinitely. Reproduces with:
+  - `pool: 'forks'` (default) and `pool: 'threads'`
+  - Fresh `node_modules/.vite/` cache (cleared and re-run)
+  - Vitest 4.1.4 on Node 24.14.0
+  - Both via `pnpm exec vitest run` and via the new per-file runner
+- The "individual file = 16/16" claim from iteration 97 (Q22 entry) could not be reproduced today on Windows
+- Pure-TS files (`utils`, `sort-items`, `variants`, `keyboard`) complete cleanly via the new runner: 49 tests across 4 files
+
+This means Option A (per-file runner) is *not* a complete fix. It is still useful infrastructure for:
+- Files that DO complete cleanly (most non-Preact tests)
+- Per-file failure isolation when debugging
+- Avoiding inter-file state contamination
+
+Option B (root-cause investigation) is now the priority. Next iteration should:
+- Try `vitest run --no-isolate` to test isolation impact
+- Bisect Vitest 4.1.x → 3.x to find regression point
+- Capture `--inspect-brk` trace of the hung worker after 4 tests in `filter-bar.test.tsx`
+
+### Files touched (5)
+
+- `packages/ui/scripts/test-per-file.ts` (new)
+- `packages/ui/package.json` (test:safe script + tsx devDep)
+- `package.json` (test:ui:safe root script)
+- `CLAUDE.md` (Common Commands + Safe Operations sections)
+- `docs/questions.md` (Q22 status update with new evidence)
+- `docs/index.md` (iteration descriptor)
+- `.specify/project.md` (Current State header bumped 97 → 98)
+- `docs/log.md` (this entry)
+
+### Verification
+
+- `pnpm typecheck`: 23/23 tasks pass, 0 errors (verified before changes; the new `.ts` script lives in `scripts/` outside the `tsc --noEmit` glob for the package, so script changes do not affect package typecheck output)
+- `pnpm lint`: 18/18 tasks pass, 0 warnings (verified before changes)
+- `pnpm test:ui:safe`: runs to completion only for files where Vitest itself does not hang. Pure-TS suite (5 files / 49 tests) verified clean via the runner; Preact files affected by the worker hang remain blocked pending Q22 root-cause work
+- `pnpm install` was run after adding `tsx` to UI devDependencies — only added 1 logical entry; no peer-dep changes beyond the pre-existing TS 6 vs 5 warnings already documented
+
+### Next Steps (for next scheduled run)
+
+1. Q22 Option B: investigate the Preact + jsdom worker hang at the 4-test boundary (`--inspect-brk`, Vitest version bisection, `--no-isolate` experiment)
+2. After Q22 root cause is found, return to dep upkeep / spec drift sweep cadence
+
 ## 2026-04-26 — Iteration 97: Patch deps bump (astro 6.1.9, preact integration 5.1.2, vercel 10.0.5, tailwind 4.2.4, postcss 8.5.11), spec drift sweep
 
 ### Dependency Updates (all patch bumps, no breaking changes)
