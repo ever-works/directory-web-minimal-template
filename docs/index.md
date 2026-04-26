@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-26 (Iteration 100: Q22 deeper diagnostic pass — hang is pool-independent (forks/threads/vmThreads all hang), reporter-independent (verbose/json both hang), file-specific to `filter-bar.test.tsx` (back-to-top.test.tsx with 6 tests passes 6/6). Most likely a Vitest 4.1.x suite-walking bug for ≥7 `it()` blocks under one `describe()` on jsdom + Windows. Doc-only iteration; no code/dep changes.)
+> Updated: 2026-04-26 (Iteration 101: Q22 Vitest 3.2.4 bisect attempted — strictly worse than 4.1.5 (2/16 vs 5/16 before crash) so the bug is **not** the Vitest 4.x pool rewrite regression. File-split workaround tested — render-only file (5 tests) passes 5/5 in 5.38s, but `fireEvent` files (2-4 tests each) still crash with `Worker exited unexpectedly`, so the boundary is **not** test count. Refined diagnosis: `fireEvent` × `FilterBar` (3 useState + 2 useEffect + 1 conditional remount) on Windows + Node 24 + jsdom. Recommended next: Option D Playwright component testing for `FilterBar` tests. Doc-only iteration; no code/dep changes (vitest pin and split files were reverted after experiments).)
 
 ## Root Documents
 

@@ -3,6 +3,77 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-26 — Iteration 101: Q22 — Vitest 3.2.4 bisect (worse, not better) + filter-bar split (works for render-only, fails for fireEvent), refined diagnosis points at fireEvent × FilterBar
+
+### Q22 Option B — Vitest 3.2.4 bisect attempted; **does NOT help, behavior is *worse***
+
+Pinned `packages/ui/devDependencies.vitest` from `^4.1.5` to `~3.2.4`, ran `pnpm install --filter @ever-works/ui` (Done in 23.2s), verified `pnpm exec vitest --version` → `vitest/3.2.4 win32-x64 node-v24.14.0`. Re-ran the canonical hanging file:
+
+- `pnpm exec vitest run src/__tests__/preact/filter-bar.test.tsx` on **Vitest 3.2.4 + tinypool@1.1.1 + Node 24.14.0**:
+  - Tests 1 + 2 (`renders with data-component`, `renders category buttons`) report as passed.
+  - Runner then emits `Unhandled Rejection: Error: Channel closed` / `code: 'ERR_IPC_CHANNEL_CLOSED'` from `tinypool/dist/index.js:140 (ProcessWorker.send)` and `:149 (MessagePort)`.
+  - No further tests reported. The shell `timeout 120` killed it at 120s wall (exit code 124).
+
+So Vitest 4.1.5 reaches 5/16 then crashes; Vitest 3.2.4 reaches 2/16 then crashes. **3.2.4 is strictly worse** — disproving the iteration 100 hypothesis "Vitest 4.x pool rewrite (PR #8705) introduced this." The bug pre-dates the pool rewrite and lives at a deeper layer (most likely Node 24 `child_process` IPC × tinypool/custom-pool worker × jsdom teardown).
+
+Reverted `packages/ui/package.json` back to `vitest: ^4.1.5` and reran `pnpm install --filter @ever-works/ui` (Done in 20.4s) to restore the lockfile. Working tree clean afterwards.
+
+### Q22 file-split workaround attempted; **works for render-only tests, FAILS for `fireEvent` tests**
+
+Per iteration 100's "Concrete next steps" plan, mechanically split `filter-bar.test.tsx` (16 tests, 1 describe) into 5 smaller files (≤5 tests each):
+
+- `filter-bar-render.test.tsx` — 5 tests, `render` + `screen` only, **no `fireEvent`, no `vi.fn()`**.
+- `filter-bar-categories.test.tsx` — 3 tests, `render` + `fireEvent.click` + `vi.fn()`.
+- `filter-bar-tags.test.tsx` — 4 tests, `render` + `fireEvent.click`/`keyDown` + `vi.fn()`.
+- `filter-bar-clear.test.tsx` — 2 tests, `render` + `fireEvent.click` + `vi.fn()`.
+- `filter-bar-a11y.test.tsx` — 2 tests, `render` + `fireEvent.click`.
+
+Outcomes:
+- `pnpm exec vitest run filter-bar-render.test.tsx` → **5/5 PASSED in 5.38s** (no hang, no crash).
+- `pnpm exec vitest run filter-bar-tags.test.tsx` (alone) → 0/4 + worker crash at 58.11s wall, `tests 0ms`, `Worker exited unexpectedly`. The worker dies *before any test runs* — during setup or first `render()` + `fireEvent` interaction.
+- `pnpm test:safe filter-bar-{render,categories,tags,clear,a11y}.test.tsx` → first file (`render`) passes 5/5 in 5.38s; second file (`categories`) crashes at 386.57s with `Worker forks emitted error`; runner stops with `ELIFECYCLE 143` before reaching `tags`/`clear`/`a11y`.
+
+So the boundary is **not** test count (5-test render-only file passes; 2-test fireEvent file crashes). The trigger is `@testing-library/preact` `fireEvent` against a `FilterBar` instance.
+
+`fireEvent` itself works fine for other components on the same harness — `back-to-top.test.tsx` (6 tests, uses `fireEvent`+`vi.fn` 3×) passes 6/6 in 30.9s; per prior iterations `sort-select.test.tsx` (7 tests, uses fireEvent), `search-input.test.tsx` (10), `mobile-menu.test.tsx` (15), and `theme-toggle.test.tsx` (15) also pass individually. So the failure mode is **`fireEvent` × this specific component (`FilterBar`)**, not `fireEvent` in general.
+
+What is unique to `FilterBar` vs the passing components:
+- 3 × `useState` + 2 × `useEffect` + 3 × `useCallback` in the same render function.
+- A composed render with shadcn `Button` + `Badge` primitives nested inside `<fieldset>`/`<legend>`/`<div>` wrappers.
+- A 4th `Button` (Clear filters) that conditionally mounts/unmounts on state change after the first `fireEvent.click` — this is uniquely re-render-heavy.
+
+Most-likely-but-still-unverified root cause: Preact's event delegation + `useEffect` cleanup interacting with jsdom event-target teardown when the conditional `Clear filters` button mounts after the first `fireEvent.click`, causing a handle leak that crashes the worker on Node 24 / Windows.
+
+The 5 split files were **reverted** at the end so the working tree matches the iteration 100 baseline. Keeping 4 broken split files would add red signal without functional improvement.
+
+### Doc updates
+
+- **`docs/questions.md` (Q22)** — appended the iteration 101 evidence section, refined diagnosis, and updated "Concrete next steps" to recommend Option D (Playwright component testing for `FilterBar`) and Option E (Node 22 LTS check).
+- **`docs/log.md`** — this entry.
+- **`docs/index.md`** — iteration descriptor bumped 100 → 101 with summary.
+- **`.specify/project.md`** — Current State header bumped 100 → 101.
+
+### What was NOT changed
+
+- No code changes (test file split was reverted).
+- No vitest config changes.
+- No package.json changes (vitest pin was reverted).
+- No dependency bumps.
+
+### Verification
+
+- `git status`: clean before edits, only doc changes after.
+- `pnpm typecheck`: not re-run this iteration (no source changes).
+- `pnpm lint`: not re-run this iteration (no source changes).
+- `pnpm test:ui:safe`: still blocked on the same hang documented in iteration 100.
+
+### Next Steps (for next scheduled run)
+
+1. **Option D — Playwright component testing.** Migrate `filter-bar.test.tsx` (and any other Preact-component test files that hit the fireEvent-on-conditional-remount wall) to Playwright component testing. The E2E stack already uses Playwright, so the runtime cost is mostly authoring. Verify: each migrated file passes; `pnpm test:ui:safe` is unblocked; document the Playwright-component-testing setup in `.specify/features/testing.md`.
+2. **Component-level upstream repro.** Capture a minimal standalone repro (single component with 3 useState + 2 useEffect + 1 conditional remount + `render()` + `fireEvent.click()`) and file at github.com/vitest-dev/vitest with our Windows + Node 24 + jsdom + Preact reproducer. Attach evidence from iteration 100 (the matrix) and iteration 101 (3.2.4 bisect, fireEvent isolation).
+3. **Q22 Option E — Node 22 LTS check.** Has not been verified. If Node 22 doesn't crash, Node 24 is the regression source and the workaround is to pin CI Node to 22 until upstream fixes it.
+4. Resume routine dep upkeep / spec drift sweep cadence in parallel with Q22 work.
+
 ## 2026-04-26 — Iteration 100: Q22 deeper diagnostic pass — hang is pool-independent, reporter-independent, file-specific to filter-bar.test.tsx
 
 ### Q22 Option B — diagnostic findings
