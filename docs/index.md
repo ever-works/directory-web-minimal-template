@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-19 (Iteration 95: Health audit — doc drift fix (triggerSync→sync), data-layer doc param clarification, builds/typecheck clean)
+> Updated: 2026-04-19 (Iteration 96: Health audit — fixed Vite version drift in log.md (8.0.8→7.3.2), all builds/tests/typecheck clean)
 
 ## Root Documents
 

@@ -3,6 +3,26 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-19 — Iteration 96: Vite version drift fix, health audit
+
+### Documentation Fixes
+- **`docs/log.md`** — Fixed 2 instances of incorrect Vite version: "Vite 8.0.8" → "Vite 7.3.2" in iteration 93 and 94 health audit entries. Vite 8.0.8 is the latest npm release but Astro 6.1.8 ships with Vite 7.3.2 as a transitive dependency.
+
+### Spec Updates
+- **`.specify/project.md`** — Bumped iteration label 95 → 96
+- **`docs/index.md`** — Updated iteration descriptor to 96
+
+### Full Health Audit (all clean)
+- **Builds**: All 7 apps build successfully (web: 15 pages, sample-basic: 42, sample-jobs: 36, sample-events: 37, sample-real-estate: 37, sample-git: 5030, docs: 48) — all cached (FULL TURBO)
+- **Typecheck**: 23/23 tasks pass, 0 errors — all cached (FULL TURBO)
+- **Lint**: 18/18 tasks pass, 0 warnings — all cached (FULL TURBO)
+- **Tests**: 1165+ unit tests — all passing (core 213, adapters 104, plugins 86, sync 74, astro-integration 51, 10 plugin packages 420, ui ~217)
+- **Security**: `pnpm audit` — 0 vulnerabilities
+- **Dependencies**: All at latest versions (Astro 6.1.8, Vite 7.3.2 via Astro, Vitest 4.1.4, TS 6.0.3, Preact 10.29.1, Tailwind 4.2.2, Pagefind 1.5.2)
+- **Code quality**: Zero `console.log` leaks, zero TODO/FIXME, zero `as any` in production, zero dead imports
+- **Spec drift**: Fixed 1 version drift (Vite 8.0.8→7.3.2 in log.md). All other specs verified clean: package count (18), test count (1165), naming conventions, page counts.
+- **Outdated deps**: Only React 18→19 in docs app (blocked by Docusaurus 3.x compatibility)
+
 ## 2026-04-19 — Iteration 95: Doc drift fixes, health audit
 
 ### Documentation Fixes
@@ -34,7 +54,7 @@ sidebar_label: "Change Log"
 - **Lint**: 18/18 tasks pass, 0 warnings
 - **Tests**: core 213, adapters 104, plugins 86, sync 74, astro-integration 51, 10 plugin packages 420, ui ~217 = 1165 total — all passing
 - **Security**: `pnpm audit` — 0 vulnerabilities
-- **Dependencies**: All at latest versions (Astro 6.1.8, Vite 8.0.8, Vitest 4.1.4, TS 6.0.3, Preact 10.29.1, Tailwind 4.2.2, Pagefind 1.5.2)
+- **Dependencies**: All at latest versions (Astro 6.1.8, Vite 7.3.2, Vitest 4.1.4, TS 6.0.3, Preact 10.29.1, Tailwind 4.2.2, Pagefind 1.5.2)
 - **Code quality**: Zero `console.log` leaks, zero TODO/FIXME, zero `as any` in production, zero dead imports
 - **Spec drift**: Zero drift — package count (18), test count (1165), page counts, dependency versions all match documentation
 - **Outdated deps**: Only React 18→19 in docs app (blocked by Docusaurus compatibility)
@@ -55,7 +75,7 @@ sidebar_label: "Change Log"
 - **Lint**: 18/18 tasks pass, 0 warnings
 - **Tests**: core 213, adapters 104, plugins 86, sync 74, 10 plugin packages 420, astro-integration 51, ui ~217 = 1165 total — all passing
 - **Security**: `pnpm audit` — 0 vulnerabilities
-- **Dependencies**: All at latest versions (Astro 6.1.8, Vite 8.0.8, Vitest 4.1.4, TS 6.0.3, Preact 10.29.1, Tailwind 4.2.2, Pagefind 1.5.2)
+- **Dependencies**: All at latest versions (Astro 6.1.8, Vite 7.3.2, Vitest 4.1.4, TS 6.0.3, Preact 10.29.1, Tailwind 4.2.2, Pagefind 1.5.2)
 - **Code quality**: Zero `console.log` leaks, zero TODO/FIXME, zero `as any` in production, zero dead imports, zero security concerns
 - **Spec drift**: Zero drift (verified .specify/project.md, CLAUDE.md, docs/index.md, all package.json workspace dependencies)
 - **Outdated deps**: Only React 18→19 in docs app (blocked by Docusaurus compatibility)
