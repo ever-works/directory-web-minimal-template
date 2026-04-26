@@ -679,6 +679,27 @@ Independent confirmation that the iteration-105 changes are sound:
 
 ## Q23: Vitest UI hang — `layout-switcher.test.tsx` (Q22-shaped, post-iteration 105)
 
+> **Status: ✅ RESOLVED in iteration 107 (2026-04-27).** All 12
+> `LayoutSwitcher` test cases were ported to Playwright Component Testing
+> (`packages/ui/src/__tests__/ct/layout-switcher.ct.test.tsx`) and pass
+> 12/12 in ~1 min combined with the existing 16 `FilterBar` cases (28/28
+> total CT walltime, Windows + Node 24.14.0). The original
+> `packages/ui/src/__tests__/preact/layout-switcher.test.tsx` was deleted;
+> `vitest.config.ts` `coverage.exclude` adds `LayoutSwitcher.tsx` alongside
+> `FilterBar.tsx` (both pending Q22 follow-up #3 — playwright-coverage
+> merge). Two infrastructure fixes landed alongside: (1)
+> `playwright.ct.config.ts` now hard-pins `workers: 1` and
+> `fullyParallel: false` because Playwright CT shares a single Vite dev
+> server on `ctPort: 3100` across the whole run — multiple workers tripped
+> `net::ERR_CONNECTION_REFUSED` once a 2nd CT file landed. (2)
+> `packages/ui/scripts/test-per-file.ts` now skips the `__tests__/ct/`
+> subdirectory during discovery so the per-file Vitest runner doesn't
+> spawn against `*.ct.test.tsx` files (which import
+> `@playwright/experimental-ct-react` and would fail in Vitest). With
+> `LayoutSwitcher.test.tsx` gone, `pnpm test:ui:safe` now reports
+> **12/12 files passing in 201.2s** — Q22 follow-up #2 (test:ui:safe
+> removal) is unblocked.
+
 **Context**: Discovered as a side effect of the iteration-105 verification pass and re-confirmed in iteration 106 (2026-04-27, Windows 10 + Node 24.14.0 + Vitest 4.1.5 + jsdom 29.0.2 + Preact 10.29.1).
 
 `pnpm exec vitest run src/__tests__/preact/layout-switcher.test.tsx` hangs at the `RUN v4.1.5` banner with **zero test output** for 3+ minutes. Same shape as Q22's filter-bar hang, applied to `LayoutSwitcher`. Other Preact files (e.g. `back-to-top.test.tsx`) still complete cleanly under the same config (verified: 6/6 pass in 11.48s on iteration 106).
@@ -701,7 +722,7 @@ Independent confirmation that the iteration-105 changes are sound:
 
 **Default choice**: **A** — replicate the Q22 fix directly. The Playwright CT scaffold is already in place; the only new code is `packages/ui/src/__tests__/ct/layout-switcher.ct.test.tsx`. Doing B in parallel is fine — if it surfaces a real bug, the CT tests will exercise the fix in a real browser. Defer D's aggregation logic until 2+ components actually need migration.
 
-**Status**: OPEN — diagnosed in iteration 106, formally documented for the next scheduled run.
+**Status**: ✅ RESOLVED — Option A (Playwright CT migration) executed in iteration 107.
 
 **Iteration 106 verification** (2026-04-27):
 - `pnpm exec vitest run packages/ui/src/__tests__/preact/layout-switcher.test.tsx` — hangs indefinitely at `RUN v4.1.5` banner; 0 bytes test output captured after 180+ seconds; killed manually.
@@ -710,3 +731,20 @@ Independent confirmation that the iteration-105 changes are sound:
 - `pnpm test:ct` (Q22 verification) — 16/16 still pass; Q22 fix unaffected.
 
 The iteration-105 statement under Q22 ("Recommended next-iteration action: open **Q23**") is now satisfied by this entry.
+
+**Iteration 107 execution** (2026-04-27):
+- Authored `packages/ui/src/__tests__/ct/layout-switcher.ct.test.tsx` with all 12 cases ported using the same Vitest→Playwright CT translation table from `docs/architecture/testing-runners.md`. localStorage handled via `await page.evaluate(...)` before/after `mount(...)`.
+- Three CT-specific gotchas surfaced and fixed during the port:
+  1. `component.getByRole('radiogroup')` returned 0 elements — the mount root *itself* IS the radiogroup `<div>`. Fix: assert `await expect(component).toHaveAttribute(...)` directly on the mount root locator.
+  2. `localStorage.getItem` after `await listButton.click()` raced the post-click `useEffect` and read the previous value. Fix: insert `await expect(listButton).toHaveAttribute('aria-checked', 'true')` between the click and the read — Playwright's auto-retry waits for the effect commit.
+  3. `pnpm test:ct` reported `net::ERR_CONNECTION_REFUSED at http://localhost:3100/` for 11/28 tests on the first run with 2 CT files. Root cause: `workers: undefined` locally + `fullyParallel: true` spawned multiple workers all binding the same fixed `ctPort: 3100`. Fix: hard-pin `workers: 1` and `fullyParallel: false` in `playwright.ct.config.ts`. Sequential execution costs <10 s wall time at our current test volume.
+- Deleted `packages/ui/src/__tests__/preact/layout-switcher.test.tsx`.
+- Added `LayoutSwitcher.tsx` to `packages/ui/vitest.config.ts` `coverage.exclude` alongside `FilterBar.tsx`.
+- Updated `packages/ui/scripts/test-per-file.ts` to skip the `__tests__/ct/` directory during file discovery (it was matching `*.ct.test.tsx` and trying to run them through Vitest, which fails because they import `@playwright/experimental-ct-react`).
+
+**Iteration 107 verification** (2026-04-27):
+- `pnpm test:ct` — **28/28 pass in ~1 min** (16 FilterBar + 12 LayoutSwitcher) on Windows + Node 24.14.0 + Chromium 147.0.7727.15.
+- `pnpm typecheck` — 23/23 successful (16 cached + 7 fresh) in 1m22s, 0 errors.
+- `pnpm lint` — 18/18 successful (16 cached + 2 fresh) in 16.2s, 0 errors.
+- `pnpm test:ui:safe` — **12/12 files pass in 201.2s** with no Q22-shape hangs. (This unblocks Q22 follow-up #2 — the per-file runner can now be retired on the next health audit since no remaining Preact test file requires it.)
+- `pnpm --filter @ever-works/ui typecheck:ct` — 0 errors.

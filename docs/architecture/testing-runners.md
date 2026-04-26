@@ -122,6 +122,39 @@ produces clearer failure messages when an interaction breaks. Always reach for
 CT first for component behavior; promote to E2E only when the assertion
 spans pages or build artifacts.
 
+## Q23 — second component migrated (`LayoutSwitcher`, iteration 107)
+
+Q23 (documented in `docs/questions.md#q23`, opened iteration 106, resolved
+iteration 107) was a sibling of Q22 with a slightly different fingerprint: the
+`packages/ui/src/__tests__/preact/layout-switcher.test.tsx` Vitest run hung at
+the `RUN v4.1.5` banner with **zero test output** (vs. Q22's "3-4 tests
+report then crash"). The component shape is similar — `LayoutSwitcher` has
+1 `useState` + 2 `useEffect` + 1 `useCallback` and a `localStorage`-backed
+sync — but the failure surfaced earlier in the worker lifecycle.
+
+The resolution path was identical to Q22: port to Playwright CT under
+`packages/ui/src/__tests__/ct/layout-switcher.ct.test.tsx`, delete the
+original Vitest file, exclude `src/preact/LayoutSwitcher.tsx` from the V8
+coverage report (pending Q22 follow-up #3 — playwright-coverage merge).
+12/12 cases pass in the CT runner; combined with the FilterBar 16/16, the
+total CT signal is **28/28 passing in ~1 min on Windows + Node 24.14.0**.
+
+Two infrastructure items moved during the Q23 migration:
+
+1. **`playwright.ct.config.ts`**: `workers: 1` and `fullyParallel: false`
+   are now hard-pinned (was `workers: process.env.CI ? 1 : undefined`,
+   `fullyParallel: true`). Reason: Playwright CT shares a single Vite dev
+   server on `ctPort: 3100` across the whole run; with multiple parallel
+   workers locally, the second-and-later workers hit
+   `net::ERR_CONNECTION_REFUSED at http://localhost:3100/`. Observed once
+   real (with 28 tests across 2 files) and would have been latent until
+   any 3rd CT file landed. Pinning to 1 worker matches CI behavior and
+   adds <10 s of wall time at the current test volume.
+2. **`packages/ui/scripts/test-per-file.ts`**: now skips the
+   `__tests__/ct/` subdirectory during discovery. Without this, the
+   per-file runner spawned Vitest against `*.ct.test.tsx` files, which
+   import `@playwright/experimental-ct-react` and immediately fail.
+
 ## Q22 background — why we have CT in the first place
 
 Q22 (documented in `docs/questions.md#q22`, iterations 97–105) is the
@@ -178,10 +211,10 @@ migration, this bug would have remained dormant under the worker crash.
 V8 coverage is reported by Vitest only. CT runs are **not** measured by V8 at
 this time. The current arrangement:
 
-- `packages/ui/vitest.config.ts` excludes `src/preact/FilterBar.tsx` from the
-  coverage `include` set so the missing CT-only coverage does not show as a
-  regression in the per-package branch report. Other components remain at
-  100% branch via Vitest.
+- `packages/ui/vitest.config.ts` excludes `src/preact/FilterBar.tsx` and
+  `src/preact/LayoutSwitcher.tsx` from the coverage `include` set so the
+  missing CT-only coverage does not show as a regression in the per-package
+  branch report. Other components remain at 100% branch via Vitest.
 - A follow-up (Q22 follow-up #3 in `docs/plans/q22-playwright-ct.md`) tracks
   integrating `playwright-coverage` to merge the two reports. Until then, the
   CT suite functions as an *assertion oracle* but does not contribute to the
@@ -246,12 +279,13 @@ Step 4 for traceability):
 ## Future work
 
 - **`playwright-coverage` integration** (Q22 follow-up #3) — merge CT V8
-  coverage into the per-package report so `FilterBar.tsx` returns to the
-  branch-coverage roll.
+  coverage into the per-package report so `FilterBar.tsx` and
+  `LayoutSwitcher.tsx` return to the branch-coverage roll.
 - **Preemptive CT migration of `MobileMenu`** (Q22 follow-up #1) — also has
   conditional remount + focus trap, both jsdom-fragile. Not yet failing, but
-  the same risk profile as `FilterBar`.
-- **Removal of `pnpm test:ui:safe`** (Q22 follow-up #2) — once no remaining
-  Preact test files require it. As of iteration 105, the only file that
-  required it (`filter-bar.test.tsx`) is gone, so this can be evaluated
-  on the next health audit.
+  the same risk profile as `FilterBar` and `LayoutSwitcher`.
+- **Removal of `pnpm test:ui:safe`** (Q22 follow-up #2 / Q23 follow-up #1)
+  — As of iteration 107, `pnpm test:ui:safe` reports **12/12 files passing
+  in 201.2s** (no Q22-shape hangs remain in the Vitest UI surface). The
+  per-file runner can stay as a defensive fallback until the next health
+  audit confirms it has no further callers, then be removed.

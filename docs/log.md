@@ -3,6 +3,188 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 107: Q23 ✅ RESOLVED — `LayoutSwitcher` migrated to Playwright CT, pnpm test:ui:safe back to 12/12 green
+
+### Headline
+
+`pnpm test:ct` now reports **`28 passed (1.0m)`** on Windows + Node 24.14.0
+(16 `FilterBar` cases + 12 newly-ported `LayoutSwitcher` cases). The Q23
+hang opened in iteration 106 (12 hrs before) is fully closed. The
+migration was the same playbook as Q22's `FilterBar` migration in
+iteration 105 — the toolchain landed in iterations 104-105 was reused
+verbatim, only the test file content and a small set of supporting
+infrastructure tweaks differ.
+
+Independent confirmation that nothing else regressed:
+
+- `pnpm typecheck` (full monorepo) — 23/23 successful (16 cached + 7
+  fresh) in 1m22s, 0 errors.
+- `pnpm lint` (full monorepo) — 18/18 successful (16 cached + 2 fresh)
+  in 16.2s, 0 errors.
+- `pnpm test:ui:safe` (per-file UI runner, the iteration-98 Q22
+  workaround) — **12/12 files passing in 201.2s** with no hangs. With
+  `layout-switcher.test.tsx` deleted, the per-file runner has no
+  remaining Q22-shape blockers — Q22 follow-up #2 (test:ui:safe
+  removal) is now unblocked and can be retired on the next health audit.
+- `pnpm --filter @ever-works/ui typecheck:ct` — 0 errors.
+- `pnpm --filter @ever-works/ui lint` — 0 errors.
+
+### What was done this iteration
+
+#### Step 1 — Author the CT test file
+
+Wrote `packages/ui/src/__tests__/ct/layout-switcher.ct.test.tsx` with
+all 12 cases ported from the deleted Vitest file. Translation followed
+the same table documented in `docs/architecture/testing-runners.md`
+(Q22 iteration 105 baseline). Two LayoutSwitcher-specific patterns
+needed extra translation steps that the FilterBar migration didn't
+expose:
+
+1. **Mount-root assertions for the radiogroup container.** LayoutSwitcher's
+   outermost `<div>` has `role="radiogroup"`, so the mount root *itself*
+   IS the radiogroup. `component.getByRole('radiogroup')` (which searches
+   descendants only) returns 0 elements. The fix is to assert directly on
+   the mount root locator: `await expect(component).toHaveAttribute('role',
+   'radiogroup')`. Documented inline in the test file's preamble.
+2. **localStorage timing across `await page.evaluate(...)` boundaries.**
+   `localStorage.getItem` inside `await page.evaluate(...)` runs
+   immediately after `await listButton.click()`, but the
+   `localStorage.setItem` runs in a `useEffect` that fires after the
+   click handler's setState commit. The first run had 2/12 LayoutSwitcher
+   tests fail with `Expected: "list" / Received: "grid"`. Fix: insert
+   `await expect(listButton).toHaveAttribute('aria-checked', 'true')`
+   between the click and the storage read — Playwright's auto-retry waits
+   for the effect commit before proceeding.
+
+Pre-render localStorage setup uses `await page.evaluate(([k, v]) =>
+localStorage.setItem(k, v), [DEFAULT_KEY, 'list'] as const)` BEFORE the
+`mount(...)` call. The host CT page is already loaded at the right origin
+when the test starts, so storage writes survive into the mount.
+
+#### Step 2 — Pin Playwright CT to a single worker
+
+The first `pnpm test:ct` run with both CT files present reported
+**17 passed, 11 failed** with the failure cluster being
+`net::ERR_CONNECTION_REFUSED at http://localhost:3100/`. Root cause:
+locally `workers: process.env.CI ? 1 : undefined` defaulted to N
+parallel workers (typically `cpus / 2`), and every Playwright CT worker
+binds the same fixed `ctPort: 3100` Vite dev server. Workers 2..N race
+for the port and lose. With only 1 CT file (iteration 105) the issue
+was latent because tests in a single file run sequentially in one
+worker.
+
+Fix in `packages/ui/playwright.ct.config.ts`:
+
+```typescript
+// Before
+fullyParallel: true,
+workers: process.env.CI ? 1 : undefined,
+
+// After (with rationale comment)
+fullyParallel: false,
+workers: 1,
+```
+
+Re-run reported **`28 passed (1.0m)`**. The added <10 s of wall time
+is acceptable at our current test volume; if CT grows to 100+ tests we
+can revisit (e.g. by binding `ctPort` per-worker via a worker fixture).
+
+#### Step 3 — Fix `test-per-file.ts` discovery
+
+`pnpm test:ui:safe` post-iteration-105 was now picking up the new
+`*.ct.test.tsx` files (Vitest config excludes `__tests__/ct/**` but the
+per-file runner's discovery walked the directory tree independently and
+found them by suffix). It then spawned Vitest against
+`filter-bar.ct.test.tsx`, which imports
+`@playwright/experimental-ct-react` and immediately fails with module
+resolution errors.
+
+Fix in `packages/ui/scripts/test-per-file.ts`:
+
+```typescript
+// Skip the Playwright Component Testing directory — those `.test.tsx`
+// files are run by `pnpm test:ct`, not Vitest.
+if (entry === 'ct' && dir.endsWith(`${sep}__tests__`)) continue;
+```
+
+Re-run: **12/12 files passing in 201.2s**.
+
+#### Step 4 — Coverage exclusion
+
+Added `'src/preact/LayoutSwitcher.tsx'` to
+`packages/ui/vitest.config.ts` `coverage.exclude`, alongside
+`FilterBar.tsx`. Both lines now share a single rationale comment
+pointing at Q22 follow-up #3 (playwright-coverage integration) for the
+eventual cleanup path.
+
+#### Step 5 — Delete the original Vitest file
+
+`packages/ui/src/__tests__/preact/layout-switcher.test.tsx` removed.
+The remaining Preact Vitest files in that directory are: `back-to-top`,
+`item-browser`, `mobile-menu`, `search-input`, `sort-select`,
+`theme-toggle`, `ui-components` — all of which run cleanly in the
+per-file runner.
+
+#### Step 6 — Documentation sweep
+
+Updated:
+
+- **`docs/questions.md`** — Q23 status flipped from **OPEN** to **✅
+  RESOLVED**. New "Iteration 107 execution" subsection documents the
+  three CT-specific gotchas and the verification matrix.
+- **`docs/architecture/testing-runners.md`** — added a "Q23 — second
+  component migrated (`LayoutSwitcher`, iteration 107)" section
+  immediately above the existing Q22 background section. Updated
+  coverage-handling note to mention `LayoutSwitcher.tsx`. Updated
+  "Future work" so Q22 follow-up #2 (test:ui:safe removal) reflects
+  the now-unblocked status.
+- **`.specify/features/testing.md`** — AC #10 updated from "1149
+  Vitest unit tests + 16 Playwright Component Tests = 1165 total" to
+  "1137 Vitest unit tests across 74 Vitest test files, 16 suites,
+  16 packages, plus 28 Playwright Component Tests (16 FilterBar + 12
+  LayoutSwitcher) = 1165 total". AC #12 updated to mention the
+  `workers: 1` / `fullyParallel: false` pin.
+- **`docs/log.md`** — this entry.
+- **`docs/index.md`** — descriptor updated to reflect iteration 107
+  and Q23 resolution.
+
+### Files touched
+
+| File | Change |
+|------|--------|
+| `packages/ui/src/__tests__/ct/layout-switcher.ct.test.tsx` | NEW — 12 ported test cases |
+| `packages/ui/src/__tests__/preact/layout-switcher.test.tsx` | DELETED — superseded by CT file |
+| `packages/ui/playwright.ct.config.ts` | EDIT — `workers: 1`, `fullyParallel: false` with rationale |
+| `packages/ui/vitest.config.ts` | EDIT — `coverage.exclude` adds `LayoutSwitcher.tsx`, comment updated |
+| `packages/ui/scripts/test-per-file.ts` | EDIT — skip `__tests__/ct/` directory during discovery |
+| `docs/questions.md` | EDIT — Q23 status: OPEN → ✅ RESOLVED + iteration 107 verification |
+| `docs/architecture/testing-runners.md` | EDIT — Q23 section + coverage + future-work updates |
+| `.specify/features/testing.md` | EDIT — AC #10 / AC #12 updated for new CT count + workers pin |
+| `docs/log.md` | EDIT — this entry |
+| `docs/index.md` | EDIT — iteration 107 descriptor |
+
+### Status flips
+
+- **Q23**: OPEN → ✅ RESOLVED.
+- **Q22 follow-up #2** (`pnpm test:ui:safe` removal): blocked → unblocked.
+  As of iteration 107, no remaining Vitest UI test file requires it. The
+  per-file runner can stay as a defensive fallback until the next health
+  audit confirms it has no callers, then be removed entirely.
+
+### Remaining Q22 / Q23 follow-ups
+
+- **#3** (`playwright-coverage` integration) — still on the backlog.
+  Now that 2 components are excluded from V8 coverage instead of 1, the
+  ROI of merging CT coverage back into the V8 report is higher.
+- **#1** (preemptive `MobileMenu` migration) — still pending. Same risk
+  profile as the two now-migrated components (conditional remount +
+  focus trap).
+- **CI matrix verification** — Step 6 of the original Q22 plan
+  (Linux-side observation) is still observation-only on the next CI
+  run.
+
+---
+
 ## 2026-04-27 — Iteration 106: Q23 opened — `layout-switcher.test.tsx` exhibits Q22-shaped Vitest hang
 
 ### Background

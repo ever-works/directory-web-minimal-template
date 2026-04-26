@@ -24,10 +24,18 @@ export default defineConfig({
     testDir: './src/__tests__/ct',
     testMatch: '**/*.test.{ts,tsx}',
     timeout: 10_000,
-    fullyParallel: true,
+    // `fullyParallel: false` because every CT worker would bind the same
+    // `ctPort: 3100` Vite dev server (shared across the run by Playwright's
+    // CT architecture). With more than one CT test file present, parallel
+    // workers race for the port and trip `net::ERR_CONNECTION_REFUSED`
+    // (observed in iteration 107 when adding `layout-switcher.ct.test.tsx`
+    // alongside `filter-bar.ct.test.tsx`: 11/28 tests failed before the
+    // pin landed). Sequential execution gives the same correctness signal
+    // and adds <10 s of wall time at our current test volume.
+    fullyParallel: false,
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 1 : 0,
-    workers: process.env.CI ? 1 : undefined,
+    workers: 1,
     reporter: process.env.CI ? 'github' : 'list',
     use: {
         trace: 'on-first-retry',

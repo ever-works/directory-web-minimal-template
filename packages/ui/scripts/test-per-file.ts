@@ -27,6 +27,12 @@ function discoverTests(root: string): string[] {
     const out: string[] = [];
     function walk(dir: string): void {
         for (const entry of readdirSync(dir)) {
+            // Skip the Playwright Component Testing directory — those
+            // `.test.tsx` files are run by `pnpm test:ct`, not Vitest.
+            // Without this the per-file runner spawns Vitest against
+            // `*.ct.test.tsx` files (which import `@playwright/...`) and
+            // fails. See `docs/architecture/testing-runners.md`.
+            if (entry === 'ct' && dir.endsWith(`${sep}__tests__`)) continue;
             const p = join(dir, entry);
             const s = statSync(p);
             if (s.isDirectory()) walk(p);
