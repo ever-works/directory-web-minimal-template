@@ -8,8 +8,31 @@ sidebar_label: "Q22 Playwright CT Migration"
 > Implementation plan paired with [`.specify/features/q22-playwright-ct.md`](../../.specify/features/q22-playwright-ct.md).
 >
 > Authored: iteration 102 (2026-04-26).
+> Corrected: iteration 103 (2026-04-26).
 >
-> Status: **DRAFT — ready to execute in next scheduled run.**
+> Status: **DRAFT — ready to execute in next scheduled run, with the iteration-103 correction applied.**
+
+## ⚠️ CORRECTION (iteration 103)
+
+The iteration-102 plan referenced **`@playwright/experimental-ct-preact`**. That package **does not exist on npm** (verified 2026-04-26 via `pnpm view`). Playwright officially supports React and Vue only.
+
+**Use `@playwright/experimental-ct-react` everywhere this plan says `@playwright/experimental-ct-preact`**, paired with a Vite alias in `playwright.ct.config.ts`:
+
+```typescript
+resolve: {
+    alias: {
+        'react': 'preact/compat',
+        'react-dom': 'preact/compat',
+        'react-dom/test-utils': 'preact/test-utils',
+    },
+},
+```
+
+This mirrors the existing alias pattern in `packages/ui/vitest.config.ts`. The mount layer in `experimental-ct-react` ultimately calls `React.createElement`, which the alias maps to `preact/compat.h`.
+
+If the Step-3 smoke test fails, switch to **`@playwright/experimental-ct-core`** (the framework-agnostic mount engine that the `react`/`vue`/`svelte` packages wrap) and write a thin Preact mount adapter. See `.specify/features/q22-playwright-ct.md#correction-iteration-103-2026-04-26` for the full rationale and Path A / Path B decision tree.
+
+The numbered steps below are otherwise unchanged. Read every literal `@playwright/experimental-ct-preact` as `@playwright/experimental-ct-react` + the alias block above.
 
 ## Context
 

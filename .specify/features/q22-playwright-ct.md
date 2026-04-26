@@ -1,5 +1,29 @@
 # Feature: Q22 — Playwright Component Testing for Preact UI Components
 
+> ## ⚠️ CORRECTION (iteration 103, 2026-04-26)
+>
+> The original spec (iteration 102) referenced **`@playwright/experimental-ct-preact`** as if it were a published npm package. **It is not.** Verified on 2026-04-26 via `pnpm view`:
+>
+> | Package                                  | Status                  |
+> |------------------------------------------|-------------------------|
+> | `@playwright/experimental-ct-react`      | ✅ Published, v1.59.1   |
+> | `@playwright/experimental-ct-react17`    | ✅ Published, v1.59.1   |
+> | `@playwright/experimental-ct-vue`        | ✅ Published, v1.59.1   |
+> | `@playwright/experimental-ct-svelte`     | ✅ Published, v1.58.2   |
+> | `@playwright/experimental-ct-core`       | ✅ Published, v1.59.1   |
+> | `@playwright/experimental-ct-preact`     | ❌ **404 — never published** |
+>
+> Playwright's official docs (<https://playwright.dev/docs/test-components>) only document React and Vue. There is no first-party Preact CT package.
+>
+> **Revised approach (used throughout the rest of this spec):**
+>
+> - **Path A (default):** Use **`@playwright/experimental-ct-react`** with a Vite alias `react` → `preact/compat`, `react-dom` → `preact/compat`. Mirrors the existing pattern in `packages/ui/vitest.config.ts`. The mount layer ultimately calls `React.createElement`, which the alias maps to `preact/compat.h`. Path A is the lowest-friction migration.
+> - **Path B (fallback):** Use **`@playwright/experimental-ct-core`** with a custom Preact mount adapter — Playwright's framework packages are themselves thin wrappers over `experimental-ct-core`. More code but avoids any React-name-leak in the test sources.
+>
+> The Step 3 smoke test in `docs/plans/q22-playwright-ct.md` is the validation gate that decides Path A vs Path B. If Path A's `mount(<PreactComponent />)` throws or renders an empty tree, fall back to Path B before declaring rollback.
+>
+> **Every reference below to `@playwright/experimental-ct-preact` should be read as `@playwright/experimental-ct-react` (with the `preact/compat` alias).** The original references are kept inline for traceability with iteration-102 commits but are NOT what the implementer should install.
+
 ## Description
 
 Replace the Vitest + jsdom + `@testing-library/preact` toolchain — for the subset

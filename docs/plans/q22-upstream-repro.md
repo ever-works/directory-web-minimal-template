@@ -240,8 +240,7 @@ Node 24 + Windows.
 [ ] Will fill in: pass/fail on Windows + Node 22 LTS
 
 ### Workaround
-We are migrating affected tests to `@playwright/experimental-ct-preact`
-(real Chromium mount, no jsdom). See linked downstream tracking issue.
+We are migrating affected tests to **`@playwright/experimental-ct-react`** with a `react` → `preact/compat` Vite alias (real Chromium mount, no jsdom). Playwright does not publish a first-party `experimental-ct-preact` package; the React variant + alias is the documented Preact pattern. See linked downstream tracking issue.
 ```
 
 ## After filing

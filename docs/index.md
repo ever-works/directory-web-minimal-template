@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-26 (Iteration 102: Q22 Option D & upstream-repro plans authored. Three new docs: `.specify/features/q22-playwright-ct.md` (full spec for migrating `FilterBar` Vitest+jsdom tests to `@playwright/experimental-ct-preact`), `docs/plans/q22-playwright-ct.md` (9-step ~7-hour execution plan with rollback gate after Step 3 smoke test), and `docs/plans/q22-upstream-repro.md` (single-file pnpm repro template + diagnostic matrix + GitHub issue template for filing at vitest-dev/vitest). Spec captures the "fireEvent × FilterBar" failure boundary from iterations 97-101 and lays out a concrete CI matrix (ubuntu-latest + windows-latest) as the resolution signal. Doc-only iteration; no code/dep changes.)
+> Updated: 2026-04-26 (Iteration 103: Q22 plan correction — `@playwright/experimental-ct-preact` does not exist on npm (verified via `pnpm view`, returns 404). Playwright officially supports React and Vue only; published `@playwright/experimental-ct-*` packages are `react`, `react17`, `vue`, `svelte`, `core`. Both spec and plan now carry a top-of-file CORRECTION block instructing the implementer to use `@playwright/experimental-ct-react` with a `react` → `preact/compat` Vite alias (Path A, mirrors existing `vitest.config.ts` pattern), with `experimental-ct-core` + custom mount adapter as Path B fallback decided by the Step-3 smoke test. The upstream-repro plan's GitHub issue template was likewise corrected. Doc-only iteration; no code/dep changes; ~7h effort estimate unchanged.)
 
 ## Root Documents
 

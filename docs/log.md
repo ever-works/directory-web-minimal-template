@@ -3,6 +3,69 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-26 — Iteration 103: Q22 plan correction — `@playwright/experimental-ct-preact` does not exist on npm
+
+### What was wrong
+
+The iteration-102 spec (`.specify/features/q22-playwright-ct.md`) and plan (`docs/plans/q22-playwright-ct.md`) instructed the implementer to install **`@playwright/experimental-ct-preact`** as the Phase-1 dependency. Verified on 2026-04-26 via `pnpm view`:
+
+```
+$ pnpm view @playwright/experimental-ct-preact version
+npm error 404  The requested resource '@playwright/experimental-ct-preact@*' could not be found
+```
+
+Playwright's official Component Testing documentation (<https://playwright.dev/docs/test-components>) lists only React and Vue. The complete published `@playwright/experimental-ct-*` family on npm is: `react` (1.59.1), `react17` (1.59.1), `vue` (1.59.1), `svelte` (1.58.2), `core` (1.59.1). **No `preact` variant exists, has ever existed, or is on the Playwright roadmap.**
+
+If iteration 102's plan had been executed verbatim, Step 1 would have failed at `pnpm add` and the entire migration would have been blocked at the dependency-install stage — wasting at least one full scheduled run.
+
+### What was done this iteration
+
+Doc-only correction. **No code, dependency, or config changes.**
+
+1. **`.specify/features/q22-playwright-ct.md`** — Added a top-of-file `## ⚠️ CORRECTION (iteration 103, 2026-04-26)` block:
+   - Documents the package-availability matrix verified above.
+   - Defines two paths forward: **Path A** = `@playwright/experimental-ct-react` + Vite alias `react` → `preact/compat` (mirror existing Vitest pattern, lowest friction); **Path B** = `@playwright/experimental-ct-core` with custom Preact mount adapter (more code but no React-name leak in test sources).
+   - Identifies the Step-3 smoke test as the Path A vs Path B decision gate.
+   - Tells the implementer to read every literal `@playwright/experimental-ct-preact` further down the file as `@playwright/experimental-ct-react` + alias.
+   - Original references intentionally left in place per R11 ("do not remove, only improve") — they are now traceable to the iteration-102 commits but no longer the install target.
+
+2. **`docs/plans/q22-playwright-ct.md`** — Same shape correction at the top:
+   - Block titled `## ⚠️ CORRECTION (iteration 103)` between the front-matter and the existing `## Context` section.
+   - Includes the exact Vite alias snippet to drop into `playwright.ct.config.ts`.
+   - Cross-links to the spec's decision tree.
+   - Numbered Step 1–9 below remain untouched aside from the read-as instruction.
+
+3. **`docs/plans/q22-upstream-repro.md`** — Patched the GitHub issue template's "Workaround" line: was "migrating to `@playwright/experimental-ct-preact`", now reads "migrating to `@playwright/experimental-ct-react` with a `react` → `preact/compat` Vite alias … Playwright does not publish a first-party `experimental-ct-preact` package". Maintainers reading the upstream issue won't be misled about our migration target.
+
+4. **`docs/questions.md` (Q22)** — Appended an "**Iteration 103 update (2026-04-26) — plan correction**" subsection summarizing the package-availability finding, pointing at the corrected blocks in the spec and plan, and confirming that effort estimate (~7 hours over 3-4 iterations) is unchanged.
+
+5. **`docs/index.md`** — Iteration descriptor bumped 102 → 103 with a one-line correction note.
+
+6. **`.specify/project.md`** — Current State header bumped 102 → 103.
+
+### Why a separate correction iteration
+
+The iteration-102 plans are large (843 total lines). A blanket find-and-replace of `experimental-ct-preact` → `experimental-ct-react` would have lost the audit trail (the original assumption is itself useful information for the next implementer to verify before installing). The correction-block pattern preserves both: the original wording is intact in-place, and the top-of-file callout is impossible to miss.
+
+### Verification
+
+- `pnpm view @playwright/experimental-ct-preact version` → 404 (recorded above).
+- `pnpm view @playwright/test version` → 1.59.1 ✅ (the parent package the spec aligns to).
+- `pnpm search "@playwright/experimental-ct"` → only `core`, `react`, `react17`, `svelte`, `vue` returned.
+- `https://playwright.dev/docs/test-components` → "Below are the steps to enable Playwright Test for a React or Vue project." (no Preact mention).
+- `git status` → only doc changes after edits, no source/config/dep diffs.
+
+### Next Steps (for next scheduled run)
+
+The execution plan is now actionable as written (with the correction block applied). Next run can attempt **Steps 1–3** of `docs/plans/q22-playwright-ct.md`:
+
+1. `cd packages/ui && pnpm add -D @playwright/experimental-ct-react@^1.59.1 @playwright/test@^1.59.1`.
+2. Scaffold `playwright.ct.config.ts` (with the Preact-compat aliases inlined per the iteration-103 correction block).
+3. Write the smoke test from Step 3 (`mount(<FilterBar />)` → `expect(component).toHaveAttribute('data-component', 'filter-bar')`).
+4. **Decision gate**: if Path A passes, commit; if it throws on the first mount, switch to Path B (custom adapter via `@playwright/experimental-ct-core`) and re-attempt Step 3.
+
+If Step 3 fails on both paths, follow the spec's existing Rollback Plan (revert Playwright CT files, fall back to Q22 Option E (Node 22 LTS check) + `docs/plans/q22-upstream-repro.md`).
+
 ## 2026-04-26 — Iteration 102: Q22 Option D + upstream-repro plans authored
 
 ### Background
