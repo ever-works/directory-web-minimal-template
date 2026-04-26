@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-26 (Iteration 101: Q22 Vitest 3.2.4 bisect attempted — strictly worse than 4.1.5 (2/16 vs 5/16 before crash) so the bug is **not** the Vitest 4.x pool rewrite regression. File-split workaround tested — render-only file (5 tests) passes 5/5 in 5.38s, but `fireEvent` files (2-4 tests each) still crash with `Worker exited unexpectedly`, so the boundary is **not** test count. Refined diagnosis: `fireEvent` × `FilterBar` (3 useState + 2 useEffect + 1 conditional remount) on Windows + Node 24 + jsdom. Recommended next: Option D Playwright component testing for `FilterBar` tests. Doc-only iteration; no code/dep changes (vitest pin and split files were reverted after experiments).)
+> Updated: 2026-04-26 (Iteration 102: Q22 Option D & upstream-repro plans authored. Three new docs: `.specify/features/q22-playwright-ct.md` (full spec for migrating `FilterBar` Vitest+jsdom tests to `@playwright/experimental-ct-preact`), `docs/plans/q22-playwright-ct.md` (9-step ~7-hour execution plan with rollback gate after Step 3 smoke test), and `docs/plans/q22-upstream-repro.md` (single-file pnpm repro template + diagnostic matrix + GitHub issue template for filing at vitest-dev/vitest). Spec captures the "fireEvent × FilterBar" failure boundary from iterations 97-101 and lays out a concrete CI matrix (ubuntu-latest + windows-latest) as the resolution signal. Doc-only iteration; no code/dep changes.)
 
 ## Root Documents
 
@@ -44,6 +44,8 @@ slug: /
 - [plans/phase-6-deployment.md](plans/phase-6-deployment.md) — Phase 6: Deployment, CI/CD, docs site
 - [plans/phase-7-sample-events.md](plans/phase-7-sample-events.md) — Phase 7: Sample events/conferences directory
 - [plans/phase-8-sample-real-estate.md](plans/phase-8-sample-real-estate.md) — Phase 8: Sample real estate/property listings directory
+- [plans/q22-playwright-ct.md](plans/q22-playwright-ct.md) — Q22: Migrate `FilterBar` tests to Playwright Component Testing (Option D)
+- [plans/q22-upstream-repro.md](plans/q22-upstream-repro.md) — Q22: Minimal upstream repro template for `vitest-dev/vitest`
 
 ## Specifications
 
@@ -84,6 +86,7 @@ slug: /
 - **features/plugin-sitemap.md** — Sitemap plugin spec (@astrojs/sitemap config wrapper) ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/plugin-sitemap.md))
 - **features/robots-txt.md** — robots.txt generation spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/robots-txt.md))
 - **features/visual-regression.md** — Visual regression testing spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/visual-regression.md))
+- **features/q22-playwright-ct.md** — Q22 resolution: Playwright Component Testing migration spec for `FilterBar` ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/q22-playwright-ct.md))
 
 ## Guides
 

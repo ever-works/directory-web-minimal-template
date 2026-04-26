@@ -3,6 +3,178 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-26 — Iteration 102: Q22 Option D + upstream-repro plans authored
+
+### Background
+
+After 5 iterations (97-101) of diagnostic work on Q22 — the Vitest UI test
+hang on Windows + Node 24 — the only remaining concrete next steps require
+either (a) a non-trivial code migration (Option D — Playwright Component
+Testing for `FilterBar`) or (b) authoring an upstream issue with a minimal
+repro. Both are bounded but multi-iteration efforts. This iteration focuses
+on producing the spec + plan artifacts so the next scheduled run can
+execute on a clear, validated blueprint instead of reasoning about
+infrastructure choices on the fly.
+
+No code changes, no dependency changes — this is a pure docs/plan
+iteration.
+
+### New artifacts
+
+1. **`.specify/features/q22-playwright-ct.md`** (new, ~200 lines) — full
+   spec for migrating `FilterBar` Vitest+jsdom tests to
+   `@playwright/experimental-ct-preact`. Covers:
+   - 7 acceptance criteria including CI matrix (ubuntu-latest +
+     windows-latest), with the windows cell as the definitive Q22 fix
+     signal.
+   - Toolchain additions (`@playwright/experimental-ct-preact`,
+     `@playwright/test` aligned with `apps/web-e2e` `^1.59.1` pin).
+   - Mount fixture scaffolding (`playwright.ct.config.ts`,
+     `playwright/index.{html,ts}`).
+   - Migrated test file shape with concrete idiom translation table.
+   - Callback capture pattern (inline closures + arrays, no sinon/jest
+     mocks).
+   - Coverage handling: exclude `FilterBar.tsx` from V8 with a comment
+     pointing at the spec; AC #10 in `.specify/features/testing.md` will
+     need updating.
+   - Risks / open decisions: CT mount cost (~3 s sequential), Preact 10
+     compatibility verification gate, snapshot policy (no screenshots in
+     Phase 1).
+   - 4 implementation phases (~7 hours total effort).
+   - Rollback plan if Step 3 smoke test fails (revert files, fall back to
+     Q22 Option E or upstream repro).
+   - Cross-references to `docs/questions.md#q22`,
+     `docs/plans/q22-playwright-ct.md`,
+     `.specify/features/testing.md`,
+     `.specify/features/visual-regression.md`,
+     `apps/web-e2e/playwright.config.ts`.
+
+2. **`docs/plans/q22-playwright-ct.md`** (new, ~250 lines) — paired
+   9-step execution plan:
+   - Step 1: Install deps (~10 min) — pnpm add at version pinned to
+     `apps/web-e2e`.
+   - Step 2: Scaffold Playwright CT (~20 min) — config, fixtures,
+     `tsconfig.json` updates, `.gitignore` updates.
+   - Step 3: First smoke test (~30 min) — single 1-test file. **Decision
+     gate: if smoke fails, STOP and follow rollback.**
+   - Step 4: Port remaining 15 cases (~2 hours) — with full Vitest →
+     Playwright CT idiom translation table (`render` → `mount`,
+     `screen.getByText` → `component.getByText`, `fireEvent.click` →
+     `locator.click`, `vi.fn()` → inline closure + array, etc.).
+   - Step 5: Delete the Vitest file (~10 min) — including coverage
+     exclude update and `.specify/features/testing.md` AC #10 sync in the
+     same commit.
+   - Step 6: Linux verification (~10 min) — defer to CI if no Linux box
+     available locally.
+   - Step 7: CI integration (~30 min) — `test-ct` job matrix on ubuntu +
+     windows, both cells must go green.
+   - Step 8: Documentation (~30 min) — write
+     `docs/architecture/testing-runners.md` with Vitest vs. Playwright CT
+     decision matrix, flip Q22 to RESOLVED.
+   - Step 9: Log iteration (~10 min).
+   - Per-step risk table with mitigations (version skew, Preact 10
+     compat, behavioral drift, coverage regression alarm, CI browser
+     install cost).
+   - Out-of-scope list mirrors spec §"Non-Goals".
+   - Success criteria checklist.
+   - Total ~7 hours spread across 3-4 scheduled iterations.
+   - Follow-up questions for after Q22 RESOLVED (preemptive `MobileMenu`
+     migration, removing `pnpm test:ui:safe`, adopting
+     `playwright-coverage`).
+
+3. **`docs/plans/q22-upstream-repro.md`** (new, ~200 lines) — upstream
+   issue blueprint:
+   - Justification for filing despite the migration (other packages still
+     use Vitest+jsdom+fireEvent; high-quality diagnostic data; community
+     response may unblock).
+   - Single-file pnpm project shape (`q22-repro/` directory tree).
+   - Minimal `FilterBarRepro.tsx` Preact component (3 useState +
+     2 useEffect + 1 conditional remount — preserves the failure pattern
+     without `@ever-works/*` imports).
+   - 16-test `FilterBarRepro.test.tsx` file (15 render-only loop + 1
+     `fireEvent.click` triggering conditional remount).
+   - `vitest.config.ts` with `pool: 'forks'`, `maxWorkers: 1`,
+     `environment: 'jsdom'`.
+   - `package.json` with versions verified to repro (vitest 4.1.5,
+     preact 10.29.1, jsdom 29.0.2).
+   - Pre-filing verification matrix: Windows + Node 24 (canonical),
+     Linux + Node 24 (cross-platform check), Windows + Node 22 LTS
+     (Q22 Option E gets answered for free).
+   - Where to file: primary
+     <https://github.com/vitest-dev/vitest/issues>; secondary preact /
+     jsdom / nodejs only if maintainers redirect.
+   - Full GitHub issue template (paste-ready) with:
+     - Versions table (Vitest 4.1.5 + 3.2.4 cross-version evidence).
+     - Bisect note: 3.2.4 is *worse* than 4.1.5 — disproves Vitest 4.x
+       pool rewrite (PR #8705) regression theory.
+     - Diagnostic matrix from iteration 100 (pool/reporter/isolate/-t).
+     - File-split workaround result from iteration 101 (render-only
+       passes, fireEvent fails — boundary is `fireEvent` × component, not
+       test count).
+     - Hypothesized layer (Preact event delegation × `useEffect` cleanup
+       × jsdom event-target teardown × Node 24 IPC).
+     - Cross-platform fill-in checklist.
+   - Post-filing actions: subscribe `ever@ever.co`, link issue from
+     `docs/questions.md`, re-evaluate every 2-3 iterations.
+   - Estimated ~2-3 hours, runs in parallel with the Playwright CT
+     migration.
+
+### Documentation index updates
+
+- `docs/index.md` — header iteration descriptor bumped 101 → 102 with new
+  artifact summary; "Plans" section adds two new entries
+  (`q22-playwright-ct.md`, `q22-upstream-repro.md`); "Spec Kit" section
+  adds `features/q22-playwright-ct.md`.
+- `.specify/project.md` — Current State header bumped 101 → 102 with
+  Q22-plan summary line.
+- `docs/questions.md` — Q22 status appended with iteration 102 note
+  pointing at the new spec and plans.
+- `docs/log.md` — this entry.
+
+### What was NOT changed
+
+- No code changes (no `packages/ui/playwright.ct.config.ts` was created
+  yet — that is Step 2 of the new plan, deferred to the next scheduled
+  run).
+- No `package.json` changes (no Playwright CT deps installed yet — that
+  is Step 1).
+- No `pnpm-lock.yaml` changes.
+- No CI workflow changes (no `test-ct` job added yet — that is Step 7).
+- No test file changes (the existing `filter-bar.test.tsx` is preserved
+  as the behavioral oracle until the CT migration is green).
+- No vitest config / pin reverts (working tree was already clean from
+  iteration 101 cleanup).
+
+### Verification
+
+- `git status`: clean before edits, only doc additions after.
+- `pnpm typecheck`: not re-run this iteration (no source changes).
+- `pnpm lint`: not re-run this iteration (no source changes).
+- `pnpm test:ui:safe`: still blocked on the same Q22 hang documented in
+  iterations 100-101.
+- New docs reviewed for internal consistency: cross-references between
+  spec ↔ execution plan ↔ upstream-repro plan ↔ `docs/questions.md` Q22
+  ↔ `.specify/features/testing.md` are bidirectional and accurate.
+
+### Next Steps (for next scheduled run)
+
+1. **Execute Step 1 of `docs/plans/q22-playwright-ct.md`** — `pnpm add -D`
+   the two Playwright CT packages in `packages/ui` at the same version
+   pin as `apps/web-e2e/package.json`. Verify lockfile resolves to the
+   exact same `@playwright/test` version.
+2. **Execute Step 2** — scaffold `playwright.ct.config.ts`,
+   `playwright/index.html`, `playwright/index.ts`, update
+   `tsconfig.json` and `.gitignore`.
+3. **Execute Step 3 (the decision gate)** — write the 1-test smoke file
+   and run `pnpm test:ct`. If green, proceed to Step 4 in the run after.
+   If red, follow the spec's Rollback Plan and switch to the upstream
+   repro track.
+4. **(Parallel)** Begin Step 1-3 of `docs/plans/q22-upstream-repro.md`
+   — bootstrap the `q22-repro/` external project, verify it reproduces
+   on Windows + Node 24, then file the upstream issue with the
+   pre-filled template.
+5. Resume routine dep upkeep / spec drift sweep cadence.
+
 ## 2026-04-26 — Iteration 101: Q22 — Vitest 3.2.4 bisect (worse, not better) + filter-bar split (works for render-only, fails for fireEvent), refined diagnosis points at fireEvent × FilterBar
 
 ### Q22 Option B — Vitest 3.2.4 bisect attempted; **does NOT help, behavior is *worse***
