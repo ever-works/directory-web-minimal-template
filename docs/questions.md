@@ -387,3 +387,11 @@ This means **Option A by itself does not actually unblock UI testing on Windows*
 2. A Vitest 4.1.x worker IPC bug when stdout buffering crosses some threshold on Windows shells.
 
 **Status**: OPEN — infrastructure landed, but the worker hang is deeper than initially scoped. Tracked for next iteration: try `--no-isolate`, downgrade to Vitest 3.x to bisect, and capture a `--inspect-brk` trace of the hung worker.
+
+**Iteration 99 update (2026-04-26)**: Vitest patch bumped 4.1.4 → 4.1.5 across all 14 dependent packages. The worker hang **still reproduces** on 4.1.5:
+
+- `utils.test.ts` (pure TS, no Preact) — passes 12/12 in 18s on 4.1.5; per-file runner also passes 1/1 in 46.5s.
+- `preact/filter-bar.test.tsx` on 4.1.4 with `--no-isolate` — fails after 5/16 tests with `[vitest-pool]: Worker forks emitted error / Worker exited unexpectedly` (17m17s wall time before crash). `--no-isolate` is **not** a workaround.
+- `preact/filter-bar.test.tsx` on 4.1.5 (default config) — hung past 60s with no test output beyond the `RUN v4.1.5` banner.
+
+So Option B (bisect Vitest version) is the next concrete step — try a known-good 3.x release in `packages/ui` only (workspace-local pin) to confirm a regression boundary, then look at Option D (Playwright component testing) if no 3.x version fixes it.

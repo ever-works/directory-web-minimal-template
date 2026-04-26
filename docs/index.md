@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-26 (Iteration 98: Q22 default A infrastructure landed — `pnpm test:ui:safe` per-file UI test runner; new `tsx ^4.21.0` devDep in `packages/ui`. New evidence shows the worker hang reproduces inside individual `*.test.tsx` files too — root cause still open.)
+> Updated: 2026-04-26 (Iteration 99: patch deps bump — vitest 4.1.4 → 4.1.5, @vitest/coverage-v8 4.1.4 → 4.1.5, postcss 8.5.11 → 8.5.12 (docs), @typescript-eslint/eslint-plugin + parser 8.58.2 → 8.59.0. Q22 verified to reproduce on vitest 4.1.5 — root cause still open. Tooling validated: typecheck 23/23, lint 18/18.)
 
 ## Root Documents
 
