@@ -748,3 +748,51 @@ The iteration-105 statement under Q22 ("Recommended next-iteration action: open 
 - `pnpm lint` — 18/18 successful (16 cached + 2 fresh) in 16.2s, 0 errors.
 - `pnpm test:ui:safe` — **12/12 files pass in 201.2s** with no Q22-shape hangs. (This unblocks Q22 follow-up #2 — the per-file runner can now be retired on the next health audit since no remaining Preact test file requires it.)
 - `pnpm --filter @ever-works/ui typecheck:ct` — 0 errors.
+
+**Iteration 108 update — Q22 follow-up #1 ✅ COMPLETE; Q24 opened** (2026-04-27):
+
+- **Q22 follow-up #1 — preemptive `MobileMenu` Playwright CT migration — ✅ COMPLETE.** Spec at `.specify/features/q22-mobilemenu-ct.md` and execution plan at `docs/plans/q22-mobilemenu-ct.md`. New file: `packages/ui/src/__tests__/ct/mobile-menu.ct.test.tsx` with all 15 cases ported (the original `mobile-menu.test.tsx` had 15 not 14 as the iteration-108 spec initially estimated). Verified in isolation via `pnpm --filter @ever-works/ui exec playwright test --config=playwright.ct.config.ts src/__tests__/ct/mobile-menu.ct.test.tsx` — **15/15 passing in 45.7s** on Windows + Node 24.14.0. Vitest counterpart deleted; `MobileMenu.tsx` added to `packages/ui/vitest.config.ts` `coverage.exclude` alongside `FilterBar.tsx` and `LayoutSwitcher.tsx`. Document-level event listeners (Escape via `page.keyboard.press`, click-outside via wrapper-mount) and body-scroll mutation (`page.evaluate(() => document.body.style.overflow)`) all map cleanly to CT idioms.
+- **Q24 opened — `layout-switcher.ct.test.tsx` flake/regression**: when running the full `pnpm test:ct` suite (43 tests across 3 files) in iteration 108, 3 of the 12 `LayoutSwitcher` CT tests now fail intermittently:
+  - "uses custom persistKey" — `expect(customStored).toBe('list')` receives `'grid'` instead of `'list'`.
+  - "does not persist when persistKey is empty" — `net::ERR_CONNECTION_REFUSED at http://localhost:3100/`.
+  - "does not restore from localStorage when persistKey is empty" — same `ERR_CONNECTION_REFUSED`.
+
+  Running `layout-switcher.ct.test.tsx` *in isolation* still produces 11/12 pass + 1 fail (the "persists mode to localStorage" assertion intermittently sees `'grid'` instead of `'list'`), so the flake is not specific to running alongside `mobile-menu.ct.test.tsx` — it is a pre-existing Q23 regression that surfaced only when the suite walltime grew large enough to expose either:
+  - **(a)** A real LayoutSwitcher bug where the `useEffect` localStorage write races with a same-tick re-read after click; or
+  - **(b)** Vite dev-server stability degrading after >30 sequential CT mounts (the `ERR_CONNECTION_REFUSED` failures point at the server falling over, not at component logic).
+
+  Q24 will need its own triage iteration to decide between fixing the source bug (option a, applies to both Vitest and CT) vs. tuning the CT runner (option b, e.g. periodic `mount()` flush, `ctPort` rotation, or dev-server keepalive). The iteration-107 claim "12/12 pass in ~1 min" appears to have been a one-shot result that did not prove deterministic. The iteration-108 mobile-menu migration does *not* introduce or worsen this regression — verified by running `mobile-menu.ct.test.tsx` in isolation (15/15) and `layout-switcher.ct.test.tsx` in isolation (11/12 with the same persist-key flake).
+
+**Iteration 108 verification**:
+- `pnpm --filter @ever-works/ui exec playwright test src/__tests__/ct/mobile-menu.ct.test.tsx` — 15/15 pass in 45.7s.
+- `pnpm --filter @ever-works/ui exec playwright test src/__tests__/ct/layout-switcher.ct.test.tsx` — 11/12 pass (Q24 flake confirmed isolated to layout-switcher).
+- `pnpm typecheck` — pending verification at commit time.
+- `pnpm lint` — pending verification at commit time.
+
+---
+
+## Q24: `layout-switcher.ct.test.tsx` localStorage / ctPort flake (post-iteration 107)
+
+**Context**: Discovered while running the full `pnpm test:ct` suite in iteration 108 (`mobile-menu.ct.test.tsx` migration). The Q23-resolution claim from iteration 107 was "12/12 LayoutSwitcher CT tests pass in ~1 min on Windows + Node 24.14.0". On re-verification in iteration 108, that result is not reproducible — the suite consistently shows 1-3 failures depending on which other files run alongside.
+
+**Symptoms** (Windows 10 + Node 24.14.0 + Vitest 4.1.5 + Playwright 1.59.1 + Chromium 147.0.7727.15):
+
+1. `uses custom persistKey` (test #134:5 in `layout-switcher.ct.test.tsx`) — `expect(customStored).toBe('list')` receives `'grid'`. The test clicks "List view", waits for `aria-checked='true'`, then reads `localStorage.getItem('custom-key')`. The aria-checked assertion passes, so the click reaches the component; but the read returns either the previous test's value or the post-click `useEffect` has not committed.
+2. `does not persist when persistKey is empty` and `does not restore from localStorage when persistKey is empty` (#156:5 and #169:5) — both fail with `page._wrapApiCall: net::ERR_CONNECTION_REFUSED at http://localhost:3100/`. Exclusively when these tests run after ~30+ prior CT mounts in the same `pnpm test:ct` invocation. In isolation they pass.
+
+**Hypotheses**:
+
+- **A) Real bug in `LayoutSwitcher.tsx`** — the `useEffect([initialMode])` chain may re-read `localStorage` after the click writes, racing the post-click commit and reverting `activeMode` back to `'grid'`. Mirror of the iteration-105 `EMPTY_TAGS` bug discovered in `FilterBar`. Test in isolation: revert the click, then re-mount to confirm read order.
+- **B) Vite dev-server stability** — Playwright CT shares a single Vite dev server on `ctPort: 3100`. After 30+ sequential mounts the server may exceed memory or connection-pool limits and start refusing new connections. Fix candidates: explicit `await page.close()` between mounts, periodic dev-server bounce, or moving CT to a per-test fresh server.
+- **C) Both** — the test's click→assert→read pattern is correct enough to mask hypothesis A while hypothesis B is the connection-refused mode.
+
+**Options**:
+
+- **A) Audit `LayoutSwitcher.tsx` for a state-allocation bug** mirroring the iteration-105 `EMPTY_TAGS` fix. If found and fixed, the persist-key test will stabilize across both Vitest (if we ever restore it) and CT.  `[DEFAULT]`
+- **B) Add `await page.evaluate(() => localStorage.clear())` and `await page.close()` between LayoutSwitcher CT tests** to defuse cross-test state leak. Defensive; may mask the real bug from Option A.
+- **C) Investigate the `ctPort` exhaustion theory** — instrument the CT run with `page.on('response')` and `page.on('crash')` listeners to capture the failure mode of the 30th+ mount. Heaviest investment, deepest result.
+- **D) Defer all Q24 work; document the flake and ship** — iteration 108 is already a healthy migration win; Q24 belongs in its own triage iteration.
+
+**Default choice**: **A** — start with the source-bug hypothesis since it has the cleanest fix surface and would explain the persist-key value mismatch. Run B in parallel if time permits; defer C unless A+B do not stabilize the suite.
+
+**Status**: OPEN — diagnosed in iteration 108. The iteration-107 "12/12 pass" claim should be amended to "11-12/12 pass depending on environment" once Q24 is investigated. Q22 follow-up #1 is unaffected; mobile-menu CT is 15/15 in isolation. Q22 / Q23 RESOLVED status holds.

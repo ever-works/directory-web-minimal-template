@@ -211,10 +211,11 @@ migration, this bug would have remained dormant under the worker crash.
 V8 coverage is reported by Vitest only. CT runs are **not** measured by V8 at
 this time. The current arrangement:
 
-- `packages/ui/vitest.config.ts` excludes `src/preact/FilterBar.tsx` and
-  `src/preact/LayoutSwitcher.tsx` from the coverage `include` set so the
-  missing CT-only coverage does not show as a regression in the per-package
-  branch report. Other components remain at 100% branch via Vitest.
+- `packages/ui/vitest.config.ts` excludes `src/preact/FilterBar.tsx`,
+  `src/preact/LayoutSwitcher.tsx`, and `src/preact/MobileMenu.tsx` from the
+  coverage `include` set so the missing CT-only coverage does not show as a
+  regression in the per-package branch report. Other components remain at
+  100% branch via Vitest.
 - A follow-up (Q22 follow-up #3 in `docs/plans/q22-playwright-ct.md`) tracks
   integrating `playwright-coverage` to merge the two reports. Until then, the
   CT suite functions as an *assertion oracle* but does not contribute to the
@@ -281,9 +282,14 @@ Step 4 for traceability):
 - **`playwright-coverage` integration** (Q22 follow-up #3) — merge CT V8
   coverage into the per-package report so `FilterBar.tsx` and
   `LayoutSwitcher.tsx` return to the branch-coverage roll.
-- **Preemptive CT migration of `MobileMenu`** (Q22 follow-up #1) — also has
-  conditional remount + focus trap, both jsdom-fragile. Not yet failing, but
-  the same risk profile as `FilterBar` and `LayoutSwitcher`.
+- ~~**Preemptive CT migration of `MobileMenu`** (Q22 follow-up #1)~~ —
+  ✅ COMPLETE in iteration 108. `MobileMenu` (15 cases) is now exercised by
+  `packages/ui/src/__tests__/ct/mobile-menu.ct.test.tsx` and verifies in
+  isolation (15/15 passing, 45.7s walltime). The migration covers the
+  Escape-key listener, click-outside via wrapper-mount, body-scroll lock
+  read via `page.evaluate(() => document.body.style.overflow)`, and the
+  conditional panel remount — all real-browser idioms documented in
+  `.specify/features/q22-mobilemenu-ct.md`.
 - **Removal of `pnpm test:ui:safe`** (Q22 follow-up #2 / Q23 follow-up #1)
   — As of iteration 107, `pnpm test:ui:safe` reports **12/12 files passing
   in 201.2s** (no Q22-shape hangs remain in the Vitest UI surface). The

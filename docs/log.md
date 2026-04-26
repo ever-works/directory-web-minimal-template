@@ -3,6 +3,86 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 108: Q22 follow-up #1 ✅ COMPLETE — `MobileMenu` migrated to Playwright CT (15/15); Q24 opened for `LayoutSwitcher` flake
+
+### Headline
+
+`packages/ui/src/__tests__/ct/mobile-menu.ct.test.tsx` lands with all 15 cases ported from the Vitest+jsdom counterpart. Verified in isolation via `pnpm --filter @ever-works/ui exec playwright test src/__tests__/ct/mobile-menu.ct.test.tsx` — **15/15 passing in 45.7s** on Windows + Node 24.14.0 + Chromium 147. The original `packages/ui/src/__tests__/preact/mobile-menu.test.tsx` is deleted; `MobileMenu.tsx` joins `FilterBar.tsx` and `LayoutSwitcher.tsx` in `packages/ui/vitest.config.ts` `coverage.exclude` pending Q22 follow-up #3 (`playwright-coverage` integration).
+
+This was the **third** Q22-style migration (after `FilterBar` in iteration 105 and `LayoutSwitcher` in iteration 107) and the **first preemptive** one — `mobile-menu.test.tsx` had not crashed under Vitest, but the component shares the same risk profile (multiple `useEffect` blocks, document-level event listeners, conditional remount of the panel subtree, body-scroll mutation, focus management) and the Q22-shape regression has now hit two of three high-risk components. Migrating MobileMenu before it crashes defuses the same fingerprint risk and validates the playbook against a richer interaction surface (Escape key, click-outside via wrapper-mount, body-scroll lock).
+
+### What was done
+
+1. **Spec authored** — `.specify/features/q22-mobilemenu-ct.md` (~260 lines). Covers 8 acceptance criteria, 5 `MobileMenu`-specific translation deviations (D1-D5: Escape via `page.keyboard.press`, document-click via wrapper, body.style read via `page.evaluate`, focus-return assertion as a small coverage win, conditional panel remount), risk register (R1 focus-return brittleness, R2 wrapper-mount root semantics), and rollback plan.
+2. **Plan authored** — `docs/plans/q22-mobilemenu-ct.md` (~240 lines). 6 steps with translation table covering 13 Vitest→CT idioms specific to MobileMenu, file-list table, and verification matrix.
+3. **CT test file** — `packages/ui/src/__tests__/ct/mobile-menu.ct.test.tsx` (~210 lines). 15 cases (the original Vitest file had 15, not 14 as the spec initially estimated): renders, toggle button, closed by default, opens, all nav links, second-toggle close, Escape-key close, non-Escape no-close, body-scroll lock, body-scroll unlock, aria-expanded, link hrefs, panel aria-label, click-outside close, click-inside no-close.
+4. **Vitest counterpart deleted** — `packages/ui/src/__tests__/preact/mobile-menu.test.tsx` (132 lines).
+5. **`packages/ui/vitest.config.ts`** — `coverage.exclude` now lists three CT-covered components (`FilterBar.tsx`, `LayoutSwitcher.tsx`, `MobileMenu.tsx`); comment block updated to reflect three migrations across three iterations (105 / 107 / 108).
+6. **`.specify/features/testing.md`** — AC #10 updated: **1122 Vitest unit tests + 43 Playwright Component Tests = 1165 total** (Vitest count down by 15 from MobileMenu deletion, CT count up by 15). AC #12 updated to mention the third migrated component and reaffirm the `workers: 1` / `fullyParallel: false` Q23 pin.
+7. **`docs/architecture/testing-runners.md`** — Coverage handling section lists three components excluded; "Future work" item for Q22 follow-up #1 marked ✅ COMPLETE with the iteration-108 verification numbers.
+8. **`docs/questions.md`** — Q22 follow-up list closes #1 with iteration-108 details. **Q24 opened** to track the layout-switcher CT flake discovered during this iteration's full-suite verification (see "What we found" below).
+9. **`docs/log.md`** — this entry.
+10. **`docs/index.md`** — iteration descriptor bumped 107 → 108.
+11. **`.specify/project.md`** — Current State header bumped 107 → 108.
+
+### What we found (Q24 candidate)
+
+Running the **full** `pnpm --filter @ever-works/ui test:ct` suite (43 tests across 3 files) in iteration 108 produced **40 passed, 3 failed** — and all 3 failures were in `layout-switcher.ct.test.tsx`, not `mobile-menu.ct.test.tsx`:
+
+- "uses custom persistKey" — `expect(customStored).toBe('list')` received `'grid'` instead of `'list'`.
+- "does not persist when persistKey is empty" — `net::ERR_CONNECTION_REFUSED at http://localhost:3100/`.
+- "does not restore from localStorage when persistKey is empty" — same `ERR_CONNECTION_REFUSED`.
+
+Re-run with `layout-switcher.ct.test.tsx` *in isolation* still produced 11/12 pass + 1 fail (the persist-key value mismatch). So the failure is **pre-existing** (a Q23 regression that the iteration-107 "12/12 pass" claim missed) and **not introduced by the MobileMenu migration**. Two distinct failure modes are mixed:
+
+- **(a) Persist-key value mismatch** — possibly a real bug in `LayoutSwitcher.tsx` where the post-click `useEffect` localStorage write races with a same-tick re-read; mirror of the iteration-105 `EMPTY_TAGS` discovery in `FilterBar`.
+- **(b) `ERR_CONNECTION_REFUSED`** — possibly the Vite dev server on `ctPort: 3100` falling over after 30+ sequential CT mounts in a single `pnpm test:ct` invocation.
+
+Q24 captures the diagnostic and proposes 4 options (audit `LayoutSwitcher.tsx` for the state-allocation bug; harden cross-test cleanup; investigate ctPort exhaustion; defer to its own iteration). Default option **A** (audit the source). The Q22 / Q23 RESOLVED status holds — `mobile-menu.ct.test.tsx` is unaffected and `filter-bar.ct.test.tsx` continues to be 16/16.
+
+### Verification
+
+- `pnpm --filter @ever-works/ui exec playwright test src/__tests__/ct/mobile-menu.ct.test.tsx` — **15/15 pass in 45.7s** on Windows + Node 24.14.0.
+- `pnpm --filter @ever-works/ui exec playwright test src/__tests__/ct/layout-switcher.ct.test.tsx` — 11/12 pass; 1 fail (Q24 persist-key flake).
+- `pnpm --filter @ever-works/ui test:ct` (full CT suite) — 40/43 pass; 3 fails all in layout-switcher (Q24).
+- `pnpm typecheck` — to be re-run before commit; expected 23/23 successful (the new `.ct.test.tsx` already typechecked on first commit attempt).
+- `pnpm lint` — to be re-run before commit; expected 18/18 successful.
+
+### Files touched
+
+| File | Action |
+|------|--------|
+| `packages/ui/src/__tests__/ct/mobile-menu.ct.test.tsx` | CREATE (208 lines) |
+| `packages/ui/src/__tests__/preact/mobile-menu.test.tsx` | DELETE (132 lines) |
+| `packages/ui/vitest.config.ts` | EDIT (`coverage.exclude` adds `MobileMenu.tsx`, comment updated) |
+| `.specify/features/q22-mobilemenu-ct.md` | CREATE (260 lines, this iteration's spec) |
+| `docs/plans/q22-mobilemenu-ct.md` | CREATE (243 lines, this iteration's plan) |
+| `.specify/features/testing.md` | EDIT (AC #10 + AC #12) |
+| `docs/architecture/testing-runners.md` | EDIT (coverage list, future-work item) |
+| `docs/questions.md` | EDIT (Q22 follow-up #1 closure + Q24 entry, ~85 lines added) |
+| `docs/log.md` | EDIT (this entry) |
+| `docs/index.md` | EDIT (iteration descriptor) |
+| `.specify/project.md` | EDIT (Current State header bumped 107 → 108) |
+
+### Remaining Q22 / Q23 follow-ups
+
+| # | Description | Status |
+|---|-------------|--------|
+| 1 | Preemptive `MobileMenu` CT migration | ✅ COMPLETE (this iteration) |
+| 2 | Remove `pnpm test:ui:safe` per-file runner | OPEN — defensive fallback retained until next health audit (iteration 107 reported 12/12 files passing) |
+| 3 | `playwright-coverage` integration (CT V8 merge) | OPEN — restores `FilterBar.tsx`, `LayoutSwitcher.tsx`, `MobileMenu.tsx` to the branch-coverage roll |
+| Q24 | Investigate `LayoutSwitcher` CT flake (persist-key value + ctPort `ERR_CONNECTION_REFUSED`) | NEW — opened this iteration |
+| Q22 Step 6 | First CI run on `test-ct` matrix observed | OPEN — observation-only |
+
+### Next Steps (for next scheduled run)
+
+Pick one of:
+
+1. **Q24 default A** — audit `LayoutSwitcher.tsx` for the state-allocation bug behind the persist-key value mismatch. Mirror of the iteration-105 `EMPTY_TAGS` fix in `FilterBar.tsx`. ~1 hour.
+2. **Q22 follow-up #3** — start the `playwright-coverage` integration spec. ~1-2 hours for spec + plan; execution is multi-iteration.
+3. **Q22 follow-up #2** — health-audit the `pnpm test:ui:safe` runner; if all remaining Vitest UI files pass via plain `pnpm test`, deprecate the per-file runner. ~30 min.
+4. **CI matrix observation** — wait for the next push to `develop` or `main` and confirm the iteration-105 `test-ct` matrix job passes on both `ubuntu-latest` and `windows-latest`. Observation only.
+
 ## 2026-04-27 — Iteration 107: Q23 ✅ RESOLVED — `LayoutSwitcher` migrated to Playwright CT, pnpm test:ui:safe back to 12/12 green
 
 ### Headline

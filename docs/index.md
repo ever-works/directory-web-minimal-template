@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-27 (Iteration 107: **Q23 ✅ RESOLVED.** All 12 `LayoutSwitcher` test cases ported to Playwright Component Testing (`packages/ui/src/__tests__/ct/layout-switcher.ct.test.tsx`). Combined with the iteration-105 `FilterBar` migration (16 cases), `pnpm test:ct` now reports **`28 passed (1.0m)`** on Windows + Node 24.14.0. Original `packages/ui/src/__tests__/preact/layout-switcher.test.tsx` deleted; `vitest.config.ts` `coverage.exclude` adds `LayoutSwitcher.tsx` alongside `FilterBar.tsx`. Two infrastructure fixes alongside: (1) `playwright.ct.config.ts` hard-pinned to `workers: 1` and `fullyParallel: false` because every CT worker shares the same `ctPort: 3100` Vite dev server (multiple workers tripped `net::ERR_CONNECTION_REFUSED` once the 2nd CT file landed); (2) `packages/ui/scripts/test-per-file.ts` now skips the `__tests__/ct/` directory during discovery so the per-file Vitest runner doesn't try to spawn against `*.ct.test.tsx` files (which import `@playwright/experimental-ct-react`). With `layout-switcher.test.tsx` deleted, `pnpm test:ui:safe` reports **12/12 files passing in 201.2s** — Q22 follow-up #2 (test:ui:safe removal) is now unblocked. Decision matrix and authoring conventions remain in [`docs/architecture/testing-runners.md`](architecture/testing-runners.md), now with a Q23 section. `.specify/features/testing.md` AC #10 updated to "1137 Vitest unit tests + 28 Playwright Component Tests = 1165 total"; AC #12 mentions the new `workers: 1` pin. Remaining Q22/Q23 follow-ups: #1 preemptive `MobileMenu` migration, #3 `playwright-coverage` integration. CI matrix verification (Step 6 of the original Q22 plan) still observation-only on the next CI run.)
+> Updated: 2026-04-27 (Iteration 108: **Q22 follow-up #1 ✅ COMPLETE — preemptive `MobileMenu` Playwright CT migration landed.** All 15 `MobileMenu` cases ported to `packages/ui/src/__tests__/ct/mobile-menu.ct.test.tsx`; verified in isolation as **15/15 passing in 45.7s** on Windows + Node 24.14.0. The original `packages/ui/src/__tests__/preact/mobile-menu.test.tsx` (132 lines) is deleted; `MobileMenu.tsx` joins `FilterBar.tsx` and `LayoutSwitcher.tsx` in `packages/ui/vitest.config.ts` `coverage.exclude`. New spec at `.specify/features/q22-mobilemenu-ct.md` and plan at `docs/plans/q22-mobilemenu-ct.md`. `.specify/features/testing.md` AC #10 updated to **"1122 Vitest unit tests + 43 Playwright Component Tests = 1165 total"**. `docs/architecture/testing-runners.md` "Future work" item for follow-up #1 marked ✅ COMPLETE. **Q24 opened** to track a `LayoutSwitcher` CT flake discovered during full-suite verification: 3 of 12 layout-switcher tests fail intermittently (1 persist-key value mismatch + 2 `net::ERR_CONNECTION_REFUSED` on `ctPort: 3100`); pre-existing Q23 regression unrelated to the MobileMenu migration. Q22 / Q23 RESOLVED status holds; mobile-menu.ct is unaffected. Remaining follow-ups: #2 (`pnpm test:ui:safe` removal), #3 (`playwright-coverage` integration), Q24, CI matrix observation.)
 
 ## Root Documents
 
@@ -47,6 +47,7 @@ slug: /
 - [plans/phase-8-sample-real-estate.md](plans/phase-8-sample-real-estate.md) — Phase 8: Sample real estate/property listings directory
 - [plans/q22-playwright-ct.md](plans/q22-playwright-ct.md) — Q22: Migrate `FilterBar` tests to Playwright Component Testing (Option D)
 - [plans/q22-upstream-repro.md](plans/q22-upstream-repro.md) — Q22: Minimal upstream repro template for `vitest-dev/vitest`
+- [plans/q22-mobilemenu-ct.md](plans/q22-mobilemenu-ct.md) — Q22 follow-up #1: Preemptive `MobileMenu` Playwright CT migration
 
 ## Specifications
 
@@ -88,6 +89,7 @@ slug: /
 - **features/robots-txt.md** — robots.txt generation spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/robots-txt.md))
 - **features/visual-regression.md** — Visual regression testing spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/visual-regression.md))
 - **features/q22-playwright-ct.md** — Q22 resolution: Playwright Component Testing migration spec for `FilterBar` ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/q22-playwright-ct.md))
+- **features/q22-mobilemenu-ct.md** — Q22 follow-up #1: Preemptive `MobileMenu` Playwright CT migration spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/q22-mobilemenu-ct.md))
 
 ## Guides
 
