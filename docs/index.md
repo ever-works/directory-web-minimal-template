@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-27 (Iteration 104: Q22 plan Steps 1-3 EXECUTED — Path A validated 🎉. Installed `@playwright/experimental-ct-react@1.59.1` + `@playwright/test@1.59.1` in `packages/ui`, scaffolded `playwright.ct.config.ts` with the iteration-103 corrected `react` → `preact/compat` Vite alias under `use.ctViteConfig`, created `playwright/index.{html,ts}`, separate `tsconfig.ct.json` (build tsconfig has `rootDir: ./src` so cannot include `playwright/`), wired `pnpm test:ct` / `test:ct:install` / `typecheck:ct` scripts. Smoke test `mount(<FilterBar />) → toHaveAttribute('data-component', 'filter-bar')` reports **`1 passed (3.5s)`** on Windows + Node 24.14.0 + Chromium Headless Shell 147.0.7727.15 + Vite 6.4.2 (115 KB FilterBar chunk emitted via the compat alias). Q22 worker-crash bypass empirically confirmed on the original failing platform; Path B fallback no longer needed; Phase 2 (Steps 4-9: port remaining 15 cases, delete Vitest file, CI matrix, docs) unblocked for next scheduled run; ~5h effort remaining.)
+> Updated: 2026-04-27 (Iteration 105: **Q22 ✅ RESOLVED.** All 16 `FilterBar` test cases ported to Playwright Component Testing (`packages/ui/src/__tests__/ct/filter-bar.ct.test.tsx`) — `pnpm test:ct` now reports `16 passed (6.1s)` on Windows + Node 24.14.0. The migration also surfaced and fixed a **real bug** in `FilterBar` — the default value `selectedTags: initialTags = []` allocated a new `[]` on every render, so the `useEffect([initialTags])` reset loop continually wiped user clicks; fixed via a frozen module-level `EMPTY_TAGS` sentinel. Original `packages/ui/src/__tests__/preact/filter-bar.test.tsx` deleted; `vitest.config.ts` `test.exclude` carves out `__tests__/ct/**` so the two runners never collide; `coverage.exclude` adds `FilterBar.tsx` (pending Q22 follow-up #3 — playwright-coverage merge). Decision matrix and authoring conventions live in [`docs/architecture/testing-runners.md`](architecture/testing-runners.md). `.specify/features/testing.md` AC #10 updated to "1149 Vitest unit tests + 16 Playwright Component Tests = 1165 total across both runners"; new AC #12 documents the `pnpm test:ct` toolchain. CI matrix landed: `.github/workflows/ci.yml` gained a `test-ct` matrix job (`os: [ubuntu-latest, windows-latest]`, `needs: ci`) with a Playwright-browser cache keyed on `pnpm-lock.yaml` hash and per-OS failure-artifact uploads. Step 6 (CI verification) is observation-only on the next CI run. Q22 follow-ups (#1 preemptive `MobileMenu` migration, #2 `pnpm test:ui:safe` removal — blocked on Q23 candidate `layout-switcher.test.tsx` stall observed this iteration, #3 `playwright-coverage` integration) remain on the backlog.)
 
 ## Root Documents
 
@@ -31,6 +31,7 @@ slug: /
 - [architecture/adapter-system.md](architecture/adapter-system.md) — Adapter pattern for data sources (git, filesystem)
 - [architecture/component-system.md](architecture/component-system.md) — Headless UI component design, island architecture
 - [architecture/content-sync.md](architecture/content-sync.md) — Content synchronization, caching, ISR architecture
+- [architecture/testing-runners.md](architecture/testing-runners.md) — Vitest vs. Playwright CT vs. Playwright E2E decision matrix; authoring conventions; Q22 background
 
 ## Plans
 

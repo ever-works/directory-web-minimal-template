@@ -1,5 +1,18 @@
 # Feature: Q22 — Playwright Component Testing for Preact UI Components
 
+> ## ✅ Q22 RESOLVED (iteration 105, 2026-04-27)
+>
+> **All 16 `FilterBar` cases ported to Playwright CT and pass 16/16 in ~6.1 s on Windows + Node 24.14.0.** Original `packages/ui/src/__tests__/preact/filter-bar.test.tsx` deleted. `vitest.config.ts` `test.exclude` carves out `**/__tests__/ct/**` so the two runners never collide; `coverage.exclude` adds `src/preact/FilterBar.tsx` pending Q22 follow-up #3. `.specify/features/testing.md` AC #10 updated to "1149 Vitest unit tests + 16 Playwright Component Tests = 1165 total"; new AC #12 added documenting the `pnpm test:ct` toolchain. `docs/architecture/testing-runners.md` published with the decision matrix and authoring conventions. The migration also surfaced and fixed a real bug in `FilterBar`: the default `selectedTags = []` allocated a fresh `[]` per render and `useEffect([initialTags])` reset state continuously; fixed via a frozen module-level `EMPTY_TAGS` sentinel.
+>
+> CI matrix landed in iteration 105: `.github/workflows/ci.yml` gained a `test-ct` matrix job (`os: [ubuntu-latest, windows-latest]`) with a Playwright-browser cache and per-OS artifact upload on failure. The `windows-latest` cell is the canonical Q22 fix signal — if it goes red on a `FilterBar` test, the migration has regressed.
+>
+> Outstanding work (deferred):
+>
+> - **Step 6 (CI verification)** — observation only on the next CI run. No code change required.
+> - **Follow-ups** — #1 preemptive `MobileMenu` migration; #2 `pnpm test:ui:safe` removal once the remaining Preact tests confirm stable in plain `pnpm test` (iteration-105 attempt revealed `layout-switcher.test.tsx` now exhibits Q22-shaped symptoms — likely Q23 candidate); #3 `playwright-coverage` integration to merge CT runs into the V8 coverage report and restore `FilterBar.tsx` to the branch-coverage roll.
+>
+> ---
+>
 > ## ✅ PATH A VALIDATED (iteration 104, 2026-04-27)
 >
 > **The Step-3 smoke test passed on Windows + Node 24.14.0** with `@playwright/experimental-ct-react` + the `react` → `preact/compat` Vite alias (Path A from the iteration-103 correction). Concrete result: `pnpm test:ct` reports `1 passed (3.5s)` after Vite emits a 115 KB `FilterBar` chunk through the compat alias.

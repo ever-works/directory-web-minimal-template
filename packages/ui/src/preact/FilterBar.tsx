@@ -22,11 +22,18 @@ import { Badge } from '../components/ui/badge';
 import { cn } from '../lib/utils';
 import { handleKeyActivation } from '../lib/keyboard';
 
+// Stable empty-array sentinel so the `selectedTags` default keeps a fixed
+// reference across renders. Without this, the default `[]` would create a
+// fresh array each call and the `useEffect([initialTags])` below would
+// fire on every render, resetting `activeTags` to `[]` and silently
+// discarding user clicks. Caught by Q22 Playwright CT (iteration 105).
+const EMPTY_TAGS: readonly string[] = Object.freeze([]);
+
 export default function FilterBar({
   categories = [],
   tags = [],
   selectedCategory: initialCategory,
-  selectedTags: initialTags = [],
+  selectedTags: initialTags = EMPTY_TAGS as string[],
   onCategoryChange,
   onTagsChange,
   class: className,

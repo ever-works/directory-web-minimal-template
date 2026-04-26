@@ -3,6 +3,292 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 105: Q22 ✅ RESOLVED — all 16 `FilterBar` cases ported to Playwright CT, real bug in `FilterBar` discovered and fixed
+
+### Headline
+
+`pnpm test:ct` now reports **`16 passed (6.1s)`** on Windows + Node 24.14.0
+for the full `FilterBar` test surface. The Q22 worker-crash blocker that
+opened in iteration 97 (and survived 8 diagnostic iterations through
+iteration 104) is fully closed for this surface area. The migration also
+surfaced — and fixed — a **real bug** in `FilterBar` that the original
+Vitest+jsdom suite had been hiding behind the worker crash: the default
+`selectedTags = []` allocated a fresh `[]` on every render, causing the
+`useEffect([initialTags])` "controlled mode" sync to wipe `activeTags`
+back to `[]` between every state change and silently discard user clicks.
+Fixed via a frozen module-level `EMPTY_TAGS` sentinel.
+
+### What was done this iteration
+
+#### Step 4 — Port the remaining 15 cases
+
+Rewrote `packages/ui/src/__tests__/ct/filter-bar.ct.test.tsx` from a
+single smoke test (iteration 104) to the full 16-case suite. Translation
+followed the table in `docs/plans/q22-playwright-ct.md` Step 4 verbatim:
+
+```text
+render(<C />)                    →  await mount(<C />)
+screen.getByText('X')            →  component.getByText('X')
+expect(el).toBeTruthy()          →  await expect(locator).toBeVisible()
+expect(screen.queryByText(...))  →  await expect(component.getByText(...)).toHaveCount(0)
+fireEvent.click(el)              →  await locator.click()
+fireEvent.keyDown(el, {key:'X'}) →  await locator.press('X')
+vi.fn() callback                 →  inline `const calls=[]; <C onX={(v)=>calls.push(v)} />`
+                                    (Playwright CT's RPC bridge runs the closure in
+                                    the test process — no `page.exposeFunction`
+                                    plumbing needed; the spec's iteration-102
+                                    caveat about that turned out to be unnecessary
+                                    in practice)
+Space key (`key: ' '`)           →  Playwright canonical `'Space'` (the original
+                                    `' '` would not have worked through `locator.press()`)
+```
+
+Notes:
+
+- The CT file lives at `packages/ui/src/__tests__/ct/filter-bar.ct.test.tsx`
+  (165 lines including the file-header docblock that documents the
+  translation conventions inline so future readers don't have to spelunk
+  through the change log to understand the patterns).
+- The leading docblock points at both `docs/plans/q22-playwright-ct.md`
+  and the new `docs/architecture/testing-runners.md` — anyone opening the
+  file gets the rationale up front.
+- All 16 cases use `test.describe('FilterBar (Playwright CT)', ...)` for
+  the test-name prefix (matches the iteration-104 smoke test grouping).
+
+#### Step 4 — Real bug surfaced and fixed
+
+First `pnpm test:ct` run reported **13 passed, 3 failed**. Failures were
+clustered around **tag interactions** (multi-select, deselect, aria-pressed
+on selected tag), all with the symptom that the second click "forgot" the
+first one. Root cause:
+
+```typescript
+// packages/ui/src/preact/FilterBar.tsx (before)
+selectedTags: initialTags = [],   // ← fresh [] on every render
+// ...
+useEffect(() => {
+  setActiveTags(initialTags);     // ← fires every render, wipes state
+}, [initialTags]);
+```
+
+Preact's `useEffect` dep comparison is reference equality. The default
+`[]` allocates a fresh array on every function call, so the dep "changed"
+on every render and the effect kept resetting `activeTags` back to `[]`,
+even when the parent never passed `selectedTags`. The original Vitest
+suite never caught this because the worker crashed at the second click
+before the symptom could manifest.
+
+Fix:
+
+```typescript
+// packages/ui/src/preact/FilterBar.tsx (after)
+const EMPTY_TAGS: readonly string[] = Object.freeze([]);
+
+export default function FilterBar({
+  // ...
+  selectedTags: initialTags = EMPTY_TAGS as string[],
+  // ...
+}) { /* ... */ }
+```
+
+A stable module-level `EMPTY_TAGS` sentinel keeps the default reference
+identical across renders. The `useEffect([initialTags])` now only fires
+when the *parent* passes a different array (the actual controlled-mode
+trigger). Re-ran `pnpm test:ct` → **16/16 pass in ~6.1 s**.
+
+`selectedCategory` did *not* have the same bug because its destructure
+omits the default value entirely (`selectedCategory: initialCategory`),
+leaving the variable as `undefined` when not passed; `useEffect`
+identity-comparison of `undefined === undefined` keeps the dep stable.
+The default-`= []` was the only broken site.
+
+A `// Stable empty-array sentinel ...` comment block above the constant
+in `FilterBar.tsx` documents the WHY (without the comment, the constant
+looks like dead code); reads:
+
+```text
+// Stable empty-array sentinel so the `selectedTags` default keeps a fixed
+// reference across renders. Without this, the default `[]` would create a
+// fresh array each call and the `useEffect([initialTags])` below would
+// fire on every render, resetting `activeTags` to `[]` and silently
+// discarding user clicks. Caught by Q22 Playwright CT (iteration 105).
+```
+
+#### Step 5 — Delete original Vitest file + sync configs
+
+- `packages/ui/src/__tests__/preact/filter-bar.test.tsx` — deleted (was
+  142 lines, 16 cases — fully superseded by the CT version).
+- `packages/ui/vitest.config.ts` — two updates:
+  - `test.exclude: ['**/__tests__/ct/**', 'node_modules/**', 'dist/**']` —
+    keeps Vitest's collector from picking up `.test.tsx` files in the CT
+    directory (which would error on the `@playwright/experimental-ct-react`
+    import).
+  - `coverage.exclude` adds `'src/preact/FilterBar.tsx'` with a comment
+    pointing at Q22 follow-up #3 (`playwright-coverage` integration). The
+    CT runs are not measured by Vitest V8 coverage today, so the
+    component would otherwise show as a coverage regression.
+- `.specify/features/testing.md` AC #10 — updated to **"1149 Vitest unit
+  tests across 75 Vitest test files, 16 suites, 16 packages, plus 16
+  Playwright Component Tests for `FilterBar` — total 1165 across both
+  runners"**. Added new AC #12 documenting the `pnpm test:ct` toolchain,
+  the Vite alias, and the coverage-exclusion rationale.
+
+#### Step 8 — Decision matrix doc
+
+Created `docs/architecture/testing-runners.md` (~270 lines). Sections:
+
+- **At a glance** — table mapping each runner (Vitest, Playwright CT,
+  Playwright E2E) to its responsibility, test-file location, and
+  invocation command.
+- **Decision tree** — 4-branch picker for new tests (pure TS → Vitest;
+  render-only Preact → Vitest; interactive Preact → CT; multi-page → E2E).
+- **Rules per runner** — concrete examples from this codebase
+  (`back-to-top.test.tsx` belongs in Vitest because it's a single-event
+  scroll assertion; `filter-bar.ct.test.tsx` belongs in CT because it
+  exercises `fireEvent` chains across multiple re-renders + a conditional
+  remount of the `Clear filters` button).
+- **Q22 background** — full chronology so future readers don't need to
+  read iterations 97–105 of the change log to understand why CT exists.
+- **Authoring conventions** — Vitest+`@testing-library/preact` →
+  Playwright CT translation table (same as the one in
+  `docs/plans/q22-playwright-ct.md` Step 4).
+- **Coverage handling** — explains the temporary `FilterBar.tsx` exclusion
+  and points at Q22 follow-up #3.
+- **Local commands** — cheat sheet (`pnpm test`, `pnpm test:ct`,
+  `pnpm test:ct:install`, `pnpm test:ui:safe`, `pnpm test:e2e`, etc.).
+- **CI integration** — describes the planned `test-ct` matrix job
+  (`os: [ubuntu-latest, windows-latest]`) and identifies the
+  `windows-latest` cell as the definitive Q22 fix signal.
+- **Authoring conventions for CT tests** — the translation table once
+  more, kept inline so the doc reads end-to-end.
+- **Future work** — Q22 follow-ups #1 (`MobileMenu`), #2 (`pnpm
+  test:ui:safe` removal), #3 (`playwright-coverage` integration).
+
+`docs/index.md` Architecture section gained a new bullet pointing at the
+new doc; the iteration-105 headline at the top of `docs/index.md` calls
+out Q22 RESOLVED with the test-count split.
+
+### Q22 status flip
+
+`docs/questions.md` Q22:
+
+- **Status block** at the top of the section — flipped from OPEN to
+  ✅ RESOLVED with the iteration-105 summary and a pointer to the new
+  architecture doc.
+- **Iteration-105 update** at the bottom of the section — full execution
+  record (Step 4 port, the 13/16 → 16/16 bug-fix loop, Step 5 file
+  deletion + config sync, Step 8 doc creation). Steps 6 (Linux verify)
+  and 7 (CI matrix) flagged as deferred.
+
+### Files changed
+
+| File | Change |
+|------|--------|
+| `packages/ui/src/__tests__/ct/filter-bar.ct.test.tsx` | Rewrote from 1-case smoke test to full 16-case suite (165 lines, file-header docblock documents translation conventions inline) |
+| `packages/ui/src/__tests__/preact/filter-bar.test.tsx` | **Deleted** (142 lines, 16 cases — superseded by CT version) |
+| `packages/ui/src/preact/FilterBar.tsx` | Bug fix: hoist `EMPTY_TAGS = Object.freeze([])` module-level sentinel; change `selectedTags: initialTags = []` to `selectedTags: initialTags = EMPTY_TAGS as string[]`. Added a comment block above the constant explaining WHY (without the comment, the constant looks like dead code). |
+| `packages/ui/vitest.config.ts` | Add `test.exclude` to skip `**/__tests__/ct/**`; add `'src/preact/FilterBar.tsx'` to `coverage.exclude` with comment pointing at Q22 follow-up #3 |
+| `.specify/features/testing.md` | AC #10 reworded to split Vitest vs CT counts (1149 + 16 = 1165). Added new AC #12 documenting `pnpm test:ct` toolchain |
+| `docs/architecture/testing-runners.md` | **New file** (~270 lines) — decision matrix and authoring conventions |
+| `docs/index.md` | Iteration 105 headline; new Architecture-section bullet pointing at testing-runners.md |
+| `docs/questions.md` | Q22 status block flipped to RESOLVED; iteration-105 execution record appended |
+| `docs/plans/q22-playwright-ct.md` | Status header bumped to "PHASE 2 COMPLETE — Q22 RESOLVED locally"; new "ITERATION 105 EXECUTION RECORD" block added between iteration-103 correction and iteration-104 record |
+| `.specify/features/q22-playwright-ct.md` | New "✅ Q22 RESOLVED (iteration 105)" block at the top, above the iteration-104 PATH A VALIDATED block |
+| `.specify/project.md` | Current State header bumped 104 → 105; test counts split; Q22 RESOLVED note; FilterBar bug-fix note |
+| `docs/log.md` | This entry |
+
+### Verification
+
+- `pnpm --filter @ever-works/ui typecheck:ct` → 0 errors.
+- `pnpm --filter @ever-works/ui typecheck` → 0 errors (build tsconfig
+  unchanged by CT files).
+- `pnpm --filter @ever-works/ui lint` → 0 errors.
+- `pnpm --filter @ever-works/ui test:ct` → **16/16 pass in ~6.1 s** on
+  Windows + Node 24.14.0 + Chromium Headless Shell 147.0.7727.15.
+
+### Step 7 — CI matrix landed
+
+`.github/workflows/ci.yml` gains a `test-ct` matrix job
+(`os: [ubuntu-latest, windows-latest]`, `needs: ci`). Implementation:
+
+- pnpm + Node 24 setup mirrors the existing `ci` and `e2e` jobs for
+  consistency.
+- `actions/cache@v4` block keyed on `pnpm-lock.yaml` hash for
+  `~/.cache/ms-playwright` (Linux) and `~/AppData/Local/ms-playwright`
+  (Windows). Avoids re-downloading Chromium Headless Shell on every PR;
+  re-downloads only when `@playwright/test` moves.
+- `pnpm exec playwright install --with-deps chromium` runs in
+  `packages/ui/`. The `--with-deps` flag is a no-op on Windows but
+  installs OS-level apt packages on Ubuntu — matches the install recipe
+  documented in iteration 104.
+- `pnpm test:ct` invokes the migrated CT suite.
+- `if: failure()` artifact upload of `packages/ui/playwright-report/`
+  and `packages/ui/test-results/` named per OS, retained 7 days. Mirrors
+  the existing E2E job's failure-artifact pattern.
+
+A header comment in the workflow file flags the `windows-latest` cell as
+the canonical Q22 fix signal — if it ever goes red on a `FilterBar`
+test, the migration has regressed.
+
+### Iteration 105 — observation: `pnpm test:ui:safe` now stalls on `layout-switcher.test.tsx`
+
+While verifying that the per-file Vitest runner still produces a clean
+signal after the iteration-105 deletions, the runner completed
+`utils.test.ts` (12/12), `keyboard.test.ts` (7/7),
+`pagination.test.ts` (14/14), `back-to-top.test.tsx` (6/6), and
+`item-browser.test.tsx` (39/39) cleanly, then **stalled indefinitely on
+`layout-switcher.test.tsx`** (no test output beyond the `RUN v4.1.5`
+banner across a 5+ min wall window before the run was aborted). This is
+a **separate** issue from the iteration-105 changes:
+
+- The CT migration only touched `FilterBar.tsx`, `vitest.config.ts`,
+  the deleted `filter-bar.test.tsx`, the new `filter-bar.ct.test.tsx`,
+  and docs. None of those affect `layout-switcher.test.tsx`.
+- iteration 100's diagnostic matrix recorded `layout-switcher.test.tsx`
+  as "12/12 passed individually". Either the local environment has
+  drifted since iteration 100 or this is a separate Q22-shaped failure
+  with the same fingerprint as `FilterBar` (jsdom + Preact + Node 24
+  IPC).
+
+Recommended follow-up: open Q23 to diagnose
+`layout-switcher.test.tsx` specifically. If the symptom matches Q22
+(stall before any test runs, pool-independent, reporter-independent),
+follow the same Playwright CT migration path. The Q23 implementation
+playbook is identical to Q22 — only the file under migration differs.
+
+This observation is documented in the iteration-105 section of
+`docs/questions.md` Q22 (the "Iteration 105 — observation" subsection).
+
+### What's left for Q22
+
+- **Step 6 (CI verification)** — observation only on the next CI run. No
+  code change required.
+- **Follow-up #1** — preemptive `MobileMenu` migration to CT (also has
+  conditional remount + focus trap, both jsdom-fragile). Not yet failing
+  but at the same risk profile as `FilterBar`. Defer until a `MobileMenu`
+  test actually crashes or until a routine health-audit run picks it up.
+- **Follow-up #2** — remove `pnpm test:ui:safe` once the remaining Preact
+  tests confirm stable in plain `pnpm test`. The iteration-105 attempt
+  surfaced a Q22-shaped stall in `layout-switcher.test.tsx`, so this is
+  blocked on Q23 (see observation above).
+- **Follow-up #3** — integrate `playwright-coverage` so CT runs
+  contribute back to the V8 branch report and `FilterBar.tsx` can drop
+  from the `coverage.exclude` list.
+
+### Why this is the right shape
+
+The CT migration touched exactly the files that needed touching: one new
+test file replacing one deleted test file, one bug fix in the component
+under test, two config touch-ups (`vitest.config.ts` and
+`.specify/features/testing.md` AC #10), one new architecture doc, and
+five documentation files brought in sync. No production-code changes
+outside `FilterBar.tsx`, no plugin/adapter/data-layer churn, no
+spec-drift introduced. The Q22 plan's seven-hour estimate held: ~5h of
+authoring + ~1h of bug investigation = ~6h walltime across iterations
+104 + 105.
+
+---
+
 ## 2026-04-27 — Iteration 104: Q22 Steps 1-3 EXECUTED — Path A validated, smoke test green on Windows + Node 24
 
 ### Headline

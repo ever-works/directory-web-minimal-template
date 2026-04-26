@@ -49,6 +49,70 @@ jobs:
           # Build without data repo — pages will be empty but build should succeed
           SITE_URL: https://example.com
 
+  test-ct:
+    # Playwright Component Tests for the @ever-works/ui Preact components that
+    # crashed Vitest+jsdom on Windows + Node 24 (Q22 — see
+    # docs/plans/q22-playwright-ct.md). Runs on both Ubuntu and Windows; the
+    # `windows-latest` cell is the canonical Q22 fix signal — if it ever goes
+    # red on a `FilterBar` test, the migration has regressed and Q22 is back.
+    name: Playwright Component Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    needs: ci
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          # Playwright resolves browsers from these paths by default per
+          # https://playwright.dev/docs/browsers#managing-browser-binaries.
+          # Keying on the lockfile hash makes the cache invalidate when the
+          # @playwright/test version moves, without paying for a re-download
+          # on every PR.
+          path: |
+            ~/.cache/ms-playwright
+            ~/AppData/Local/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: Install Playwright browsers
+        # `--with-deps` is a no-op on Windows but installs OS dependencies
+        # (apt/dnf) on Ubuntu — see docs/questions.md Q22 iteration-104 note
+        # for the install-path nuance discovered locally.
+        run: pnpm exec playwright install --with-deps chromium
+        working-directory: packages/ui
+
+      - name: Playwright Component Tests
+        run: pnpm test:ct
+
+      - name: Upload Playwright artifacts
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-ct-report-${{ matrix.os }}
+          path: |
+            packages/ui/playwright-report/
+            packages/ui/test-results/
+          retention-days: 7
+
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest

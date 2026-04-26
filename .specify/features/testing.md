@@ -21,8 +21,9 @@ Vitest-based unit testing alongside the existing Playwright E2E tests. Provides 
 7. `packages/plugin-*` each have tests for their core logic (all plugin packages covered)
 8. Tests use `vi.mock()` for filesystem/IO mocking
 9. All tests pass in CI (add to CI workflow)
-10. Total test coverage: 1165 unit tests across 76 test files, 16 suites, 16 packages
+10. Total test coverage: **1149 Vitest unit tests** across 75 Vitest test files, 16 suites, 16 packages, **plus 16 Playwright Component Tests** for `FilterBar` (`packages/ui/src/__tests__/ct/filter-bar.ct.test.tsx`) — total 1165 across both runners. The CT split was introduced in iteration 105 to bypass the Q22 Worker-IPC crash that prevented the original `packages/ui/src/__tests__/preact/filter-bar.test.tsx` from running on Windows + Node 24 (see `docs/plans/q22-playwright-ct.md`).
 11. Plugin pipeline integration tests validate end-to-end data flow, chaining, error handling, ordering, and context propagation
+12. `pnpm test:ct` runs the Playwright Component Tests in `packages/ui` against headless Chromium with the `react`/`react-dom` → `preact/compat` Vite alias. Browsers are installed once via `pnpm test:ct:install`. CT output is excluded from the V8 coverage report; `src/preact/FilterBar.tsx` is excluded from `vitest.config.ts` `coverage.exclude` to keep the coverage signal honest until `playwright-coverage` integration (Q22 follow-up #3) merges the two runners' reports.
 
 ## Technical Design
 

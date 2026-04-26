@@ -10,8 +10,23 @@ sidebar_label: "Q22 Playwright CT Migration"
 > Authored: iteration 102 (2026-04-26).
 > Corrected: iteration 103 (2026-04-26).
 > Steps 1-3 executed and validated: iteration 104 (2026-04-27).
+> Steps 4, 5, 7, 8, 9 executed: iteration 105 (2026-04-27) — **Q22 RESOLVED locally + CI matrix wired**.
 >
-> Status: **PHASE 1 COMPLETE — Path A validated on Windows + Node 24. Steps 4-9 ready for next scheduled run.**
+> Status: **✅ PHASE 2 COMPLETE — Q22 RESOLVED on local Windows + Node 24, CI matrix landed. Remaining work: Step 6 (first CI run on `ubuntu-latest` and `windows-latest` cells confirms the matrix passes — observation only, no code change needed).**
+
+## ✅ ITERATION 105 EXECUTION RECORD (2026-04-27)
+
+Steps 4, 5, 7, 8, and 9 below were executed in iteration 105. Outcomes:
+
+- **Step 4** — `packages/ui/src/__tests__/ct/filter-bar.ct.test.tsx` rewritten to cover all 16 cases. Initial run: **13/16 pass**. Three failures (multi-selects tags, deselects tag on second click, sets aria-pressed on selected tags) all traced to a real bug in `packages/ui/src/preact/FilterBar.tsx`: the default value `selectedTags: initialTags = []` allocates a new `[]` on every function call, so `useEffect([initialTags])` fires on every render and silently resets `activeTags` to `[]`. Fixed by hoisting a `const EMPTY_TAGS = Object.freeze([])` module-level sentinel and changing the destructure default to `selectedTags: initialTags = EMPTY_TAGS as string[]`. Re-ran `pnpm test:ct` → **16/16 pass in ~6.1s** on Windows + Node 24.14.0.
+- **Step 5** — Original `packages/ui/src/__tests__/preact/filter-bar.test.tsx` deleted. `packages/ui/vitest.config.ts` updated: `test.exclude: ['**/__tests__/ct/**', 'node_modules/**', 'dist/**']` so Vitest's collector ignores `.ct.test.tsx` files; `coverage.exclude` adds `'src/preact/FilterBar.tsx'` (with comment pointing at follow-up #3). `.specify/features/testing.md` AC #10 reworded to "1149 Vitest unit tests + 16 Playwright Component Tests = 1165 total"; new AC #12 added documenting the `pnpm test:ct` toolchain.
+- **Step 7** — `.github/workflows/ci.yml` gains a `test-ct` matrix job (`os: [ubuntu-latest, windows-latest]`, `needs: ci`). Steps: checkout, pnpm setup, Node 24 setup, `pnpm install --frozen-lockfile`, an `actions/cache@v4` block keyed on `pnpm-lock.yaml` hash for `~/.cache/ms-playwright` + `~/AppData/Local/ms-playwright` (avoids re-downloading Chromium on every PR), `pnpm exec playwright install --with-deps chromium` (no-op on Windows for `--with-deps`, installs apt deps on Ubuntu), `pnpm test:ct`, and an `if: failure()` artifact upload for `playwright-report/` + `test-results/` named per-OS. The `windows-latest` cell is the canonical Q22 fix signal — flagged with a header comment in the workflow file.
+- **Step 8** — `docs/architecture/testing-runners.md` published. Covers: at-a-glance table mapping each runner to its responsibility, decision tree for picking a runner, per-runner rules with examples from this codebase, Q22 background, authoring conventions table, coverage handling, local commands, CI integration, and future work pointing at the three Q22 follow-ups.
+- **`docs/index.md`** updated with the iteration-105 headline and a new sidebar entry under Architecture pointing at `testing-runners.md`.
+- **`.specify/project.md`** Current State header bumped 104 → 105 with the Q22 RESOLVED status, the new test-count split, and the FilterBar bug-fix note.
+- **`docs/questions.md` Q22**: status flipped from OPEN to ✅ RESOLVED at the top of the section; full iteration-105 update appended at the bottom.
+
+Step 6 (first CI run on `ubuntu-latest` + `windows-latest` cells confirms the matrix passes) is the only outstanding work, and is satisfied by observation on the next CI run — no additional code change required. Step 9 (log iteration) is fulfilled by this block plus the `docs/log.md` entry for iteration 105.
 
 ## ✅ ITERATION 104 EXECUTION RECORD (2026-04-27)
 
