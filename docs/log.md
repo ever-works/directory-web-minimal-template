@@ -12,10 +12,10 @@ Continued investigation from iterations 98 and 99. This pass focused on isolatin
 | Configuration                                                         | Outcome                                                   |
 |-----------------------------------------------------------------------|-----------------------------------------------------------|
 | `back-to-top.test.tsx` (6 tests) `pool: 'forks'`                      | **passes 6/6** in 30.9s                                   |
-| `filter-bar.test.tsx` (16 tests) `pool: 'forks'`                      | hangs after 3 tests reported (~5 min wall before kill)    |
+| `filter-bar.test.tsx` (16 tests) `pool: 'forks'`                      | hangs after 3 tests reported (~5 min wall before kill); when allowed to run to completion the worker crashes with `[vitest-pool]: Worker forks emitted error / Worker exited unexpectedly` and the run finishes reporting **5 passed (16) / 1 error** at 1170.36s wall time on 4.1.5 (and 1035.90s on 4.1.4) — terminal state is "5 tests pass, then worker dies", not a true hang |
 | `filter-bar.test.tsx` `pool: 'threads'`                               | hangs after 4 tests reported                              |
 | `filter-bar.test.tsx` `pool: 'vmThreads'`                             | hangs after 3 tests reported                              |
-| `filter-bar.test.tsx --no-isolate` `pool: 'forks'`                    | hangs after 3 tests reported                              |
+| `filter-bar.test.tsx --no-isolate` `pool: 'forks'`                    | hangs after 3 tests reported (5/16 + worker-exit terminal state matches the default-config row above) |
 | `filter-bar.test.tsx --reporter=json --outputFile=…`                  | hangs with **no JSON file written** (≠ a stdout buffering issue) |
 | `filter-bar.test.tsx -t "shows Tags legend"` (test 5 only, isolation) | **passes 1/1** in 30.9s with the other 15 tests skipped   |
 | `filter-bar.test.tsx -t "shows"` (skip 1-3, run 4 + 5)                | hangs after 3 tests **skipped** — never reaches a test    |

@@ -392,7 +392,7 @@ This means **Option A by itself does not actually unblock UI testing on Windows*
 
 - `utils.test.ts` (pure TS, no Preact) — passes 12/12 in 18s on 4.1.5; per-file runner also passes 1/1 in 46.5s.
 - `preact/filter-bar.test.tsx` on 4.1.4 with `--no-isolate` — fails after 5/16 tests with `[vitest-pool]: Worker forks emitted error / Worker exited unexpectedly` (17m17s wall time before crash). `--no-isolate` is **not** a workaround.
-- `preact/filter-bar.test.tsx` on 4.1.5 (default config) — hung past 60s with no test output beyond the `RUN v4.1.5` banner.
+- `preact/filter-bar.test.tsx` on 4.1.5 (default config) — hung past 60s with no test output beyond the `RUN v4.1.5` banner during the harness window. **Late-arriving evidence (same run, after the iteration 99 commit landed)**: when allowed to run to its true terminal state, the same invocation finished reporting `Test Files (1) / Tests 5 passed (16) / Errors 1 error` at 1170.36s wall (~19m30s), with the identical `[vitest-pool]: Worker forks emitted error / Worker exited unexpectedly` chain seen on 4.1.4. So 4.1.5 default-config behavior is byte-identical to 4.1.4 `--no-isolate` (5/16 pass + worker death), confirming the bump is purely a maintenance bump.
 
 So Option B (bisect Vitest version) is the next concrete step — try a known-good 3.x release in `packages/ui` only (workspace-local pin) to confirm a regression boundary, then look at Option D (Playwright component testing) if no 3.x version fixes it.
 
