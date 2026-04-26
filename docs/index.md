@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-26 (Iteration 99: patch deps bump — vitest 4.1.4 → 4.1.5, @vitest/coverage-v8 4.1.4 → 4.1.5, postcss 8.5.11 → 8.5.12 (docs), @typescript-eslint/eslint-plugin + parser 8.58.2 → 8.59.0. Q22 verified to reproduce on vitest 4.1.5 — root cause still open. Tooling validated: typecheck 23/23, lint 18/18.)
+> Updated: 2026-04-26 (Iteration 100: Q22 deeper diagnostic pass — hang is pool-independent (forks/threads/vmThreads all hang), reporter-independent (verbose/json both hang), file-specific to `filter-bar.test.tsx` (back-to-top.test.tsx with 6 tests passes 6/6). Most likely a Vitest 4.1.x suite-walking bug for ≥7 `it()` blocks under one `describe()` on jsdom + Windows. Doc-only iteration; no code/dep changes.)
 
 ## Root Documents
 

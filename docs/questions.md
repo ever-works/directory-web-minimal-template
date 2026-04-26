@@ -395,3 +395,30 @@ This means **Option A by itself does not actually unblock UI testing on Windows*
 - `preact/filter-bar.test.tsx` on 4.1.5 (default config) — hung past 60s with no test output beyond the `RUN v4.1.5` banner.
 
 So Option B (bisect Vitest version) is the next concrete step — try a known-good 3.x release in `packages/ui` only (workspace-local pin) to confirm a regression boundary, then look at Option D (Playwright component testing) if no 3.x version fixes it.
+
+**Iteration 100 update (2026-04-26)** — fresh diagnostic pass with Vitest 4.1.5 and committed `pool: 'forks'`, `maxWorkers: 1`. The hang has a *consistent shape* across configurations:
+
+| Configuration                                                         | Outcome                                                   |
+|-----------------------------------------------------------------------|-----------------------------------------------------------|
+| `back-to-top.test.tsx` (6 tests) `pool: 'forks'`                      | **passes 6/6** in 30.9s                                   |
+| `filter-bar.test.tsx` (16 tests) `pool: 'forks'`                      | hangs after 3 tests reported (~5 min wall before kill)    |
+| `filter-bar.test.tsx` `pool: 'threads'`                               | hangs after 4 tests reported                              |
+| `filter-bar.test.tsx` `pool: 'vmThreads'`                             | hangs after 3 tests reported                              |
+| `filter-bar.test.tsx --no-isolate` `pool: 'forks'`                    | hangs after 3 tests reported                              |
+| `filter-bar.test.tsx --reporter=json --outputFile=…`                  | hangs with **no JSON file written** (≠ a stdout buffering issue) |
+| `filter-bar.test.tsx -t "shows Tags legend"` (test 5 only, isolation) | **passes 1/1** in 30.9s with the other 15 tests skipped   |
+| `filter-bar.test.tsx -t "shows"` (skip 1-3, run 4 + 5)                | hangs after 3 tests **skipped** — never reaches a test    |
+
+Refined diagnosis:
+1. **Pool-independent.** `forks`, `threads`, `vmThreads` all hang at the same boundary. So this is not a fork-lifecycle issue.
+2. **Reporter-independent.** JSON reporter (no stdout per-test writes) hangs identically. So this is not a stdout pipe / IPC backpressure issue.
+3. **File-specific.** `back-to-top.test.tsx` runs 6/6 cleanly under the same config that hangs `filter-bar.test.tsx`. So this is not a global jsdom/Preact/setup issue.
+4. **Boundary-shaped.** The hang triggers after the worker has *processed* 3-4 test entries (the entries can be `passed` or `skipped` — counting either way). With `-t "shows"` skipping the first 3 tests still hangs *before* test 4 runs, ruling out cumulative state from completed tests.
+5. **Test 5 in isolation passes** in 30.9s — so test 5 is not itself broken.
+
+Given (3) the issue is specific to filter-bar.test.tsx, and given (4) it's the *iterator/dispatch* that hangs (not a particular test body), the most likely root cause is in how vitest's runner walks the suite tree for this file. Filter-bar has 16 `it()` blocks under one `describe()` — back-to-top has 6. There may be a Vitest 4.1.x bug at a specific suite-walking transition (e.g. when emitting the 4th task report through the worker IPC channel under jsdom on Windows).
+
+Concrete next steps (deferred to next iteration):
+- **Workaround attempt**: split filter-bar.test.tsx into multiple files of ≤6 tests each (mechanical, low-risk) and re-run via the per-file runner. If each smaller file passes, this gives a working full-suite signal on Windows.
+- **Bisect attempt**: pin packages/ui to vitest@3.2.x (last 3.x line) and re-run filter-bar.test.tsx. If 3.x works, file an upstream issue with this minimal repro and revert when fixed.
+- **Repro for upstream**: capture a minimal stand-alone repro (single Preact component + 16 trivial render() tests + jsdom + vitest 4.1.5 + Windows + Node 24) suitable for github.com/vitest-dev/vitest.

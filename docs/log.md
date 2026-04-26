@@ -3,6 +3,62 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-26 — Iteration 100: Q22 deeper diagnostic pass — hang is pool-independent, reporter-independent, file-specific to filter-bar.test.tsx
+
+### Q22 Option B — diagnostic findings
+
+Continued investigation from iterations 98 and 99. This pass focused on isolating *what dimension* the filter-bar.test.tsx hang depends on. New evidence (all on Vitest 4.1.5, Node 24.14.0, Windows 10, jsdom 29.0.2):
+
+| Configuration                                                         | Outcome                                                   |
+|-----------------------------------------------------------------------|-----------------------------------------------------------|
+| `back-to-top.test.tsx` (6 tests) `pool: 'forks'`                      | **passes 6/6** in 30.9s                                   |
+| `filter-bar.test.tsx` (16 tests) `pool: 'forks'`                      | hangs after 3 tests reported (~5 min wall before kill)    |
+| `filter-bar.test.tsx` `pool: 'threads'`                               | hangs after 4 tests reported                              |
+| `filter-bar.test.tsx` `pool: 'vmThreads'`                             | hangs after 3 tests reported                              |
+| `filter-bar.test.tsx --no-isolate` `pool: 'forks'`                    | hangs after 3 tests reported                              |
+| `filter-bar.test.tsx --reporter=json --outputFile=…`                  | hangs with **no JSON file written** (≠ a stdout buffering issue) |
+| `filter-bar.test.tsx -t "shows Tags legend"` (test 5 only, isolation) | **passes 1/1** in 30.9s with the other 15 tests skipped   |
+| `filter-bar.test.tsx -t "shows"` (skip 1-3, run 4 + 5)                | hangs after 3 tests **skipped** — never reaches a test    |
+
+What the matrix tells us:
+1. **Pool-independent** — `forks`, `threads`, `vmThreads` all hang at the same boundary, ruling out fork-lifecycle bugs.
+2. **Reporter-independent** — JSON reporter (no per-test stdout writes) hangs identically, ruling out the IPC/stdout pipe backpressure theory floated in iteration 98.
+3. **File-specific** — `back-to-top.test.tsx` runs 6/6 cleanly under the same config, ruling out global jsdom/Preact/setup issues. The matchMedia/localStorage/scrollTo mocks in `setup.ts` are not the cause.
+4. **Boundary-shaped, not test-shaped** — With `-t "shows"` the hang triggers after the runner has *processed* 3 entries (all skipped). It hangs *before* reaching test 4, so it cannot be cumulative state from completed tests.
+5. **Test 5 in isolation passes** in 30.9s — test 5 is not itself broken.
+
+The most likely root cause: a Vitest 4.1.x bug in suite-walking / task-emission for files with ≥7 `it()` blocks under one `describe()` on jsdom + Windows. Filter-bar has 16 `it()`s; back-to-top has 6 `it()`s. The boundary at "3-4 entries reported" lines up with how Vitest batches task notifications.
+
+Concrete next steps (deferred to iteration 101+):
+- **Workaround attempt**: split `filter-bar.test.tsx` into multiple files of ≤6 tests each. If each smaller file passes, this gives a working Windows full-suite signal via the existing per-file runner.
+- **Bisect attempt**: pin packages/ui to vitest@3.2.x and re-run filter-bar.test.tsx. If 3.x works, file an upstream issue with a minimal repro.
+- **Repro for upstream**: capture a minimal stand-alone repro (single Preact component + 16 trivial `render()` tests + jsdom + vitest 4.1.5 + Windows + Node 24).
+
+### Doc updates
+
+- **`docs/questions.md` (Q22)** — appended the iteration 100 diagnostic table and refined diagnosis. No defaults changed.
+- **`docs/log.md`** — this entry.
+- **`docs/index.md`** — iteration descriptor bumped to 100.
+- **`.specify/project.md`** — Current State header bumped 99 → 100.
+
+### What was NOT changed
+
+- No code changes. No vitest config changes. No package.json changes. No dependency bumps.
+- An uncommitted experimental change to `packages/ui/vitest.config.ts` (`pool: 'forks'` → `pool: 'vmThreads'`) found in the working tree at the start of this run was reverted to the committed `forks` setting — the experiment was already covered in the diagnostic matrix above and `vmThreads` did not improve behavior.
+
+### Verification
+
+- `git status`: clean before edits, only doc changes after.
+- `pnpm typecheck`: not re-run this iteration (no source changes).
+- `pnpm lint`: not re-run this iteration (no source changes).
+- `pnpm test:ui:safe`: blocked on the same hang documented above; pure-TS files pass when isolated.
+
+### Next Steps (for next scheduled run)
+
+1. Mechanically split `filter-bar.test.tsx` into `filter-bar-render.test.tsx`, `filter-bar-categories.test.tsx`, `filter-bar-tags.test.tsx`, `filter-bar-clear.test.tsx`, `filter-bar-a11y.test.tsx` (≤6 tests each), and verify each passes via `pnpm test:ui:safe`. If yes, this is the practical Windows fix.
+2. If splitting works for filter-bar, audit the other Preact test files (`item-browser.test.tsx` 39 tests, `ui-components.test.tsx` 34 tests, `mobile-menu.test.tsx` 15 tests, `theme-toggle.test.tsx` 15 tests, `layout-switcher.test.tsx` 12 tests, `search-input.test.tsx` 10 tests, `sort-select.test.tsx` 7 tests) — split any ≥7-test file the same way.
+3. Otherwise, attempt the Vitest 3.x bisect.
+
 ## 2026-04-26 — Iteration 99: Patch deps bump (vitest 4.1.4 → 4.1.5, postcss 8.5.11 → 8.5.12, @typescript-eslint 8.58.2 → 8.59.0), Q22 verified to reproduce on vitest 4.1.5
 
 ### Dependency Updates (all patch bumps, no breaking changes)
