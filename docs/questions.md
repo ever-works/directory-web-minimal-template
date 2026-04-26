@@ -485,3 +485,25 @@ The two plans are independent — execute in parallel. Recommended cadence: Step
 Both plan files now carry a `## ⚠️ CORRECTION (iteration 103)` block at the top, instructing the implementer to substitute **`@playwright/experimental-ct-react`** with a `react` → `preact/compat` Vite alias (Path A) — the same alias pattern already used in `packages/ui/vitest.config.ts`. Path B fallback is **`@playwright/experimental-ct-core`** with a custom Preact mount adapter, decided by the Step-3 smoke test outcome.
 
 This correction does not change the overall feasibility of the plan — Preact's React-compat shim is the documented integration story for any React-tooling consumer (Vite, Webpack, Vitest, and now Playwright CT) — but it materially changes the dependency to install in Step 1 and is therefore a hard prerequisite for execution. The estimated effort (~7 hours over 3-4 iterations) is unchanged. No code changes this iteration; doc-only correction.
+
+**Iteration 104 update (2026-04-27) — Steps 1-3 EXECUTED, Path A VALIDATED 🎉**: The first three steps of `docs/plans/q22-playwright-ct.md` were executed and passed cleanly on local Windows + Node 24.14.0. Concrete results:
+
+| Step | Result | Wall time |
+|------|--------|-----------|
+| 1 — install deps | `@playwright/experimental-ct-react@1.59.1` + `@playwright/test@1.59.1` added to `packages/ui/devDependencies` | ~24 s |
+| 2 — scaffold CT | `playwright.ct.config.ts`, `playwright/index.html`, `playwright/index.ts`, `src/__tests__/ct/.gitkeep`, `tsconfig.ct.json` (separate tsconfig because rootDir=`./src` in the build tsconfig blocks `playwright/` from the typecheck graph), `pnpm test:ct` + `pnpm test:ct:install` + `pnpm typecheck:ct` scripts | <5 min |
+| 3 — smoke test | `src/__tests__/ct/filter-bar.ct.test.tsx` with the single `'renders with data-component attribute'` case → **1 passed (3.5s)** on Windows | ~3.5 s |
+
+Verification chain:
+- `pnpm --filter @ever-works/ui typecheck:ct` → green (0 errors).
+- `pnpm --filter @ever-works/ui typecheck` → green (build tsconfig untouched by CT files).
+- `pnpm --filter @ever-works/ui lint` → green (CT directory not yet linted; src/ scope unchanged).
+- `pnpm test:ct` → `1 passed (3.5s)` on Windows + Node 24.14.0 + Chromium Headless Shell 147.0.7727.15 + Vite 6.4.2.
+
+The Vite alias block (`react` → `preact/compat`, `react-dom` → `preact/compat`, `react-dom/test-utils` → `preact/test-utils`) inside `use.ctViteConfig` worked exactly as predicted by the iteration-103 correction analysis. The Vite production build emitted a 115 KB `FilterBar` chunk (the actual Preact 10.29.1 component) without compat issues. **Path B (custom mount adapter via `@playwright/experimental-ct-core`) is no longer required.**
+
+**Q22 fix is now empirically demonstrated on the original failing platform** (Windows + Node 24, the same environment where the Vitest+jsdom run crashed in iterations 97-101). The migration is unblocked: next scheduled run can proceed directly to Step 4 (port the remaining 15 cases).
+
+One install-path nuance worth recording for future iterations: Playwright's runtime resolves browsers from `~/AppData/Local/ms-playwright/` (Windows) by default. Running `pnpm exec playwright install` *without* `PLAYWRIGHT_BROWSERS_PATH=0` puts them there. The `with-deps` flag fails on Windows shells that can't elevate (it tries to install OS dependencies via apt/dnf), so the recipe is **`pnpm exec playwright install chromium`** locally and **`pnpm exec playwright install --with-deps chromium`** in CI Linux containers. The plan's Step 7 CI snippet already uses `--with-deps`, which is correct for ubuntu-latest; the same line on windows-latest is harmless because Playwright treats `--with-deps` as a no-op on Windows.
+
+Status remains **OPEN** until Steps 4-9 are executed (port full test surface, delete original Vitest file, push CI matrix green on both `ubuntu-latest` and `windows-latest`, write `docs/architecture/testing-runners.md`, flip status to RESOLVED). Estimated remaining effort: ~5 hours over 2-3 iterations.

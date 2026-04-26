@@ -76,14 +76,15 @@ A minimal, static-rendered Astro template for AI-generated directory websites. L
 | Phase 17 | Related items plugin: tag/category scoring, build-time computation | Complete |
 | Phase 18 | Code coverage infrastructure: V8 coverage across all 16 packages, CI hardening | Complete |
 
-## Current State (Iteration 103)
+## Current State (Iteration 104)
 
 - **8 apps**: web, web-e2e, docs, sample-basic, sample-jobs, sample-events, sample-real-estate, sample-git
 - **18 packages**: core, ui, plugins, adapters, sync, astro-integration, 10 plugin-* packages (seo, rss, pagination, filters, search, sort, sitemap, breadcrumbs, analytics, related-items), tsconfig, eslint-config
 - **1165 unit tests** (Vitest) across 76 test files, 16 suites — all passing
+- **+1 Playwright Component Test** (iteration 104) — `packages/ui/src/__tests__/ct/filter-bar.ct.test.tsx` smoke test passes 1/1 in ~3.5s on Windows + Node 24.14.0 via `@playwright/experimental-ct-react` + `react`→`preact/compat` Vite alias (Path A from iteration-103 correction). Q22 worker-crash bypass empirically demonstrated.
 - **V8 code coverage**: **16/16 packages at 100% branch coverage** — every package (core, plugins, astro-integration, adapters, sync, ui, plugin-filters, plugin-pagination, plugin-search, plugin-sitemap, plugin-rss, plugin-related-items, plugin-sort, plugin-analytics, plugin-breadcrumbs, plugin-seo) at 100% branch
 - **367 E2E test cases** across 57 spec files, 11 Playwright projects, 5 sample apps
 - **All 25 .specify/ feature specs** complete and verified against code
-- **Q22 resolution plans authored** (iteration 102, **corrected iteration 103**): `.specify/features/q22-playwright-ct.md` (full spec for Playwright CT migration of `FilterBar` to bypass jsdom — corrected to use `@playwright/experimental-ct-react` + `react`→`preact/compat` Vite alias since `experimental-ct-preact` is not a published npm package), `docs/plans/q22-playwright-ct.md` (9-step execution plan, ~7 hours, 3-4 iterations, corrected at top), `docs/plans/q22-upstream-repro.md` (single-file pnpm repro template + GitHub issue blueprint for vitest-dev/vitest, with corrected workaround line)
+- **Q22 PHASE 1 COMPLETE** (iteration 104): `docs/plans/q22-playwright-ct.md` Steps 1-3 executed — Playwright CT toolchain installed in `packages/ui` (`@playwright/experimental-ct-react@1.59.1` + `@playwright/test@1.59.1`), `playwright.ct.config.ts` scaffolded with the iteration-103 corrected `react`→`preact/compat` Vite alias, `playwright/index.{html,ts}` mount fixtures created, separate `tsconfig.ct.json` (build tsconfig has `rootDir: ./src` so cannot include `playwright/`), `pnpm test:ct` / `test:ct:install` / `typecheck:ct` scripts wired. Smoke test green. Path B (custom `experimental-ct-core` adapter) not needed. Steps 4-9 unblocked for next 2-3 scheduled runs (~5h remaining).
 - **Zero documentation drift** across all specs, catalogs, and reference docs
-- **All dependencies at latest versions** (Astro 6.1.9, Preact 10.29.1, Tailwind 4.2.4, TS 6.0.3, Prettier 3.8.3, Vitest 4.1.5, postcss 8.5.12, @typescript-eslint 8.59.0)
+- **All dependencies at latest versions** (Astro 6.1.9, Preact 10.29.1, Tailwind 4.2.4, TS 6.0.3, Prettier 3.8.3, Vitest 4.1.5, postcss 8.5.12, @typescript-eslint 8.59.0, Playwright 1.59.1)

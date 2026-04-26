@@ -9,8 +9,19 @@ sidebar_label: "Q22 Playwright CT Migration"
 >
 > Authored: iteration 102 (2026-04-26).
 > Corrected: iteration 103 (2026-04-26).
+> Steps 1-3 executed and validated: iteration 104 (2026-04-27).
 >
-> Status: **DRAFT — ready to execute in next scheduled run, with the iteration-103 correction applied.**
+> Status: **PHASE 1 COMPLETE — Path A validated on Windows + Node 24. Steps 4-9 ready for next scheduled run.**
+
+## ✅ ITERATION 104 EXECUTION RECORD (2026-04-27)
+
+Steps 1-3 below were executed in iteration 104. Outcomes:
+
+- **Step 1** — `@playwright/experimental-ct-react@1.59.1` and `@playwright/test@1.59.1` installed in `packages/ui/devDependencies`. Lockfile updated, version pin matches `apps/web-e2e`.
+- **Step 2** — Scaffold complete: `playwright.ct.config.ts` (with the `react` → `preact/compat` Vite alias from the iteration-103 correction inlined under `use.ctViteConfig`), `playwright/index.html`, `playwright/index.ts`, `src/__tests__/ct/.gitkeep`. Created `packages/ui/tsconfig.ct.json` (separate file because the build tsconfig has `rootDir: ./src`, which would error on `playwright/` files outside the root). Added `pnpm test:ct`, `pnpm test:ct:install`, and `pnpm typecheck:ct` scripts plus root-level passthrough scripts.
+- **Step 3** — Smoke test `src/__tests__/ct/filter-bar.ct.test.tsx` (single `mount(<FilterBar />)` → `toHaveAttribute('data-component', 'filter-bar')`) ran on local Windows + Node 24.14.0: **`1 passed (3.5s)`** with Vite 6.4.2 building a 115 KB FilterBar chunk via the compat alias. Path A is validated; **Path B (custom mount adapter) is not required**.
+
+Subsequent iterations can proceed directly to Step 4 (port remaining 15 cases) without re-running the decision gate.
 
 ## ⚠️ CORRECTION (iteration 103)
 

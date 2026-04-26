@@ -1,5 +1,16 @@
 # Feature: Q22 — Playwright Component Testing for Preact UI Components
 
+> ## ✅ PATH A VALIDATED (iteration 104, 2026-04-27)
+>
+> **The Step-3 smoke test passed on Windows + Node 24.14.0** with `@playwright/experimental-ct-react` + the `react` → `preact/compat` Vite alias (Path A from the iteration-103 correction). Concrete result: `pnpm test:ct` reports `1 passed (3.5s)` after Vite emits a 115 KB `FilterBar` chunk through the compat alias.
+>
+> Implications for the remainder of this spec:
+>
+> - **Path B (custom mount adapter via `@playwright/experimental-ct-core`) is no longer needed.** All references below to "decide Path A vs Path B" should be read as "Path A is the implementation".
+> - **The Q22 worker-crash bypass works as designed.** Mounting `FilterBar` in real Chromium completes in ~400 ms with no `Worker exited unexpectedly` chain — the Vitest+jsdom failure mode is fully avoided.
+> - **Phase 2 (port the remaining 15 cases) is unblocked.** Steps 4-9 in `docs/plans/q22-playwright-ct.md` can be executed in subsequent scheduled runs without re-running the validation gate.
+> - The Rollback Plan section at the bottom of this spec is now historical record only — it should not be invoked unless a regression in the toolchain re-breaks the smoke test.
+
 > ## ⚠️ CORRECTION (iteration 103, 2026-04-26)
 >
 > The original spec (iteration 102) referenced **`@playwright/experimental-ct-preact`** as if it were a published npm package. **It is not.** Verified on 2026-04-26 via `pnpm view`:

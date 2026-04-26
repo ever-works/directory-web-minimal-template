@@ -1,0 +1,15 @@
+{
+    "extends": "@ever-works/tsconfig/astro.json",
+    "compilerOptions": {
+        "noEmit": true,
+        "types": ["node"]
+    },
+    "include": [
+        "playwright.ct.config.ts",
+        "playwright/**/*.ts",
+        "src/__tests__/ct/**/*.ts",
+        "src/__tests__/ct/**/*.tsx",
+        "src/preact/**/*.tsx"
+    ],
+    "exclude": ["node_modules", "dist", "test-results", "playwright-report"]
+}

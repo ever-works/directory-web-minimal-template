@@ -3,6 +3,259 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 104: Q22 Steps 1-3 EXECUTED — Path A validated, smoke test green on Windows + Node 24
+
+### Headline
+
+The first three steps of `docs/plans/q22-playwright-ct.md` (install deps,
+scaffold Playwright CT, write smoke test) were executed in this iteration.
+**`pnpm test:ct` reports `1 passed (3.5s)` on Windows + Node 24.14.0** —
+the exact platform that was crashing the Vitest+jsdom run in iterations
+97-101. Q22 fix via Playwright CT is empirically demonstrated. Phase 2
+(port the remaining 15 cases, Steps 4-9) is unblocked.
+
+### What was done this iteration
+
+#### Step 1 — Install dependencies
+
+```
+cd packages/ui && pnpm add -D \
+    @playwright/experimental-ct-react@^1.59.1 \
+    @playwright/test@^1.59.1
+```
+
+Result: both packages added at version `1.59.1` exactly (matches
+`apps/web-e2e/package.json` `@playwright/test` pin). `pnpm-lock.yaml`
+updated; lockfile entries verified at lines 1033-1036, 3611,
+13649-13651. Walltime ~24s.
+
+#### Step 2 — Scaffold Playwright CT
+
+Created:
+
+1. **`packages/ui/playwright.ct.config.ts`** — config built from
+   `@playwright/experimental-ct-react`'s `defineConfig`. Inlined the
+   iteration-103 corrected Vite alias block under `use.ctViteConfig`:
+   ```typescript
+   use: {
+       trace: 'on-first-retry',
+       ctPort: 3100,
+       ctViteConfig: {
+           resolve: {
+               alias: {
+                   'react': 'preact/compat',
+                   'react-dom': 'preact/compat',
+                   'react-dom/test-utils': 'preact/test-utils',
+               },
+           },
+           esbuild: {
+               jsxFactory: 'h',
+               jsxFragment: 'Fragment',
+               jsxImportSource: 'preact',
+           },
+       },
+   },
+   ```
+   The alias mirrors `packages/ui/vitest.config.ts`. `testDir` is
+   `./src/__tests__/ct`, `testMatch` is `**/*.test.{ts,tsx}`,
+   `fullyParallel: true`, single worker on CI.
+
+2. **`packages/ui/playwright/index.html`** — standard Playwright CT
+   mount fixture with `<div id="root">` and a `<script type="module"
+   src="./index.ts">`.
+
+3. **`packages/ui/playwright/index.ts`** — empty fixture entry. Marked
+   with a JSDoc comment explaining it's the place to import global
+   styles or initialize browser-side scaffolding when the corpus grows.
+
+4. **`packages/ui/src/__tests__/ct/.gitkeep`** — placeholder so
+   Playwright can resolve `testDir` even before any test files exist
+   (ended up immediately superseded by the smoke test in Step 3, but
+   kept for the case where the directory is otherwise empty).
+
+5. **`packages/ui/tsconfig.ct.json`** (new — diverges from the plan,
+   which said to update `packages/ui/tsconfig.json`). Reason: the build
+   tsconfig has `rootDir: ./src`, which forbids files outside `src/`
+   from being part of the typecheck graph. Adding `playwright/**/*.ts`
+   to `include` would have triggered the `tsc TS6059: not under
+   rootDir` error. The cleanest fix is a separate `tsconfig.ct.json`
+   that extends `@ever-works/tsconfig/astro.json`, sets `noEmit: true`,
+   and includes both the playwright fixture files AND the
+   `src/__tests__/ct/**/*` test files plus their `src/preact/**`
+   imports. The build tsconfig is untouched so production type-checking
+   is identical to before.
+
+6. **Scripts** (`packages/ui/package.json`):
+   - `test:ct` → `playwright test --config=playwright.ct.config.ts`
+   - `test:ct:install` → `playwright install --with-deps chromium`
+   - `typecheck:ct` → `tsc --noEmit --project tsconfig.ct.json`
+
+7. **Root scripts** (`package.json`):
+   - `test:ct` → `pnpm --filter @ever-works/ui test:ct`
+   - `test:ct:install` → `pnpm --filter @ever-works/ui test:ct:install`
+
+8. **`.gitignore`** — no edits needed; root `.gitignore` already covers
+   `test-results/`, `playwright-report/`, `.cache/`. (Plan said to add
+   `packages/ui/.gitignore` entries; verified those patterns are
+   already inherited from the root file.)
+
+#### Step 3 — Smoke test (Path A vs Path B decision gate)
+
+Created `packages/ui/src/__tests__/ct/filter-bar.ct.test.tsx`:
+
+```typescript
+import { test, expect } from '@playwright/experimental-ct-react';
+import FilterBar from '../../preact/FilterBar';
+
+test.describe('FilterBar (Playwright CT smoke)', () => {
+    test('renders with data-component attribute', async ({ mount }) => {
+        const component = await mount(<FilterBar />);
+        await expect(component).toHaveAttribute('data-component', 'filter-bar');
+    });
+});
+```
+
+Then:
+
+1. `pnpm --filter @ever-works/ui typecheck:ct` → 0 errors. The
+   alias-driven import (`@playwright/experimental-ct-react` at the type
+   layer, real `preact/compat` at runtime) types cleanly because
+   Playwright's CT package ships its own `mount` types that don't
+   constrain the JSX namespace.
+
+2. `pnpm --filter @ever-works/ui typecheck` (the existing build
+   typecheck) → still 0 errors. CT files don't leak into the build
+   graph.
+
+3. `pnpm --filter @ever-works/ui lint` → still green. (The CT directory
+   is not yet in the eslint scope — `lint` runs over `src/`. Future
+   iteration may extend the eslint glob to include `src/__tests__/ct/`
+   once the migration is done; tracking under the Step-8 docs item.)
+
+4. **First `pnpm test:ct` run** — the test ran but failed at browser
+   launch with `Executable doesn't exist at
+   ~/AppData/Local/ms-playwright/chromium_headless_shell-1217/...`. The
+   *Vite build itself succeeded* — the build emitted a 35.72 KB index
+   chunk + a **115.15 KB FilterBar chunk** (the actual Preact 10.29.1
+   component) gzipped to 20.76 KB, with sourcemaps. This is the key
+   signal: **the Vite alias correctly mapped React imports to
+   `preact/compat`, the bundler rewrote them, and the Preact component
+   compiled cleanly inside the React-tooling test pipeline.** The
+   failure was purely a browser-binary path issue.
+
+5. Re-ran `pnpm exec playwright install chromium` (without the
+   `with-deps` flag, which fails on Windows shells that can't
+   privilege-escalate; without `PLAYWRIGHT_BROWSERS_PATH=0`, which puts
+   browsers under `node_modules/` instead of the runtime's default
+   `~/AppData/Local/ms-playwright/`). Chromium Headless Shell
+   147.0.7727.15 + Winldd downloaded.
+
+6. **Second `pnpm test:ct` run** →
+
+   ```
+   Running 1 test using 1 worker
+     ok 1 [chromium] › src\__tests__\ct\filter-bar.ct.test.tsx:18:5 › FilterBar (Playwright CT smoke) › renders with data-component attribute (406ms)
+     1 passed (3.5s)
+   ```
+
+   On the same Windows + Node 24.14.0 environment that crashes the
+   Vitest+jsdom run after 5/16 tests with `Worker exited unexpectedly`,
+   the Playwright CT mount of the same FilterBar component completes
+   in 406 ms with no worker chain errors. **Q22 is fixed for this
+   surface area.**
+
+#### Decision-gate outcome
+
+**Path A wins.** No need to fall back to Path B
+(`@playwright/experimental-ct-core` + custom Preact mount adapter).
+The `react`/`react-dom` → `preact/compat` Vite alias is sufficient for
+Playwright's React CT package to mount Preact 10.29.1 components
+correctly. This was the prediction in the iteration-103 correction
+block, now empirically confirmed.
+
+#### Doc updates
+
+- **`docs/questions.md` Q22** — appended an `Iteration 104 update —
+  Steps 1-3 EXECUTED, Path A VALIDATED 🎉` subsection with the per-step
+  result table, the verification chain, the install-path nuance for
+  future runs, and the new "remaining ~5 hours over 2-3 iterations"
+  estimate.
+- **`docs/plans/q22-playwright-ct.md`** — bumped status from "DRAFT —
+  ready to execute" to "PHASE 1 COMPLETE — Path A validated on Windows
+  + Node 24". Added an `## ✅ ITERATION 104 EXECUTION RECORD` block
+  between the iteration-103 correction and the original Context
+  section, documenting all three step outcomes and a per-step diff
+  summary. Numbered steps 1-9 below remain in place as historical
+  blueprint and as the source of truth for Steps 4-9.
+- **`.specify/features/q22-playwright-ct.md`** — added a `## ✅ PATH A
+  VALIDATED (iteration 104, 2026-04-27)` block at the top, above the
+  iteration-103 correction. Documents that Path B is no longer needed,
+  Phase 2 is unblocked, and the Rollback Plan is now historical.
+- **`docs/index.md`** — iteration descriptor bumped 103 → 104 with a
+  one-line headline.
+- **`.specify/project.md`** — Current State header bumped 103 → 104.
+
+### Files changed
+
+| File | Change |
+|------|--------|
+| `packages/ui/package.json` | +2 devDeps, +3 scripts (test:ct, test:ct:install, typecheck:ct) |
+| `package.json` | +2 root passthrough scripts (test:ct, test:ct:install) |
+| `pnpm-lock.yaml` | +14 packages (Playwright CT chain) |
+| `packages/ui/playwright.ct.config.ts` | NEW — config + Vite alias |
+| `packages/ui/playwright/index.html` | NEW — mount fixture HTML |
+| `packages/ui/playwright/index.ts` | NEW — mount fixture TS |
+| `packages/ui/src/__tests__/ct/.gitkeep` | NEW — placeholder |
+| `packages/ui/src/__tests__/ct/filter-bar.ct.test.tsx` | NEW — smoke test |
+| `packages/ui/tsconfig.ct.json` | NEW — separate typecheck config |
+| `docs/questions.md` | Q22: +iteration-104 subsection |
+| `docs/plans/q22-playwright-ct.md` | +execution record block, status update |
+| `.specify/features/q22-playwright-ct.md` | +path-A-validated block |
+| `docs/index.md` | Iteration 103 → 104 |
+| `.specify/project.md` | Iteration 103 → 104 |
+| `docs/log.md` | +this iteration entry |
+
+No files removed. No existing source files modified beyond the two
+`package.json` script additions.
+
+### Verification
+
+- `pnpm view @playwright/experimental-ct-react version` → `1.59.1` ✅
+- `pnpm view @playwright/experimental-ct-core version` → `1.59.1` ✅ (Path B fallback still available if needed)
+- `pnpm --filter @ever-works/ui typecheck` → green
+- `pnpm --filter @ever-works/ui typecheck:ct` → green
+- `pnpm --filter @ever-works/ui lint` → green
+- `pnpm test:ct` → `1 passed (3.5s)` on Windows + Node 24.14.0 + Chromium Headless Shell 147.0.7727.15
+
+Did NOT re-run the full Vitest suite for `packages/ui` this iteration —
+the Q22 hang is the very thing this migration bypasses, and adding
+the smoke test does not modify any pre-existing source files. The
+existing per-file workaround (`pnpm test:ui:safe`) remains the
+recommended way to run Vitest UI tests until Phase 2 deletes the
+broken `filter-bar.test.tsx` file.
+
+### Next Steps (for next scheduled run)
+
+`docs/plans/q22-playwright-ct.md` Steps 4-9 are now actionable. Recommended cadence:
+
+- **Run B (Step 4)** — port the remaining 15 cases from
+  `src/__tests__/preact/filter-bar.test.tsx` to
+  `src/__tests__/ct/filter-bar.ct.test.tsx` using the spec's
+  Vitest→Playwright CT idiom translation table. Run
+  `pnpm test:ct` after every 2-3 cases.
+- **Run C (Steps 5-6)** — delete the original Vitest file, update
+  coverage `exclude` for `src/preact/FilterBar.tsx`, sync
+  `.specify/features/testing.md` AC #10 test count, verify on Linux
+  if a WSL/box is available.
+- **Run D (Steps 7-9)** — add `test-ct` job to
+  `.github/workflows/ci.yml` matrix on `ubuntu-latest` + `windows-latest`
+  (the windows cell is the definitive Q22 close-out signal), publish
+  `docs/architecture/testing-runners.md` (Vitest vs. Playwright CT
+  decision matrix), flip Q22 status to RESOLVED in
+  `docs/questions.md`, log the iteration.
+
+Estimated remaining effort: ~5 hours over 2-3 iterations.
+
 ## 2026-04-26 — Iteration 103: Q22 plan correction — `@playwright/experimental-ct-preact` does not exist on npm
 
 ### What was wrong

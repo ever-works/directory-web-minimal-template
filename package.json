@@ -24,6 +24,8 @@
         "test": "turbo run test",
         "test:coverage": "turbo run test:coverage",
         "test:ui:safe": "pnpm --filter @ever-works/ui test:safe",
+        "test:ct": "pnpm --filter @ever-works/ui test:ct",
+        "test:ct:install": "pnpm --filter @ever-works/ui test:ct:install",
         "typecheck": "turbo run typecheck"
     },
     "devDependencies": {
