@@ -49,7 +49,7 @@
  * Read alongside `docs/architecture/testing-runners.md`,
  * `.specify/features/q22-mobilemenu-ct.md`, and `docs/plans/q22-mobilemenu-ct.md`.
  */
-import { test, expect } from '@playwright/experimental-ct-react';
+import { test, expect } from './fixtures';
 import MobileMenu from '../../preact/MobileMenu';
 
 const items = [

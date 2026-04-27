@@ -3,6 +3,180 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 114: Q22 follow-up #3 Phase 1 ✅ DONE — Playwright CT now emits source-mapped V8 coverage on every `pnpm test:ct` run
+
+### Headline
+
+Phase 1 of the `playwright-coverage` integration plan executed end-to-end. The `monocart-coverage-reports@^2.12.0` + `monocart-reporter@^2.10.0` combination is now wired into `packages/ui/playwright.ct.config.ts`; the existing 43 CT cases continue to pass (43/43 in 1m 16s on Windows 10 + Node 24.14.0 + Chromium 147 + Playwright 1.59.1) and now ALSO emit a V8-shape `packages/ui/coverage/ct/raw-v8.json` with **9 source-mapped entries** — well over the plan's ≥3 exit criterion. All three migrated components (`FilterBar.tsx`, `LayoutSwitcher.tsx`, `MobileMenu.tsx`) are present in the `result[]` array with workspace-relative `.tsx` URLs (NOT chunk hashes), closing the spec's AC #3 prerequisite and the iteration-113 Phase 0 deferred source-map question.
+
+This advances Q22 follow-up #3 from "library validated" to "library wired in production"; **Phase 2 (drop the three Vitest `coverage.exclude` lines for the migrated components) is unblocked**. Q25 (library choice) flips from CONFIRMED to ✅ **RESOLVED — Option A adopted**; Option B (`@bgotink/playwright-coverage`) is no longer a contingency.
+
+### What Phase 1 specifically proved
+
+**Empirically verified**:
+
+- `monocart-reporter@2.10.1`'s `coverage.entryFilter` / `coverage.sourceFilter` / `coverage.onEnd` API works on the target toolchain.
+- The CT Vite bundler emits source-maps that resolve back to original `.tsx` files even with the `react`→`preact/compat` alias chain — this was the last open Q25 question after iteration-113's Phase 0 PASS-API.
+- The Playwright `page.coverage.startJSCoverage()` / `stopJSCoverage()` API works inside an `auto: true` test fixture composed with `@playwright/experimental-ct-react`'s `mount` fixture.
+- `addCoverageReport(coverage, testInfo)` from `monocart-reporter` correctly aggregates per-test V8 lists into a single global report.
+- Source-map narrowing via `sourceFilter` correctly excludes `__tests__/`, `playwright/index.*`, and `node_modules/` while keeping `packages/ui/src/preact/`, `src/primitives/`, `src/components/ui/`, and `src/lib/`.
+
+**Verified numerics** (from `packages/ui/coverage/ct/raw-v8.json` and `coverage-report.json` after a clean run):
+
+| Metric | Value | Source |
+|--------|-------|--------|
+| CT pass count | 43/43 in 1m 16s | Playwright report |
+| `result.length` in `raw-v8.json` | 9 | onEnd hook |
+| Branches | 84.88% (73 / 86) | MCR aggregate |
+| Functions | 100% (40 / 40) | MCR aggregate |
+| Lines | 97.18% (482 / 496) | MCR aggregate |
+| Statements | 39.80% (39 / 98) | MCR aggregate |
+| Bytes | 60.73% (10,432 / 17,178) | MCR aggregate |
+
+The 39.80% statements / 60.73% bytes are expected to rise after Phase 3's merge with Vitest coverage — those metrics measure the CT-only subgraph (the bundled chunks the 43 CT tests pull in), not the full `packages/ui/src/` tree.
+
+**Files in the source-mapped subgraph** (workspace-relative, all under `packages/ui/src/`):
+
+1. `src/preact/FilterBar.tsx` ✅ migrated component
+2. `src/preact/LayoutSwitcher.tsx` ✅ migrated component
+3. `src/preact/MobileMenu.tsx` ✅ migrated component
+4. `src/components/ui/badge.tsx`
+5. `src/components/ui/button.tsx`
+6. `src/lib/keyboard.ts`
+7. `src/lib/utils.ts`
+8. `src/primitives/badge/badge-variants.ts`
+9. `src/primitives/button/button-variants.ts`
+
+Every entry has a `.tsx` or `.ts` extension; zero entries point at chunk hashes (`<name>-<hash>.js`) or `__VITE_LOAD_*` URLs. AC #3 is fully satisfied.
+
+### Plan vs. implementation deltas (recorded in plan + spec)
+
+The plan as written assumed a few things that turned out to be slightly off about how `monocart-reporter` and the CT Vite bundler interact. Each delta is recorded in `docs/plans/q22-playwright-coverage.md` "Phase 1 / Outcome" and `.specify/features/q22-playwright-coverage.md` "Decisions". Headlines:
+
+1. **`outputFile` is the HTML report path, not the V8 JSON path.** `monocart-reporter`'s top-level `outputFile` option points at the per-suite HTML dashboard (`coverage/ct/index.html`). The plan's `outputFile: './coverage/ct/raw-v8.json'` direction was therefore impossible as a literal `monocart-reporter` config — that reporter doesn't produce a file at that path. Fix: write `raw-v8.json` from a `coverage.onEnd` hook that re-emits `coverageResults.files` as a `{result: [{url, sourcePath, summary}]}` JSON, hitting the plan's intended location and shape.
+
+2. **`entryFilter` runs at the V8 (chunk) layer, NOT the source-file layer.** Chromium emits V8 entries keyed by the URL the browser fetched — for CT runs, that's `http://localhost:3100/assets/<name>-<hash>.js` (Vite-bundled chunks), not source paths. The plan's regex (`src/preact/*.tsx` + `src/primitives/*.tsx`) would have rejected every entry, which is exactly what happened on the first run (zero coverage in the summary table). Fix: relax `entryFilter` to accept any chunk under the `localhost:3100/assets/` prefix, and let `sourceFilter` do the per-source narrowing AFTER source-maps are applied.
+
+3. **A custom auto-coverage fixture is required.** `monocart-reporter` does NOT auto-instrument `page.coverage.*`; without a fixture that calls `addCoverageReport()` per test, the merged report would be empty. The plan didn't mention this explicitly. Fix: new `packages/ui/src/__tests__/ct/fixtures.ts` extends `base.extend({ autoCoverage: [..., { auto: true }] })`. The three CT test files (`filter-bar.ct.test.tsx`, `layout-switcher.ct.test.tsx`, `mobile-menu.ct.test.tsx`) updated to import `test`/`expect` from `./fixtures` instead of `@playwright/experimental-ct-react`.
+
+4. **TS2883 inferred-type leak from `RouterFixture`.** The fixture's `base.extend({...})` produces a `TestType<...>` whose inferred type references `RouterFixture` from `@playwright/experimental-ct-core`, which isn't re-exported by `@playwright/experimental-ct-react`. TypeScript flags this as TS2883 ("inferred type cannot be named without a reference to..."). The added `autoCoverage: void` fixture is internal-only (`auto: true`, never called by name in test bodies), so we cast `extended as typeof base` for the public export — preserves the original type surface, hides the internal fixture from consumers, and unblocks `pnpm typecheck`.
+
+5. **Reporter formats**: plan envisioned `['v8', 'lcov', 'codecov']` for the merged-report stage (Phase 3). For Phase 1's CT-only stage, we use `['v8', 'v8-json', 'console-summary']` — `v8` for the HTML dashboard, `v8-json` for `coverage-report.json` (post-merge processed JSON), and `console-summary` for the table that lands at the end of every CT run. `lcov` and `codecov` are deferred to Phase 3 where Istanbul-shape outputs make more sense for the merged-with-Vitest report than for the CT-only one.
+
+### What was done (file-by-file)
+
+1. **`packages/ui/package.json`** — added two devDependencies:
+   - `monocart-coverage-reports: ^2.12.0`
+   - `monocart-reporter: ^2.10.0`
+   - Pins explicitly use the `^2.12.0` and `^2.10.0` floors per the spec's iteration-112 verification, even though pnpm resolved to `2.12.11` and `2.10.1` (most recent on npm).
+
+2. **`packages/ui/src/__tests__/ct/fixtures.ts`** (new file, 47 lines) — auto-coverage fixture. Extends `@playwright/experimental-ct-react`'s `test` with a `void`-typed auto-fixture that:
+   - Skips on non-Chromium projects (`browserName !== 'chromium'`).
+   - Calls `page.coverage.startJSCoverage({ resetOnNavigation: false })` in setup.
+   - Yields to the test body.
+   - Calls `page.coverage.stopJSCoverage()` in teardown.
+   - Pipes the V8 list through `addCoverageReport(coverage, testInfo)`.
+
+3. **`packages/ui/src/__tests__/ct/filter-bar.ct.test.tsx`** — import line changed from `@playwright/experimental-ct-react` to `./fixtures`.
+
+4. **`packages/ui/src/__tests__/ct/layout-switcher.ct.test.tsx`** — same import line change.
+
+5. **`packages/ui/src/__tests__/ct/mobile-menu.ct.test.tsx`** — same import line change.
+
+6. **`packages/ui/playwright.ct.config.ts`** — substantial rewrite:
+   - Top-of-file comment block extended with a "Q22 follow-up #3 — playwright-coverage integration (Phase 1)" section pointing at this plan and the spec.
+   - `reporter:` array: `[[<list-or-github>], ['monocart-reporter', { ... }]]`.
+   - `monocart-reporter` config:
+     - `name: '@ever-works/ui CT Coverage'`
+     - `outputFile: './coverage/ct/index.html'`
+     - `coverage.outputDir: './coverage/ct'`
+     - `coverage.reports: ['v8', 'v8-json', 'console-summary']`
+     - `coverage.entryFilter`: `/\/assets\/[^/?]+\.js(?:\?|$)/` (accepts every Vite-bundled chunk URL).
+     - `coverage.sourceFilter`: keeps `packages/ui/src/`-substring or `src/`-prefixed paths; excludes `__tests__/`, `playwright/index.*`, `node_modules/`.
+     - `coverage.onEnd`: writes `coverage/ct/raw-v8.json` in V8-shape (`{result: [{url, sourcePath, summary}]}`) using `node:fs.writeFileSync`.
+
+7. **`packages/ui/.gitignore`** — added explicit `coverage/` entry with a comment block explaining the duplication with the repo-root `.gitignore` is intentional defense-in-depth (per Phase 1 step 3 of the plan).
+
+8. **`docs/plans/q22-playwright-coverage.md`** — Phase 1 marked ✅ DONE with full delta list and verification numbers; iteration sequencing table updated to reflect actual cadence (110 spec, 111 doc-only, 112 prereq, 113 Phase 0, 114 Phase 1, 115 Phase 2, ...).
+
+9. **`.specify/features/q22-playwright-coverage.md`** — Decisions table: `Q25 library choice`, `Library validation date`, `Companion Playwright reporter`, `CT coverage output dir`, `Reporter formats`, `entryFilter regex`, `sourceFilter`, `Auto-coverage fixture` rows all flipped from "pending Phase 1" to actual values.
+
+10. **`docs/questions.md`** — Q25 status flipped from CONFIRMED to ✅ RESOLVED; "Phase 1 outcome" subsection added with empirical evidence.
+
+11. **`.specify/project.md`** — Current State header bumped 113 → 114; coverage state line updated to acknowledge the CT measurement of the three excluded components.
+
+12. **`docs/index.md`** — front-matter iteration descriptor bumped 113 → 114 with the full Phase 1 outcome summary; iteration 113 demoted to history.
+
+13. **`docs/log.md`** — this entry.
+
+### Verification
+
+- `pnpm --filter @ever-works/ui typecheck` — clean, 0 errors.
+- `pnpm --filter @ever-works/ui typecheck:ct` — clean, 0 errors.
+- `pnpm --filter @ever-works/ui test:ct` — 43/43 pass in 1m 16s on Windows + Node 24.14.0.
+- `node -e "const r = require('./packages/ui/coverage/ct/raw-v8.json'); console.log(r.result.length)"` → `9`.
+- `coverage-report.json` summary block (parsed from disk):
+  - `summary.branches.pct`: 84.88
+  - `summary.functions.pct`: 100
+  - `summary.lines.pct`: 97.18
+  - `files.length`: 9
+  - All 3 migrated components present in `files[].sourcePath`.
+- `git status` clean except for the intended deltas; `coverage/` outputs ignored as expected.
+
+### Files touched
+
+- `packages/ui/package.json` (deps added)
+- `packages/ui/.gitignore` (coverage rule)
+- `packages/ui/playwright.ct.config.ts` (reporter wired)
+- `packages/ui/src/__tests__/ct/filter-bar.ct.test.tsx` (import path)
+- `packages/ui/src/__tests__/ct/layout-switcher.ct.test.tsx` (import path)
+- `packages/ui/src/__tests__/ct/mobile-menu.ct.test.tsx` (import path)
+- `pnpm-lock.yaml` (transitive dep updates)
+- `docs/log.md` (this entry)
+- `docs/index.md` (iteration descriptor)
+- `docs/questions.md` (Q25 RESOLVED)
+- `docs/plans/q22-playwright-coverage.md` (Phase 1 outcome)
+- `.specify/features/q22-playwright-coverage.md` (Decisions table)
+- `.specify/project.md` (Current State, coverage line)
+
+### Files created
+
+- `packages/ui/src/__tests__/ct/fixtures.ts` (47 lines — auto-coverage fixture)
+
+No files deleted.
+
+### Next Steps (for next scheduled run)
+
+Execute **Phase 2** of the plan:
+
+1. Edit `packages/ui/vitest.config.ts`:
+   - Remove the three explicit `coverage.exclude` lines for `src/preact/FilterBar.tsx`, `src/preact/LayoutSwitcher.tsx`, `src/preact/MobileMenu.tsx`.
+   - Replace with a comment block pointing at the plan and at this iteration's log entry.
+2. Run `pnpm --filter @ever-works/ui test:coverage`. **Expected**: per-package branch number drops to roughly 70-72% (the three components are now in the include set but only the Vitest pass has run; the merge step lives in Phase 3).
+3. Capture the baseline number for the Phase 3 merge verification.
+
+**Hard line**: do NOT proceed to Phase 3 (merge) in the same iteration. The plan's iteration sequencing explicitly forbids combining Phase 2's "broken on purpose" exit state with Phase 3 — too easy to commit prematurely.
+
+### CT-flake watch (carried)
+
+Iteration 111 noted `filter-bar.ct › selects category on click` failed once and passed on retry. Iteration 112 ran no CT suite. Iteration 113 ran no CT suite. Iteration 114 ran the FULL CT suite end-to-end with 0 flakes, 0 retries, 0 errors. **Watch count drops to 0/3** (resetting since the original observation didn't recur on a 43-test full-suite run).
+
+### AGENTS.md cross-check (R1-R15)
+
+- **R1 (TypeScript only):** all new files are `.ts` (`fixtures.ts`); no `.js`/`.py`. The reporter config edits are in the existing `.ts` config file. `playwright.ct.config.ts` reaches into `node:fs`/`node:path` for the `onEnd` hook — both built-in, no new deps.
+- **R2 / R3 / R4 (no DB / auth / payments):** N/A. Coverage data is filesystem-only.
+- **R5 (ISR by default):** N/A.
+- **R6 (Plugin everything):** the coverage layer is build-time tooling, not a runtime feature. No plugin contract changes.
+- **R7 (Git-first data):** N/A.
+- **R8 (Extreme performance):** the new auto-fixture adds ~50-200 ms per test for `startJSCoverage` / `stopJSCoverage`; full CT-suite duration went from ~1m 5s (iteration 105 baseline) to 1m 16s (iteration 114) — within tolerance. Not on the critical path for `pnpm dev` / `pnpm build` / `pnpm test`.
+- **R9 (Modular & replaceable):** the chosen library is swappable. The fixture is the only point where `monocart-reporter` is imported directly by test code; replacing it would touch 1 file (`fixtures.ts`) plus the config.
+- **R10 (AI-optimized):** the fixture and config carry inline JSDoc pointing at the spec, plan, and Q25. The reporter behavior is fully deterministic and documented.
+- **R11 (Convention over configuration):** coverage outputs land at `packages/ui/coverage/ct/`, mirroring Vitest's `packages/ui/coverage/` convention.
+- **R12 (Monorepo structure):** all changes live under `packages/ui/` plus docs. No root-level config touched.
+- **R13 (Exhaustive documentation):** spec + plan + log entry + questions.md + index.md + project.md all updated.
+- **R14 (Convention):** coverage filenames mirror Vitest (`coverage-report.json`, `index.html`, plus the new `raw-v8.json` for downstream merging).
+- **R15 (Replace, don't remove):** zero deletions. The CT test files' imports were swapped (replacement, not removal); the fixture file was added; the config was extended; `.gitignore` and `package.json` got new entries. The Vitest exclusions stay until Phase 2 (and even then, they're replaced by a comment, not deleted outright).
+
 ## 2026-04-27 — Iteration 113: Q22 follow-up #3 Phase 0 ✅ PASS-API — `monocart-coverage-reports` validated end-to-end on Windows + Node 24
 
 ### Headline

@@ -39,7 +39,7 @@
  * Read alongside `docs/architecture/testing-runners.md` and
  * `docs/questions.md` Q23 for the rationale.
  */
-import { test, expect } from '@playwright/experimental-ct-react';
+import { test, expect } from './fixtures';
 import LayoutSwitcher from '../../preact/LayoutSwitcher';
 
 const DEFAULT_KEY = 'ew-layout-mode';

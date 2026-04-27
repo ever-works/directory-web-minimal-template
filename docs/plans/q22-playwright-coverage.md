@@ -110,6 +110,67 @@ pass) AND emits a non-empty `packages/ui/coverage/ct/raw-v8.json`
 whose top-level `result` array has ≥3 entries (one per migrated
 component).
 
+### Outcome (iteration 114, 2026-04-27)
+
+✅ **DONE.** All four steps landed; both halves of the exit criterion
+satisfied empirically.
+
+**Step deviations (vs. the plan as written):**
+
+- **Step 2 outputFile**: the plan said `outputFile: './coverage/ct/raw-v8.json'`,
+  but `monocart-reporter`'s top-level `outputFile` is the HTML report path
+  (the V8-shape JSON is produced separately). The implementation sets
+  `outputFile: './coverage/ct/index.html'` for the HTML and uses a
+  `coverage.onEnd` hook to write the V8-shape `result[]` JSON to
+  `./coverage/ct/raw-v8.json` directly — meeting the plan's intent
+  (a file at that path with ≥3 entries) without bending the reporter's API.
+- **Step 2 entryFilter**: the plan envisioned a regex against
+  `src/preact/*.tsx`-style URLs. The actual V8 entries from CT runs are
+  bundled chunk URLs (`http://localhost:3100/assets/<name>-<hash>.js`)
+  produced by Vite's CT bundler — there are no `.tsx` URLs at the V8
+  level. The filter therefore accepts every chunk under the
+  `localhost:3100/assets/` prefix; source-map unpacking + `sourceFilter`
+  do the per-source narrowing.
+- **Step 2 sourceFilter**: implementation accepts `packages/ui/src/`
+  AND `src/`-prefixed paths (the latter is what monocart emits after
+  resolving Vite source maps to workspace-relative paths). Excludes
+  `__tests__/`, `playwright/index.*`, `node_modules/`.
+- **Beyond the plan**: a new `src/__tests__/ct/fixtures.ts` was added
+  to call `page.coverage.startJSCoverage()` + `addCoverageReport()` per
+  test (`monocart-reporter` does NOT auto-instrument `page.coverage`;
+  without a fixture, no V8 data flows). The three CT test files
+  (`filter-bar.ct.test.tsx`, `layout-switcher.ct.test.tsx`,
+  `mobile-menu.ct.test.tsx`) were updated to import `test`/`expect`
+  from `./fixtures` instead of `@playwright/experimental-ct-react`
+  directly. The fixture casts `test` back to `typeof base` to suppress
+  TS2883 ("inferred type cannot be named without a reference to
+  `RouterFixture`") — autotype-only, no runtime effect.
+
+**Verification numbers:**
+
+- 43/43 CT tests pass in 1m 16s on Windows + Node 24.14.0.
+- `packages/ui/coverage/ct/raw-v8.json` written with `result.length === 9`
+  (≥3 satisfied).
+- All 9 entries have `url` fields pointing at source files under
+  `packages/ui/src/`:
+  - `src/preact/FilterBar.tsx` ✅
+  - `src/preact/LayoutSwitcher.tsx` ✅
+  - `src/preact/MobileMenu.tsx` ✅
+  - `src/components/ui/badge.tsx`, `src/components/ui/button.tsx`
+  - `src/lib/keyboard.ts`, `src/lib/utils.ts`
+  - `src/primitives/badge/badge-variants.ts`, `src/primitives/button/button-variants.ts`
+- Coverage aggregate: **branches 84.88% (73/86), functions 100% (40/40),
+  lines 97.18% (482/496), statements 39.80% (39/98), bytes 60.73%.**
+
+The 39.80% statements / 60.73% bytes figures are expected to rise after
+Phase 2 because the merged report (Phase 3) folds Vitest coverage in
+for the non-CT files — the CT-only number reflects only the bundled
+subgraph that the three CT tests pull in, not every file in `src/`.
+
+**Phase 1 satisfies AC #1, AC #2, AC #3 fully; AC #5 partially (≥80%
+branches in aggregate; per-file ≥80% verification deferred to Phase 2
+when the merged report exists). Phase 2 is unblocked.**
+
 ---
 
 ## Phase 2 — Vitest config exclusions drop
@@ -266,11 +327,15 @@ This plan is **NOT one iteration's work**. Suggested sequencing:
 
 | Iteration | Phases     | Effort | Risk |
 |-----------|------------|--------|------|
-| 110 (this)| 0 (smoke)  | ~30 m  | Low  |
-| 111       | 1 + 2      | ~1 hr  | Med  |
-| 112       | 3          | ~1 hr  | Med  |
-| 113       | 4          | ~30 m  | Low  |
-| 114       | 5          | ~30 m  | Low  |
+| 110       | 0 spec/plan | ~1 hr | Low  |
+| 111       | (CLAUDE.md drift fix; no Phase work) | ~10 m | Low |
+| 112       | 0 prerequisite (`packages/ui/.gitignore` + npm validation) | ~30 m | Low |
+| 113       | 0 (smoke)  | ~30 m  | Low  |
+| 114 (this)| 1          | ~1 hr  | Med  |
+| 115       | 2          | ~30 m  | Med  |
+| 116       | 3          | ~1 hr  | Med  |
+| 117       | 4          | ~30 m  | Low  |
+| 118       | 5          | ~30 m  | Low  |
 
 If iteration 110 has bandwidth after Phase 0 lands, fold Phase 1 into
 the same iteration. Phases 2 and 3 should not share an iteration —

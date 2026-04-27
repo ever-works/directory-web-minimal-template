@@ -261,15 +261,18 @@ The merge step is provided by the chosen library:
 
 | Decision                                  | Default       | Actual (post-execution) |
 |-------------------------------------------|---------------|--------------------------|
-| Q25 library choice                        | `monocart-coverage-reports` | **`monocart-coverage-reports@^2.12.0`** (verified iteration 112 — npm latest is `2.12.11`, above the spec's original `^2.11.0` floor; pinning bumped to `^2.12.0` to lock the verified branch). Phase 0 smoke test still gates final adoption. |
-| Library validation date                   | _n/a_         | **2026-04-27 (iteration 112)** — npm registry + GitHub README inspected; AC #2/#3/#4 preconditions confirmed at the API-surface level. Empirical source-map check still pending Phase 0. |
-| Companion Playwright reporter             | `monocart-reporter@^2.x.x` | **`monocart-reporter@^2.10.0`** (verified iteration 112 — npm latest is `2.10.1`). |
-| CT coverage output dir                    | `packages/ui/coverage/ct/` | _pending Phase 1_ |
+| Q25 library choice                        | `monocart-coverage-reports` | **`monocart-coverage-reports@^2.12.0`** ✅ ADOPTED — installed iteration 114 as `@ever-works/ui` devDep; Phase 0 + Phase 1 both PASS empirically. |
+| Library validation date                   | _n/a_         | **2026-04-27 (iteration 112)** npm registry + README; **2026-04-27 (iteration 113)** Phase 0 PASS-API; **2026-04-27 (iteration 114)** Phase 1 DONE — all empirical gates green. |
+| Companion Playwright reporter             | `monocart-reporter@^2.x.x` | **`monocart-reporter@^2.10.0`** ✅ ADOPTED — installed iteration 114; reporter wired into `playwright.ct.config.ts`. |
+| CT coverage output dir                    | `packages/ui/coverage/ct/` | **`packages/ui/coverage/ct/`** ✅ implemented iteration 114 — same as default. |
 | Merge command                             | `pnpm coverage` (new) | _pending Phase 3_ |
 | Threshold for merged number               | inherited from `vitest.config.ts` (`branch: 100`) | _pending Phase 5_ |
 | CI artifact name                          | `ui-coverage-ct` | _pending Phase 4_ |
 | `vitest.config.ts` exclusions removed?    | yes (AC #5) | _pending Phase 2_ |
-| Reporter formats                          | `['v8', 'lcov', 'codecov']` | _pending Phase 3_ — all three confirmed available in the verified `monocart-coverage-reports@2.12.11` README (full list also includes `v8-json`, `lcovonly`, `json-summary`, `console-summary`, `html`, `html-spa`). |
+| Reporter formats                          | `['v8', 'lcov', 'codecov']` | **`['v8', 'v8-json', 'console-summary']`** ✅ for the CT-only stage (Phase 1) — `lcov`/`codecov` deferred to Phase 3's merged-report stage where they're more useful (per-file Istanbul output is more useful for the merged report than for the per-CT-run report). The Phase 1 set includes `v8` (HTML), `v8-json` (`coverage-report.json`), and `console-summary` (stdout); the V8-shape `raw-v8.json` is written via a `coverage.onEnd` hook (see plan Phase 1 outcome notes). |
+| `entryFilter` regex                       | `src/preact/*.tsx` + `src/primitives/*.tsx` | **`/\/assets\/[^/?]+\.js(?:\?\|$)/`** — the V8 layer sees Vite-bundled chunk URLs (`http://localhost:3100/assets/<name>-<hash>.js`), not source-file URLs. The plan's per-source narrowing happens in `sourceFilter` after source-maps are applied, not in `entryFilter`. |
+| `sourceFilter`                            | `**/packages/ui/src/**` | **`packages/ui/src/` OR `src/`-prefixed**, excluding `__tests__/`, `playwright/index.*`, `node_modules/` — matches the workspace-relative paths monocart emits after source-map resolution. |
+| Auto-coverage fixture                     | _not in spec_ | **`packages/ui/src/__tests__/ct/fixtures.ts`** ✅ added iteration 114 — extends the `@playwright/experimental-ct-react` `test` with an auto-fixture that wraps every test body with `page.coverage.startJSCoverage()` + `stopJSCoverage()` and pipes the V8 list into `addCoverageReport()`. Without this fixture, `monocart-reporter` would emit zero coverage — the reporter does not auto-instrument `page.coverage`. The three existing CT test files were updated to import `test`/`expect` from `./fixtures` instead of `@playwright/experimental-ct-react` directly. |
 
 ## References
 

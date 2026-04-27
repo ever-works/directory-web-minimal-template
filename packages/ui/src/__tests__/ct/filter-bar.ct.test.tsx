@@ -26,7 +26,7 @@
  * Read alongside `.specify/features/q22-playwright-ct.md` and
  * `docs/architecture/testing-runners.md` for the rationale.
  */
-import { test, expect } from '@playwright/experimental-ct-react';
+import { test, expect } from './fixtures';
 import FilterBar from '../../preact/FilterBar';
 
 const categories = [

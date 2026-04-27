@@ -16,3 +16,14 @@
 # but the gitignore entry remains so future smoke tests reuse the
 # convention.
 scratch/
+
+# Coverage outputs.
+# Already ignored by the repo-root .gitignore via the `coverage/` rule;
+# duplicated here per Phase 1 step 3 of the playwright-coverage plan
+# (`docs/plans/q22-playwright-coverage.md`) so the per-package contract
+# is self-contained — running `pnpm --filter @ever-works/ui test:ct`
+# against a checkout that lacks the root .gitignore (e.g. a published
+# package extraction) still ignores the generated artifacts under
+# `packages/ui/coverage/` (Vitest V8 output) and
+# `packages/ui/coverage/ct/` (Playwright CT V8 output).
+coverage/

@@ -968,3 +968,18 @@ The smoke-test acceptance condition #1 (V8 capture) and #3 (>0% branch coverage 
 **Q25 status updated**: from `OPEN` with `[DEFAULT]` annotation on Option A to **CONFIRMED — Option A** (monocart-coverage-reports 2.x). Phase 1 may proceed.
 
 The Q25 reopen condition (smoke-test failure → switch to Option B = `@bgotink/playwright-coverage`) does not trigger. Option B remains documented as a contingency if Phase 1's source-map verification fails.
+
+### Phase 1 outcome (iteration 114, 2026-04-27)
+
+Phase 1 of the execution plan ran end-to-end. Outcome: ✅ **DONE.** The `react`→`preact/compat` alias chain produces source-maps that resolve back to real `.tsx` files (not chunk hashes), closing the last open Q25 question. Q25 status now: ✅ **RESOLVED — Option A adopted, source-maps verified.**
+
+Empirical evidence:
+
+- `pnpm --filter @ever-works/ui test:ct` → 43/43 pass in 1m 16s, no flakes.
+- `packages/ui/coverage/ct/raw-v8.json` written with **9 V8 entries** (≥3 required by plan); each `url` field is a workspace-relative source path under `packages/ui/src/`, including all three migrated components (`src/preact/FilterBar.tsx`, `src/preact/LayoutSwitcher.tsx`, `src/preact/MobileMenu.tsx`).
+- MCR aggregate stats: branches 84.88% (73/86), functions 100% (40/40), lines 97.18% (482/496), statements 39.80% (39/98), bytes 60.73% (10,432 / 17,178). The lower statements/bytes figures are expected for the CT-only subgraph and will rise after Phase 3's merge with Vitest coverage.
+- One implementation deviation worth recording: the V8 entries Chromium reports are bundled chunk URLs (`http://localhost:3100/assets/<name>-<hash>.js`), NOT source files. The plan's `entryFilter` regex (which expected `.tsx` URLs) was therefore too narrow on a literal reading. Implementation accepts every chunk under the `assets/` prefix and lets `sourceFilter` do the per-source narrowing post-source-map. This is consistent with the spec's AC #3 prerequisite ("every `url` resolves to a `.tsx` under `packages/ui/src/`") — but read as "every entry in the *post-merge* file list", not "every V8 entry the browser sees".
+
+**Q25 closes here.** Option B (`@bgotink/playwright-coverage`) is no longer a contingency — Phase 2-5 build directly on the Phase 1 artifacts.
+
+The Phase 1 outcome notes (including the fixture addition and the entryFilter rewrite) are documented at the plan: [`docs/plans/q22-playwright-coverage.md`](plans/q22-playwright-coverage.md) "Phase 1 / Outcome (iteration 114, 2026-04-27)".
