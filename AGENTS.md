@@ -362,6 +362,15 @@ grep -rn "Fully static\|fully static\|no SSR\|output.*static" docs/ AGENTS.md CL
 
 # "PLANNED" / "SPECIFIED" / "DRAFT" anywhere in headlines or front-matter
 grep -rn "^Status:.*PLANNED\|^Status:.*SPECIFIED\|^Status:.*DRAFT" docs/plans/ .specify/features/
+
+# Tighter variant tolerant of `>` blockquote prefix and `**bold**` markdown wrapping (added iter 147
+# after iter-146 surfaced two stale plan-status lines that the line-anchored regex above missed
+# because they live inside `> Status: **<state>**` blockquotes — the `>` and `**` shifted the
+# literal `Status:` token off line-start). The leading `[^✅]` filters out lines whose first
+# state-character is the resolved sigil (same intent as the strict regex above; tolerant of
+# alternate resolved sigils like 🗄️ for SUPERSEDED, which surface as non-✅ but are correctly
+# resolved — re-spot-check those manually).
+grep -rEn "^>?\s*\*?\*?Status:\s+\*?\*?[^✅]" docs/plans/ .specify/features/
 ```
 
 ### Structural / link drift

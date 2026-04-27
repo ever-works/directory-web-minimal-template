@@ -148,8 +148,13 @@ hooked into Playwright, that data can be:
 10. **AC #10 — Existing tests still pass.**
     - Plain `pnpm test` still reports 11/11 files passing in
       `@ever-works/ui` (174 tests).
-    - `pnpm test:ct` still reports 43/43 passing (16 FilterBar +
-      12 LayoutSwitcher + 15 MobileMenu).
+    - `pnpm test:ct` still reports 48/48 passing (16 FilterBar +
+      12 LayoutSwitcher + 20 MobileMenu) — count grew from the iter-110
+      AC baseline of 43/43 (15 MobileMenu) via iter-120 focus-trap CT
+      additions (15 → 17) and iter-124 Q27 outlier closure (17 → 20);
+      MobileMenu growth is recorded inline because this AC was the
+      canonical count source at iter-115 / iter-121 verification time
+      and is still cited from `.specify/features/testing.md` AC #12.
     - `pnpm test:e2e` is unaffected (out of scope for this work).
 
 ## The integration
