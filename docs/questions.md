@@ -841,11 +841,38 @@ If any of the above fails after the fix, capture the failure shape and re-open Q
 
 ## Q25: Coverage library for Playwright CT — `monocart-coverage-reports` vs `@bgotink/playwright-coverage` vs custom
 
-> **Status: OPEN — opened in iteration 110 (2026-04-27).** Default
+> **Status: OPEN (npm-registry validation done in iteration 112,
+> 2026-04-27 — Phase 0 smoke test still pending).** Default
 > implies a smoke-test gate in Phase 0 of the plan at
 > [`docs/plans/q22-playwright-coverage.md`](plans/q22-playwright-coverage.md);
 > if the smoke test fails, re-open this question with the failure
 > shape attached and pick Option B.
+>
+> **Iteration 112 npm-registry verification** (Apr 27, 2026):
+> - `monocart-coverage-reports@2.12.11` is the current `latest` dist-tag
+>   (above the spec's `^2.11.0` floor — pinning carries through).
+>   Maintainer: `cenfun`. Homepage: https://github.com/cenfun/monocart-coverage-reports.
+> - The README explicitly lists `playwright-ct-react` as an
+>   integration example (https://github.com/cenfun/playwright-ct-react)
+>   alongside `playwright-ct-vue`. Confirms AC #2 / AC #3 prerequisite.
+> - The README documents an "Automatic Merging" + "Manual Merging"
+>   flow that explicitly cites the Vitest-unit + Playwright-E2E
+>   merge story (`mcr.add(coverage)` API). Confirms AC #4
+>   prerequisite.
+> - `monocart-reporter@2.10.1` is the current `latest` dist-tag
+>   (above the spec's `^2.x.x` floor). It is the Playwright reporter
+>   shim referenced by Phase 1 step 2.
+> - Reporter formats include `v8`, `v8-json`, `lcov`, `lcovonly`,
+>   `json-summary`, `codecov`, `console-summary`, `html`, `html-spa`
+>   — all Phase 3 outputs available out-of-the-box.
+> - `sourceFilter` and `entryFilter` syntax confirmed (string-pattern
+>   OR object-of-pattern-to-bool). Matches Phase 1 step 2.
+>
+> **Conclusion**: Option A's preconditions hold on the published
+> 2.12.11. Phase 0's smoke test is now an *empirical* check on
+> source-map fidelity for our specific Vite/Preact alias setup, not
+> a "does the library exist" check. Default A remains; the smoke
+> test still runs in a future iteration to verify behavior end-to-end.
 
 **Context**: Q22 follow-up #3 — integrate a coverage tool that captures
 V8 coverage during Playwright Component Testing runs, source-maps it

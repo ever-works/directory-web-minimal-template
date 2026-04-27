@@ -3,6 +3,212 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 112: Q25 npm-registry validation + Phase 0 prerequisite (`packages/ui/.gitignore`)
+
+### Context
+
+Iteration 110 authored the spec at
+[`.specify/features/q22-playwright-coverage.md`](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/q22-playwright-coverage.md)
+and the 5-phase plan at
+[`docs/plans/q22-playwright-coverage.md`](plans/q22-playwright-coverage.md)
+for the Q22 follow-up #3 work — wiring V8 coverage capture into
+Playwright CT runs and merging it back into the Vitest coverage
+report so `FilterBar.tsx`, `LayoutSwitcher.tsx`, and `MobileMenu.tsx`
+(currently excluded from `packages/ui/vitest.config.ts`'s
+`coverage.exclude` list) re-enter the per-package branch number.
+Iteration 110 stopped at spec/plan authorship; iteration 111 was
+a CLAUDE.md drift fix unrelated to the new plan. So Phase 0 (smoke
+test) of the Q22 follow-up #3 plan was overdue at the start of
+iteration 112.
+
+### What this iteration did
+
+Two parallel deliverables, both low-risk and gated:
+
+#### (1) Q25 npm-registry validation (no install yet)
+
+Before any `pnpm add` lands in the workspace, verified that the Q25
+default library — `monocart-coverage-reports` — is still actively
+published, that its API surface matches the spec's acceptance
+criteria, and that the verified version is at-or-above the spec's
+floor. Sources: npm registry JSON for both packages + the GitHub
+README for `monocart-coverage-reports`.
+
+Findings:
+
+| Package                       | Spec floor | Verified `latest` | Validated? |
+|-------------------------------|------------|--------------------|------------|
+| `monocart-coverage-reports`   | `^2.11.0`  | **`2.12.11`**      | ✅ above floor; pin bumped to `^2.12.0` so the verified branch is locked |
+| `monocart-reporter`           | `^2.x.x`   | **`2.10.1`**       | ✅ pin bumped to `^2.10.0` |
+
+API surface verified against the spec's acceptance criteria:
+
+- **AC #2 (Playwright CT emits V8 coverage)** — README explicitly
+  lists `playwright-ct-react`, `playwright-ct-vue`, etc. as
+  integration examples. Confirms the library is designed for the CT
+  runner shape we're using.
+- **AC #3 prerequisite (source-map fidelity)** — the library
+  documents `entryFilter` (string OR `{pattern: bool}` object) and
+  `sourceFilter` (same shape) for restricting coverage to original
+  source files. The spec's Phase 1 step 2 settings
+  (`entryFilter: 'src/preact/*.tsx'` + `sourceFilter:
+  '**/packages/ui/src/**'`) are valid library API and not made-up.
+- **AC #4 (V8 + Vitest merge)** — README's "Automatic Merging" /
+  "Manual Merging" sections describe exactly the Jest-unit +
+  Playwright-E2E merge flow we need. The `mcr.add(coverage)` API
+  call cited in the plan's Phase 3 step 1 is the documented merge
+  entry point.
+- **Reporter formats** — `v8`, `v8-json`, `lcov`, `lcovonly`,
+  `json-summary`, `codecov`, `console-summary`, `html`, `html-spa`
+  (all available out-of-the-box). Phase 3 step 1's
+  `reports: ['v8', 'lcov', 'codecov']` is valid.
+
+What this validation does NOT prove:
+
+- Whether the library's source-map handling correctly resolves the
+  `react → preact/compat` Vite alias used by
+  `packages/ui/playwright.ct.config.ts`. That is the point of Phase
+  0's smoke test — an *empirical* check on our specific
+  toolchain (Vite 7 + Preact 10 + `@playwright/experimental-ct-react`
+  1.59.1 + Windows + Node 24.14.0).
+- Whether the merged coverage number actually reaches the AC #6
+  baseline (16 packages at 100% branch). That requires Phase 1-3
+  to land.
+
+The validation does, however, narrow Phase 0's role: it is no
+longer "does the chosen library exist and have the right API" but
+"does it correctly source-map our Vite/Preact bundle". The risk
+profile drops from "library may not exist" (R6 in the spec) to
+"library may mis-handle our specific alias" (a much narrower
+surface).
+
+#### (2) Phase 0 prerequisite — `packages/ui/.gitignore` created
+
+The Q22 follow-up #3 plan's Phase 0 step 1 says:
+
+> Create `packages/ui/scratch/coverage-smoke/` (gitignored — added
+> to `packages/ui/.gitignore`). Inside, run `pnpm add -D
+> monocart-coverage-reports@^2.11.0` against a one-off `package.json`
+> so the install does not pollute the workspace yet.
+
+`packages/ui/.gitignore` did not exist at the start of iteration
+112 (verified via `cat`). Created it now with a single content
+line — `scratch/` — plus a header comment block pointing at the
+plan and the spec. Most generic patterns (`node_modules/`,
+`coverage/`, `dist/`, `test-results/`, `playwright-report/`) are
+already covered by the repo-root `.gitignore`, so the package-level
+file's only purpose is the scratch-dir convention. Intentionally
+narrow: future smoke tests across packages can either reuse the
+convention (`packages/<x>/scratch/`) by adding their own per-package
+`.gitignore` or by promoting the entry to the root `.gitignore` —
+that decision is deferred to whoever opens the next smoke test.
+
+### Why Phase 0 (the smoke test itself) was NOT executed in iteration 112
+
+Three reasons, in priority order:
+
+1. **Validation already shrank Phase 0's scope**. The npm-registry +
+   README inspection answered the "does this library exist" half of
+   Phase 0 without spending an iteration on a `pnpm install`. The
+   *empirical* half (Vite/Preact alias source-map check) genuinely
+   requires running a browser, and that is its own iteration.
+2. **Cron-task autonomy + browser fragility**. The smoke test
+   spawns a real Chromium tab via Playwright. On the Windows +
+   Node 24.14.0 toolchain, Playwright cold-starts can take 10-30 s
+   per launch and have a known flake fingerprint (iteration 111's
+   `filter-bar.ct › selects category on click` pass-on-retry
+   observation). Combining that with a brand-new dev dep
+   (`monocart-coverage-reports`) and a brand-new Playwright reporter
+   (`monocart-reporter`) in a single autonomous iteration would
+   couple too many failure modes — a green run wouldn't tell us
+   which ingredient worked.
+3. **Plan's iteration sequencing already allows for this**. The
+   plan's "Iteration sequencing" table (q22-playwright-coverage.md
+   §"Iteration sequencing") lists Phase 0 alone as ~30 minutes,
+   Low risk; Phase 1+2 as ~1 hour, Medium risk. Splitting Phase 0
+   off as its own iteration is the recommended cadence — iteration
+   112 just front-loaded the prerequisite (`packages/ui/.gitignore`)
+   and the npm-registry validation so that iteration 113 can
+   execute Phase 0 with zero "does this library exist" risk and
+   zero "do I need to create the gitignore first" risk.
+
+### Files changed (3)
+
+1. **`docs/questions.md`** — Q25 expanded with iteration-112
+   npm-registry verification block (~25 lines). Status remains
+   `OPEN` until Phase 0's empirical smoke test lands; default
+   remains Option A but now with verified version pins.
+2. **`.specify/features/q22-playwright-coverage.md`** — Decisions
+   table expanded: Q25 library choice now records
+   `monocart-coverage-reports@^2.12.0` as the verified pin (was
+   `_pending_`); two new rows added for "Library validation date"
+   and "Companion Playwright reporter"; "Reporter formats" row
+   pre-fills the verified-available list. Other rows still
+   `_pending Phase N_` per the plan.
+3. **`docs/plans/q22-playwright-coverage.md`** — header status line
+   updated with iteration-112 validation; Phase 1 step 1's
+   `pnpm add` command bumped from `^2.11.0` / `^2.x.x` to
+   `^2.12.0` / `^2.10.0`; Phase 0 step 1 references the
+   iteration-112 `.gitignore` creation so the next iteration
+   doesn't redo work.
+
+### Files created (1)
+
+1. **`packages/ui/.gitignore`** — single content line (`scratch/`)
+   plus a header comment block referencing the plan and spec.
+   First per-package `.gitignore` in the repo (a precedent;
+   noted in the file header so future similar additions follow
+   the same comment-block convention).
+
+### Verification
+
+- `pnpm typecheck` — not run (no TypeScript files modified).
+- `pnpm lint` — not run (no source files modified).
+- `pnpm test` — not run (no test files modified).
+- `pnpm test:ct` — not run (no CT files modified).
+- `git status` (mental): 4 modified docs/specs + 1 new gitignore.
+  All Markdown + 1 .gitignore; zero TypeScript / config / test
+  changes. Verification suites would have been a no-op.
+
+### What this iteration does NOT do
+
+- Does not install `monocart-coverage-reports` or `monocart-reporter`
+  in any package.
+- Does not modify `packages/ui/playwright.ct.config.ts`.
+- Does not modify `packages/ui/vitest.config.ts`.
+- Does not modify `pnpm-lock.yaml`.
+- Does not run any browser-based test.
+- Does not change the per-package coverage number.
+- Does not flip Q25's status from OPEN to RESOLVED.
+
+### Hand-off to iteration 113
+
+Phase 0 is now unblocked. The next iteration should:
+
+1. Create `packages/ui/scratch/coverage-smoke/package.json` with a
+   minimal `{ "name": "coverage-smoke", "private": true,
+   "type": "module" }` shell.
+2. Inside that scratch dir, `pnpm add -D
+   monocart-coverage-reports@^2.12.0 @playwright/test@^1.59.1`
+   (the second so the smoke script can spawn a browser).
+3. Author the 5-line throwaway script per the plan's Phase 0 step
+   2 — spawn Chromium, mount `<FilterBar />`, capture coverage,
+   pipe through `MCR(...)`, write JSON.
+4. Inspect the JSON per AC #3 prerequisite — every `url` field
+   should resolve to a `.tsx` under `packages/ui/src/preact/`.
+5. If green: delete scratch dir, proceed to Phase 1.
+6. If red: open Q25 reopen-condition, attach the JSON as evidence,
+   pick Option B (`@bgotink/playwright-coverage`).
+
+### CT-flake watch (carried from iteration 111)
+
+Iteration 111 noted that `filter-bar.ct › selects category on
+click` failed once and passed on retry during the iteration's
+verification run. Threshold for opening Q26 was set to "≥3
+occurrences in the next 3 iterations." Iteration 112 ran no CT
+suite (no tests touched), so the count remains at 1/3. Watch
+list active.
+
 ## 2026-04-27 — Iteration 111: CLAUDE.md drift fix — `pnpm test:ct` / `pnpm test:ct:install` listed; CT flake observation logged
 
 ### What was wrong

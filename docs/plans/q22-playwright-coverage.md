@@ -5,11 +5,20 @@ sidebar_label: "Q22 #3 / playwright-coverage"
 
 # Q22 follow-up #3 — `playwright-coverage` integration plan
 
-> **Status: PLANNED (iteration 110, 2026-04-27).** Spec at
+> **Status: PLANNED (iteration 110, 2026-04-27); Q25 default
+> NPM-validated (iteration 112, 2026-04-27).** Spec at
 > [`.specify/features/q22-playwright-coverage.md`](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/q22-playwright-coverage.md).
 > Library-choice decision tree at **Q25** in
 > [`docs/questions.md`](../questions.md). Default library:
-> `monocart-coverage-reports`.
+> `monocart-coverage-reports@^2.12.0` (verified iteration 112; npm
+> latest is 2.12.11). Companion Playwright reporter:
+> `monocart-reporter@^2.10.0` (verified iteration 112; npm latest is
+> 2.10.1). Both packages confirmed actively published, README cites
+> `playwright-ct-react` integration explicitly, and the merge-multiple-
+> sources story (Vitest unit + Playwright CT/E2E) is documented.
+> Phase 0's smoke test now narrows to source-map fidelity for our
+> specific Vite/Preact alias setup, NOT a "does the library exist"
+> check.
 
 This plan executes the spec's 10 acceptance criteria across **5 phases**.
 Each phase has a single hard exit criterion — failing that criterion
@@ -26,9 +35,12 @@ Node 24.14.0 + Vite 7 + Preact 10.29.1 + `@playwright/experimental-ct-react`
 ### Steps
 
 1. Create `packages/ui/scratch/coverage-smoke/` (gitignored — added to
-   `packages/ui/.gitignore`). Inside, run `pnpm add -D
-   monocart-coverage-reports@^2.11.0` against a one-off `package.json`
-   so the install does not pollute the workspace yet.
+   `packages/ui/.gitignore`; the `.gitignore` itself was created
+   in iteration 112 as a Phase 0 prerequisite). Inside, run
+   `pnpm add -D monocart-coverage-reports@^2.12.0` against a one-off
+   `package.json` so the install does not pollute the workspace yet.
+   (Pin updated from `^2.11.0` after iteration-112 npm-registry
+   verification — current `latest` dist-tag is 2.12.11.)
 2. Author a single 5-line throwaway script that:
    - Spawns a Playwright browser via `@playwright/test`.
    - Calls `page.coverage.startJSCoverage()` and
@@ -60,9 +72,11 @@ coverage on every `pnpm test:ct` run.
 
 ### Steps
 
-1. `pnpm --filter @ever-works/ui add -D monocart-coverage-reports@^2.11.0
-   monocart-reporter@^2.x.x`. Pin the major version; let pnpm pick
-   the minor/patch.
+1. `pnpm --filter @ever-works/ui add -D monocart-coverage-reports@^2.12.0
+   monocart-reporter@^2.10.0`. Pins bumped from the spec's original
+   `^2.11.0`/`^2.x.x` after iteration-112 npm-registry verification
+   (current `latest` dist-tags are 2.12.11 and 2.10.1 respectively).
+   Pin the major version; let pnpm pick the patch.
 2. Edit `packages/ui/playwright.ct.config.ts`:
    - Add `monocart-reporter` to the `reporter` array.
    - Set `outputFile: './coverage/ct/raw-v8.json'`.
@@ -134,7 +148,9 @@ report.
    await mcr.generate();
    ```
    (Schematic — actual API surface is reconciled against
-   `monocart-coverage-reports@^2.11.0` README at execution time.)
+   `monocart-coverage-reports@^2.12.0` README at execution time.
+   Iteration 112 verified the API matches: `MCR(options).add(data)
+   .generate()` is the documented entry point.)
 2. Add `packages/ui/package.json` script:
    ```json
    "coverage": "pnpm test:coverage && pnpm test:ct && tsx scripts/coverage-merge.ts"

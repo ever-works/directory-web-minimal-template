@@ -1,0 +1,18 @@
+# Per-package gitignore for @ever-works/ui.
+#
+# Most generic patterns (node_modules/, coverage/, dist/, test-results/,
+# playwright-report/) are already covered by the repo-root .gitignore.
+# This file adds package-specific exclusions only.
+#
+# Created in iteration 112 (2026-04-27) as a Phase 0 prerequisite
+# of the Q22 follow-up #3 (`playwright-coverage` integration) plan
+# at docs/plans/q22-playwright-coverage.md.
+
+# Throwaway scratch dirs used by Phase 0 smoke tests.
+# The plan creates `packages/ui/scratch/coverage-smoke/` to install
+# `monocart-coverage-reports` against a one-off package.json so the
+# library can be validated end-to-end before it pollutes the workspace
+# pnpm-lock.yaml. The scratch dir is deleted at the end of Phase 0,
+# but the gitignore entry remains so future smoke tests reuse the
+# convention.
+scratch/

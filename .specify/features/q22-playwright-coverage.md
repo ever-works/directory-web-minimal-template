@@ -256,12 +256,15 @@ The merge step is provided by the chosen library:
 
 | Decision                                  | Default       | Actual (post-execution) |
 |-------------------------------------------|---------------|--------------------------|
-| Q25 library choice                        | `monocart-coverage-reports` | _pending_ |
-| CT coverage output dir                    | `packages/ui/coverage/ct/` | _pending_ |
-| Merge command                             | `pnpm coverage` (new) | _pending_ |
-| Threshold for merged number               | inherited from `vitest.config.ts` (`branch: 100`) | _pending_ |
-| CI artifact name                          | `ui-coverage-ct` | _pending_ |
-| `vitest.config.ts` exclusions removed?    | yes (AC #5) | _pending_ |
+| Q25 library choice                        | `monocart-coverage-reports` | **`monocart-coverage-reports@^2.12.0`** (verified iteration 112 — npm latest is `2.12.11`, above the spec's original `^2.11.0` floor; pinning bumped to `^2.12.0` to lock the verified branch). Phase 0 smoke test still gates final adoption. |
+| Library validation date                   | _n/a_         | **2026-04-27 (iteration 112)** — npm registry + GitHub README inspected; AC #2/#3/#4 preconditions confirmed at the API-surface level. Empirical source-map check still pending Phase 0. |
+| Companion Playwright reporter             | `monocart-reporter@^2.x.x` | **`monocart-reporter@^2.10.0`** (verified iteration 112 — npm latest is `2.10.1`). |
+| CT coverage output dir                    | `packages/ui/coverage/ct/` | _pending Phase 1_ |
+| Merge command                             | `pnpm coverage` (new) | _pending Phase 3_ |
+| Threshold for merged number               | inherited from `vitest.config.ts` (`branch: 100`) | _pending Phase 5_ |
+| CI artifact name                          | `ui-coverage-ct` | _pending Phase 4_ |
+| `vitest.config.ts` exclusions removed?    | yes (AC #5) | _pending Phase 2_ |
+| Reporter formats                          | `['v8', 'lcov', 'codecov']` | _pending Phase 3_ — all three confirmed available in the verified `monocart-coverage-reports@2.12.11` README (full list also includes `v8-json`, `lcovonly`, `json-summary`, `console-summary`, `html`, `html-spa`). |
 
 ## References
 
