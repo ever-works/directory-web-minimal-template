@@ -6,13 +6,20 @@ sidebar_label: "Q27 — MobileMenu coverage"
 # Q27 — `MobileMenu` 3-branch outlier coverage closure
 
 > **Spec:** [`.specify/features/q27-mobilemenu-empty-items-coverage.md`](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/q27-mobilemenu-empty-items-coverage.md)
-> **Status:** PLANNED (iteration 123, 2026-04-27).
+> **Status:** ✅ RESOLVED (iteration 124, 2026-04-27). Authored
+> iteration 123; executed iteration 124. Three CT tests + one
+> v8-ignore pragma closed the entire 3-branch outlier plus an
+> additional defensive `menuRef` race-guard branch that surfaced
+> during execution. Final per-file MobileMenu: **100% branches
+> (35/35)**. Final per-package aggregate: **100% (233/233)**.
+> Mobile-menu.ct case count: 17 → 20. Status flip belatedly landed
+> iter 144.
 > **Iterations referenced:** 105 (Q22 / FilterBar CT migration), 108
 > (MobileMenu CT migration), 119 (Phase 6b — Vitest+CT V8 merge live;
 > 12-branch MobileMenu shortfall surfaced), 120 (focus-trap CT tests
 > closed 9 of 12 branches; B1 attempt deferred), 121 (Phase 6c CI
 > hard-gate enforced), 122 (Q22 follow-up #3 fully ✅; this question
-> opened as a carry).
+> opened as a carry), 123 (spec + plan authored), 124 (executed).
 
 ## Why
 

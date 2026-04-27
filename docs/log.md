@@ -3,6 +3,84 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 144: spec/plan front-matter status flip — close 6 stale "PLANNED"/"SPECIFIED" entries (2 specs + 4 plans) where the corresponding question was already RESOLVED
+
+### Headline
+
+Iter-138 spec inventory pass + iter-141 cross-repo grep audit + iter-142 .specify/ link audit covered the **headline counts** and **link targets** of the spec/plan surface but missed the **front-matter status lines** of individual plan/spec files. Iter-144's targeted grep `grep -n "Status:" docs/plans/q*.md .specify/features/q*.md` surfaced 6 stale entries where the spec or plan still claimed `PLANNED`/`SPECIFIED` despite the corresponding question being ✅ RESOLVED in the change log:
+
+| File | Pre-iter-144 status | Question resolution | Latency |
+|------|---------------------|---------------------|---------|
+| `.specify/features/q22-mobilemenu-ct.md` | `SPECIFIED (iteration 108)` | Q22 follow-up #1 ✅ COMPLETE iter 108 | 36 iters |
+| `.specify/features/q24-layoutswitcher-empty-modes.md` | `SPECIFIED (iteration 109)` | Q24 ✅ RESOLVED iter 109 | 35 iters |
+| `docs/plans/q22-mobilemenu-ct.md` | `PLANNED (iteration 108)` | Q22 follow-up #1 ✅ COMPLETE iter 108 | 36 iters |
+| `docs/plans/q22-playwright-coverage.md` | `PLANNED (iteration 110); Q25 default NPM-validated (iteration 112)` | Q22 follow-up #3 ✅ COMPLETE iter 121 | 23 iters |
+| `docs/plans/q24-layoutswitcher-empty-modes.md` | `PLANNED (iteration 109)` | Q24 ✅ RESOLVED iter 109 | 35 iters |
+| `docs/plans/q27-mobilemenu-empty-items-coverage.md` | `PLANNED (iteration 123)` | Q27 ✅ RESOLVED iter 124 | 20 iters |
+
+The drift class is the same as iter-138's "All 28 → All 31" and iter-137's "22-package → 26-package": when a question/spec resolves, the plan/spec **front-matter** status was never updated because the iteration that resolved it touched the **body** (Outcome subsection, Decisions table, etc.) and the change-log entry, not the front-matter line. The two specs that WERE updated (`q22-playwright-coverage.md` and `q27-mobilemenu-empty-items-coverage.md` at the spec level) had their front-matter flipped by their respective execution iterations (121 and 124), but the corresponding **plan** front-matters and the two **other** spec front-matters (q22-mobilemenu-ct, q24) were missed.
+
+### What was flipped
+
+Six front-matter status entries flipped from `PLANNED`/`SPECIFIED` to `✅ COMPLETE`/`✅ RESOLVED`/`✅ DONE` with execution recap and `Status flip belatedly landed iter 144.` annotations:
+
+1. **`.specify/features/q22-mobilemenu-ct.md`** — `SPECIFIED` → `✅ COMPLETE (iter 108)` with 12-line outcome paragraph (15/15 cases ported and passing in 45.7s; case count grew 15 → 17 → 20 across iters 120 + 124).
+2. **`.specify/features/q24-layoutswitcher-empty-modes.md`** — `SPECIFIED` → `✅ RESOLVED (iter 109)` with 9-line outcome paragraph (3 isolated runs + 2 full-suite runs all green).
+3. **`docs/plans/q22-mobilemenu-ct.md`** — `PLANNED` → `✅ COMPLETE (iter 108)` with case-count-growth recap.
+4. **`docs/plans/q22-playwright-coverage.md`** — `PLANNED + Q25-validated` → `✅ COMPLETE (iter 121)` with full execution trail (phases 0/1/2/3/6a/6b/6c across iters 113-121).
+5. **`docs/plans/q24-layoutswitcher-empty-modes.md`** — `PLANNED` → `✅ DONE (iter 109)` with verification recap.
+6. **`docs/plans/q27-mobilemenu-empty-items-coverage.md`** — `PLANNED` → `✅ RESOLVED (iter 124)` with full closure recap (final per-file MobileMenu 100% (35/35) + per-package aggregate 100% (233/233)).
+
+### What was NOT touched (intentional — verified clean)
+
+- **`docs/plans/q22-playwright-ct.md` line 15** — already flipped to `✅ PHASE 2 COMPLETE — Q22 RESOLVED on local Windows + Node 24, CI matrix landed.` — kept current by iter-105's authoring iteration.
+- **`docs/plans/q22-upstream-repro.md`** — diagnostic spec for the upstream Vitest repro template; status was never flipped because the upstream issue was not filed (Q22 closed via local CT migration). Verified body text reflects this; no front-matter drift to flip.
+- **`docs/plans/q28-eslint-10-upgrade.md` line 9** — already `✅ RESOLVED (iter 130)` per the iter-130 execution iteration.
+- **`.specify/features/q22-playwright-ct.md`**, **`.specify/features/q22-playwright-coverage.md`**, **`.specify/features/q27-mobilemenu-empty-items-coverage.md`**, **`.specify/features/q28-eslint-10-upgrade.md`** — all already current per their respective execution iterations.
+
+### Routine dep audit (deferred this iteration)
+
+Iter-143 ran a 10-package quick-check; iter-140 ran the full 22-package matrix. Both zero deltas. Inheritance is consistent.
+
+### Pattern progression — now confirmed for the 9th iteration in a row
+
+| # | Iteration | Surface | Drift kind |
+|---|-----------|---------|------------|
+| 1 | iter 132 | `CLAUDE.md` Common Commands | `43 cases` → `48 cases` + walltime/Chromium/flake-signal |
+| 2 | iter 135 | `docs/guides/deployment.md` | Missing ISR env vars + 4 narrative claims (predates iter-17/Q17) |
+| 3 | iter 136 | `docs/guides/quickstart.md` + `getting-started.md` | Missing 5-6 Common Commands rows |
+| 4 | iter 137 | `.specify/project.md` package matrix | `22-package` → `26-package` |
+| 5 | iter 138 | `.specify/project.md` spec count | `All 28` → `All 31` |
+| 6 | iter 139 | `README.md` Commands table | Conflated `pnpm test` row + missing CT/coverage rows |
+| 7 | iter 140 | `.specify/features/q28-*.md` AC #5 + `docs/plans/q28-*.md` Step 4 | Same conflated-`pnpm test=1170` drift |
+| 8 | iter 141 | `apps/docs/blog/2026-04-11-welcome.md` + `apps/docs/sidebarsTemplate.ts` | Pre-iter-17 ISR + sidebar topology missing 8 navigable docs |
+| 9 | iter 144 | 4 `docs/plans/q*.md` + 2 `.specify/features/q*.md` front-matter status | `PLANNED`/`SPECIFIED` claims after the question was ✅ RESOLVED |
+
+**Pattern (re-stated)**: front-matter status lines are a recurring drift surface because they sit at the **top** of the file, separate from the **body** edits that resolve the question. The iteration that resolves the question typically updates the body (Outcome subsection / Decisions table / acceptance-criteria checkmarks) and the change-log entry — but does NOT touch the front-matter line unless explicitly reminded. Iter-144's `grep -n "Status:" docs/plans/q*.md .specify/features/q*.md` is now a recommended addition to the standard audit checklist.
+
+### Files touched
+
+- `.specify/features/q22-mobilemenu-ct.md` — status `SPECIFIED` → `✅ COMPLETE`.
+- `.specify/features/q24-layoutswitcher-empty-modes.md` — status `SPECIFIED` → `✅ RESOLVED`.
+- `docs/plans/q22-mobilemenu-ct.md` — status `PLANNED` → `✅ COMPLETE`.
+- `docs/plans/q22-playwright-coverage.md` — status `PLANNED` → `✅ COMPLETE`.
+- `docs/plans/q24-layoutswitcher-empty-modes.md` — status `PLANNED` → `✅ DONE`.
+- `docs/plans/q27-mobilemenu-empty-items-coverage.md` — status `PLANNED` → `✅ RESOLVED`.
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 143 → 144.
+- `.specify/project.md` — Current State header bumped 143 → 144.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)**. `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127. Project remains in "no carried open work" steady state for the **15th consecutive iteration** (iter 130-144).
+
+### Next Steps (for next scheduled run)
+
+1. **Add `grep -n "Status:" docs/plans/q*.md .specify/features/q*.md` to the standard audit checklist.** The iter-144 finding is the 9th confirmed drift class; the front-matter status grep is now a recurring miss-target.
+2. **Routine dep audit** — re-check the 26-package matrix; expect zero deltas.
+3. **Optional `pnpm coverage` re-run** — defer until material dep churn lands.
+4. **Optional `pnpm test:e2e` re-run** — defer per iter-134's policy.
+
 ## 2026-04-27 — Iteration 143: AGENTS.md R14/R15 bullet placement fix — relocate "Prefer conventions that reduce boilerplate" from R15 (Specification First) to R14 (Convention Over Configuration); 9-guide `docs/guides/` audit verified clean; routine 10-package dep quick-check zero deltas
 
 ### Headline

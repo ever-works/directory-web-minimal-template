@@ -6,9 +6,12 @@ sidebar_label: "Q22 follow-up #1 — MobileMenu CT"
 # Q22 follow-up #1 — Preemptive MobileMenu CT migration
 
 > **Spec:** [`.specify/features/q22-mobilemenu-ct.md`](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/q22-mobilemenu-ct.md)
-> **Status:** PLANNED (iteration 108, 2026-04-27). Pending implementation in
-> the same iteration.
-> **Iterations referenced:** 105 (Q22 / `FilterBar`), 107 (Q23 / `LayoutSwitcher`).
+> **Status:** ✅ COMPLETE (iteration 108, 2026-04-27). Specified and
+> executed in the same iteration. 15/15 cases ported and passing in
+> 45.7s; case count grew to 20 across iter-120 (focus-trap wrap) +
+> iter-124 (Q27 outlier closure). Status flip belatedly landed iter 144.
+> **Iterations referenced:** 105 (Q22 / `FilterBar`), 107 (Q23 / `LayoutSwitcher`),
+> 120 (focus-trap CT additions), 124 (Q27 outlier closure).
 
 ## Why
 

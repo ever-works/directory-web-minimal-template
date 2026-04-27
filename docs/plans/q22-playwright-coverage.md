@@ -5,8 +5,16 @@ sidebar_label: "Q22 #3 / playwright-coverage"
 
 # Q22 follow-up #3 — `playwright-coverage` integration plan
 
-> **Status: PLANNED (iteration 110, 2026-04-27); Q25 default
-> NPM-validated (iteration 112, 2026-04-27).** Spec at
+> **Status: ✅ COMPLETE (iteration 121, 2026-04-27).** Authored
+> iteration 110; Q25 default NPM-validated iteration 112; all six
+> implementation phases landed across iters 113 / 114 / 115 / 116 /
+> 117 / 119 / 120 / 121 (see Decisions table at the bottom of this
+> file for per-phase outcomes). Phase 6c CI hard-gate enforced
+> iteration 121; final per-package merged coverage on `@ever-works/ui`
+> branches **100% (233/233)** after Q27 closed the 3-branch outlier
+> in iteration 124. Status flip belatedly landed iter 144 (5 stale
+> plan/spec front-matter status entries caught in the same iter-144
+> audit pass). Spec at
 > [`.specify/features/q22-playwright-coverage.md`](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/q22-playwright-coverage.md).
 > Library-choice decision tree at **Q25** in
 > [`docs/questions.md`](../questions.md). Default library:

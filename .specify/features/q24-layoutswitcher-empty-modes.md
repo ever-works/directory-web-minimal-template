@@ -1,8 +1,19 @@
 # Feature: Q24 — `LayoutSwitcher` `EMPTY_MODES` allocation fix
 
-> **Status: SPECIFIED (iteration 109, 2026-04-27).** Same fix shape as the
-> iteration-105 `FilterBar` `EMPTY_TAGS` fix that resolved the equivalent
-> Q22 click-toggle race. Pending implementation in this iteration.
+> **Status: ✅ RESOLVED (iteration 109, 2026-04-27).** Specified and
+> executed in the same iteration. Same fix shape as the iteration-105
+> `FilterBar` `EMPTY_TAGS` fix that resolved the equivalent Q22
+> click-toggle race: a frozen module-scope
+> `EMPTY_MODES: readonly LayoutMode[]` constant replaced the inline
+> `['grid', 'list']` default. Verified across 3 isolated runs
+> (12/12 each in 40-46s) and 2 full-suite runs (43/43 each in
+> 1m12-18s) on Windows + Node 24.14.0 + Chromium 147; `pnpm typecheck`
+> 23/23 + `pnpm lint` 18/18 clean. The `net::ERR_CONNECTION_REFUSED`
+> observation (Q24 hypothesis B) did not reproduce after the fix —
+> downstream effect of the race producing extra mounts/retries, not
+> an independent dev-server bug. Status flip belatedly landed
+> iteration 144 (5 stale plan/spec front-matter status entries
+> caught in the same iter-144 audit pass).
 
 ## Description
 

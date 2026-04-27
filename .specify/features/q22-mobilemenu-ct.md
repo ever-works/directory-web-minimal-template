@@ -1,9 +1,24 @@
 # Feature: Q22 follow-up #1 — Preemptive `MobileMenu` Playwright CT migration
 
-> **Status: SPECIFIED (iteration 108, 2026-04-27).** Pending implementation in
-> the same iteration. The playbook is the same as Q22 (`FilterBar`, iteration
-> 105) and Q23 (`LayoutSwitcher`, iteration 107); this spec only documents the
-> `MobileMenu`-specific deviations.
+> **Status: ✅ COMPLETE (iteration 108, 2026-04-27).** Specified and
+> executed in the same iteration. All 15 cases ported to Playwright CT
+> in `packages/ui/src/__tests__/ct/mobile-menu.ct.test.tsx` and pass
+> 15/15 in 45.7s on Windows + Node 24.14.0. The original
+> `packages/ui/src/__tests__/preact/mobile-menu.test.tsx` was deleted
+> and `MobileMenu.tsx` was added to `vitest.config.ts`
+> `coverage.exclude` (subsequently dropped iter 115 / Phase 2 of Q22
+> follow-up #3 once the `pnpm coverage` merge landed). The MobileMenu
+> CT case count grew 15 → 17 in iteration 120 (focus-trap forward /
+> backward wrap CT tests) and 17 → 20 in iteration 124 (Q27 — empty-
+> panel + synthetic-Tab-from-last + non-boundary Tab tests closing
+> the 3-branch outlier). The playbook here was the same as Q22
+> (`FilterBar`, iteration 105) and Q23 (`LayoutSwitcher`, iteration
+> 107); this spec documented the `MobileMenu`-specific deviations
+> (D1-D5 — Escape key, click-outside wrapper, body scroll lock,
+> aria-expanded etc.). Status flip belatedly landed iteration 144 —
+> the iter-138 spec inventory pass + iter-141 cross-repo grep audit
+> caught and resolved this drift class for adjacent surfaces but
+> missed the spec's own front-matter line.
 
 ## Description
 

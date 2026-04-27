@@ -6,9 +6,15 @@ sidebar_label: "Q24 — EMPTY_MODES fix"
 # Q24 — LayoutSwitcher `EMPTY_MODES` allocation fix
 
 > **Spec:** [`.specify/features/q24-layoutswitcher-empty-modes.md`](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/q24-layoutswitcher-empty-modes.md)
-> **Status:** PLANNED (iteration 109, 2026-04-27).
+> **Status:** ✅ DONE (iteration 109, 2026-04-27). Specified and
+> executed in the same iteration. 1-line source change + 6-line
+> comment block + 1-line `EMPTY_MODES` sentinel declaration in
+> `packages/ui/src/preact/LayoutSwitcher.tsx`. Verified across 3
+> isolated runs (12/12 each in 40-46s) and 2 full-suite runs
+> (43/43 each in 1m12-18s). Status flip belatedly landed iter 144.
 > **Iterations referenced:** 105 (Q22 / `EMPTY_TAGS` fix in `FilterBar`), 107
-> (Q23 / `LayoutSwitcher` initial CT migration), 108 (Q24 opened).
+> (Q23 / `LayoutSwitcher` initial CT migration), 108 (Q24 opened),
+> 109 (Q24 fix executed).
 
 ## Why
 
