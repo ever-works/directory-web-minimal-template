@@ -3,6 +3,10 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-28 — Iteration 163: Q29 wind-down respected — no work this tick
+
+`pnpm audit:docs` 9/9 PASS. No source / test / config / dep / spec / plan changes. Q29 awaits user decision; default Option A (wind down to weekly cadence until real new scope arrives) in effect. This entry is the minimal cron-tick acknowledgement — no audit-class additions, no cohort-table re-derivations, no deferral re-numbering. If the next tick lands before Q29 is overridden, expect the same shape.
+
 ## 2026-04-28 — Iteration 162: open Q29 — flag cron-cadence saturation; deliberately short entry
 
 ### Headline
