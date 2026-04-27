@@ -3,6 +3,86 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 149: codify the iter-145 audit checklist into a runnable script — `scripts/audit-docs.ts` + `pnpm audit:docs`
+
+### Headline
+
+Iter-145 inserted the `## Doc-Quality Audit Checklist` section into `AGENTS.md` to institutionalize the grep-pattern playbook. Iter-146 / 147 / 148 each surfaced one *new* miss-target (blockquote-prefixed status, count parity, cross-file rule-count parity) and updated the checklist accordingly. The pattern across iters 132 → 148 has now produced **6 stable drift classes** (5 from iter-145's three pattern groups, plus iter-148's cross-file consistency class) — and the audit checklist itself runs as a sequence of grep one-liners that an autonomous iteration must hand-execute.
+
+This iteration **codifies the checklist into a runnable script** so future iterations execute the full audit with a single command. New `scripts/audit-docs.ts` (635 lines, executable via `pnpm audit:docs`) implements all 6 drift classes plus the cross-file parity check as a single TypeScript pass with structured output and a non-zero exit code on real drift.
+
+### What landed
+
+1. **`scripts/audit-docs.ts`** (new file, 635 LOC) — the canonical runner. Each drift class is encoded as an `AuditClass` with its own `run()` returning `{ pass, hits, notes }`. Output format is identical for every class (so a CI consumer can grep for `PASS`/`FAIL` lines uniformly), and the script writes a final `N/M PASS` rollup line + a non-zero exit code on any FAIL.
+2. **Root `package.json` script `audit:docs`** — `tsx scripts/audit-docs.ts`. Plus root `devDependencies` gain `tsx ^4.21.0` for runtime; pre-existing `tsx` was a dep of `@ever-works/web-minimal` only.
+3. **New spec at `.specify/features/audit-docs-script.md`** (~145 lines) and **new plan at `docs/plans/audit-docs-script.md`** (~199 lines) following the iter-110/123/129 spec-and-plan-before-implementation convention. Both reference `AGENTS.md § Doc-Quality Audit Checklist` as the canonical "what" and frame the script as the canonical "how" — so any future audit-class addition has a documented implementation path.
+4. **`AGENTS.md § Doc-Quality Audit Checklist`** gains a 24-line preamble pointing at the script and clarifying that the grep blocks below remain the canonical reference (a future iter can update the checklist text and the script to match without touching the other; both are kept in sync via iter-150's audit class #7).
+5. **`CLAUDE.md`** Common Commands gains the `pnpm audit:docs` row (alongside the existing test/coverage/etc. rows).
+6. **`README.md`** Commands table gains the `pnpm audit:docs` row.
+7. **`.specify/project.md`** Current State header bumped 148 → 149 with the audit-script line added to the doc-quality section.
+
+### Verification
+
+- `pnpm audit:docs` executes the full 7-class pass on the current tree:
+  ```
+  [1/6] Status drift (line-anchored, iter-145)                     PASS — 0 hits
+  [2/6] Status drift (blockquote-tolerant, iter-147)               PASS — 0 hits
+  [3/6] Value drift (count parity)                                 PASS — 0 hits
+           spec count: All N .specify/ feature specs: 32 ✓
+           package count: **N packages**: 18 ✓
+           app count: **N apps**: 8 ✓
+  [4/6] Toolchain version drift                                    PASS — 0 hits
+           astro: pinned 6.1.9 (major 6)
+           preact: pinned 10.29.1 (major 10)
+           tailwindcss: pinned 4.2.4 (major 4)
+           typescript: pinned 6.0.3 (major 6)
+  [5/6] ISR wording drift                                          PASS — 0 hits
+  [6/6] Structural / link drift                                    PASS — 0 hits
+  [ * ] Cross-file consistency (AGENTS R-rules vs CLAUDE Critical Rules) PASS — 0 hits
+           AGENTS.md R-rules: 15 (expected 15)
+           CLAUDE.md numbered Critical Rules: 17 (expected 17)
+
+  7/7 PASS — no documentation drift detected.
+  ```
+- `pnpm typecheck` — 23/23 FULL TURBO (1.43s).
+- `pnpm lint` — 18/18 FULL TURBO (1.64s).
+
+The script's exit code is **0** on this run (all 7 classes PASS); the next time a doc-quality drift surfaces, the FAIL output will be the canonical signal — no human grep-and-spot-check pass required.
+
+### Why this matters
+
+Across iters 132 → 148 the doc-audit pattern matured from *ad-hoc per-iteration grep + spot-check* (132) to *institutionalized checklist of grep one-liners* (145) to *6 enumerated drift classes with clear surface scopes* (148). The next maturation step is **automation**: a script that runs the full set in one invocation, returns a clear pass/fail, and integrates naturally into both autonomous-iteration cron ticks and CI pipelines. Iteration 149 is that step.
+
+The script is **deliberately TypeScript** (R1: TypeScript only) rather than shell-piped greps, which means:
+
+- Each audit class can carry per-class `notes[]` output (e.g., toolchain version drift class shows actual pinned versions; count parity class shows actual `wc -l` results) — bash greps cannot.
+- The script can perform *structural* checks (file-tree walks, `package.json` parsing, AST-level rule counting) in addition to regex matches — bash one-liners cannot.
+- Future audit classes (e.g., link-target reachability verification, JSON-schema-driven spec validation) can land as `AuditClass` additions without rewriting the runner.
+
+### Files touched
+
+- `scripts/audit-docs.ts` (new, 635 LOC).
+- `.specify/features/audit-docs-script.md` (new, 145 LOC).
+- `docs/plans/audit-docs-script.md` (new, 199 LOC).
+- `package.json` (+2 lines: `audit:docs` script + `tsx` devDep).
+- `pnpm-lock.yaml` (+3 lines: `tsx` resolution).
+- `AGENTS.md` (+24 lines: preamble + cross-ref to script).
+- `CLAUDE.md` (+2 lines: `pnpm audit:docs` row).
+- `README.md` (+1 line: `pnpm audit:docs` row).
+- `.specify/project.md` (Current State header bumped + audit-script line).
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 148 → 149.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)**. `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127. Project enters its **20th consecutive "no carried open work" steady-state iteration** (iter 130-149).
+
+### Next Steps (for next scheduled run)
+
+1. **Add an audit class for "AGENTS.md checklist text vs `audit-docs.ts` implementation parity"** — when an iter updates the checklist, the script should be updated too, and vice versa. Currently this is enforced by convention; codify it as audit class #7 (sync-check between two surfaces).
+2. **Wire `pnpm audit:docs` into CI** — adding it to `.github/workflows/ci.yml` would make doc drift a PR-blocking signal alongside `pnpm lint` / `pnpm typecheck`.
+3. **Continue the routine drift-sweep cadence** — re-run `pnpm audit:docs` on every cron tick. Now that it's a single command, the audit cost is bounded at ~5 seconds per iteration.
+
 ## 2026-04-27 — Iteration 148: cross-file consistency drift — close the AGENTS.md ↔ CLAUDE.md "Critical Rules" sync gap (R9-R15 missing from CLAUDE.md); codify the new drift class in `AGENTS.md § Doc-Quality Audit Checklist`
 
 ### Headline

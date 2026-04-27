@@ -27,11 +27,13 @@
         "test:ct": "pnpm --filter @ever-works/ui test:ct",
         "test:ct:install": "pnpm --filter @ever-works/ui test:ct:install",
         "coverage": "pnpm --filter @ever-works/ui coverage",
-        "typecheck": "turbo run typecheck"
+        "typecheck": "turbo run typecheck",
+        "audit:docs": "tsx scripts/audit-docs.ts"
     },
     "devDependencies": {
         "@vitest/coverage-v8": "^4.1.5",
         "prettier": "^3.8.3",
+        "tsx": "^4.21.0",
         "turbo": "^2.9.6",
         "vitest": "^4.1.5"
     },

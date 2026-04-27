@@ -325,10 +325,32 @@ Before creating or modifying ANY file, verify:
 
 When running a doc-only / drift-sweep iteration (i.e. no code or test changes, just documentation
 hygiene), use the grep patterns below to surface stale claims and structural micro-drift across the
-docs surface. These patterns codify the drift classes found across iterations 132 → 144; each
+docs surface. These patterns codify the drift classes found across iterations 132 → 148; each
 pattern matches a specific known-recurring miss-target.
 
 Always run from the repo root.
+
+### Runner (added iter 149)
+
+The 6 grep blocks below are codified into an executable runner at
+[`scripts/audit-docs.ts`](../scripts/audit-docs.ts), wired as the root-level npm script
+`pnpm audit:docs`. Each audit class wraps the exact regex from this checklist and reports
+`PASS` / `FAIL <N hits>` with line-anchored output for any hits; the runner exits non-zero on
+any class flagging real (non-whitelisted) drift, so it is CI-gating-ready. **The script is the
+canonical *runner*; this checklist remains the canonical *reference*.**
+
+Run it as:
+
+```bash
+pnpm audit:docs
+```
+
+Spec: [`.specify/features/audit-docs-script.md`](../.specify/features/audit-docs-script.md).
+Plan: [`docs/plans/audit-docs-script.md`](../docs/plans/audit-docs-script.md).
+
+When a new drift class surfaces in a future iteration, add the grep pattern below AND a
+matching `auditClassN()` function in `scripts/audit-docs.ts` so the codification stays in
+sync between the reference and the runner.
 
 ### Value drift (stale numbers / counts / versions)
 
