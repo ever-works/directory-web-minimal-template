@@ -1,9 +1,22 @@
 # Feature: Q28 — ESLint 9 → 10 major-version upgrade
 
-> **Status: SPECIFIED (iteration 129, 2026-04-27).** Pre-investigation
-> done; the upgrade reduces to a one-line peer-range bump + lockfile
-> refresh + lint smoke test. Pending implementation in a future
-> iteration; spec/plan-only this iteration.
+> **Status: ✅ RESOLVED (iteration 130, 2026-04-27).** Specified
+> iteration 129; executed iteration 130. Final lockfile state:
+> `eslint@10.2.1` + transitive bumps (`@eslint/core@1.2.1`,
+> `@eslint/config-array@0.23.5`, `@eslint/config-helpers@0.5.5`,
+> `@eslint/object-schema@3.0.5`, `@eslint/plugin-kit@0.7.1`,
+> `eslint-scope@9.1.2`, `espree@11.2.0`,
+> `eslint-visitor-keys@5.0.1`); legacy `@eslint/eslintrc@3.3.5` and
+> standalone top-level `@eslint/js@9.39.4` /
+> `eslint-visitor-keys@4.2.1` dropped (consolidation). Net lockfile
+> churn: +14 / -19 packages, -38 lines. `pnpm lint` 18/18 clean
+> (zero new violations; 2 pre-existing `no-console` warnings carry
+> forward unchanged). `pnpm typecheck` 23/23. `pnpm test` 16/16
+> packages, 1122/1122 Vitest tests. Optional `engines.node` bump
+> skipped to keep churn minimal (`>=22.12.0` already covers ESLint
+> 10's `>=22.13.0` floor via semver). All 10 acceptance criteria
+> satisfied — see Outcome subsection in
+> `docs/plans/q28-eslint-10-upgrade.md` for AC-by-AC verification.
 
 ## Description
 

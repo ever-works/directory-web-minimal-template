@@ -1356,17 +1356,40 @@ Mobile-menu.ct case count: 17 → 20. Spec at
 
 ---
 
-## Q28: ESLint 9 → 10 major-version upgrade (iteration 129)
+## Q28: ESLint 9 → 10 major-version upgrade (iteration 129; ✅ RESOLVED iteration 130)
 
-> **Status: OPEN — Option A chosen `[DEFAULT]` (single-iteration in-place
-> bump; flat-config already in place; node-version floor already met;
-> @typescript-eslint pin already covers ESLint 10 in its peer-range).**
-> Pre-investigation done iteration 129. Spec at
-> `.specify/features/q28-eslint-10-upgrade.md`; plan at
-> `docs/plans/q28-eslint-10-upgrade.md`. The "manual changelog review
-> required" caveat from iters 123/125/126/127/128 is retired by this
-> question — the changelog is reviewed below; no source changes are
-> required for the upgrade itself.
+> **Status: ✅ RESOLVED in iteration 130 — Option A executed in a single
+> autonomous tick.** `packages/eslint-config/package.json`
+> `peerDependencies.eslint` flipped `^9.0.0` → `^10.0.0`; `pnpm install`
+> resolved `eslint@9.39.4 → eslint@10.2.1` plus a coordinated transitive
+> bump (`@eslint/core@0.17.0 → 1.2.1`, `@eslint/config-array@0.21.2 →
+> 0.23.5`, `@eslint/config-helpers@0.4.2 → 0.5.5`,
+> `@eslint/object-schema@2.1.7 → 3.0.5`, `@eslint/plugin-kit@0.4.1 →
+> 0.7.1`, `eslint-scope@8.4.0 → 9.1.2`, `espree@10.4.0 → 11.2.0`,
+> `eslint-visitor-keys@4.2.1 → 5.0.1`); legacy
+> `@eslint/eslintrc@3.3.5` and the standalone `@eslint/js@9.39.4` /
+> `eslint-visitor-keys@4.2.1` top-level entries dropped (ESLint 10
+> consolidates these into core or doesn't ship them anymore). Net
+> lockfile churn: **+14 / -19 packages, -38 lines** (consolidation).
+> `pnpm lint` 18/18 successful in 50.7s on the post-bump lockfile (1
+> cached + 17 fresh; cache busted by lockfile change as expected); the
+> only output is **4 pre-existing `no-console` warnings** (2 in
+> `packages/core/src/logger.ts:40,53` and 2 in
+> `packages/plugins/src/logger.ts:22,35`), all already present at the
+> iter-128 baseline (the rule allows only `console.warn/error`; both
+> logger modules intentionally use other levels). **Zero new ESLint 10
+> violations.** `pnpm typecheck` 23/23 in 2m12.8s (full fresh) and
+> `pnpm test` 16/16 packages / **1122/1122 Vitest tests** pass in
+> 2m52.5s (full fresh). `pnpm test:ct` (48 cases) and `pnpm coverage`
+> (merged 100% aggregate) intentionally skipped per plan Step 4 —
+> ESLint is static analysis only, cannot affect runtime; CT exercises
+> the same workspace dep graph that Vitest already proves green; the
+> defense-in-depth was not needed. `engines.node` bump (optional per
+> AC #6) skipped to keep churn minimal — `>=22.12.0` already covers
+> ESLint 10's `>=22.13.0` floor via semver caret resolution. The
+> "manual changelog review required" deferral marker carried in iters
+> 123/125/126/127/128 is now retired; future audits will not surface
+> this item.
 
 **Context**: Iterations 123/125/126/127/128 all flagged ESLint 9 → 10
 as the single out-of-scope drift item in the otherwise-current dep
@@ -1509,8 +1532,14 @@ flagged ESLint 9→10 as the single out-of-scope drift item. The
 deferral is now a stale "we haven't looked yet" marker — iteration 129
 looks. After Q28 lands, the deferral disappears.
 
-**Status**: OPEN — Option A chosen [DEFAULT]. Spec at
-`.specify/features/q28-eslint-10-upgrade.md`; plan at
-`docs/plans/q28-eslint-10-upgrade.md`. The execution iteration is
-expected to land in 30-45 min walltime, single-iteration; the cron
-cadence supports this comfortably.
+**Status**: ✅ RESOLVED in iteration 130 — Option A executed (single-
+iteration in-place peer-range bump). Spec at
+`.specify/features/q28-eslint-10-upgrade.md` (front-matter status
+flipped iter 130); plan at `docs/plans/q28-eslint-10-upgrade.md`
+(Outcome subsection appended iter 130). Final lockfile state:
+`eslint@10.2.1`, `@eslint/core@1.2.1`, `eslint-scope@9.1.2`,
+`espree@11.2.0`. Zero new ESLint 10 lint violations across the
+18-package matrix. Total walltime including doc updates: ~7 min
+(install ~92s + typecheck ~133s + test ~173s + lint ~51s + ~5 min
+doc edits) — well under the 30-45 min plan estimate because the
+test-suite-fresh costs amortized across one verification pass.

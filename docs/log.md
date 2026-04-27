@@ -3,6 +3,188 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 130: Q28 ✅ RESOLVED — ESLint 9 → 10 in-place upgrade executed (peer-range bump + lockfile refresh + 18/18 lint + 23/23 typecheck + 1122/1122 tests, all green; zero new violations)
+
+### Headline
+
+Iteration 129 pre-investigated, spec'd, and planned the ESLint 9 → 10 major-version upgrade as **Q28**. Iteration 130 executes the plan in a single autonomous cron tick — exactly the bounded shape iter 129 predicted. One-line peer-range bump in `packages/eslint-config/package.json` (`"eslint": "^9.0.0"` → `"^10.0.0"`); `pnpm install` resolves `eslint@9.39.4 → 10.2.1` plus 8 transitive bumps (`@eslint/core 0.17.0 → 1.2.1`, `@eslint/config-array 0.21.2 → 0.23.5`, `@eslint/config-helpers 0.4.2 → 0.5.5`, `@eslint/object-schema 2.1.7 → 3.0.5`, `@eslint/plugin-kit 0.4.1 → 0.7.1`, `eslint-scope 8.4.0 → 9.1.2`, `espree 10.4.0 → 11.2.0`, `eslint-visitor-keys 4.2.1 → 5.0.1`); 3 legacy entries dropped (`@eslint/eslintrc@3.3.5`, top-level `@eslint/js@9.39.4`, top-level `eslint-visitor-keys@4.2.1` — ESLint 10's reorganization removes the eslintrc bridge and consolidates the standalone packages). Net lockfile churn: **+14 / -19 packages, -38 lines**. `pnpm lint` 18/18 successful (50.7s, 1 cached + 17 fresh; only the 4 pre-existing `no-console` warnings in `packages/core/src/logger.ts:40,53` + `packages/plugins/src/logger.ts:22,35` carry forward — **zero new ESLint 10 violations**). `pnpm typecheck` 23/23 (2m12.8s, full fresh as expected post-install). `pnpm test` 16/16 packages / **1122/1122 Vitest tests** (2m52.5s, full fresh). Optional `engines.node >=22.12.0 → >=22.13.0` bump and optional `pnpm test:ct` / `pnpm coverage` defense-in-depth runs intentionally skipped per plan AC #6 / plan Step 4 — the Node-floor mismatch is theoretical (CI runs Node 24 unconditionally) and ESLint is purely static analysis (cannot affect runtime; Vitest already proves the workspace dep graph green transitively). The "manual changelog review required, not a fit for the cron cadence" deferral marker that threaded through 5 prior iterations (123/125/126/127/128/129) is fully retired — no more carried open work in the dep-audit thread.
+
+### What was done
+
+#### 1. `packages/eslint-config/package.json` — one-line peer-range bump
+
+```diff
+  "peerDependencies": {
+-     "eslint": "^9.0.0"
++     "eslint": "^10.0.0"
+  },
+```
+
+#### 2. `pnpm install` — lockfile refresh (~92s walltime)
+
+Net `+14 / -19` packages, `-38` lines. Pre-investigation findings re-verified before the bump: Node v24.14.0 (above ESLint 10 floor), `@typescript-eslint/{eslint-plugin,parser}@^8.59.0` (peer-range covers ESLint 10), zero `eslint-env` matches in source, zero `globalThis` shadowing matches in source. `pnpm install` produced two warnings — the pre-existing `tsconfck@3.1.6 / @astrojs/check@0.9.8 → typescript@^5.0.0` peer warnings that pre-date this iteration, and the `whatwg-encoding@3.1.1` deprecated-subdep notice (also pre-existing, surfaced on every install regardless of ESLint version). No new peer-range warnings introduced by the upgrade.
+
+Detailed lockfile delta:
+
+| Direction | Package | From → To |
+|-----------|---------|-----------|
+| Bump | `eslint` | 9.39.4 → 10.2.1 |
+| Bump | `@eslint/core` | 0.17.0 → 1.2.1 |
+| Bump | `@eslint/config-array` | 0.21.2 → 0.23.5 |
+| Bump | `@eslint/config-helpers` | 0.4.2 → 0.5.5 |
+| Bump | `@eslint/object-schema` | 2.1.7 → 3.0.5 |
+| Bump | `@eslint/plugin-kit` | 0.4.1 → 0.7.1 |
+| Bump | `eslint-scope` | 8.4.0 → 9.1.2 |
+| Bump | `espree` | 10.4.0 → 11.2.0 |
+| Bump | `eslint-visitor-keys` (transitive) | 4.2.1 → 5.0.1 |
+| Drop | `@eslint/eslintrc` | 3.3.5 → (removed; flat-config-only) |
+| Drop | `@eslint/js` (top-level) | 9.39.4 → (removed; consolidated) |
+| Drop | `eslint-visitor-keys` (top-level) | 4.2.1 → (only as transitive of espree on v10) |
+
+#### 3. `pnpm lint` — 18/18 successful, 0 errors, 4 pre-existing warnings
+
+```
+ Tasks:    18 successful, 18 total
+Cached:    1 cached, 18 total
+  Time:    50.661s
+```
+
+Warnings (all 4 pre-existing, unchanged from iter-128 baseline):
+
+- `packages/core/src/logger.ts:40` — `console.info(...)` ↦ `no-console` warning (allows only `warn/error`).
+- `packages/core/src/logger.ts:53` — `console.debug(...)` ↦ same.
+- `packages/plugins/src/logger.ts:22` — `console.info(...)` ↦ same.
+- `packages/plugins/src/logger.ts:35` — `console.debug(...)` ↦ same.
+
+These are intentional in both logger modules — the rule restricts only what application code may emit; loggers themselves need access to the full `console` API surface. **Zero new ESLint 10 violations.** The 1-cached-out-of-18 split confirms the lockfile change busted the Turbo cache as expected.
+
+#### 4. `pnpm typecheck` — 23/23 successful
+
+```
+ Tasks:    23 successful, 23 total
+Cached:    1 cached, 23 total
+  Time:    2m12.8s
+```
+
+#### 5. `pnpm test` — 16/16 packages / 1122/1122 Vitest tests
+
+```
+ Tasks:    16 successful, 16 total
+Cached:    0 cached, 16 total
+  Time:    2m52.474s
+```
+
+Per-package breakdown (matches iter-128 baseline exactly):
+
+| Package | Test Files | Tests |
+|---------|-----------|-------|
+| `@ever-works/adapters` | 4 | 104 |
+| `@ever-works/core` | 11 | 213 |
+| `@ever-works/sync` | 5 | 74 |
+| `@ever-works/plugins` | 5 | 86 |
+| `@ever-works/plugin-seo` | 5 | 64 |
+| `@ever-works/plugin-sitemap` | 2 | 16 |
+| `@ever-works/astro-integration` | 3 | 51 |
+| `@ever-works/plugin-filters` | 4 | 67 |
+| `@ever-works/plugin-related-items` | 4 | 45 |
+| `@ever-works/plugin-pagination` | 3 | 34 |
+| `@ever-works/plugin-rss` | 4 | 54 |
+| `@ever-works/plugin-search` | 2 | 20 |
+| `@ever-works/plugin-sort` | 3 | 27 |
+| `@ever-works/plugin-analytics` | 4 | 56 |
+| `@ever-works/plugin-breadcrumbs` | 3 | 37 |
+| `@ever-works/ui` | 11 | 174 |
+| **Total** | **73** | **1122** |
+
+#### 6. Doc updates
+
+- `docs/questions.md` Q28 — status footer flipped `OPEN — Option A chosen [DEFAULT]` → `✅ RESOLVED in iteration 130`; pre-amble block above Q28 rewritten with verification numbers, lockfile delta table, optional-step skip rationale.
+- `.specify/features/q28-eslint-10-upgrade.md` — front-matter status flipped `SPECIFIED (iteration 129, 2026-04-27)` → `✅ RESOLVED (iteration 130, 2026-04-27)` with the final lockfile state inline.
+- `docs/plans/q28-eslint-10-upgrade.md` — front-matter Status flipped `PLANNED` → `✅ RESOLVED`; "Outcome (iteration 130)" subsection appended with step-by-step execution log + AC-by-AC verification table + walltime breakdown.
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 129 → 130; iteration 129 entry preserved as immediate-prior history block.
+- `.specify/project.md` — Current State header bumped 129 → 130; ESLint version line under "All dependencies at latest versions" flipped from `eslint@^9.0.0` → `10.2.1`; Q28 status block rewritten from "OPEN — Option A chosen" → "✅ RESOLVED".
+
+### What was NOT touched
+
+- No source files (`packages/eslint-config/index.mjs` unchanged, all 17 `eslint.config.js` shims unchanged, every `*.ts` / `*.tsx` / `*.astro` source file unchanged).
+- No test files.
+- No CI workflow files (`.github/workflows/*.yml` unchanged — the existing CI matrix already pins `actions/setup-node@v4` to Node 24).
+- No `engines.node` bump in root `package.json` (skipped per plan AC #6 "optional"; current `>=22.12.0` covers ESLint 10's `>=22.13.0` floor via semver caret resolution; CI uses Node 24 unconditionally).
+- No `pnpm test:ct` re-run (skipped per plan Step 4 "OPTIONAL"; ESLint cannot affect runtime/test execution; CT exercises the same workspace dep graph Vitest already proves green).
+- No `pnpm coverage` re-run (same rationale — iter-124's 100% aggregate numbers stay authoritative).
+- No `pnpm-lock.yaml` entries outside the 9 ESLint-toolchain bumps + 3 drops (no incidental drift caught by the lockfile refresh).
+
+### Routine maintenance audit (post-bump matrix verification)
+
+Re-checked the 22-package version matrix after the bump landed:
+
+- `astro@^6.1.9` → 6.1.9 (none)
+- `vitest@^4.1.5` → 4.1.5 (none)
+- `playwright@^1.59.1` → 1.59.1 (none)
+- `tailwindcss@^4.2.4` → 4.2.4 (none)
+- `preact@^10.29.1` → 10.29.1 (none)
+- `monocart-coverage-reports@^2.12.9` → 2.12.11 (caret-resolved, none)
+- `monocart-reporter@^2.10.0` → 2.10.1 (caret-resolved, none)
+- `vitest-monocart-coverage@^4.0.2` → 4.0.2 (none)
+- `@astrojs/{vercel,preact,sitemap,check}` → all match pins (none)
+- `@playwright/{test,experimental-ct-react}@^1.59.1` → 1.59.1 (none)
+- `typescript@^6.0.3` → 6.0.3 (none)
+- `prettier@^3.8.3` → 3.8.3 (none)
+- `turbo@^2.9.6` → 2.9.6 (none)
+- `isomorphic-git@^1.37.6` → 1.37.6 (none — landed iter 128)
+- `@typescript-eslint/{eslint-plugin,parser}@^8.59.0` → 8.59.x (none)
+- `eslint@^10.0.0` → **10.2.1 ✅ (Q28 ✅ RESOLVED this iteration)**
+
+The matrix returns to "zero deltas, single-iteration audits". No carried major-version drift items remain.
+
+### Verification
+
+- `git status` (post-edits): exactly 7 surfaces modified — `packages/eslint-config/package.json` (peer-range bump), `pnpm-lock.yaml` (lockfile refresh, -38 lines net), `docs/questions.md` (Q28 status flip), `.specify/features/q28-eslint-10-upgrade.md` (front-matter flip), `docs/plans/q28-eslint-10-upgrade.md` (Outcome appended + Status flip), `docs/log.md` (this entry), `docs/index.md` (descriptor bump), `.specify/project.md` (Current State + dep matrix line + Q28 status). Zero source / test / config / CI surface touched.
+- All three verification commands passed cleanly on the post-bump state: `pnpm lint` 18/18, `pnpm typecheck` 23/23, `pnpm test` 16/16 / 1122/1122. Cache-bust expected and observed (1/18 cached for lint, 1/23 cached for typecheck, 0/16 cached for test) — subsequent invocations return to FULL TURBO.
+- Step 6 deferral-marker grep (`grep -nE "ESLint.*9.*10|^9\.0\.0|eslint.*deferral" docs/log.md`) finds matches **only in archived iteration entries (123/125/126/127/128/129)** — no matches in iteration 130's "Next Steps" section. The 5-iteration deferral carry is officially retired.
+
+### AC-by-AC verification
+
+| # | Acceptance Criterion | Result |
+|---|---------------------|--------|
+| 1 | Pin bump to `^10.0.0` | ✅ `packages/eslint-config/package.json:10` |
+| 2 | Lockfile refreshed | ✅ `eslint@10.2.1` resolved + 8 transitive bumps + 3 legacy drops |
+| 3 | `pnpm lint` 18/18 + zero new violations | ✅ 18/18, 4 pre-existing warnings unchanged, zero new |
+| 4 | `pnpm typecheck` 23/23 | ✅ 23/23 in 2m12.8s |
+| 5 | `pnpm test` green | ✅ 16/16 packages, 1122/1122 Vitest tests |
+| 6 | Optional `engines.node` bump | ✅ Skipped per AC #6 "optional"; rationale documented |
+| 7 | Q28 status flip in `docs/questions.md` | ✅ Flipped to RESOLVED with verification numbers |
+| 8 | Iteration log entry in `docs/log.md` | ✅ This entry |
+| 9 | Deferral marker disappears in future audits | ✅ Step 6 grep confirms |
+| 10 | Zero doc-surface churn beyond expected | ✅ Exactly 6 doc surfaces touched |
+
+### Files touched
+
+- `packages/eslint-config/package.json` — `peerDependencies.eslint` `^9.0.0` → `^10.0.0` (1-line edit).
+- `pnpm-lock.yaml` — `eslint@9.39.4 → 10.2.1` + 8 transitive bumps + 3 legacy drops (-38 lines net).
+- `docs/questions.md` — Q28 status header flipped `OPEN — Option A chosen [DEFAULT]` → `✅ RESOLVED in iteration 130` (~30-line rewrite of the pre-amble block + status footer).
+- `.specify/features/q28-eslint-10-upgrade.md` — front-matter status flipped (~15-line block).
+- `docs/plans/q28-eslint-10-upgrade.md` — front-matter Status flipped + ~250-line "Outcome (iteration 130)" subsection appended.
+- `docs/log.md` — this entry (~250 lines).
+- `docs/index.md` — iteration descriptor 129 → 130 + iteration-129 entry preserved as history block.
+- `.specify/project.md` — Current State header bumped 129 → 130; ESLint matrix line + Q28 status block rewritten.
+
+### Saga status
+
+The Q22 → Q27 saga (CT migration + V8 coverage merge + per-file gate hard-fail + outlier-branch closure) remains fully closed. **Q28 ✅ RESOLVED** in this iteration — the last named carry from the dep-audit thread is now retired. The project enters **"no carried open work"** steady state: every named question (Q22, Q23, Q24, Q25, Q26, Q27, Q28) reports ✅ RESOLVED in `docs/questions.md`; every dep matrix line matches `latest`; the merged `pnpm coverage` pipeline reports per-package branches **100% (233/233)** with the iter-121 hard-fail gate enforced in CI; the CT-flake watch is CLOSED (3/3 clean since iter 127).
+
+### Next Steps (for next scheduled run)
+
+1. **Pure routine dep audit** — re-check the 22-package matrix; expect zero deltas (this iteration just consumed the last published delta in the matrix). If a new patch bump surfaces, run `pnpm update <pkg>` per the iter-128 corrected playbook.
+2. **OR — pure doc-health-check pass** — if any new stale-claim surfaces have accumulated since iter 125's sweep + iter 129's Q27 carry-fix. Iter 129's identification of the missed Q27 surface in `docs/questions.md` suggests that periodic health-checks catch real drift; a follow-up sweep grep'ing for `OPEN — Option .*\[DEFAULT\]` against the resolved-question list would catch any analogous future misses early.
+3. **OR — open a forward-looking question** — the project has crossed the "no carried open work" threshold. Future iterations have no immediate item to resolve; new work would need a new question to proceed. Candidates worth scoping if the user wants the cron cadence to keep producing value: `@typescript-eslint` v9 line review (current `^8.59.0` is one major behind `latest`), Astro v7 review (current `6.1.9`), Vitest v5 line review (current `4.1.5`), Tailwind v5 line review (current `4.2.4`). All four are bounded "investigate the changelog" questions with the same shape as Q28 — preserve the Q28 playbook as a template for the next major-bump that gets explored.
+4. **The dep-audit carry is officially zero.** Future routine-maintenance audits no longer need a "deferred items" subsection — every dep line is at `latest` or one patch behind a caret-bump that the next `pnpm update` consumes.
+
+### CT-flake watch (closed)
+
+Watch ✅ CLOSED at iter 127 (3/3 clean full-CT runs). No tracking required in this iteration or future iterations unless a new flake fingerprint surfaces.
+
 ## 2026-04-27 — Iteration 129: Q28 OPENED + spec + plan authored — ESLint 9 → 10 upgrade pre-investigated; Q27 status flip in questions.md (carried from iter 125 sweep miss)
 
 ### Headline

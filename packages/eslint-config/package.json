@@ -7,7 +7,7 @@
         ".": "./index.mjs"
     },
     "peerDependencies": {
-        "eslint": "^9.0.0"
+        "eslint": "^10.0.0"
     },
     "dependencies": {
         "@typescript-eslint/eslint-plugin": "^8.59.0",
