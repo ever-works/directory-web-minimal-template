@@ -720,6 +720,43 @@ full-surface number.
 exits non-zero from `pnpm coverage`. A PR that does not drop coverage
 exits zero.
 
+### Outcome (iteration 121, 2026-04-27)
+
+✅ **DONE.** `packages/ui/scripts/coverage-merge.ts` per-file gate
+flipped from informational `console.warn(⚠️)` to hard-fail `process.exit(1)`.
+The three CT-migrated component paths moved out of an inline `targets`
+array into top-level `as const` `GATE_TARGETS` and the threshold was
+lifted into a single named constant `GATE_THRESHOLD = 80` so a future
+tracking-issue temporary downgrade is a one-line edit. Failure-block
+messaging rewritten: instead of pointing at "Phase 6c CI will enforce"
+(now self-referential / stale), it tells the contributor exactly how
+to unblock — add CT tests covering the missing branches OR lower
+`GATE_THRESHOLD` with a tracking-issue link.
+
+`.github/workflows/ci.yml` gained a new `coverage-gate` job (sequenced
+after `ci` + `test-ct`, runs in parallel with `e2e`). The job runs
+`pnpm coverage` and inherits the merge script's exit code; uploads
+`packages/ui/coverage/merged/` as a 14-day `actions/upload-artifact@v4`
+artifact (`if: always()`) so reviewers can browse the per-file HTML
+even when the gate fails. Playwright browser cache + install steps
+match `test-ct` so the CT subgraph runs warm.
+
+**Verification**: green path — `pnpm coverage` end-to-end on Windows
+10 + Node 24.14.1 reports 98.72% branches (232/235) aggregate; per-file
+FilterBar 100%, LayoutSwitcher 100%, MobileMenu 91.89% — all three ✅;
+exit code 0. Failure path — temporarily raised `GATE_THRESHOLD` to 95,
+re-ran merge: ❌ 1 target below the 95% branch gate, diagnostic block
+printed with the three remediation lines, exit code 1; reverted.
+
+Step 3 (open a tracking sub-issue for MobileMenu's remaining branches)
+is largely satisfied by iteration 120's CT focus-trap tests (closed 9
+of the 12 branches; 3 remain at the `if (focusable.length === 0) return;`
+early-return, deferred with an inline comment in
+`mobile-menu.ct.test.tsx`). No separate tracking issue opened — the
+inline comment + this plan entry are the canonical record.
+
+**Phase 6d is unblocked.** It's purely doc edits (status flips).
+
 ### Phase 6d — Phase 5 doc + status flips
 
 Identical to the existing Phase 5 below, with one extra line item:

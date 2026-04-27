@@ -113,6 +113,62 @@ jobs:
             packages/ui/test-results/
           retention-days: 7
 
+  coverage-gate:
+    # Q22 follow-up #3 Phase 6c (iteration 121, 2026-04-27).
+    #
+    # Runs the merged Vitest+CT coverage pipeline and inherits the exit
+    # code from `packages/ui/scripts/coverage-merge.ts`. The merge script
+    # exits non-zero when any of FilterBar.tsx, LayoutSwitcher.tsx, or
+    # MobileMenu.tsx drops below 80% branch coverage in the merged report
+    # (see GATE_TARGETS / GATE_THRESHOLD in the script).
+    #
+    # This is the canonical Phase 3 gate. Reviewers can also browse the
+    # uploaded merged HTML artifact for per-file detail on PRs.
+    name: Coverage Gate (≥80% branches per CT-migrated component)
+    runs-on: ubuntu-latest
+    needs: [ci, test-ct]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/ms-playwright
+            ~/AppData/Local/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+        working-directory: packages/ui
+
+      - name: Run merged coverage (Vitest + CT)
+        # Inherits the per-file gate exit code from coverage-merge.ts.
+        run: pnpm coverage
+
+      - name: Upload merged coverage HTML
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui-coverage-merged
+          path: packages/ui/coverage/merged/
+          retention-days: 14
+
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest

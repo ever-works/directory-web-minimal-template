@@ -3,6 +3,88 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 121: Q22 follow-up #3 Phase 6c ✅ DONE — coverage gate hard-fail enforced (script + CI job)
+
+### Headline
+
+Flipped the per-file branch-coverage gate in `packages/ui/scripts/coverage-merge.ts` from informational warning (`⚠️`) to hard failure (`process.exit(1)`) and added a corresponding `coverage-gate` job to `.github/workflows/ci.yml`. The gate is now the canonical Q22-follow-up-#3 Phase 3 enforcement signal: a PR that drops `FilterBar.tsx`, `LayoutSwitcher.tsx`, or `MobileMenu.tsx` below 80% branches in the merged Vitest+CT V8 report blocks merge. With iteration-120's MobileMenu focus-trap tests in place, the gate currently passes cleanly (98.72% aggregate branches, all three allow-listed files ≥ 80%). Phase 6d (status flips across `docs/architecture/testing-runners.md`, `.specify/features/`, `docs/questions.md`) is now the only remaining Q22-follow-up-#3 task.
+
+### What changed
+
+#### 1. `packages/ui/scripts/coverage-merge.ts` — informational → hard-fail
+
+- Header doc-block "Exit-criterion handling" rewritten to record the Phase 6c flip: the script now `process.exit(1)`s when any allow-listed component reports `<80%` branches in the merged report. The CI job inherits this exit code.
+- The three CT-migrated component paths moved out of an inline `targets` array into a top-level `as const` constant `GATE_TARGETS` to make the allow-list intentional / extension-safe. Threshold also lifted into a single named constant `GATE_THRESHOLD = 80` so the only edit needed for a tracking-issue temporary downgrade is one line.
+- Per-file print line header changed from `(≥80% branches, informational)` → `(≥${GATE_THRESHOLD}% branches, hard-fail)`.
+- "NOT FOUND in merged files[]" branch promoted from `console.warn(⚠️)` to `console.error(❌)` and counted toward `belowGate` (it already was, but the symbology was inconsistent).
+- Failure-block: replaced the three `console.warn` lines (informational explainer + Phase-6c-deferred note + plan link) with three `console.error` lines (Phase 6c hard-gate enforced + plan link + remediation hints: add CT tests OR temporarily lower `GATE_THRESHOLD` with a tracking-issue link). Followed by `process.exit(1)`.
+- Success branch message updated from `Phase 3 per-file gate satisfied` → `Phase 6c per-file gate satisfied` to reflect the active phase.
+
+#### 2. `.github/workflows/ci.yml` — new `coverage-gate` job
+
+New job sequenced after `ci` + `test-ct` (`needs: [ci, test-ct]`):
+
+- `actions/checkout@v4`, `pnpm/action-setup@v4`, `actions/setup-node@v4` (Node 24, pnpm cache) — same shape as `test-ct`.
+- `pnpm install --frozen-lockfile`.
+- Playwright browser cache (`actions/cache@v4`, lockfile-hash key) + `pnpm exec playwright install --with-deps chromium` in `packages/ui/` working dir — same toolchain as `test-ct` so the `pnpm coverage` step's CT subgraph runs on a known-warm browser cache.
+- `pnpm coverage` step. Inherits the merge script's exit code; failure here red-marks the entire job and blocks the PR.
+- `actions/upload-artifact@v4` `if: always()` for `packages/ui/coverage/merged/` (14-day retention) so reviewers can browse the per-file HTML report on every PR — even when the gate fails.
+
+The job does NOT depend on `e2e` and runs in parallel with it after `ci`.
+
+### Verification
+
+#### Local — Windows 10 + Node 24.14.1 + pnpm 10.33.0
+
+- `pnpm typecheck` — 23/23 (16 cached + 7 fresh, 1m 21s).
+- `pnpm --filter @ever-works/ui lint` — 0 errors / 0 warnings.
+- `pnpm coverage` end-to-end (Vitest + CT + merge):
+  - Vitest: 11/11 files / 174/174 tests pass; 40 raw V8 entries written to `packages/ui/coverage/raw/`.
+  - CT: 45/45 cases pass in ~1m22s; 51 raw V8 entries written to `packages/ui/coverage/ct/raw/`.
+  - Merge: 91 raw V8 entries combined → 19 files in merged report.
+  - **Aggregate**: branches 98.72% (232/235), functions 100% (104/104), lines 99.60% (1239/1244), statements 99.15% (352/355), bytes 99.73% (45,628/45,750).
+  - **Per-file gate (Phase 6c hard-fail, allow-list)**: ALL THREE PASS ✅
+    - `FilterBar.tsx`: 100% (27/27)
+    - `LayoutSwitcher.tsx`: 100% (22/22)
+    - `MobileMenu.tsx`: 91.89% (34/37)
+  - Output line: `coverage-merge: ✅ Phase 6c per-file gate satisfied.`
+  - Exit code: 0.
+
+#### Failure-path verification
+
+To prove the hard-fail wiring (not just the green path), temporarily raised `GATE_THRESHOLD = 80` → `GATE_THRESHOLD = 95` in `coverage-merge.ts` and re-ran `pnpm exec tsx scripts/coverage-merge.ts` against the existing `coverage/raw/` + `coverage/ct/raw/` inputs (no re-test required — merge reads the raw files):
+
+- Output included `❌ src/preact/MobileMenu.tsx: 91.89% branches (34/37)` (the other two still passed).
+- Diagnostic block printed: `❌ 1 target below the 95% branch gate.` + `Phase 6c hard-gate enforced — see docs/plans/q22-playwright-coverage.md.` + `To unblock: add CT tests that cover the missing branches, OR` + `temporarily lower GATE_THRESHOLD here with a tracking issue link.`
+- Exit code: 1. ✅
+
+Reverted `GATE_THRESHOLD` back to `80`; re-ran merge → exit code 0, gate green. Re-lint clean. Net change vs iteration 120: zero behavioural drift in the green path; the gate now blocks regressions instead of silently warning.
+
+### Files touched
+
+- `packages/ui/scripts/coverage-merge.ts` — header doc-block (Phase 6c flip explainer); per-file gate block (informational warn → hard exit + `GATE_TARGETS` / `GATE_THRESHOLD` constants).
+- `.github/workflows/ci.yml` — new `coverage-gate` job (~50 LOC) inserted between `test-ct` and `e2e`.
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 120 → 121; iteration 120 entry preserved as the next history block.
+- `.specify/project.md` — Current State header bumped 120 → 121; Phase 6c row added; coverage line restated.
+
+### Phase 6d preview (next scheduled run)
+
+The remaining Q22-follow-up-#3 task is purely documentation:
+
+1. **`docs/architecture/testing-runners.md`** "Coverage handling": replace the "CT runs are not measured by V8 at this time" stub with the merged-pipeline description; remove `playwright-coverage` from "Future work"; add `pnpm coverage` to "Local commands".
+2. **`docs/questions.md` Q22 follow-up #3**: status `OPEN` → `✅ RESOLVED` with cross-link to iteration 121.
+3. **`docs/questions.md` Q25** (library choice): add the explicit version-pinned resolution wording.
+4. **`docs/questions.md` Q26**: status `CONFIRMED — Option A` → `✅ RESOLVED — Option A adopted, source-maps verified`.
+5. **`.specify/features/q22-playwright-ct.md`** + **`.specify/features/q22-mobilemenu-ct.md`**: flip follow-up #3 from "out of scope for Phase 1" to "✅ RESOLVED in iteration 121 (see `q22-playwright-coverage.md` Phase 6c)".
+6. **`.specify/features/q22-playwright-coverage.md`** Decisions table: flip Phase 6c row from `🚧 in progress` → `✅ DONE` (iteration 121, 2026-04-27).
+7. **`docs/plans/q22-playwright-coverage.md`** Phase 6c: append `✅ DONE` outcome subsection mirroring iteration 119 / 120 conventions.
+8. Exit criterion: `git grep "Q22 follow-up #3.*OPEN"` returns zero hits.
+
+### CT-flake watch (carried)
+
+Iteration 111's single-occurrence `filter-bar.ct › selects category on click` retry. Iteration 121 `pnpm coverage` ran the full CT suite (45 cases) cleanly with zero retries. Watch count remains **1/3** — will close at iteration 124 if no recurrence.
+
 ## 2026-04-27 — Iteration 120: MobileMenu CT focus-trap tests close 9-of-12 branch gap (67.57% → 91.89%); Phase 6c hard-gate now unblocked
 
 ### Headline

@@ -49,10 +49,19 @@
  * -----------------------
  * The plan's exit criterion is "≥80% branch coverage for each of
  * `FilterBar.tsx`, `LayoutSwitcher.tsx`, `MobileMenu.tsx`". The script
- * checks each and prints a per-file gate report. Per-file failures are
- * logged with ❌ but do NOT cause a non-zero exit — they're treated as
- * informational signals. Phase 6c CI integration converts these to a
- * hard failure once MobileMenu's 12 uncovered branches are closed.
+ * checks each and prints a per-file gate report.
+ *
+ * Phase 6c (iteration 121, 2026-04-27) flipped the gate from
+ * informational warning to HARD FAILURE: when any of the three
+ * allow-listed components reports `<80%` branches in the merged report,
+ * the script exits with code 1. The allow-list is intentionally
+ * explicit so unrelated future files do not get gated by accident — to
+ * add a new file under the gate, append it to `GATE_TARGETS`.
+ *
+ * The CI `coverage-gate` job (`.github/workflows/ci.yml`) inherits this
+ * exit code and blocks merge on a regression. Local `pnpm coverage`
+ * also exits non-zero on a regression so contributors see it before
+ * pushing.
  */
 import { existsSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -153,25 +162,30 @@ async function main(): Promise<void> {
 
     // Per-file ≥80% branch check for the three CT-migrated components.
     // This is the Phase 3 exit-criterion AC #5 (per-file gate).
-    // Reported informationally in this iteration; Phase 6c CI will enforce.
-    const targets = [
+    // Phase 6c (iteration 121): hard failure on regression. The allow-list
+    // is explicit so unrelated future files do not get gated by accident —
+    // append to GATE_TARGETS to add a new file under the gate.
+    const GATE_TARGETS = [
         'src/preact/FilterBar.tsx',
         'src/preact/LayoutSwitcher.tsx',
         'src/preact/MobileMenu.tsx',
-    ];
-    console.log(`\ncoverage-merge: per-file gate (≥80% branches, informational):`);
+    ] as const;
+    const GATE_THRESHOLD = 80;
+    console.log(
+        `\ncoverage-merge: per-file gate (≥${GATE_THRESHOLD}% branches, hard-fail):`,
+    );
     let belowGate = 0;
-    for (const target of targets) {
+    for (const target of GATE_TARGETS) {
         const file = files.find((f) =>
             (f.sourcePath ?? '').replace(/\\/g, '/').endsWith(target),
         );
         if (!file) {
-            console.warn(`  ⚠️  ${target}: NOT FOUND in merged files[]`);
+            console.error(`  ❌ ${target}: NOT FOUND in merged files[]`);
             belowGate++;
             continue;
         }
         const pct = Number(file.summary.branches.pct);
-        const ok = pct >= 80;
+        const ok = pct >= GATE_THRESHOLD;
         const symbol = ok ? '✅' : '❌';
         console.log(
             `  ${symbol} ${target}: ${pct.toFixed(2)}% branches (${file.summary.branches.covered}/${file.summary.branches.total})`,
@@ -180,18 +194,21 @@ async function main(): Promise<void> {
     }
 
     if (belowGate > 0) {
-        console.warn(
-            `\ncoverage-merge: ⚠️  ${pluralize(belowGate, 'target')} below the 80% branch gate.`,
+        console.error(
+            `\ncoverage-merge: ❌ ${pluralize(belowGate, 'target')} below the ${GATE_THRESHOLD}% branch gate.`,
         );
-        console.warn(
-            '  Gate is informational this iteration; Phase 6c CI will enforce.',
+        console.error(
+            '  Phase 6c hard-gate enforced — see `docs/plans/q22-playwright-coverage.md`.',
         );
-        console.warn(
-            '  See `docs/plans/q22-playwright-coverage.md` Phase 6c for CI gate.',
+        console.error(
+            '  To unblock: add CT tests that cover the missing branches, OR',
         );
-    } else {
-        console.log(`\ncoverage-merge: ✅ Phase 3 per-file gate satisfied.`);
+        console.error(
+            '  temporarily lower GATE_THRESHOLD here with a tracking issue link.',
+        );
+        process.exit(1);
     }
+    console.log(`\ncoverage-merge: ✅ Phase 6c per-file gate satisfied.`);
 }
 
 main().catch((err) => {
