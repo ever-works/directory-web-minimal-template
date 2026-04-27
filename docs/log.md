@@ -3,6 +3,162 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 145: codify iter-144 Next Step #1 — add "Doc-Quality Audit Checklist" section to AGENTS.md institutionalizing the grep-pattern playbook from iters 132 → 144
+
+### Headline
+
+Iter-144's Next Step #1 read: *"Add `grep -n "Status:" docs/plans/q*.md .specify/features/q*.md` to the standard audit checklist."* The "standard audit checklist" referenced was institutional knowledge — captured across log entries (iters 132 / 135 / 137 / 138 / 139 / 140 / 141 / 142 / 143 / 144) but not durably documented anywhere a future autonomous iteration would discover without log archaeology. Iter-145 closes this by adding a new `## Doc-Quality Audit Checklist` section to `AGENTS.md` (insert position: between `## Cross-Check Checklist` and `## Skills for AI Agents`) that consolidates the grep playbook into three pattern groups + a rerun-cadence table:
+
+| Group | Patterns | Drift class | First surfaced |
+|-------|----------|-------------|----------------|
+| **Value drift** | `43 cases\|48 cases\|43/43\|48/48` (CT case count); `All 28\|All 31` (spec inventory); `22-package\|26-package` (package matrix); `pnpm test\b` (conflated command-table row); toolchain version regex (Astro/Vitest/Tailwind/Preact/TS/Node/ESLint) | Stale numbers / counts / versions that haven't been refreshed after the underlying code/test/dep change | iters 132, 137, 138, 139, 140 |
+| **Status/state drift** | `Status:` in `docs/plans/q*.md` + `.specify/features/q*.md`; `Fully static\|fully static\|no SSR` (pre-iter-17/Q17 wording); `Status:.*PLANNED\|SPECIFIED\|DRAFT` in front-matter | Front-matter / narrative status that hasn't moved on after the question resolved | iters 135, 144 |
+| **Structural/link drift** | `\](\\.\\./` (broken relative markdown links from `docs/` into out-of-`docs/` paths); sidebar `type: doc` entries; bullet placement (`^- `) under wrong rule heading | Bullets / links / sidebar entries pointing at the wrong place or missing entirely | iters 141, 142, 143 |
+
+The new section also includes a **rerun cadence** table (Value drift → after code/test/dep changes; Status/state drift → every doc-quality iteration; Structural/link drift → after docs additions or sidebar edits) and an explicit policy line: *"When a new drift class surfaces (i.e. iter-N closes a structural drift not represented above), add the corresponding grep pattern here so the next autonomous iteration sees it inline rather than re-discovering it from log archaeology."*
+
+This is a **meta-iteration**: the patch itself adds no executable code, no tests, no specs — it consolidates 13 iterations worth of accumulated audit-checklist learnings into one canonical, AI-discoverable document so future autonomous iterations don't re-derive the same patterns from log archaeology each run.
+
+### What was added
+
+#### `AGENTS.md` — new `## Doc-Quality Audit Checklist` section (~70 lines, inserted between `## Cross-Check Checklist` and `## Skills for AI Agents`)
+
+```diff
+ - [ ] Convention over configuration? Good defaults? (R14)
+ - [ ] Spec/plan written before implementation? (R15)
+
++## Doc-Quality Audit Checklist
++
++When running a doc-only / drift-sweep iteration (i.e. no code or test changes, just documentation
++hygiene), use the grep patterns below to surface stale claims and structural micro-drift across the
++docs surface. These patterns codify the drift classes found across iterations 132 → 144; each
++pattern matches a specific known-recurring miss-target.
++
++Always run from the repo root.
++
++### Value drift (stale numbers / counts / versions)
++
++```bash
++# Test-count claims (CT case count, full-suite count) — refresh after CT case-add iterations
++grep -rn "43 cases\|48 cases\|43/43\|48/48" CLAUDE.md AGENTS.md README.md docs/ .specify/
++
++# Spec inventory header — refresh after .specify/features/ adds or removes
++grep -rn "All 28\|All 31" .specify/project.md docs/
++
++# Package matrix size — refresh after dep add/remove cycles
++grep -rn "22-package\|26-package" .specify/project.md docs/
++
++# Conflated `pnpm test` row in command tables — split into test / test:ct / coverage
++grep -rn "pnpm test\b" CLAUDE.md AGENTS.md README.md docs/
++
++# Toolchain version drift — verify against package.json / pnpm-lock.yaml
++grep -rn "Astro 6\.[0-9]\|Vitest [34]\.[0-9]\|Tailwind 4\.[0-9]\|Preact 10\.[0-9]\|TypeScript [56]\.[0-9]\|Node 2[0-4]\|ESLint [89]\.[0-9]" docs/ AGENTS.md CLAUDE.md
++```
++
++### Status / state drift (claims that have moved on)
++
++```bash
++# Plan / spec front-matter status lines — flip PLANNED/SPECIFIED → COMPLETE/RESOLVED/DONE when the
++# question resolves (added iter 144; the body edit and change-log entry are commonly updated but
++# the front-matter status line at the top of the file is missed)
++grep -n "Status:" docs/plans/q*.md .specify/features/q*.md
++
++# ISR wording predates iter-17 / Q17 — `Fully static` / `no SSR` claims that contradict R5
++grep -rn "Fully static\|fully static\|no SSR\|output.*static" docs/ AGENTS.md CLAUDE.md
++
++# "PLANNED" / "SPECIFIED" / "DRAFT" anywhere in headlines or front-matter
++grep -rn "^Status:.*PLANNED\|^Status:.*SPECIFIED\|^Status:.*DRAFT" docs/plans/ .specify/features/
++```
++
++### Structural / link drift
++
++```bash
++# Broken relative markdown links from docs/ into out-of-`docs/` paths (Docusaurus content scope)
++grep -rn "\](\\.\\./" docs/
++
++# Sidebar topology — Q-track plans / new architecture docs missing from sidebar
++grep -rn "type:.*doc" apps/docs/sidebars*.ts apps/docs/sidebar*.ts
++
++# Bullet placement under wrong rule heading in AGENTS.md (iter 143 finding)
++grep -n "^- " AGENTS.md
++```
++
++### Rerun cadence
++
++| Pattern set | Trigger | Last verified |
++|-------------|---------|---------------|
++| Value drift | After any code/test/dep change that moves a headline number | iter 144 |
++| Status/state drift | Every doc-quality iteration (cheap; high signal-to-noise) | iter 144 |
++| Structural/link drift | After docs/ content additions or sidebar edits | iter 142 |
++
++When a new drift class surfaces (i.e. iter-N closes a structural drift not represented above),
++add the corresponding grep pattern here so the next autonomous iteration sees it inline rather
++than re-discovering it from log archaeology.
++
+ ## Skills for AI Agents
+```
+
+Net diff: +70 lines / -0 lines. No source / test / config / dep changes.
+
+### What was NOT touched (intentional)
+
+- **`CLAUDE.md`** — already loaded into every session via auto-skills harness; the Doc-Quality Audit Checklist belongs in `AGENTS.md` because that file is the canonical AI-agent rule set (per `CLAUDE.md` line 4: *"Read CLAUDE.md first for project overview, then follow these rules"*). Duplicating in CLAUDE.md would create a two-source maintenance burden.
+- **`docs/guides/`** — no need to add a separate `doc-quality-audit.md` guide; the checklist is operationally in scope of `AGENTS.md` (rules + workflow), not user-facing docs (which `docs/guides/` is for). User-facing docs are for people building directories from this template; the audit checklist is for autonomous AI iterations on the template itself.
+- **`docs/log.md` historic entries** — kept as-is; the historic record of how the patterns were discovered remains valuable for understanding *why* each pattern is in the checklist.
+- **No grep re-runs this iteration** — iter-144 ran the full grep audit ~3h ago and flipped 6 entries to clean. No new commits between iter-144 and iter-145 except iter-144's own commit. Re-running the same greps would produce the same zero-delta result.
+
+### Verification
+
+- **`pnpm typecheck`**: 23/23 FULL TURBO in 1.496s (100% cache hits — `AGENTS.md` is not under typecheck scope).
+- **`pnpm lint`**: 18/18 FULL TURBO in 1.384s (100% cache hits — `AGENTS.md` is not under lint scope).
+- **`grep -n "Status:" docs/plans/q*.md .specify/features/q*.md`** re-run: all 13 matches reflect ✅-prefixed states (no `PLANNED` / `SPECIFIED` / `DRAFT` remaining), confirming iter-144's flips landed cleanly.
+- **No source / test / config / dep / lockfile changes.**
+
+### Pattern progression — meta-iteration breaking the streak (iter 132 → iter 144 was 9 consecutive drift-sweep iterations)
+
+| # | Iteration | Surface | Drift kind | Class |
+|---|-----------|---------|------------|-------|
+| 1 | iter 132 | `CLAUDE.md` Common Commands | `43 cases` → `48 cases` + walltime/Chromium/flake-signal | Value |
+| 2 | iter 135 | `docs/guides/deployment.md` | Missing ISR env vars + 4 narrative claims (predates iter-17/Q17) | Status/state |
+| 3 | iter 136 | `docs/guides/quickstart.md` + `getting-started.md` | Missing 5-6 Common Commands rows | Value |
+| 4 | iter 137 | `.specify/project.md` package matrix | `22-package` → `26-package` | Value |
+| 5 | iter 138 | `.specify/project.md` spec count | `All 28` → `All 31` | Value |
+| 6 | iter 139 | `README.md` Commands table | Conflated `pnpm test` row + missing CT/coverage rows | Value |
+| 7 | iter 140 | `.specify/features/q28-*.md` AC #5 + `docs/plans/q28-*.md` Step 4 | Same conflated-`pnpm test=1170` drift | Value |
+| 8 | iter 141 | `apps/docs/blog/2026-04-11-welcome.md` + `apps/docs/sidebarsTemplate.ts` | Pre-iter-17 ISR + sidebar topology missing 8 navigable docs | Status/state + Structural |
+| 9 | iter 142 | 5 `docs/plans/q*.md` line-8 spec pointers | `../../.specify/features/*.md` markdown links broken under Docusaurus scope | Structural/link |
+| 10 | iter 143 | `AGENTS.md` line 105 bullet | "Prefer conventions that reduce boilerplate" misplaced in R15 (Specification First) → R14 (Convention Over Configuration) | Structural |
+| 11 | iter 144 | 4 `docs/plans/q*.md` + 2 `.specify/features/q*.md` front-matter status | `PLANNED` / `SPECIFIED` claims after the question was ✅ RESOLVED | Status/state |
+| **12** | **iter 145** | **`AGENTS.md` insert new `## Doc-Quality Audit Checklist` section** | **Meta-iteration: codify the playbook from iters 132 → 144 so future autonomous runs don't re-derive it from log archaeology** | **Meta** |
+
+**Pattern (re-stated)**: 9 consecutive drift-sweep iterations (132 → 144) confirmed three recurring drift classes (Value / Status-state / Structural-link). Iter-145 promotes the institutional knowledge from change-log entries to a canonical, in-tree reference. Future iterations doing doc-quality work should now start from `AGENTS.md` § "Doc-Quality Audit Checklist" rather than re-reading log entries.
+
+### Why now and not earlier
+
+The checklist could have been codified after iter-141 (when the structural-drift pattern first surfaced) or iter-142 (link drift). The reason it landed at iter-145 and not earlier:
+
+- **iters 141 → 144 each closed a *new* drift class.** Codifying after 141 would have under-specified the checklist (no link-drift, no front-matter-status, no bullet-placement patterns). Each subsequent iteration was a useful *test* of whether the playbook was complete; only after iter-144 did the recurring drift classes feel saturated (value + status/state + structural now all have multi-iteration evidence).
+- **iter-144 itself explicitly flagged this as Next Step #1.** Acting on it the very next iteration is the right cadence — close enough to iter-144 that the context is fresh, far enough that iter-144's findings have settled.
+- **Steady-state iteration count (15+ "no carried open work" iterations as of iter-144) makes meta-iterations cheap.** The opportunity cost is essentially zero — iter-145 wouldn't otherwise have been spent on a code change.
+
+### Files touched
+
+- `AGENTS.md` — `+70 / -0` (new `## Doc-Quality Audit Checklist` section between `## Cross-Check Checklist` and `## Skills for AI Agents`).
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 144 → 145.
+- `.specify/project.md` — Current State header bumped 144 → 145.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)**. `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127. Project remains in "no carried open work" steady state for the **16th consecutive iteration** (iter 130-145).
+
+### Next Steps (for next scheduled run)
+
+1. **Re-run the Doc-Quality Audit Checklist's full grep set against the current tree** — first end-to-end exercise of the codified playbook. Expect zero deltas (iter-144 ran the equivalent ~3h ago); any non-zero result is a bug in the checklist itself (missing pattern or false-positive grep) and should drive a checklist-edit.
+2. **Routine 26-package dep audit** — re-check pinned deps against npm `latest`; expect zero deltas (iter-143 ran the 10-package quick-check 3h ago, all pinned).
+3. **Optional `pnpm coverage` re-run** — defer until material dep churn lands.
+4. **Optional `pnpm test:e2e` re-run** — defer per iter-134's policy.
+
 ## 2026-04-27 — Iteration 144: spec/plan front-matter status flip — close 6 stale "PLANNED"/"SPECIFIED" entries (2 specs + 4 plans) where the corresponding question was already RESOLVED
 
 ### Headline

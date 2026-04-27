@@ -321,6 +321,74 @@ Before creating or modifying ANY file, verify:
 - [ ] Convention over configuration? Good defaults? (R14)
 - [ ] Spec/plan written before implementation? (R15)
 
+## Doc-Quality Audit Checklist
+
+When running a doc-only / drift-sweep iteration (i.e. no code or test changes, just documentation
+hygiene), use the grep patterns below to surface stale claims and structural micro-drift across the
+docs surface. These patterns codify the drift classes found across iterations 132 → 144; each
+pattern matches a specific known-recurring miss-target.
+
+Always run from the repo root.
+
+### Value drift (stale numbers / counts / versions)
+
+```bash
+# Test-count claims (CT case count, full-suite count) — refresh after CT case-add iterations
+grep -rn "43 cases\|48 cases\|43/43\|48/48" CLAUDE.md AGENTS.md README.md docs/ .specify/
+
+# Spec inventory header — refresh after .specify/features/ adds or removes
+grep -rn "All 28\|All 31" .specify/project.md docs/
+
+# Package matrix size — refresh after dep add/remove cycles
+grep -rn "22-package\|26-package" .specify/project.md docs/
+
+# Conflated `pnpm test` row in command tables — split into test / test:ct / coverage
+grep -rn "pnpm test\b" CLAUDE.md AGENTS.md README.md docs/
+
+# Toolchain version drift — verify against package.json / pnpm-lock.yaml
+grep -rn "Astro 6\.[0-9]\|Vitest [34]\.[0-9]\|Tailwind 4\.[0-9]\|Preact 10\.[0-9]\|TypeScript [56]\.[0-9]\|Node 2[0-4]\|ESLint [89]\.[0-9]" docs/ AGENTS.md CLAUDE.md
+```
+
+### Status / state drift (claims that have moved on)
+
+```bash
+# Plan / spec front-matter status lines — flip PLANNED/SPECIFIED → COMPLETE/RESOLVED/DONE when the
+# question resolves (added iter 144; the body edit and change-log entry are commonly updated but
+# the front-matter status line at the top of the file is missed)
+grep -n "Status:" docs/plans/q*.md .specify/features/q*.md
+
+# ISR wording predates iter-17 / Q17 — `Fully static` / `no SSR` claims that contradict R5
+grep -rn "Fully static\|fully static\|no SSR\|output.*static" docs/ AGENTS.md CLAUDE.md
+
+# "PLANNED" / "SPECIFIED" / "DRAFT" anywhere in headlines or front-matter
+grep -rn "^Status:.*PLANNED\|^Status:.*SPECIFIED\|^Status:.*DRAFT" docs/plans/ .specify/features/
+```
+
+### Structural / link drift
+
+```bash
+# Broken relative markdown links from docs/ into out-of-`docs/` paths (Docusaurus content scope)
+grep -rn "\](\\.\\./" docs/
+
+# Sidebar topology — Q-track plans / new architecture docs missing from sidebar
+grep -rn "type:.*doc" apps/docs/sidebars*.ts apps/docs/sidebar*.ts
+
+# Bullet placement under wrong rule heading in AGENTS.md (iter 143 finding)
+grep -n "^- " AGENTS.md
+```
+
+### Rerun cadence
+
+| Pattern set | Trigger | Last verified |
+|-------------|---------|---------------|
+| Value drift | After any code/test/dep change that moves a headline number | iter 144 |
+| Status/state drift | Every doc-quality iteration (cheap; high signal-to-noise) | iter 144 |
+| Structural/link drift | After docs/ content additions or sidebar edits | iter 142 |
+
+When a new drift class surfaces (i.e. iter-N closes a structural drift not represented above),
+add the corresponding grep pattern here so the next autonomous iteration sees it inline rather
+than re-discovering it from log archaeology.
+
 ## Skills for AI Agents
 
 When building a directory website from this template, an AI agent should:
