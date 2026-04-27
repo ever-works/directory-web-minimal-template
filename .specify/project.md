@@ -76,7 +76,7 @@ A minimal, static-rendered Astro template for AI-generated directory websites. L
 | Phase 17 | Related items plugin: tag/category scoring, build-time computation | Complete |
 | Phase 18 | Code coverage infrastructure: V8 coverage across all 16 packages, CI hardening | Complete |
 
-## Current State (Iteration 116)
+## Current State (Iteration 117)
 
 - **8 apps**: web, web-e2e, docs, sample-basic, sample-jobs, sample-events, sample-real-estate, sample-git
 - **18 packages**: core, ui, plugins, adapters, sync, astro-integration, 10 plugin-* packages (seo, rss, pagination, filters, search, sort, sitemap, breadcrumbs, analytics, related-items), tsconfig, eslint-config
@@ -89,6 +89,6 @@ A minimal, static-rendered Astro template for AI-generated directory websites. L
 - **Q23 ✅ RESOLVED** (iteration 107): all 12 `LayoutSwitcher` cases ported to Playwright CT. Note: a flake/regression in 1-3 of those cases surfaced during iteration-108 full-suite verification — see Q24 below.
 - **Q24 ✅ RESOLVED** (iteration 109): `layout-switcher.ct.test.tsx` `EMPTY_MODES` allocation race fixed with the same module-level frozen sentinel pattern that closed Q22 in iteration 105.
 - **Q25 ✅ RESOLVED** (iteration 113): `monocart-coverage-reports@^2.12.0` (current `latest`: 2.12.11) adopted as the Q22-follow-up-#3 coverage library. Phase 0 smoke verified the full `page.coverage.startJSCoverage()` + MCR `add()` + `generate()` round-trip on Windows 10 + Node 24.14.0 + Chromium 147 + Playwright 1.59.1.
-- **Q26 OPEN [DEFAULT Option A]** (iteration 116): `vitest-monocart-coverage` integration to enable a full V8+Vitest merge (closes the gap left by the MCR `getCoverageResults` mutually-exclusive-dispatch limitation that the iteration-116 Phase 3 implementation surfaced). Default option: drop in `vitest-monocart-coverage` as Vitest's coverage provider so both inputs flow as raw V8 through the same code path. Phase 0-style smoke test slated for iteration 117.
+- **Q26 ✅ CONFIRMED — Option A** (iteration 117): `vitest-monocart-coverage@^4.0.0` npm-validated (latest@4.0.2, MIT, same maintainer as monocart-coverage-reports). Phase 6 plan authored in `docs/plans/q22-playwright-coverage.md` (4 sub-phases: 6a smoke / 6b adoption / 6c CI gate / 6d doc flips). `mcr.config.ts` location, `reports` shape, and monocart-coverage-reports floor bump (`^2.12.0` → `^2.12.9`) all locked in via the spec's Decisions table. Smoke test (Phase 6a) gated on iteration 118 — not executed in iteration 117, mirroring the iteration-112 (npm validation) → iteration-113 (smoke) split that succeeded for Q25.
 - **Zero documentation drift** across all specs, catalogs, and reference docs
 - **All dependencies at latest versions** (Astro 6.1.9, Preact 10.29.1, Tailwind 4.2.4, TS 6.0.3, Prettier 3.8.3, Vitest 4.1.5, postcss 8.5.12, @typescript-eslint 8.59.0, Playwright 1.59.1, monocart-coverage-reports 2.12.11, monocart-reporter 2.10.1)

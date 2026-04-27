@@ -218,12 +218,19 @@ The merge step is provided by the chosen library:
   **Mitigation**: set a hard timeout on the merge step; if it exceeds
   60 s on a green run, investigate.
 - **R4 — Library version churn.** `monocart-coverage-reports` is at
-  2.11.0 (October 2024); `@bgotink/playwright-coverage` is less
-  actively maintained. Both have potential to break with Node 26
-  (Q4 2026 expected).
-  **Mitigation**: pin major version; subscribe to upstream advisories
-  via the existing dep-bump cadence (`docs/log.md` iterations 92, 97,
-  108 all bumped UI deps).
+  2.12.11 (verified iteration 112); `@bgotink/playwright-coverage` is
+  less actively maintained. Both have potential to break with Node 26
+  (Q4 2026 expected). **Iteration 117 update**: Phase 6 (Q26) adds
+  `vitest-monocart-coverage@^4.0.0` to the dep tree, which is by the
+  **same maintainer** (`cenfun`) as `monocart-coverage-reports` and
+  `monocart-reporter`. All three packages move in lock-step under one
+  author; coordinated upgrades are easier to track than independent
+  packages.
+  **Mitigation**: pin major version on each (`^2.x.x` for monocart-
+  coverage-reports, `^2.x.x` for monocart-reporter, `^4.0.0` for
+  vitest-monocart-coverage); subscribe to upstream advisories via the
+  existing dep-bump cadence (`docs/log.md` iterations 92, 97, 108
+  all bumped UI deps).
 - **R5 — Test-volume scaling.** As more components migrate to CT, the
   V8 coverage JSON grows linearly. At 1000+ tests, the merge step may
   hit memory pressure on standard runners.
@@ -273,6 +280,10 @@ The merge step is provided by the chosen library:
 | `entryFilter` regex                       | `src/preact/*.tsx` + `src/primitives/*.tsx` | **`/\/assets\/[^/?]+\.js(?:\?\|$)/`** — the V8 layer sees Vite-bundled chunk URLs (`http://localhost:3100/assets/<name>-<hash>.js`), not source-file URLs. The plan's per-source narrowing happens in `sourceFilter` after source-maps are applied, not in `entryFilter`. |
 | `sourceFilter`                            | `**/packages/ui/src/**` | **`packages/ui/src/` OR `src/`-prefixed**, excluding `__tests__/`, `playwright/index.*`, `node_modules/` — matches the workspace-relative paths monocart emits after source-map resolution. |
 | Auto-coverage fixture                     | _not in spec_ | **`packages/ui/src/__tests__/ct/fixtures.ts`** ✅ added iteration 114 — extends the `@playwright/experimental-ct-react` `test` with an auto-fixture that wraps every test body with `page.coverage.startJSCoverage()` + `stopJSCoverage()` and pipes the V8 list into `addCoverageReport()`. Without this fixture, `monocart-reporter` would emit zero coverage — the reporter does not auto-instrument `page.coverage`. The three existing CT test files were updated to import `test`/`expect` from `./fixtures` instead of `@playwright/experimental-ct-react` directly. |
+| Q26 library (Vitest provider, Phase 6)    | `vitest-monocart-coverage@^4.0.0` (added iteration 117) | **`vitest-monocart-coverage@^4.0.0`** ✅ NPM-VALIDATED iteration 117 (`latest@4.0.2`, MIT, maintainer `cenfun` — same as monocart-coverage-reports; declares `@vitest/coverage-v8@^4.1.2` runtime dep so the V8 collector is preserved; README integration shape matches plan exactly). Adoption gated on Phase 6a smoke test (iteration 118+). |
+| Q26 `mcr.config.ts` filename (Phase 6b)   | `packages/ui/mcr.config.ts` | _pending Phase 6b_ — TS chosen for workspace consistency (AGENTS.md R6: TypeScript only). |
+| Q26 `mcr.config.ts` `reports` key         | `[['raw', { outputDir: './coverage/raw' }]]` | _pending Phase 6b_ — keeps the per-runner Vitest stream as raw V8 (the merge in Phase 3 is what produces the human-readable HTML/lcov/codecov outputs). |
+| Q26 `monocart-coverage-reports` floor bump| `^2.12.0` → `^2.12.9` | _pending Phase 6b_ — the Q26 dep tree pulls `^2.12.9` transitively; bumping our explicit pin to match keeps the resolution clean. |
 
 ## References
 
@@ -293,6 +304,11 @@ The merge step is provided by the chosen library:
   — Q25 alternative; older but still maintained.
 - [`v8-to-istanbul`](https://github.com/istanbuljs/v8-to-istanbul) —
   underlying transform used by both libraries.
+- [`vitest-monocart-coverage`](https://github.com/cenfun/vitest-monocart-coverage)
+  — Q26 default (added iteration 117); custom Vitest coverage
+  provider that wraps `@vitest/coverage-v8` and writes raw V8
+  entries to a configured `outputDir`. Same maintainer (`cenfun`) as
+  `monocart-coverage-reports`; npm `latest@4.0.2`; MIT.
 
 ## AGENTS.md cross-check (R1–R15)
 

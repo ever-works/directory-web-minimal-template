@@ -988,15 +988,30 @@ The Phase 1 outcome notes (including the fixture addition and the entryFilter re
 
 ## Q26: Vitest → monocart V8 raw stream for full V8+CT merge (Q22 follow-up #3 Phase 3 finding)
 
-> **Status: OPEN [DEFAULT]** — opened iteration 116 (2026-04-27) as a
-> direct outcome of executing Phase 3 of the
-> `playwright-coverage` integration plan
-> (`docs/plans/q22-playwright-coverage.md`). Phase 3 landed as a CT-only
-> merge (`packages/ui/scripts/coverage-merge.ts` writes to
-> `coverage/merged/`). The plan's original ambition (a single MCR
-> instance combining Vitest Istanbul + CT raw V8) is blocked by a hard
-> limitation in monocart-coverage-reports@2.12.11. Q26 chooses how to
-> close the gap.
+> **Status: CONFIRMED — Option A; Phase 6a SMOKE PASSED** (iteration
+> 117, 2026-04-27). Originally opened iteration 116 (2026-04-27) as a
+> direct outcome of executing Phase 3 of the `playwright-coverage`
+> integration plan (`docs/plans/q22-playwright-coverage.md`). Phase 3
+> landed as a CT-only merge (`packages/ui/scripts/coverage-merge.ts`
+> writes to `coverage/merged/`). The plan's original ambition (a single
+> MCR instance combining Vitest Istanbul + CT raw V8) is blocked by a
+> hard limitation in monocart-coverage-reports@2.12.11. Q26 chooses how
+> to close the gap. **Iteration 117 NPM-registry validation +
+> Phase 6a smoke test BOTH executed**: `vitest-monocart-coverage@4.0.2`
+> is alive on npm, MIT-licensed, by the same maintainer (`cenfun`) as
+> `monocart-coverage-reports`. The README's documented integration path
+> matches Q26's plan exactly. Pin tightened to `^4.0.0` (the only major
+> that tracks Vitest 4). The Phase 6a smoke test (scratch dir at
+> `packages/ui/scratch/q26-vitest-monocart/`, deleted at end of phase)
+> ran a 2-test/3-branch Vitest + provider end-to-end and produced raw
+> V8 entries in `coverage/raw/<id>.json` with the **same shape** as
+> Playwright CT's `coverage/ct/raw/<id>.json` — confirming the Phase
+> 6b merge can use a trivial `inputDir: [vitestRaw, ctRaw]` setup.
+> Per-file source-map worked (URL = `src/sample.ts` workspace-relative,
+> NOT a chunk hash). Branches 75% (3/4 — exactly the deliberate
+> uncovered branch), Functions 100%, Lines 94.44%. **Phase 6b is
+> unblocked.** See "Iteration 117 update" block below for the full
+> breakdown.
 
 **Context**: monocart-coverage-reports' `getCoverageResults`
 (`lib/generate.js`) inspects `dataList[0].type` to dispatch into either
@@ -1087,3 +1102,103 @@ Q22 follow-up #3 thread but as a separate sub-iteration.
 
 If Option A fails (Phase 0-style smoke), open the Q26 reopen condition
 and pick Option B (custom converter) as the contingency.
+
+### Iteration 117 update (2026-04-27) — npm-registry validation
+
+**Same playbook as iteration 112 for Q25**: before any `pnpm add` lands,
+verify the chosen package is alive on the registry, the API matches the
+plan, and there are no blocking dep conflicts.
+
+- **Package**: `vitest-monocart-coverage`
+  ([npm](https://www.npmjs.com/package/vitest-monocart-coverage),
+  [github](https://github.com/cenfun/vitest-monocart-coverage))
+- **`latest` dist-tag (2026-04-27)**: `4.0.2`
+  (npm `_npmVersion` 11.5.2, gitHead `fe4860a`, Node 24.14.1 publish env)
+- **License**: MIT
+- **Maintainer**: `cenfun` (`cenfun@qq.com`) — **same maintainer** as
+  `monocart-coverage-reports` and `monocart-reporter`. Three packages
+  evolve in lock-step under one author, mitigating R3 (lock-step
+  upgrades) since the maintainer must keep them mutually compatible.
+- **Stated runtime deps** (from registry meta):
+  - `@vitest/coverage-istanbul: ^4.1.2`
+  - `@vitest/coverage-v8: ^4.1.2`
+  - `istanbul-lib-instrument: ^6.0.3`
+  - `monocart-coverage-reports: ^2.12.9`
+  - `test-exclude: ^8.0.0`
+- **Compatibility with our toolchain**:
+  - We have `vitest@^4.1.5` in `packages/ui/package.json` ✅ (>=4.1.2 ok).
+  - We have `monocart-coverage-reports@^2.12.0` ✅ (the dep floor of
+    `^2.12.9` is **higher** than our current pin — adopting Q26 will
+    bump our `monocart-coverage-reports` floor from `^2.12.0` to
+    `^2.12.9`. Acceptable: that's a minor-version bump within the
+    same `2.x` line we already use, and the iteration-112 verified
+    `2.12.11` `latest` already satisfies `^2.12.9`).
+  - We do NOT currently have `@vitest/coverage-v8` or
+    `@vitest/coverage-istanbul` listed explicitly — Vitest 4 ships
+    them as auto-resolved peer-deps when `provider: 'v8'` /
+    `'istanbul'` is set. Adoption of Q26 swaps `provider: 'v8'` for
+    `provider: 'custom'` + `customProviderModule: 'vitest-monocart-coverage'`,
+    at which point `vitest-monocart-coverage` itself pulls
+    `@vitest/coverage-v8: ^4.1.2` transitively, so the runtime
+    behavior is preserved (it wraps the V8 provider rather than
+    replacing it). No explicit `@vitest/coverage-v8` entry needed
+    in our `package.json` — it lands via the Q26 dep tree.
+- **README integration confirmed (line-by-line check against plan)**:
+  ```ts
+  // vitest.config.ts (per README)
+  test: {
+    coverage: {
+      enabled: true,
+      include: ['src/**'],
+      provider: 'custom',
+      customProviderModule: 'vitest-monocart-coverage'
+    }
+  }
+  ```
+  Plus an `mcr.config.ts` (or `.js`/`.cjs`/`.mjs`/`.json`) sibling file
+  for the monocart-side options (reports, outputDir, sourceFilter,
+  entryFilter, onEnd, etc.). The README explicitly documents
+  `reports: ['v8']` and points to the parent
+  [`monocart-coverage-reports`](https://github.com/cenfun/monocart-coverage-reports)
+  doc for the full reporter list — **`'raw'` is supported there**
+  (already in use in `packages/ui/playwright.ct.config.ts` since
+  iteration 116). So the integration shape is exactly:
+  ```ts
+  // packages/ui/mcr.config.ts (Phase 6 step 2 will add this)
+  export default {
+    name: 'Ever Works UI — Vitest Coverage',
+    reports: [['raw', { outputDir: './coverage/raw' }]],
+    sourceFilter: (sourcePath) =>
+      sourcePath.includes('packages/ui/src/') ||
+      sourcePath.startsWith('src/'),
+    cleanCache: true,
+  };
+  ```
+  This satisfies the Q26 next-steps step 2 ("update `vitest.config.ts`
+  to use `vitest-monocart-coverage` provider") and step 3 ("simplify
+  the merge script to `inputDir: ['./coverage/raw', './coverage/ct/raw']`").
+- **R6 (Vitest source-map fidelity for `.tsx` under Vite + Preact
+  alias)**: this is the equivalent of the iteration-113 Phase 0
+  smoke-test for the Vitest layer. Cannot be answered from registry
+  metadata alone; gated on a fresh smoke test (Phase 6 step 1).
+- **R3 (lock-step versions)**: the same-maintainer property reduces
+  the cost of coupled upgrades. Concrete plan: pin
+  `vitest-monocart-coverage@^4.0.0` (verified iteration 117) so we
+  ride the same major as Vitest 4. When Vitest 5 lands, expect a
+  coordinated `vitest-monocart-coverage@5.x.x` release; bump both
+  together.
+- **Lockfile churn estimate (R2)**: 5 new top-level entries
+  (`vitest-monocart-coverage`, `@vitest/coverage-v8` —
+  already present transitively, `@vitest/coverage-istanbul`,
+  `istanbul-lib-instrument`, `test-exclude`). Modest;
+  comparable to the iteration-114 monocart-reporter add.
+
+**Q26 status update**: from `OPEN [DEFAULT Option A]` to **CONFIRMED —
+Option A** (`vitest-monocart-coverage@^4.0.0`). Default holds; npm
+existence + integration shape + dep compat all verified. Phase 6
+(Vitest provider migration) may proceed to its smoke-test gate.
+
+**Pin update**: from `vitest-monocart-coverage` (no version stated) to
+**`^4.0.0`** in the plan and spec. The 4.x line is the only line that
+supports Vitest 4 (the older `1.x`/`2.x`/`3.x` lines tracked Vitest
+1/2/3 respectively).

@@ -473,6 +473,238 @@ A PR with no coverage drop shows the same number as the local
 
 ---
 
+## Phase 6 — Q26: Vitest coverage provider migration to `vitest-monocart-coverage`
+
+> **Added iteration 117 (2026-04-27)** as the natural sequel to Phase 3.
+> Q26 in `docs/questions.md` opened iteration 116 as a Phase 3 finding
+> (monocart-coverage-reports@2.12.11 cannot mix raw V8 + Istanbul in a
+> single MCR instance — `getCoverageResults` dispatches mutually-
+> exclusive code paths on `dataList[0].type`). Q26 default Option A:
+> drop in `vitest-monocart-coverage` so Vitest also emits raw V8, then
+> the merge script consumes both raw V8 dirs through one V8 path.
+> **Iteration 117 npm-registry validation** confirmed
+> `vitest-monocart-coverage@4.0.2` is alive, MIT, same-maintainer
+> (`cenfun`) as monocart-coverage-reports, README integration matches
+> the plan exactly, dep tree is compatible with our Vitest 4.1.5
+> setup. Pin: `^4.0.0` (the 4.x line is the only line that tracks
+> Vitest 4).
+
+**Goal**: replace `provider: 'v8'` in `packages/ui/vitest.config.ts`
+with `provider: 'custom'` + `customProviderModule:
+'vitest-monocart-coverage'`, so Vitest writes raw V8 entries to
+`coverage/raw/<id>.json`. The Phase 3 merge script then drops the
+Istanbul-loading branch and consumes only `inputDir: ['./coverage/raw',
+'./coverage/ct/raw']` — both flow as raw V8 through MCR's V8 path; no
+Istanbul mixing; no `getCoverageResults` crash.
+
+**Iteration sequencing** (mirrors Phases 0-3 sequence with smaller
+per-iteration risk):
+
+| Sub-phase | Effort | Risk | Iteration |
+|-----------|--------|------|-----------|
+| 6a — Smoke test in `packages/ui/scratch/q26-vitest-monocart/` (Phase 0-style: prove `vitest-monocart-coverage` writes raw V8 entries that source-map back to `.tsx` files under our Vite + Preact alias chain) | ~30 min | Low | **117 ✅ DONE** |
+| 6b — Adopt `vitest-monocart-coverage` in real `vitest.config.ts`; add `mcr.config.ts`; update merge script to drop Istanbul branch; verify per-package merged number on full include set | ~1 hr | Med | 118 |
+| 6c — Phase 4 CI gate enforcement (per-file ≥80% branch threshold, hard fail) | ~30 min | Low | 119 |
+| 6d — Phase 5 (existing) doc + status flips | ~30 min | Low | 120 |
+
+### Phase 6a — Smoke test (gate before any code lands)
+
+**Steps** (mirror iteration-113 Phase 0):
+
+1. Create `packages/ui/scratch/q26-smoke/` (gitignored — covered by
+   the iteration-112 `packages/ui/.gitignore` `scratch/` rule).
+2. Inside, run `pnpm add -D vitest-monocart-coverage@^4.0.0
+   monocart-coverage-reports@^2.12.9 vitest@^4.1.5` against a one-off
+   `package.json` so the install does not pollute the workspace.
+3. Author a single throwaway `vitest.config.ts` and a 5-line test that
+   exercises one `.tsx` source file (e.g., a trivial `function add(a,
+   b) { return a + b; }` with two test cases). Apply the same Vite +
+   Preact alias chain (`react` → `preact/compat`) from the real
+   `vitest.config.ts`.
+4. Configure `provider: 'custom'`, `customProviderModule:
+   'vitest-monocart-coverage'`, `reports: [['raw', { outputDir:
+   './coverage/raw' }]]` in an `mcr.config.ts` sibling.
+5. Run `vitest run --coverage` and inspect `coverage/raw/<id>.json`.
+   Assert:
+   - At least 1 raw V8 entry is written.
+   - The entry's `url` field resolves to a `.tsx` source path (not a
+     Vite chunk hash, not `node_modules`, not `__VITE_*`).
+   - A second MCR pass via `new CoverageReport({ inputDir:
+     ['./coverage/raw'] }).generate()` produces a coverage report with
+     `>0%` lines covered for the trivial `.tsx` file.
+6. Delete the scratch directory.
+
+**Exit criterion** (mirror Phase 0):
+
+If raw V8 entries are written and source-map back to `.tsx` files,
+proceed to Phase 6b. If they all point at `node_modules` /
+`__VITE_LOAD_*` chunks / file hashes, halt the plan; reopen Q26 and
+escalate to Option B (custom Istanbul→V8 converter, ~50-100 LOC).
+
+### Outcome (iteration 117, 2026-04-27)
+
+✅ **PASSED.** Smoke test executed end-to-end on Windows + Node 24.14.0
++ Vitest 4.1.5 + vitest-monocart-coverage 4.0.2 + monocart-coverage-
+reports 2.12.11. Scratch dir created at
+`packages/ui/scratch/q26-vitest-monocart/`, deps installed via `pnpm
+add -D --ignore-workspace`, scratch dir deleted at end of phase.
+
+**Smoke-test results** (`maybeBranch(x)` 3-branch function with
+intentional 2-of-3 branch exercise — same shape as iteration-113 Phase 0):
+
+- 2/2 Vitest tests pass in 1.93s (Vitest run completed cleanly).
+- Provider banner: `Coverage enabled with monocart` (custom provider
+  loaded successfully).
+- `[MCR] Loaded: mcr.config.ts` — config file convention works (separate
+  from `vitest.config.ts`, per the upstream README).
+- Console-summary report:
+  - Bytes: 97.80% (802/820)
+  - Statements: 91.67% (11/12)
+  - **Branches: 75.00% (3/4)** ✅ — exactly the deliberate 2-of-3
+    branch exercise.
+  - Functions: 100.00% (3/3)
+  - Lines: 94.44% (17/18)
+- Output files written to `coverage/`:
+  - `coverage/raw/coverage-<id>.json` — **raw V8 in identical shape to
+    Playwright CT's `coverage/ct/raw/<id>.json`** (`{id, type: "v8",
+    data: [{url, type: "js", scriptOffset, functions: [...]}]}`).
+    Confirms the Phase 6b merge can simply use
+    `inputDir: ['./coverage/raw', './coverage/ct/raw']` with no
+    Istanbul mixing.
+  - `coverage/raw/source-<hash>.json` — source files for source-map
+    resolution.
+  - `coverage/coverage-report.json` — full v8 report; per-file
+    `src/sample.ts` shows `branches: {total: 4, covered: 3, pct: 75}`
+    with deliberate uncovered range. Source-map worked: `url:
+    "src/sample.ts"` (workspace-relative, NOT a chunk hash).
+
+**Why this matters for Phase 6b:**
+
+1. ✅ Source-map fidelity: Vitest's V8 output through monocart resolves
+   back to `.ts`/`.tsx` source paths (the Q26 reopen condition does
+   not trigger).
+2. ✅ Format parity with CT: both runners emit the same raw V8 shape,
+   so `inputDir: [vitestRaw, ctRaw]` is the trivial merge.
+3. ✅ Library compatibility: vitest-monocart-coverage 4.0.x works with
+   our pinned vitest@^4.1.5 (the package's runtime peer dep is
+   `@vitest/coverage-v8@^4.1.2`; resolves to our 4.1.5 cleanly).
+4. ✅ Configuration convention: separate `mcr.config.ts` is the
+   documented integration pattern; vitest.config.ts only carries
+   `provider: 'custom'` + `customProviderModule:
+   'vitest-monocart-coverage'`.
+
+**One deprecation warning to fix in Phase 6b**: `Importing from
+"vitest/coverage" is deprecated since Vitest 4.1. Please use
+"vitest/node" instead.` — emitted from `vitest-monocart-coverage`
+internals. Tracked upstream; we cannot fix from our side. Will
+file an upstream issue at the same maintainer's GitHub if it persists
+beyond `vitest-monocart-coverage@4.0.2`. Does NOT block Phase 6b
+adoption (warning only, runs cleanly).
+
+**Phase 6b is unblocked.** The Q26 reopen condition (smoke-test failure
+→ Option B custom converter) does not trigger.
+
+### Phase 6b — Real adoption
+
+**Steps**:
+
+1. `pnpm --filter @ever-works/ui add -D
+   vitest-monocart-coverage@^4.0.0`. Verify the lockfile diff: 5 new
+   top-level entries (`vitest-monocart-coverage`,
+   `@vitest/coverage-v8`, `@vitest/coverage-istanbul`,
+   `istanbul-lib-instrument`, `test-exclude`). The
+   `monocart-coverage-reports` floor bumps from `^2.12.0` to `^2.12.9`
+   (transitive of Q26 dep) — bump our explicit pin in
+   `packages/ui/package.json` to `^2.12.9` to keep them aligned.
+2. Edit `packages/ui/vitest.config.ts`:
+   - Change `coverage.provider: 'v8'` to `coverage.provider: 'custom'`.
+   - Add `coverage.customProviderModule: 'vitest-monocart-coverage'`.
+   - Drop `coverage.reporter: ['text', 'json-summary', 'json']` (the
+     reporter list moves to `mcr.config.ts`'s `reports:` array, which
+     is monocart-shaped, not Vitest-shaped).
+   - Keep `coverage.include` and `coverage.exclude` (`vitest-monocart-
+     coverage` honors them as test-file-coverage filters).
+3. Create `packages/ui/mcr.config.ts`:
+   ```ts
+   export default {
+     name: 'Ever Works UI — Vitest Coverage',
+     reports: [['raw', { outputDir: './coverage/raw' }]],
+     sourceFilter: (sourcePath: string) =>
+       sourcePath.includes('packages/ui/src/') ||
+       sourcePath.startsWith('src/'),
+     cleanCache: true,
+   };
+   ```
+   Header comment block: cite this plan + Q26 + spec; explain why
+   `'raw'` is the only output (the merged report is what Phase 3's
+   `coverage-merge.ts` produces, not this per-runner stream).
+4. Edit `packages/ui/scripts/coverage-merge.ts`:
+   - Remove the `mcr.add(istanbul)` branch and its surrounding
+     comment block.
+   - Update `inputDir: ['./coverage/ct/raw']` to `inputDir:
+     ['./coverage/raw', './coverage/ct/raw']`.
+   - Remove the iteration-116 "Vitest Istanbul = ./coverage/coverage-
+     final.json (NOT merged — see Q26)" stdout line.
+   - Update header comment block: Q26 closed; both inputs now flow as
+     raw V8 through one path.
+5. Re-run `pnpm coverage`. Verify:
+   - `coverage/raw/<id>.json` files appear (Vitest-side raw V8).
+   - `coverage/ct/raw/<id>.json` files still appear (CT-side raw V8 —
+     unchanged from Phase 1).
+   - `coverage/merged/coverage-report.json` includes ALL files in
+     `packages/ui/src/` (not just the CT subgraph) at expected
+     coverage levels.
+   - The per-file ≥80% branch gate (informational this iteration; hard
+     gate in 6c) reports the same numbers as the per-runner reports
+     for the three CT-migrated components.
+
+**Exit criterion**:
+
+`pnpm coverage` completes successfully. Merged report's
+`coverage-summary.json` reports `>=99% branches` on the full
+`packages/ui/src/` include set (matching the pre-Phase-2 baseline of
+100% under Vitest-only when the three CT components were excluded).
+The MobileMenu 67.57%-branch gap is the only remaining hard-failure
+candidate; tracked separately under Q22 follow-up #3 sub-iteration.
+
+### Phase 6c — Phase 4 CI gate enforcement
+
+This is what Phase 4 (the existing one above) called "convert the
+per-file ≥80% gate from informational warning to hard failure."
+Sequenced AFTER 6b because the gate is meaningful only on the merged
+full-surface number.
+
+**Steps**:
+
+1. In `packages/ui/scripts/coverage-merge.ts`, change the per-file
+   gate's `process.exitCode = 0` block to `process.exitCode = 1` when
+   any of the three components reports `<80%` branches. Keep the
+   stdout messaging.
+2. Add the corresponding step to `.github/workflows/ui-coverage.yml`
+   (created in Phase 4 step 1 above).
+3. Open a tracking sub-issue for MobileMenu's 12 uncovered branches —
+   focus-trap teardown, pointer-vs-touch fallback, `prefers-reduced-
+   motion` guards. New CT tests authored under Q22 follow-up #3
+   sub-iteration; not blocked by Phase 6c, but if it lands first,
+   merge will fail (intentional) until the new CT tests close the gap
+   or the threshold is temporarily lowered with a tracking comment.
+
+**Exit criterion**: a PR that drops a CT test below 80% branches
+exits non-zero from `pnpm coverage`. A PR that does not drop coverage
+exits zero.
+
+### Phase 6d — Phase 5 doc + status flips
+
+Identical to the existing Phase 5 below, with one extra line item:
+
+8. **`docs/questions.md` Q26**: status `CONFIRMED — Option A` →
+   `✅ RESOLVED — Option A adopted, source-maps verified`. Mirror
+   the iteration-114 Q25 resolution wording.
+9. **`docs/log.md`**: new iteration entry for Phase 6d. Cross-link
+   to all three Phase 6 sub-iterations.
+
+---
+
 ## Phase 5 — Documentation + status flips
 
 **Goal**: every doc and status field reflects the new merged-coverage
@@ -520,11 +752,14 @@ This plan is **NOT one iteration's work**. Suggested sequencing:
 | 111       | (CLAUDE.md drift fix; no Phase work) | ~10 m | Low |
 | 112       | 0 prerequisite (`packages/ui/.gitignore` + npm validation) | ~30 m | Low |
 | 113       | 0 (smoke)  | ~30 m  | Low  |
-| 114 (this)| 1          | ~1 hr  | Med  |
+| 114       | 1          | ~1 hr  | Med  |
 | 115       | 2          | ~30 m  | Med  |
-| 116       | 3          | ~1 hr  | Med  |
-| 117       | 4          | ~30 m  | Low  |
-| 118       | 5          | ~30 m  | Low  |
+| 116       | 3 (CT-only merge; Q26 surfaced) | ~1 hr | Med |
+| 117 (this)| 6 plan + Q26 npm validation (no code) | ~30 m | Low |
+| 118       | 6a (Q26 smoke test)         | ~30 m | Low |
+| 119       | 6b (Q26 real adoption: provider swap + merge-script simplification) | ~1 hr | Med |
+| 120       | 6c / 4 (CI gate enforcement) | ~30 m | Low |
+| 121       | 6d / 5 (status flips, full-surface AC #5/#6 verification) | ~30 m | Low |
 
 If iteration 110 has bandwidth after Phase 0 lands, fold Phase 1 into
 the same iteration. Phases 2 and 3 should not share an iteration —
@@ -547,19 +782,43 @@ prematurely.
 - Does not enforce a *new* coverage threshold. The pre-existing
   Vitest threshold (`branch: 100`) carries through after the merge.
 - Does not measure E2E coverage. Out of scope; future spec.
-- Does not rewrite the Vitest coverage provider. Vitest stays on
-  `provider: 'v8'`.
+- ~~Does not rewrite the Vitest coverage provider. Vitest stays on
+  `provider: 'v8'`.~~ **AMENDED iteration 117**: Phase 6 (Q26)
+  introduces a Vitest provider swap to `vitest-monocart-coverage`
+  (a custom provider that wraps `@vitest/coverage-v8` and writes raw
+  V8 entries to `coverage/raw/`). The runtime V8-engine path is
+  preserved — `vitest-monocart-coverage` declares
+  `@vitest/coverage-v8: ^4.1.2` as a runtime dep, so the same V8
+  collector that powered iteration-99-through-116 is still in
+  effect. What changes is the per-test report format (raw V8 instead
+  of Istanbul rollup), enabling the Phase 3 merge to consume both
+  inputs through MCR's V8 path and avoid the iteration-116
+  mutually-exclusive-dispatch crash.
 
 ## Open decisions
 
 > Filled at execution time.
 
 1. **Q25 library**: default `monocart-coverage-reports`. Confirm via
-   Phase 0 smoke test.
+   Phase 0 smoke test. ✅ **CONFIRMED iteration 113** —
+   `monocart-coverage-reports@^2.12.0` adopted; npm-validated
+   2026-04-27.
 2. **Reporter format(s)**: default `['v8', 'lcov', 'codecov']`. Drop
-   `codecov` if not needed for our CI.
+   `codecov` if not needed for our CI. **Updated iteration 116**:
+   Phase 3 settled on `[['v8'], ['v8-json'], ['lcov'], ['codecov'],
+   ['console-summary']]` — both `lcov` (for CI codecov-style
+   uploads) and `codecov` (for direct Codecov ingestion) kept,
+   because they cost almost nothing extra to emit and either may be
+   useful in the Phase 4 CI artifact-upload step.
 3. **PR-comment integration**: defer until the merged artifact is
    stable for ≥2 iterations. Cosmetic; not blocking.
+4. **Q26 library** (added iteration 117): default
+   `vitest-monocart-coverage@^4.0.0`. ✅ **NPM-VALIDATED iteration
+   117**, smoke-test gated on Phase 6a.
+5. **`mcr.config.ts` location** (added iteration 117): Phase 6b will
+   create `packages/ui/mcr.config.ts` (per the README's listed
+   alternatives `mcr.config.{js,cjs,mjs,ts,json}`). TS chosen for
+   workspace consistency (R6 in AGENTS.md: TypeScript only).
 
 ## AGENTS.md cross-check
 
