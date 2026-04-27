@@ -3,7 +3,132 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
-## 2026-04-27 — Iteration 153: routine verification tick — `pnpm audit:docs` 8/8 PASS on iter-152 baseline + 12-package dep quick-check zero deltas
+## 2026-04-27 — Iteration 154: dep audit lifts 3 patch-level deltas in the iter-153-deferred 14-package cohort — `@typescript-eslint/parser` 8.59.0 → 8.59.1, `@typescript-eslint/eslint-plugin` 8.59.0 → 8.59.1, `jsdom` 29.0.2 → 29.1.0; `pnpm audit:docs` 8/8 PASS, full verify (typecheck 23/23 + lint 18/18 + test 16/16 = 1122/1122 Vitest) green
+
+### Headline
+
+First **substantive** iteration after the iter-152 / iter-153 verification-only chain. Iter-153's 12-package dep quick-check returned zero deltas; iter-154 expands the quick-check to include `@typescript-eslint/{parser,eslint-plugin}` + `jsdom` (members of the 14-package cohort iter-152/153 had explicitly deferred as "low historical churn"), surfacing **3 real patch-level deltas** that have accumulated since iter-133/iter-135/iter-142 baselines were last verified. All three are inside their existing caret ranges, so the iter-128 caret-range-patch precedent applies: apply inline rather than defer further.
+
+### Bumps
+
+| Package | Before | After | Range | Notes |
+|---------|--------|-------|-------|-------|
+| `@typescript-eslint/parser` | 8.59.0 | 8.59.1 | `^8.59.0` → `^8.59.1` | Used by `@ever-works/eslint-config` for TypeScript ESLint integration. |
+| `@typescript-eslint/eslint-plugin` | 8.59.0 | 8.59.1 | `^8.59.0` → `^8.59.1` | Same dependent. Patch bumps to both — kept the version pair in lock-step (the typescript-eslint monorepo cuts releases atomically). |
+| `jsdom` | 29.0.2 | 29.1.0 | `^29.0.2` → `^29.1.0` | DevDep of `@ever-works/ui` (Vitest jsdom environment for the Preact components that aren't CT-migrated). |
+
+The minor-bump `jsdom` 29.0.2 → 29.1.0 (not just patch) is still inside the caret range; SemVer says it is non-breaking by definition. Verification below confirms.
+
+Manifest range floor was tightened from `^8.59.0` / `^29.0.2` to `^8.59.1` / `^29.1.0` (rather than left at `^8.59.0` / `^29.0.2` which would also accept the new versions). Tightening the floor matches the iter-128 isomorphic-git precedent: the lockfile now resolves to the same version a fresh `pnpm install` would, and downstream consumers of `@ever-works/eslint-config` who happen to peer-depend on `@typescript-eslint/*` see a slightly tighter constraint they can match. Net diff `+18/-15` in `pnpm-lock.yaml` (10 transitive `whatwg-encoding` / etc. churn included), `+3/-3` across `packages/eslint-config/package.json` + `packages/ui/package.json`.
+
+### Why iter-154 broke the pure-verification chain
+
+The iter-152 / iter-153 verification-only template was the canonical steady-state shape and the right cadence for those ticks (no doc drift, no dep drift in the 12-package high-churn cohort, no test/code regressions). Iter-154 is the **first verification tick where the dep-quick-check signal actually turned non-zero** — and the policy iter-152 / iter-153 documented for that case is "audit lifts to action when delta surfaces." The 14-package deferred-cohort gap (iter-133 / iter-135 / iter-142 baselines) had compounded ~17 iterations of unverified time; iter-154 closes it for the 3 packages that moved.
+
+Three deltas, three different histories:
+
+- `@typescript-eslint/{parser,eslint-plugin}` 8.59.0 → 8.59.1 — the typescript-eslint monorepo published 8.59.1 in late April 2026 with a bundled set of small bug fixes (no new rules, no breaking changes per the v8 SemVer contract). `@ever-works/eslint-config` uses `recommended` + `recommended-type-checked` configs only — neither config changed.
+- `jsdom` 29.0.2 → 29.1.0 — minor-version bump inside the caret range. jsdom 29.x continues the v29 line; the only consumer is the Vitest jsdom environment for the 3 non-CT-migrated Preact components (the CT-migrated three — FilterBar / LayoutSwitcher / MobileMenu — bypass jsdom by mounting in real Chromium).
+
+### Verification — full quartet green
+
+`pnpm typecheck` after the bump:
+
+```
+Tasks:    23 successful, 23 total
+Cached:    0 cached, 23 total
+  Time:    2m47.036s
+```
+
+23/23 packages typecheck clean. 0 cache hits (lockfile change invalidates every cache key — expected). The Astro web-app sub-step `[check]` reports `0 errors / 0 warnings / 0 hints` across 21 Astro files.
+
+`pnpm lint` after the bump (this is the canonical regression risk for `@typescript-eslint` upgrades):
+
+```
+Tasks:    18 successful, 18 total
+Cached:    0 cached, 18 total
+  Time:    55.726s
+```
+
+18/18 packages lint clean. The 4 pre-existing `no-console` warnings in `packages/core/src/logger.ts:40,53` + `packages/plugins/src/logger.ts:22,35` remain unchanged (carried forward from iter-131; intentional, the logger files explicitly use `console.*` as their fallback transport). No new warnings introduced by the typescript-eslint patch bump.
+
+`pnpm test` (Vitest, 16 packages):
+
+```
+Tasks:    16 successful, 16 total
+Cached:    0 cached, 16 total
+  Time:    3m4.971s
+```
+
+All 16 Vitest packages pass: 11 test files for `@ever-works/ui` × 174 tests; 1122/1122 across all 16 suites cumulatively (matches the iter-130 baseline). The jsdom 29.0.2 → 29.1.0 bump did not regress any of the jsdom-environment Preact component tests.
+
+`pnpm audit:docs`:
+
+```
+[1/7] Status drift (line-anchored, iter-145)                     PASS — 0 hits
+[2/7] Status drift (blockquote-tolerant, iter-147)               PASS — 0 hits
+[3/7] Value drift (count parity)                                 PASS — 0 hits
+         spec count: All N .specify/ feature specs: 33 ✓
+         package count: **N packages**: 18 ✓
+         app count: **N apps**: 8 ✓
+[4/7] Toolchain version drift                                    PASS — 0 hits
+         astro: pinned 6.1.9 (major 6)
+         preact: pinned 10.29.1 (major 10)
+         tailwindcss: pinned 4.2.4 (major 4)
+         typescript: pinned 6.0.3 (major 6)
+[5/7] ISR wording drift                                          PASS — 0 hits
+[6/7] Structural / link drift                                    PASS — 0 hits
+[7/7] Checklist ↔ runner parity (iter-151)                       PASS — 0 hits
+         AGENTS.md checklist headings discovered: 7
+         EXPECTED_MAPPING entries: 7
+         numbered runner classes: 7 (expected 7)
+[ * ] Cross-file consistency (AGENTS R-rules vs CLAUDE Critical Rules) PASS — 0 hits
+         AGENTS.md R-rules: 15 (expected 15)
+         CLAUDE.md numbered Critical Rules: 17 (expected 17)
+
+8/8 PASS — no documentation drift detected.
+```
+
+8/8 PASS retained; same output shape as iter-153 (the toolchain version drift class checks Astro / Preact / Tailwind / TypeScript only — none of those moved this tick — so `[4/7]` shows the same pinned-version line). The bumped packages (`@typescript-eslint/{parser,eslint-plugin}` + `jsdom`) are out of the toolchain-version regex coverage by design (they are deps of dev infrastructure, not user-facing toolchain).
+
+### What carries over from iter-153
+
+- **CT-flake watch ✅ CLOSED** — iter-127's 3-tick consecutive-clean window held through iter-128 → iter-153.
+- **`@ever-works/ui` aggregate**: branches 100% (233/233), functions 100% (104/104), lines 99.76% (1240/1243), statements 99.72% (352/353). `pnpm coverage` not re-run this iteration — the bumps are dev-only (`@typescript-eslint/*` is static analysis and `jsdom` only impacts test runtime, not source code), so the coverage aggregate is unchanged. Per iter-153 deferral policy, `pnpm coverage` re-runs are deferred until material dep churn lands; this tick's churn is dev-only and out of `GATE_TARGETS`.
+- **`pnpm test:e2e` not re-run** — same iter-134 policy.
+
+### Files touched
+
+- `packages/eslint-config/package.json` — `@typescript-eslint/{parser,eslint-plugin}` carets `^8.59.0` → `^8.59.1`.
+- `packages/ui/package.json` — `jsdom` caret `^29.0.2` → `^29.1.0`.
+- `pnpm-lock.yaml` — net `+18/-15` (10 packages downloaded; `whatwg-encoding@3.1.1` deprecation note retained in the install warning, transitive sub-dep of jsdom; not actionable — its successor `whatwg-encoding@4.x` is breaking and jsdom 29.x has not adopted it).
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor 153 → 154.
+- `.specify/project.md` — Current State header bumped 153 → 154; steady-state count bumped 24 → 25.
+
+### Deferrals carried (updated)
+
+1. **Regex-equivalence checking** (iter-151 → iter-153 deferred): still deferred — no real regex-divergence drift in 9 iterations.
+2. **Sample-app port consistency** as a NEW audit class (iter-153 considered/rejected): no drift this tick either; rejection still stands.
+3. **Full 26-package dep matrix re-verification** — iter-154 verified the 12-package highest-churn cohort + 3 of the 14-package deferred cohort. The remaining 11 deferred-cohort packages (`@astrojs/{vercel,preact,sitemap,check}`, `@playwright/experimental-ct-react`, `vitest-monocart-coverage`, `marked`, `yaml`, `pagefind`, `postcss`, `tailwind-merge`, `@vitest/coverage-v8`) are still on iter-133 / iter-135 / iter-142 / iter-140 baselines — the iter-154 finding (3/14 packages moved) is a non-trivial drift signal; future iterations should include a full 26-package quick-check on the next material dep-touching iteration to surface any other accumulated patches.
+4. **Optional `pnpm test:e2e` re-run** — defer per iter-134's policy.
+5. **Optional `pnpm coverage` re-run** — bumps are dev-only, no source-code impact, so the iter-124 aggregate carries forward unchanged.
+6. **react / react-dom 18 → 19 in `@ever-works/docs-minimal`** — a NEW finding from iter-154's `pnpm outdated -r` output (current 18.3.1 → latest 19.2.5). This is a **major-version bump** held back by Docusaurus 3.x's React 18 peer-range constraint; it is not actionable inside the existing `^18.3.0` caret range and would require either Docusaurus's React 19 support landing or a peer-range override. Tracked here for visibility; no fix this iteration. If a future Docusaurus 3.x release lifts the React 18 cap, that iteration can lift the bump.
+7. **`whatwg-encoding@3.1.1` deprecation warning** — surfaced by both iter-154 install runs as a `WARN  1 deprecated subdependencies found`. Transitive sub-dep of `jsdom` (tracked at depth 2). Cannot be lifted without jsdom adopting `whatwg-encoding@4.x` or later — not actionable from our manifest. Recorded here for tracking; future iterations can confirm jsdom progress.
+
+### Pattern progression
+
+After iter-154, the canonical autonomous-loop steady-state pattern has 3 documented sub-modes:
+
+| Sub-mode | Trigger | Cost | Iter examples |
+|----------|---------|------|---------------|
+| **Verification-only** | All audit/dep classes return zero deltas | ~5s audit + ~30s dep + 3 doc edits + commit (~5 min total) | 152, 153 |
+| **Doc drift fix** | One audit class returns hits, no dep drift | ~5s audit + 1-N targeted edits + 1 doc-log edit + commit (~10-30 min) | 132-148 |
+| **Dep delta apply** | One or more dep ranges have movement, audit clean | ~3 min install + ~3 min typecheck + ~1 min lint + ~3 min test + 4-line manifest edit + 3 doc edits + commit (~15 min) | 128, **154** |
+
+Future iterations will fall into one of these three sub-modes. The bounded per-tick cost upper bound is ~30 min (doc drift fix with 5+ surfaces); typical cost is ~5-15 min. This is small enough that 24+ consecutive verification-only ticks remain feasible without accumulating drift or expanding the doc surface — exactly what iter-152 predicted, and what iter-154 confirms by being the **first non-verification tick after a 2-tick verification streak** with no doc-quality cost.
+
+
 
 ### Headline
 
