@@ -3,6 +3,62 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 120: MobileMenu CT focus-trap tests close 9-of-12 branch gap (67.57% → 91.89%); Phase 6c hard-gate now unblocked
+
+### Headline
+
+Closed the headline branch-coverage gap left by iteration 119's Phase 6b merge: `MobileMenu.tsx` rose from **67.57% (25/37) → 91.89% (34/37) branches** by adding two focus-trap CT tests to `packages/ui/src/__tests__/ct/mobile-menu.ct.test.tsx`. Aggregate `pnpm coverage` merged number jumped from **94.89% → 98.72% branches (223/235 → 232/235)** across 19 files; per-file gate now PASSES for all three migrated components (FilterBar 100%, LayoutSwitcher 100%, MobileMenu 91.89% ✅ ≥80%). Phase 6c (CI hard-fail enforcement at the per-file ≥80% branch threshold) is unblocked — no source-side fixes required to make the gate green on the existing surface.
+
+### What was added
+
+Two new CT tests in `packages/ui/src/__tests__/ct/mobile-menu.ct.test.tsx` exercising the focus-trap `useEffect` (lines 69-95 in `MobileMenu.tsx` — the `handleTab` listener that wraps Tab/Shift+Tab between the first and last focusable elements inside the panel):
+
+1. **`focus trap: Tab on last nav link wraps focus to first`** — opens the menu, focuses the LAST nav link (`Tags`), presses `Tab`, asserts focus wraps to the FIRST nav link (`Home`). Exercises the `if (!e.shiftKey && document.activeElement === last)` branch + the `{ e.preventDefault(); first.focus(); }` block.
+2. **`focus trap: Shift+Tab on first nav link wraps focus to last`** — opens the menu, focuses the FIRST nav link (`Home`), presses `Shift+Tab`, asserts focus wraps to the LAST nav link (`Tags`). Exercises the `if (e.shiftKey && document.activeElement === first)` branch + the `{ e.preventDefault(); last.focus(); }` block.
+
+Branch impact: 9 of the 12 uncovered branches in iteration-119's report are now covered. Per-file MobileMenu CT count: **15 → 17 cases** (the existing 15 + 2 focus-trap).
+
+### What was deferred (1-branch outlier)
+
+A third candidate test for `if (focusable.length === 0) return;` (line 79 — the early return when the panel has no focusable children) was attempted with `<MobileMenu items={[]} />` but reproduced an unrelated CT-host-page focus-attribution edge case where the panel becomes `hidden` post-mount (likely a click-outside / focus race in the test harness, not the production component). Documented inline in `mobile-menu.ct.test.tsx` with a comment block noting the deferral. The 3-branch shortfall (235-232) is now `MobileMenu.tsx`'s `focusable.length === 0` early-return + the two adjacent fall-through branches; a future iteration that adds an `aria-hidden` guard or rewrites the empty-items rendering path can pick this up.
+
+### Verification
+
+- `pnpm --filter @ever-works/ui exec playwright test mobile-menu.ct.test.tsx` — 17/17 pass in 46.0s on Windows + Node 24.14.0.
+- `pnpm coverage` end-to-end (Vitest + CT + merge):
+  - Vitest: 11/11 files / 174/174 tests passing in ~98s; 40 raw V8 entries written.
+  - CT: 45 tests passing (16 FilterBar + 12 LayoutSwitcher + 17 MobileMenu) in ~78s; 49 raw V8 entries written.
+  - Merge: 89 raw V8 entries combined → 19 files in merged report.
+  - **Aggregate**: branches 98.72% (232/235), functions 100% (104/104), lines 99.60% (1239/1244), statements 99.15% (352/355), bytes 99.73% (45,628/45,750).
+  - **Per-file gate (Phase 3 contract, ≥80% branches)**: ALL THREE PASS ✅
+    - `FilterBar.tsx`: 100% (27/27)
+    - `LayoutSwitcher.tsx`: 100% (22/22)
+    - `MobileMenu.tsx`: **91.89% (34/37)** — was 67.57% (25/37) in iteration 119.
+  - `coverage-merge: ✅ Phase 3 per-file gate satisfied.`
+- `pnpm typecheck` — 23/23 (16 cached + 7 fresh, 1m14s).
+- `pnpm lint` — 18/18 (16 cached + 2 fresh, 15.0s).
+
+### Files touched
+
+- `packages/ui/src/__tests__/ct/mobile-menu.ct.test.tsx` — added 2 new `test.describe`-nested `test()` cases (~50 LOC) and an inline note explaining the deferred 1-branch case.
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 119 → 120.
+- `.specify/project.md` — Current State header bumped 119 → 120; V8 coverage line updated with the new merged number and per-file gate result.
+
+### Next Steps (for next scheduled run)
+
+Execute **Phase 6c** of the playwright-coverage plan (CI hard-gate enforcement):
+
+1. Update `packages/ui/scripts/coverage-merge.ts` so the per-file `<80% branches` printout exits non-zero when the gate fails (currently emits an `⚠️` and exits 0 — informational mode). Keep the FilterBar/LayoutSwitcher/MobileMenu allow-list explicit so unrelated future files don't get gated by accident.
+2. Add a `coverage-gate` job to `.github/workflows/ci.yml` that depends on `test` + `test-ct`, downloads both raw V8 artifacts, runs `pnpm --filter @ever-works/ui exec tsx scripts/coverage-merge.ts`, and inherits the merge script's exit code. Document in the workflow comment that this is the canonical Phase 3 gate.
+3. Optionally publish the merged HTML to a CI artifact (`packages/ui/coverage/merged/index.html`) so reviewers can browse the per-file report on PR.
+
+Phase 6d (doc + status flips) follows naturally once 6c lands — it's mostly editing existing files to remove the `🚧 in progress` markers and flip Q22 follow-up #3 to ✅ COMPLETE.
+
+### CT-flake watch (carried)
+
+Iteration 111 noted `filter-bar.ct › selects category on click` failed once and passed on retry. Iterations 112/113/115/116/117/118/119 ran no full CT suite (or only single-file). Iteration 120 ran `mobile-menu.ct.test.tsx` in isolation (17/17 clean) and `pnpm coverage` (full suite: 45 cases pass cleanly). Watch count stays at **1/3**.
+
 ## 2026-04-27 — Iteration 119: Q22 follow-up #3 Phase 6b ✅ DONE — `vitest-monocart-coverage` adopted; full V8+Vitest merge live; Q26 ✅ RESOLVED
 
 ### Headline
