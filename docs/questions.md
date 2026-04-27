@@ -1340,7 +1340,177 @@ the per-file MobileMenu number to ~100%, making the merged
 coverage report semantically accurate (no asterisks for "except
 for the 3 defensive branches we couldn't reach").
 
-**Status**: OPEN — Option A.1 chosen [DEFAULT]. Spec at
+**Status**: ✅ RESOLVED in iteration 124 — Option A.1 (synthetic Tab
+dispatch via `page.evaluate`) closed B1/B2/B3 via three new CT tests;
+Option A.3 (`/* v8 ignore next */` pragma — the syntax verified
+working with `monocart-coverage-reports@^2.12.9`) closed an
+additional defensive `menuRef` race-guard branch (line 72 of
+`MobileMenu.tsx`) that surfaced during execution and was not in the
+original 3-branch list. Final per-file MobileMenu: **100% branches
+(35/35)**. Final per-package aggregate: **100% (233/233)**.
+Mobile-menu.ct case count: 17 → 20. Spec at
 `.specify/features/q27-mobilemenu-empty-items-coverage.md`; plan at
-`docs/plans/q27-mobilemenu-empty-items-coverage.md`. Phase 0
-smoke-test gate is the entry point for the execution iteration.
+`docs/plans/q27-mobilemenu-empty-items-coverage.md`; execution log at
+`docs/log.md` iteration 124. (Status flip belatedly landed iteration
+129 — iter-125 health-check pass missed this surface.)
+
+---
+
+## Q28: ESLint 9 → 10 major-version upgrade (iteration 129)
+
+> **Status: OPEN — Option A chosen `[DEFAULT]` (single-iteration in-place
+> bump; flat-config already in place; node-version floor already met;
+> @typescript-eslint pin already covers ESLint 10 in its peer-range).**
+> Pre-investigation done iteration 129. Spec at
+> `.specify/features/q28-eslint-10-upgrade.md`; plan at
+> `docs/plans/q28-eslint-10-upgrade.md`. The "manual changelog review
+> required" caveat from iters 123/125/126/127/128 is retired by this
+> question — the changelog is reviewed below; no source changes are
+> required for the upgrade itself.
+
+**Context**: Iterations 123/125/126/127/128 all flagged ESLint 9 → 10
+as the single out-of-scope drift item in the otherwise-current dep
+matrix. Pin `eslint: ^9.0.0` in `packages/eslint-config/package.json`
+peerDependencies (and corresponding workspace consumers via
+`@ever-works/eslint-config` re-export) vs. npm `latest` `10.2.1`. Each
+audit deferred as "major-version bump requires manual review of the
+changelog (config-format breaks, plugin compat, etc.) — not a fit for
+the cron cadence." This question pre-investigates the changelog so
+the upgrade lands as a tracked, scoped iteration.
+
+**Pre-investigation findings (iteration 129)**:
+
+1. **Flat config**: ✅ already in place. `packages/eslint-config/index.mjs`
+   exports a `Linter.Config[]` array with two entries (TS file rules +
+   ignores). Every workspace consumer imports it and re-exports it
+   verbatim (`apps/web/eslint.config.js`, `packages/ui/eslint.config.js`,
+   etc. — 17 `eslint.config.js` files in total, each a 3-line shim).
+   Flat config is the **only** supported format in ESLint 10 (eslintrc
+   was removed in ESLint 9 and stays gone). No format change required.
+2. **Node.js floor**: ✅ already met. ESLint 10 requires Node v20.19.0+ /
+   v22.13.0+ / v24+. Local toolchain runs Node v24.14.0; CI's
+   `actions/setup-node@v4` step uses Node 24. The repo's `package.json`
+   `engines.node` field is `>=22.12.0` — that pin covers v22.13.0+
+   forwards via semver. (Optional follow-up: bump engines.node to
+   `>=22.13.0` to match the ESLint 10 floor verbatim. Not strictly
+   required since v22.12.0 + v22.13.0 differ by a single patch and the
+   project never shipped on v22.12.0 — but harmless and explicit.)
+3. **`@typescript-eslint` peer-range**: ✅ already covered. Pinned
+   `^8.59.0` in `packages/eslint-config/package.json`; the
+   typescript-eslint v8 line declares
+   `eslint: ^8.57.0 || ^9.0.0 || ^10.0.0` in its peerDependencies —
+   so the existing pin transparently supports ESLint 10 with no
+   version bump.
+4. **Removed APIs**: zero usages in our source. The deprecated
+   `context.getCwd()` / `context.getFilename()` /
+   `context.getPhysicalFilename()` / `context.getSourceCode()` methods
+   removed in ESLint 10 are eslint-plugin internals — not user code.
+   Our codebase contains no custom ESLint plugins; the only plugin we
+   consume is `@typescript-eslint/eslint-plugin`, which uses the
+   property forms (`context.cwd`, `context.filename`, etc.) on its
+   v8 line. Verified by grep across `packages/` + `apps/` source
+   trees (no matches).
+5. **`eslint-env` comments**: zero usages in our source (`grep -rn
+   "eslint-env" packages apps` returns zero matches in source dirs).
+   ESLint 10 turns `eslint-env` comments from "ignored" into "errors";
+   our project never relied on them.
+6. **`globalThis` shadowing**: zero usages in our source. ESLint 10's
+   `no-shadow-restricted-names` rule now reports `globalThis` by
+   default; if we were shadowing it (we aren't), the rule would flag it.
+7. **`eslint:recommended` opt-in changes**: not applicable. Our config
+   does NOT extend `eslint:recommended` — it specifies an explicit
+   rule set (`@typescript-eslint/no-explicit-any`,
+   `@typescript-eslint/no-unused-vars`, `prefer-const`, `no-var`,
+   `eqeqeq`, `no-console`). The three rules newly added to
+   `eslint:recommended` in ESLint 10 (`no-unassigned-vars`,
+   `no-useless-assignment`, `preserve-caught-error`) do not affect us
+   unless we opt them in explicitly.
+8. **Other rule changes** (`radix` no-string-options, `func-names`
+   schema, `no-invalid-regexp` `allowConstructorFlags` duplicates,
+   `RuleTester` valid-case schema): zero usages in our config. Our
+   rule list is small (6 rules total) and none of these are in it.
+9. **Other API changes** (`Program` AST node range, `nodeType`
+   removed, fixer methods string-only, `stylish` formatter
+   `styleText`): all internal-API; no impact on user code.
+
+**Net assessment**: the upgrade surface is **a single one-line pin
+bump** (`eslint: ^9.0.0` → `eslint: ^10.0.0`) in
+`packages/eslint-config/package.json` peerDependencies, plus a
+`pnpm install` + `pnpm lint` verification round. Optionally bump
+`package.json` `engines.node` from `>=22.12.0` → `>=22.13.0` to match
+ESLint 10's floor verbatim. The dread baked into iters 123-128's "ESLint
+10 major bump is a manual-review item, not autonomous" deferral was a
+reasonable precaution before the changelog was investigated; in
+practice the migration is bounded.
+
+**Options**:
+
+- **A) Single-iteration in-place bump** — change one line in
+  `packages/eslint-config/package.json` (`peerDependencies.eslint`
+  `^9.0.0` → `^10.0.0`), run `pnpm install` (lockfile picks up
+  ESLint 10.x), run `pnpm lint` end-to-end across the 18-package
+  matrix. Optionally bump `engines.node` to `>=22.13.0` in the same
+  iteration. Total estimated effort: 30-45 min. `[DEFAULT]`
+- **B) Two-iteration phased bump** — iter N adds ESLint 10 to the
+  peer-range as `^9.0.0 || ^10.0.0` (allowing both 9 and 10 to
+  resolve), iter N+1 narrows to `^10.0.0` after a soak period. More
+  conservative; useful only if the project had downstream consumers
+  pinned at ESLint 9. Our project does not — the eslint-config is a
+  workspace package consumed only by sibling packages. **Rejected**
+  as over-engineering.
+- **C) Defer indefinitely** — keep the `^9.0.0` pin until ESLint
+  10's first patch release (10.0.x → 10.1.x) ships, on the theory
+  that x.0.0 majors carry hidden papercuts. Conservative; costs
+  nothing immediately but accumulates drift. **Rejected** because
+  ESLint 10.0.0 already shipped through several patch/minor
+  releases (visible at `latest` 10.2.1 in iter 123's audit), so
+  the soak period is implicitly behind us.
+- **D) Switch to a different linter entirely** — e.g. Biome
+  (`biome lint`). Out of scope for a routine-maintenance audit;
+  would need its own Q with a much larger spec surface. **Rejected**.
+
+**Default choice**: **A — single-iteration in-place bump**. Pre-
+investigation rules out every named breaking change. The upgrade is
+a peer-range pin bump + lockfile refresh + lint smoke test; if
+`pnpm lint` reports zero new violations across the 18-package
+matrix, the upgrade is done.
+
+**Risks**:
+
+- **R1 (Low)** — a brand-new ESLint 10.x rule (or a hidden behavior
+  change in an existing rule that the changelog under-documents) flags
+  a real issue in our source. Mitigation: `pnpm lint` runs end-to-end
+  pre-commit; any new violation surfaces immediately and is fixed
+  inline (or flagged with a follow-up Q if it's load-bearing).
+- **R2 (Low)** — a transitive dep of ESLint 10 (e.g. `@eslint/js`,
+  `@eslint/eslintrc`, `eslint-scope`) ships with a peer-range that
+  excludes our existing toolchain version. Mitigation: `pnpm install`
+  surfaces peer-range mismatches as warnings; a hard break would fail
+  the install. Iter-128 already verified `pnpm install` works on the
+  current lockfile.
+- **R3 (Medium)** — ESLint 10's stricter glob-pattern handling
+  (POSIX character classes via the new minimatch) reinterprets one of
+  our `ignores` patterns. Our patterns are all simple
+  (`**/dist/**`, `**/node_modules/**`, `**/.astro/**`,
+  `**/.turbo/**`); none use character classes. Mitigation: same as
+  R1 — `pnpm lint` smoke catches any reinterpretation.
+
+**Out of scope for Q28**:
+
+- Custom rule authorship in `@ever-works/eslint-config` (the rule set
+  is intentionally minimal — 6 rules + ignores).
+- Migrating to Biome (Option D).
+- Adding `eslint:recommended` to the rule set.
+- Adopting `@stylistic/eslint-plugin` (the formatting rules removed
+  from ESLint core in v8 / v9).
+
+**Why this is OPEN, not deferred**: every iteration since 123 has
+flagged ESLint 9→10 as the single out-of-scope drift item. The
+deferral is now a stale "we haven't looked yet" marker — iteration 129
+looks. After Q28 lands, the deferral disappears.
+
+**Status**: OPEN — Option A chosen [DEFAULT]. Spec at
+`.specify/features/q28-eslint-10-upgrade.md`; plan at
+`docs/plans/q28-eslint-10-upgrade.md`. The execution iteration is
+expected to land in 30-45 min walltime, single-iteration; the cron
+cadence supports this comfortably.

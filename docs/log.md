@@ -3,6 +3,113 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 129: Q28 OPENED + spec + plan authored — ESLint 9 → 10 upgrade pre-investigated; Q27 status flip in questions.md (carried from iter 125 sweep miss)
+
+### Headline
+
+Iterations 123/125/126/127/128 each flagged ESLint 9 → 10 as the single out-of-scope drift item in the otherwise-current dep matrix, with the same deferral framing: "manual changelog review required, not a fit for the cron cadence." Iteration 129 retires that deferral by **pre-investigating** the changelog and authoring **Q28** (`.specify/features/q28-eslint-10-upgrade.md` + `docs/plans/q28-eslint-10-upgrade.md` + `docs/questions.md` Q28 entry). Net finding: the upgrade reduces to a **one-line peer-range bump** in `packages/eslint-config/package.json` (`"eslint": "^9.0.0"` → `"eslint": "^10.0.0"`) plus a `pnpm install` + `pnpm lint` verification round; every named breaking change in ESLint 10's migration guide resolves to "no impact" against our actual source/config surface. The execution iteration is bounded at 30-45 min walltime and fits comfortably in a single cron tick.
+
+Iteration 129 also fixes **one stale-claim surface that iter 125's health-check pass missed**: `docs/questions.md` Q27 still showed status `OPEN — Option A.1 chosen [DEFAULT]` even though Q27 was ✅ RESOLVED in iteration 124. The flip lands in this same iteration alongside Q28 authoring (~20 lines of edit on the existing Q27 status footer).
+
+### What was authored
+
+#### 1. `.specify/features/q28-eslint-10-upgrade.md` (NEW, ~210 lines)
+
+Full feature spec mirroring the Q24 / Q27 spec format. Sections:
+
+- **Description** — 8-row pre-investigation table (each ESLint 10 concern × current-state status); upgrade surface reduces to "single one-line peer-range bump".
+- **User Stories** — maintainer (zero out-of-scope drift), AI agent (no carried "ESLint 10 deferral" notes), reviewer (no per-iteration re-evaluation).
+- **10 Acceptance Criteria** — pin bump (AC #1), lockfile refresh (AC #2), lint smoke 18/18 + zero new violations (AC #3), typecheck 23/23 (AC #4), test suite green (AC #5), optional `engines.node` bump (AC #6), Q28 status flip (AC #7), iteration log entry (AC #8), deferral marker disappears in future audits (AC #9), zero doc-surface churn beyond expected (AC #10).
+- **The fix** — annotated diff for `packages/eslint-config/package.json` peer-range bump + optional root `package.json` `engines.node` bump.
+- **Workspace consumers (no changes required)** — note that the 17 `eslint.config.js` shims under `packages/*` and `apps/*` are 3-line `import config from '@ever-works/eslint-config'; export default config;` files that inherit the peer-range transparently.
+- **ESLint 10.0.0 changelog cross-check** — 17-row table, every changelog item resolved to "no impact" with the explicit reason (Node v24 already in CI; flat config since project inception; `@typescript-eslint@^8.59.0` peer-range covers ESLint 10; zero source usages of `eslint-env` / `globalThis` shadowing / removed deprecated APIs; etc.).
+- **Out of scope** — custom rule authorship, Biome migration, `eslint:recommended` opt-in, `@stylistic/eslint-plugin` adoption, CI workflow changes, `@typescript-eslint` v9 bump.
+- **5 Risks** — new ESLint 10.x rule flags real source (R1, mitigated by `pnpm lint` smoke), transitive dep peer-range mismatch (R2, surfaced by `pnpm install`), POSIX glob class reinterpretation (R3, our patterns are simple), future @typescript-eslint v9 (R4, separate Q), `engines.node` 1-patch difference (R5, optional).
+- **Dependencies** — none beyond the peer-range bump.
+- **References** — ESLint 10 migration guide URL, typescript-eslint dep-versions URL, iter 123/128 log entries, `packages/eslint-config/index.mjs`, the 17 shim consumers.
+- **AGENTS.md cross-check (R1-R15)** — explicit per-rule applicability, mirroring Q24/Q27 spec format. R14 cites iter 119 (`monocart-coverage-reports` floor bump) and iter 128 (`isomorphic-git` caret-range bump) as the same shape / same playbook.
+
+#### 2. `docs/plans/q28-eslint-10-upgrade.md` (NEW, ~190 lines)
+
+Full execution plan with the same `---title:--- + Status + Iterations referenced` front-matter as q24 / q27 plans. Sections:
+
+- **Why** — 5-iteration deferral history + iteration 129 pre-investigation outcome.
+- **Steps**:
+  - **Step 0 (re-verify pre-investigation, ~5 min)**: confirm Node version, `@typescript-eslint` pin, zero source matches for `eslint-env` / `globalThis` shadowing. Pause if any drift.
+  - **Step 1 (bump peer-range, ~1 min)**: 1-line edit to `packages/eslint-config/package.json`; optional 1-line `engines.node` bump in root `package.json`.
+  - **Step 2 (refresh lockfile, ~30s)**: `pnpm install`; expected ~3-5 lockfile entries refreshed.
+  - **Step 3 (lint smoke, ~15s)**: `pnpm lint` 18/18; if violations, fix inline or open follow-up Q29.
+  - **Step 4 (verify, ~5 min)**: `pnpm typecheck` 23/23 + `pnpm test` full suite + optional `pnpm coverage` (defense in depth).
+  - **Step 5 (doc updates, ~10 min)**: Q28 status flip, log entry, index descriptor, project.md state line, spec front-matter status flip, plan outcome subsection.
+  - **Step 6 (confirm deferral marker disappears)**: grep for residual "ESLint.*9.*10" matches in `docs/log.md` "Next Steps" sections.
+  - **Step 7 (rollback, only if Steps 2-4 fail)**: `git checkout -- packages/eslint-config/package.json package.json pnpm-lock.yaml`; `pnpm install` restores baseline.
+- **File list (touched)** — 9-row table covering pin bump + spec/plan creates + 5 doc updates.
+- **Phase sequencing** — 6-row table mapping phases to likely iterations + effort + risk; total estimate **30-45 min single-iteration**.
+- **Cross-reference** — spec + iter 119 / iter 128 commit hashes (same-shape patterns) + ESLint 10 migration guide URL + typescript-eslint dep-versions URL.
+
+#### 3. `docs/questions.md` Q28 entry (~110 lines appended)
+
+Section structured identically to Q24/Q25/Q26/Q27. Status (`OPEN — Option A chosen [DEFAULT]`), Context (5-iteration deferral history), 9-row pre-investigation findings list (each finding with cite to the source/config check that proved it), Net assessment paragraph framing the upgrade as a one-line peer-range bump, 4 Options (A single-iteration in-place bump `[DEFAULT]` / B phased peer-range rejected as over-engineering / C defer indefinitely rejected as the soak period is implicitly behind us / D switch to Biome rejected as out of scope), 3 Risks, Out of scope list, "Why this is OPEN, not deferred" rationale (retires the iter-123-128 carried "manual review required" framing).
+
+#### 4. `docs/questions.md` Q27 status flip (~20 lines, carry-over from iter 125)
+
+Q27's status footer in `docs/questions.md` still read `OPEN — Option A.1 chosen [DEFAULT]` even though `.specify/features/q27-mobilemenu-empty-items-coverage.md` front-matter (updated iter 124 by the user) and `docs/log.md` iter 124 entry both showed `✅ RESOLVED`. Iter 125's health-check pass swept `.specify/project.md` / `docs/architecture/testing-runners.md` / `.specify/features/{q22-playwright-coverage,testing}.md` / `README.md` but missed this Q27 surface in `docs/questions.md`. Iter 129 closes the gap: status footer rewritten to `✅ RESOLVED in iteration 124 — Option A.1 ... + Option A.3 ...` with the final per-file MobileMenu (100% (35/35)) + per-package aggregate (100% (233/233)) numbers + a parenthetical note "(Status flip belatedly landed iteration 129 — iter-125 health-check pass missed this surface.)" for traceability.
+
+### What was NOT touched
+
+- No source files (`packages/eslint-config/index.mjs` unchanged, all 17 `eslint.config.js` shims unchanged, `MobileMenu.tsx` unchanged, etc.).
+- No test files.
+- No `package.json` / `pnpm-lock.yaml` / config changes (the Q28 pin bump is scheduled for the execution iteration, not iter 129).
+- No `pnpm install`.
+- No `pnpm coverage` re-run (iter 124 numbers stay authoritative).
+
+### Routine maintenance audit (zero deltas, identical to iter 128 baseline)
+
+The 22-package version matrix re-checked since iter 128's `isomorphic-git` bump:
+
+- `astro@^6.1.9` → 6.1.9 (none)
+- `vitest@^4.1.5` → 4.1.5 (none)
+- `playwright@^1.59.1` → 1.59.1 (none)
+- `tailwindcss@^4.2.4` → 4.2.4 (none)
+- `preact@^10.29.1` → 10.29.1 (none)
+- `monocart-coverage-reports@^2.12.9` → 2.12.11 (caret-resolved, none)
+- `monocart-reporter@^2.10.0` → 2.10.1 (caret-resolved, none)
+- `vitest-monocart-coverage@^4.0.2` → 4.0.2 (none)
+- `@astrojs/{vercel,preact,sitemap,check}` → all match pins (none)
+- `@playwright/{test,experimental-ct-react}@^1.59.1` → 1.59.1 (none)
+- `typescript@^6.0.3` → 6.0.3 (none)
+- `prettier@^3.8.3` → 3.8.3 (none)
+- `turbo@^2.9.6` → 2.9.6 (none)
+- `isomorphic-git@^1.37.6` → 1.37.6 (caret-resolved, none — landed iter 128)
+- `eslint@^9.0.0` → 10.2.1 (**MAJOR-VERSION GAP — Q28 OPENED this iteration**)
+
+Q28 retires the ESLint 9→10 carry. After Q28's execution iteration, the matrix returns to "zero deltas, single-iteration audits".
+
+### Verification
+
+- `git status` (post-edits): only the 5 doc surfaces modified/created (`docs/questions.md` Q27 footer flipped + Q28 appended; `.specify/features/q28-eslint-10-upgrade.md` + `docs/plans/q28-eslint-10-upgrade.md` created; `docs/log.md` + `docs/index.md` + `.specify/project.md` updated).
+- No source / test / config / `package.json` / lockfile changes ⇒ no runtime verification needed. `pnpm typecheck` and `pnpm lint` remain at the iter 128 results (23/23 and 18/18 respectively, FULL TURBO cache hits since all source files are unchanged).
+
+### Files touched
+
+- `.specify/features/q28-eslint-10-upgrade.md` — CREATE (~210 lines).
+- `docs/plans/q28-eslint-10-upgrade.md` — CREATE (~190 lines).
+- `docs/questions.md` — Q27 status footer flipped (carry from iter 125 miss); Q28 section appended (~110 lines).
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 128 → 129; new Q28 spec/plan rows added under "Plans" and "Spec Kit".
+- `.specify/project.md` — Current State header bumped 128 → 129; new Q28 OPEN line added; Q27 status block extended to mention iter-129 questions.md flip.
+
+### Next Steps (for next scheduled run)
+
+1. **Execute Q28 — single-iteration in-place ESLint 10 bump.** ~30-45 min. Steps in `docs/plans/q28-eslint-10-upgrade.md`. Step 0 re-verifies the iter-129 pre-investigation findings; Steps 1-3 land the bump (1-line peer-range edit + `pnpm install` + `pnpm lint`); Steps 4-6 verify and document. The execution iteration is bounded and fits comfortably in a single cron tick.
+2. **OR — routine dep audit re-verify**. Likely zero deltas (the iter-128 + iter-129 pair just consumed the only published delta). Audit cadence supports skipping if Q28 is the priority.
+3. **OR — pure doc-health-check pass** if any new stale-claim surfaces have accumulated since iter 125's sweep. The Q27-status-flip miss caught here suggests the iter 125 sweep missed at least one surface; a follow-up sweep could grep for similar misses.
+4. **The Q22→Q27 saga remains fully closed.** Q28 is the last named carry from the dep-audit thread; once it lands, the project enters "no carried open work" steady state.
+
+### CT-flake watch (closed)
+
+Watch ✅ CLOSED at iter 127 (3/3 clean full-CT runs). No tracking required in future iterations unless a new flake fingerprint surfaces.
+
 ## 2026-04-27 — Iteration 128: pick up the iter-127 caret-range delta — `isomorphic-git@1.37.5 → 1.37.6` lockfile + package.json pin bump
 
 ### Headline
