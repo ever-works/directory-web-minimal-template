@@ -3,6 +3,95 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 135: doc-quality audit on `docs/guides/` — close the ISR documentation gap in `deployment.md` (predates iter-17/Q17)
+
+### Headline
+
+Iteration 134 completed the third "post-saga health-check" verification (build pipeline). The "no carried open work" steady state has held for 5 consecutive iterations (130-134). Iteration 135 broadens the maintenance scope from the spec/plan/log surfaces (already swept in iters 125 + 132) to the **user-facing guides** at `docs/guides/`. One real documentation gap found: **`docs/guides/deployment.md` predates iteration 17's Q17 ("ISR by Default, Static Opt-Out") update and never picked up the ISR-specific environment variables, the ISR/pure-static mode choice, or the ISR webhook flow.**
+
+The gap matters because a developer reading `deployment.md` cold (typical AI-agent flow per CLAUDE.md) would conclude:
+
+- "The template produces fully static output, no server functions" — correct only in pure-static mode (`ENABLE_ISR=false`); the default ISR mode ships a `/api/webhook` Vercel function.
+- "To update content, trigger a new build" — correct only in pure-static mode; ISR mode regenerates affected pages on-demand without a full rebuild.
+- The env-var table covers 4 variables (`DATA_REPOSITORY`, `GH_TOKEN`, `GITHUB_BRANCH`, `SITE_URL`) — but CLAUDE.md lists 12 supported env vars; the missing 8 (`ENABLE_ISR`, `WEBHOOK_SECRET`, `SYNC_POLL_INTERVAL_MS`, `SYNC_TIMEOUT_MS`, `SYNC_MAX_RETRIES`, `CONTENT_CACHE_TTL_MS`, `VERCEL_DEPLOY_HOOK_URL`, `CONTENT_PATH`) are all ISR/sync-related and ALL covered in `docs/guides/content-sync.md`.
+
+The fix retains `deployment.md`'s focus on Vercel deploy steps + custom domains + GitHub Actions and adds `ENABLE_ISR` to the env-var table with a cross-link to `content-sync.md` for the full sync-mode coverage. Four spot edits flip the misleading "fully static, no server functions" / "trigger a new build" / "no server functions" claims to honest "ISR by default, opt out with `ENABLE_ISR=false`" wording, and prepend `ENABLE_ISR=false` to the Netlify + Cloudflare Pages build commands (since those static hosts can't run the ISR adapter's Vercel function).
+
+### What was flipped
+
+#### 1. Environment Variables table (line 17, deployment.md)
+
+Added a 5th row for `ENABLE_ISR` with a cross-reference to the new "Output mode" section. Appended a paragraph after the table directing readers to `content-sync.md` for the full set of 8 sync-mode-specific env vars (`WEBHOOK_SECRET`, `SYNC_POLL_INTERVAL_MS`, `SYNC_TIMEOUT_MS`, `SYNC_MAX_RETRIES`, `CONTENT_CACHE_TTL_MS`, `VERCEL_DEPLOY_HOOK_URL`, `CONTENT_PATH`). This avoids duplicating content-sync.md while keeping deployment.md self-contained for the Vercel-deploy use case.
+
+#### 2. "Since the template produces fully static output, no server functions are needed" (line 42 area)
+
+```diff
+-In ISR mode... [implied static]
++In ISR mode (default) the template ships a single Vercel server function (`/api/webhook`) that handles content-change webhooks; in pure-static mode (`ENABLE_ISR=false`) no server functions run at all. Either way, Vercel serves pre-rendered pages from its edge network — ISR re-runs the page renderer on-demand only after a webhook invalidates the affected paths.
+```
+
+#### 3. "Build Details" section (around line 122)
+
+Replaced the static-only "Output type" + "Framework" lines and the "trigger a new build" content-update sentence with a 2-mode framing: ISR (default) vs pure-static (`ENABLE_ISR=false`). Added a new "Output mode (ISR vs pure-static)" subsection with a 2-row decision table. The table reads:
+
+| Mode | When to choose | Setup |
+|------|----------------|-------|
+| **ISR (default)** | Most directory sites — content updates without a full rebuild; minimal latency for readers | No extra config; webhook + cache TTL covered in [Content Sync](/guides/content-sync/) |
+| **Pure-static** (`ENABLE_ISR=false`) | Content rarely changes, you want zero server-side runtime, or you're deploying to a non-Vercel static host | Set `ENABLE_ISR=false`; for content updates, use a Vercel Deploy Hook (`VERCEL_DEPLOY_HOOK_URL`) or manual rebuild |
+
+#### 4. "Deploying to Other Static Hosts" intro (line 140)
+
+```diff
+-Since the template produces a standard static site, you can deploy to any static host:
++Set `ENABLE_ISR=false` before building to opt out of the Vercel ISR adapter and produce a fully static `apps/web/dist/` tree with no server function. The output then deploys to any static host:
+```
+
+#### 5. Netlify + Cloudflare Pages build commands (lines 144, 153)
+
+Prepended `ENABLE_ISR=false` to both `pnpm --filter ... build` invocations. Without this, the build emits a Vercel `.vercel/output/` tree alongside `dist/` and a server function that those hosts cannot serve. GitHub Pages already has its own opt-out logic (the user copies `dist/` to a branch) so its block was left as-is — but the section now sits inside the `ENABLE_ISR=false` paragraph that documents the requirement.
+
+### What was NOT touched (intentional)
+
+- **`docs/guides/quickstart.md`** — already references ISR-by-default architecture implicitly through `pnpm dev:web` (the dev command works the same in either mode); the env-var coverage was deferred to the explicit "Add Content" step which only mentions `DATA_REPOSITORY`. No drift; no edit.
+- **`docs/guides/content-sync.md`** — already covers the full set of sync-mode env vars + ISR + webhook + polling + Vercel Deploy Hook flow. Iteration 135 cross-references it from `deployment.md`; no edit to content-sync.md itself.
+- **`docs/guides/getting-started.md`** — already includes `ENABLE_ISR` in the deployment section ("To use pure static output instead, set `ENABLE_ISR=false`"). Verified consistent with the new deployment.md wording; no edit.
+- **`docs/guides/{building-from-template,creating-a-plugin,creating-an-adapter,customizing,interactive-components,analytics,performance-testing,troubleshooting}.md`** — no ISR-related drift; not touched.
+- **All non-guide doc surfaces** — `.specify/`, `docs/architecture/`, `docs/specs/`, `docs/plans/`, `CLAUDE.md`, `AGENTS.md`, `README.md` — all consistent with iter-134 baseline (verified by re-running the iter-132 grep technique for stale CT counts and stale ESLint version refs).
+
+### Routine dep audit (zero deltas, 9-package quick-check)
+
+Re-checked the 9 most-load-bearing packages (`eslint`, `astro`, `vitest`, `playwright`, `tailwindcss`, `preact`, `monocart-coverage-reports`, `vitest-monocart-coverage`, `isomorphic-git`). All identical to iter-134 baseline (~1.5h prior). No published patch/minor bumps in the interim. Pin matrix unchanged.
+
+### Verification
+
+- `git status` (post-edits): only the 4 doc surfaces modified (`docs/guides/deployment.md`, `docs/log.md`, `docs/index.md`, `.specify/project.md`).
+- `pnpm typecheck` — pending verification at commit time (expected: 23/23 FULL TURBO; `deployment.md` is not in any `tsc` include list, so the cache should hit).
+- `pnpm lint` — pending verification at commit time (expected: 18/18 FULL TURBO + 0 warnings + 0 errors; deployment.md is not lint-tracked).
+
+### Files touched
+
+- `docs/guides/deployment.md` — 5 spot edits closing the ISR documentation gap (env-var table, ISR-mode paragraph, "Build Details" rewrite + "Output mode" subsection, "Deploying to Other Static Hosts" intro, Netlify + Cloudflare Pages build commands).
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 134 → 135.
+- `.specify/project.md` — Current State header bumped 134 → 135.
+
+### Why this counts (not just whitespace churn)
+
+The `deployment.md` gap had been latent since iter-17's Q17 update (~117 iterations / ~5 weeks ago in this saga's compressed timeline). Iteration 17 flipped Rule R5 from "Static-only" to "ISR by Default, Static Opt-Out" and updated `astro.config.ts` to add the Vercel adapter — but the corresponding deployment.md update never landed. Every subsequent iteration that touched deployment-related docs (sample-app docs, CI workflow tweaks) preserved the pre-iter-17 wording verbatim. AI agents reading `deployment.md` to set up a Vercel deploy would (a) succeed in ISR mode without realizing they're getting it (because the default works without explicit `ENABLE_ISR=true`), or (b) be confused when their static deploy to Netlify fails because the build emitted a Vercel function. Closing the gap costs ~30 lines of doc surface and makes the deploy guide honest about the post-iter-17 architecture.
+
+The pattern is a generalization of iter-132's "iter-125 sweep missed CLAUDE.md" finding: doc surfaces that are *not* mentioned in a feature's primary spec/plan often miss the corresponding update. The recommendation in iter-132 was "future code-touching iterations should grep ALL of CLAUDE.md / AGENTS.md / README.md / .specify/project.md / docs/architecture/ / docs/specs/ / .specify/features/*.md for the headline number that just changed" — iter-135 extends that grep set to include `docs/guides/` (~3,668 lines across 12 files).
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)** (iter-124/iter-133 numbers stay authoritative). `pnpm lint` reports 0 warnings + 0 errors (iter 131 baseline). CT-flake watch ✅ CLOSED at iter 127 with counter advanced 4/4 in iter 133. Project remains in "no carried open work" steady state for the **6th consecutive iteration**.
+
+### Next Steps (for next scheduled run)
+
+1. **`docs/guides/getting-started.md` (1234 lines) — full read-through audit**. Iter-135 spot-checked the file for ISR refs and found the existing `ENABLE_ISR=false` mention consistent, but the file is the longest guide and most likely to have other latent drift. ~30-min audit; doc-only output expected.
+2. **Routine dep audit** — re-check the 26-package matrix; expect zero deltas.
+3. **Optionally run `pnpm test:e2e`** — still deferred per iter-134's "defer unless regression suspected"; no regression suspected after iter-133's `pnpm coverage` + iter-134's `pnpm build` both passed cleanly. ~30-min cron tick investment.
+4. **Generalize the iter-135 "extended grep set"** — add `docs/guides/` to the standard doc-drift-sweep checklist that iters 125 + 132 + 135 evolved. Could be a single line in `AGENTS.md` so future autonomous iterations see it inline.
+
 ## 2026-04-27 — Iteration 134: deferred build-pipeline health audit — `pnpm build` end-to-end across all 7 buildable tasks succeeds in 13m 14s with 0 cached
 
 ### Headline

@@ -16,7 +16,7 @@ How to deploy the minimal template to Vercel and other static hosts.
 
 ## Environment Variables
 
-The build requires these environment variables:
+The build requires these core environment variables:
 
 | Variable | Required | Description |
 |----------|----------|-------------|
@@ -24,6 +24,9 @@ The build requires these environment variables:
 | `GH_TOKEN` | No | GitHub Personal Access Token (required for private content repos) |
 | `GITHUB_BRANCH` | No | Branch to sync content from (defaults to `main`) |
 | `SITE_URL` | No | Production URL of your site (defaults to `https://example.com`) |
+| `ENABLE_ISR` | No | Set to `false` for pure-static output without on-demand regeneration (defaults to `true` — see [Output mode](#output-mode-isr-vs-pure-static) below) |
+
+For the full set of content-sync / webhook / polling / cache-TTL variables (`WEBHOOK_SECRET`, `SYNC_POLL_INTERVAL_MS`, `SYNC_TIMEOUT_MS`, `SYNC_MAX_RETRIES`, `CONTENT_CACHE_TTL_MS`, `VERCEL_DEPLOY_HOOK_URL`, `CONTENT_PATH`), see the [Content Sync guide](/guides/content-sync/) — those variables only matter once you choose how to keep the deployed site in sync with the data repo over time, and the Content Sync guide covers all four supported modes (ISR + webhook, ISR + polling, ISR + manual `/api/webhook` trigger, pure-static + Vercel Deploy Hook).
 
 ## Deploy via Vercel GitHub Integration
 
@@ -39,7 +42,7 @@ The simplest approach is connecting your GitHub repository directly to Vercel:
 4. Add environment variables (`DATA_REPOSITORY`, `GH_TOKEN`, etc.) in the Vercel dashboard under **Settings > Environment Variables**
 5. Click **Deploy**
 
-Since the template produces fully static output, no server functions are needed. Vercel will serve the built HTML/CSS/JS directly from its edge network.
+In ISR mode (default) the template ships a single Vercel server function (`/api/webhook`) that handles content-change webhooks; in pure-static mode (`ENABLE_ISR=false`) no server functions run at all. Either way, Vercel serves pre-rendered pages from its edge network — ISR re-runs the page renderer on-demand only after a webhook invalidates the affected paths.
 
 ### Automatic Deployments
 
@@ -123,26 +126,32 @@ You can find `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` in the `.vercel/project.jso
 
 - **Build command**: `pnpm --filter @ever-works/web-minimal build`
 - **Output directory**: `apps/web/dist`
-- **Output type**: Fully static HTML/CSS/JS — no server functions needed
-- **Framework**: Astro with `output: 'static'`
+- **Framework**: Astro with `output: 'static'` and `@astrojs/vercel` adapter (ISR-enabled by default; opt out by setting `ENABLE_ISR=false`)
 
-The build fetches content from the configured `DATA_REPOSITORY` at build time and produces static files. To update content, trigger a new build (via a git push or manual redeploy in the Vercel dashboard).
+The build fetches content from the configured `DATA_REPOSITORY` at build time and pre-renders every page. By default the deployed site uses Vercel ISR (Incremental Static Regeneration): pages stay statically served from the edge until a content-change webhook hits `/api/webhook`, at which point the affected pages regenerate on-demand without a full rebuild. To update content in **ISR mode**, push to your data repo and let the GitHub webhook fire (or invoke the webhook manually — see [Content Sync](/guides/content-sync/)). To update content in **pure-static mode** (`ENABLE_ISR=false`), trigger a new build (via a git push, manual redeploy in the Vercel dashboard, or a `VERCEL_DEPLOY_HOOK_URL` POST).
+
+### Output mode (ISR vs pure-static)
+
+| Mode | When to choose | Setup |
+|------|----------------|-------|
+| **ISR (default)** | Most directory sites — content updates without a full rebuild; minimal latency for readers | No extra config; webhook + cache TTL covered in [Content Sync](/guides/content-sync/) |
+| **Pure-static** (`ENABLE_ISR=false`) | Content rarely changes, you want zero server-side runtime, or you're deploying to a non-Vercel static host | Set `ENABLE_ISR=false`; for content updates, use a Vercel Deploy Hook (`VERCEL_DEPLOY_HOOK_URL`) or manual rebuild |
 
 ## Deploying to Other Static Hosts
 
-Since the template produces a standard static site, you can deploy to any static host:
+Set `ENABLE_ISR=false` before building to opt out of the Vercel ISR adapter and produce a fully static `apps/web/dist/` tree with no server function. The output then deploys to any static host:
 
 ### Netlify
 
 ```bash
-pnpm --filter @ever-works/web-minimal build
+ENABLE_ISR=false pnpm --filter @ever-works/web-minimal build
 # Upload apps/web/dist/ as your publish directory
 ```
 
 ### Cloudflare Pages
 
 ```bash
-pnpm --filter @ever-works/web-minimal build
+ENABLE_ISR=false pnpm --filter @ever-works/web-minimal build
 # Set build output directory to apps/web/dist
 ```
 
