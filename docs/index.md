@@ -7,7 +7,9 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-28 (Iteration 163: Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS, no other changes. Q29 awaits user decision; default Option A (wind down to weekly cadence until real new scope arrives) in effect. Iteration 162 history below.)
+> Updated: 2026-04-28 (Iteration 164: Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS, no other changes. Same shape as iter 163, as that entry foreshadowed. Q29 awaits user decision; default Option A (wind down to weekly cadence until real new scope arrives) in effect. Iteration 163 history below.)
+>
+> Iteration 163 (history): Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS, no other changes. Q29 awaits user decision; default Option A (wind down to weekly cadence until real new scope arrives) in effect. Iteration 162 history below.)
 >
 > Iteration 162 (history): open Q29 flagging cron-cadence saturation; default = wind down to weekly. No code changes; no new audit class added — deliberate break from the iters 132-161 codify-then-execute reflex. `pnpm audit:docs` 9/9 PASS. `pnpm typecheck` 23/23 PASS. See [`docs/log.md` § Iteration 162](./log.md) and [`docs/questions.md` § Q29](./questions.md). Iteration 161 history below.)
 >
