@@ -3,6 +3,122 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 156: re-baseline the matrix count from `26-package` to `27-package` — close iter-155 finding #8 (off-by-one drift originating from iter-133's "expanded by 3" while listing 4 package names)
+
+### Headline
+
+Iter-155 surfaced **finding #8 in its "Deferrals carried" section**: the documented `26-package matrix` prose in `.specify/project.md` line 94 was technically off-by-one — the verification-cohort enumeration totalled 27 (12 high-churn + 3 iter-154-lifted + 12 iter-155-deferred), but iter-155 hypothesized that `@playwright/experimental-ct-react` was double-counted vs `@playwright/test`. Iter-155 deferred the fix with the note *"Re-baseline at next matrix expansion."*
+
+Iter-156 investigates and **resolves the discrepancy** — the iter-155 hypothesis is incorrect. `@playwright/test` (the main test runner) and `@playwright/experimental-ct-react` (the component-testing extension) are **separate packages** with distinct dist-tags and version histories. Both are consumed by `packages/ui/package.json` as devDependencies and resolve independently. The "double-counted" hypothesis was wrong; the **27 enumeration is the correct count**.
+
+The actual root cause is iter-133's expansion trail prose:
+
+```
+expanded iter 133: 23 → 26 by adding `marked@18.0.2`, `yaml@2.8.3`,
+`pagefind@1.5.2`, and `@playwright/experimental-ct-react@1.59.1` for
+completeness
+```
+
+Iter-133 said "expanded to 26" while listing **4 package names** (correctly: 23 + 4 = 27, not 26). The off-by-one propagated through 22 iterations (iter 133 → iter 155) without anyone noticing — every subsequent iteration kept saying "26-package matrix" because the carried-forward prose was treated as authoritative.
+
+### What was fixed
+
+#### `.specify/project.md` line 94 — re-baseline 26 → 27
+
+```diff
+-expanded iter 133: 23 → 26 by adding `marked@18.0.2`, `yaml@2.8.3`,
+-`pagefind@1.5.2`, and `@playwright/experimental-ct-react@1.59.1` for
+-completeness; ...). The **26-package matrix** is now **zero-delta with
+-no carried open work**
++expanded iter 133: 23 → 27 by adding **4 packages** for completeness
++(`marked@18.0.2`, `yaml@2.8.3`, `pagefind@1.5.2`,
++`@playwright/experimental-ct-react@1.59.1`); ...). **Iter-156
++re-baselined the matrix count** from `26-package` to **`27-package`**:
++iter-133's expansion trail prose said "expanded by 3" while listing 4
++package names, an off-by-one that propagated through 22 iterations
++until iter-155 surfaced the discrepancy via the verification-cohort
++enumeration (12 high-churn + 3 lifted + 12 deferred = 27). The
++corrected total covers [27 packages enumerated by name across the
++three cohorts] — `@playwright/experimental-ct-react` is a separate
++package from `@playwright/test`, not a duplicate. The **27-package
++matrix** is now **zero-delta with no carried open work** ...
+```
+
+The new wording adds:
+
+- **Explicit "expanded by 4"** with all 4 package names, eliminating the iter-133 off-by-one wording.
+- **Per-cohort enumeration** (12 + 3 + 12 = 27 packages, named) so a future audit can re-verify the count by reading the line itself.
+- **Disambiguation note** clarifying `@playwright/experimental-ct-react` is a separate package from `@playwright/test`, retiring the iter-155 "double-counted" hypothesis.
+- **Iter-156 provenance** so the re-baseline is greppable from the project.md text directly.
+
+### Verification
+
+`pnpm audit:docs` on iter-155 commit `c4fd2e1` baseline:
+
+```
+[1/7] Status drift (line-anchored, iter-145)                     PASS — 0 hits
+[2/7] Status drift (blockquote-tolerant, iter-147)               PASS — 0 hits
+[3/7] Value drift (count parity)                                 PASS — 0 hits
+         spec count: All N .specify/ feature specs: 33 ✓
+         package count: **N packages**: 18 ✓
+         app count: **N apps**: 8 ✓
+[4/7] Toolchain version drift                                    PASS — 0 hits
+[5/7] ISR wording drift                                          PASS — 0 hits
+[6/7] Structural / link drift                                    PASS — 0 hits
+[7/7] Checklist ↔ runner parity (iter-151)                       PASS — 0 hits
+[ * ] Cross-file consistency PASS — 0 hits
+
+8/8 PASS — no documentation drift detected.
+```
+
+The audit-script's value-drift class (3/7) checks `**N packages**` (= 18 workspace packages) but does NOT check the `26-package matrix` / `27-package matrix` prose — that's a separate dep-audit-cohort claim, not a workspace-package claim. The audit-script's coverage gap here is itself a candidate future enhancement (audit class for "matrix prose count parity"), but the codify-then-execute meta-pattern says to wait until a *real* drift surfaces in matrix prose; iter-156's fix IS that real drift, so the audit-class addition could be considered for iter-157+ when a second instance of matrix-prose drift would justify it.
+
+`pnpm typecheck` / `pnpm lint` / `pnpm test` not re-run — no source / test / config / dep / lockfile changes; iter-154's full quartet (typecheck 23/23 + lint 18/18 + test 16/16 / 1122/1122 + audit 8/8) carries forward.
+
+### Why iter-156 isn't a verification-only tick
+
+Iter-152 / 153 / 155 were verification-only ticks (`pnpm audit:docs` 8/8 PASS + dep quick-check + 3 doc edits). Iter-156 is a **doc-drift-fix tick** matching the iter-132 / 135 / 137 / 138 / 141 / 144 / 148 pattern — one real drift instance found, fixed, and documented. The fix is bounded (1 line of prose in `.specify/project.md`) but addresses a genuine off-by-one that has been latent since iter-133 (~23 iterations of accumulated drift).
+
+### Sub-mode classification
+
+| Sub-mode | Trigger | Iter-156 fit |
+|----------|---------|--------------|
+| Verification-only | All audit/dep classes return zero deltas | ❌ Real drift surfaces in iter-155-deferred finding #8 |
+| Doc drift fix | One drift instance found and fixed | ✅ This iteration (matrix-count off-by-one re-baselined) |
+| Dep delta apply | One or more dep ranges have movement | ❌ No dep changes |
+
+Pattern progression: iter-156 is the **9th doc-drift-fix iteration** since iter-132 (132/135/137/138/141/144/148/156). The audit-script + iter-150 CI gate caught zero drift this iteration — the matrix-count drift falls in the audit-script's coverage gap (no class for "N-package matrix" prose). Iter-156 closes the drift inline; if a second matrix-prose drift surfaces in a future iteration, iter-N+1 should add an audit class for it per the codify-then-execute principle.
+
+### Files touched
+
+- `.specify/project.md` line 94 — matrix prose re-baselined `26-package` → `27-package` with iter-133 4-packages-not-3 explainer + per-cohort enumeration + iter-155 hypothesis-retraction. Current State header bumped 155 → 156; steady-state count bumped 26 → 27; matrix re-verification iter list extended (`/ 154 / 155 / 156`).
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor 155 → 156.
+
+No other files touched. No source / test / config / dep / lockfile / spec / plan changes. Doc-only iteration.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)**. `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127. Project enters its **27th consecutive "no carried open work" steady-state iteration** (iter 130-156).
+
+### Deferrals carried (updated)
+
+1. **Regex-equivalence checking** (iter-151 → iter-156 deferred): still deferred — no real regex-divergence drift in 12 iterations.
+2. **Sample-app port consistency as a NEW audit class** (iter-153 considered/rejected): still no drift; rejection still stands.
+3. ~~Full 26-package dep matrix re-verification~~ — CLOSED iter-155.
+4. **Optional `pnpm test:e2e` re-run** — defer per iter-134's policy.
+5. **Optional `pnpm coverage` re-run** — defer until material dep churn lands.
+6. **react / react-dom 18 → 19 in `@ever-works/docs-minimal`** — held back by Docusaurus 3.x's React 18 peer-range constraint.
+7. **`whatwg-encoding@3.1.1` deprecation warning** — transitive sub-dep of jsdom; not actionable from our manifest.
+8. ~~**Matrix-count off-by-one** (iter-155 finding)~~ — **CLOSED iter-156**. Re-baselined to `27-package`.
+9. **NEW: matrix-prose audit class** — codify-then-execute meta-pattern says wait for a *second* matrix-prose drift instance before adding the audit class. Tracked here as a future opportunity if the audit script's coverage gap surfaces a second time.
+
+### Next Steps (for next scheduled run)
+
+1. **Continue verification-only ticks** while audit + 27-package cohort stay zero-delta. Bounded ~5 min per tick.
+2. **Lift any new patch-level dep deltas inline** if surfaced.
+3. **Watch for matrix-prose drift recurrence** — if a future iteration introduces another "N-package matrix" off-by-one or count discrepancy, that's the trigger to codify the audit class.
+
 ## 2026-04-27 — Iteration 155: close iter-154 deferral #3 — full 26-package matrix re-verification; remaining 12-package deferred-cohort all zero-delta against workspace caret floors
 
 ### Headline
