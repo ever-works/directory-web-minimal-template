@@ -3,6 +3,126 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 158: routine verification tick on iter-157 baseline — `pnpm audit:docs` 8/8 PASS + 14-package cohort (12 high-churn + 2 iter-154-lifted) all zero-delta against workspace caret floors
+
+### Headline
+
+Second consecutive verification-only tick after iter-156's matrix-count re-baseline. Iter-157 ran the 12-package high-churn cohort; iter-158 expands the every-tick check by 2 to include the **iter-154-lifted packages** (`@typescript-eslint/parser` + `jsdom`) so they receive ongoing patch-level surveillance immediately after their lift, rather than waiting for the next deferred-cohort re-verification (which iter-157 deferral #10 deferred until the next material dep-touching iteration). The expansion costs ~5s in additional `pnpm view` walltime and produces a stronger signal: any recurrence of the patch-bump cadence that motivated iter-154 will surface within one cron tick instead of one to several iterations later.
+
+The expansion is **bounded and sticky** — once a deferred-cohort package moves and gets lifted, it migrates into the high-churn cohort for ongoing every-tick verification. The deferred cohort shrinks monotonically across lift events; the high-churn cohort grows. This is the natural successor pattern to iter-153 / iter-154 / iter-155 deferred-cohort policy and does not require a new audit class.
+
+### Verification
+
+`pnpm audit:docs` on iter-157 commit `6c2526b` baseline (unchanged tree, ~30 min after iter-157's commit):
+
+```
+[1/7] Status drift (line-anchored, iter-145)                     PASS — 0 hits
+[2/7] Status drift (blockquote-tolerant, iter-147)               PASS — 0 hits
+[3/7] Value drift (count parity)                                 PASS — 0 hits
+         spec count: All N .specify/ feature specs: 33 ✓
+         package count: **N packages**: 18 ✓
+         app count: **N apps**: 8 ✓
+[4/7] Toolchain version drift                                    PASS — 0 hits
+         astro: pinned 6.1.9 (major 6)
+         preact: pinned 10.29.1 (major 10)
+         tailwindcss: pinned 4.2.4 (major 4)
+         typescript: pinned 6.0.3 (major 6)
+[5/7] ISR wording drift                                          PASS — 0 hits
+[6/7] Structural / link drift                                    PASS — 0 hits
+[7/7] Checklist ↔ runner parity (iter-151)                       PASS — 0 hits
+         AGENTS.md checklist headings discovered: 7
+         EXPECTED_MAPPING entries: 7
+         numbered runner classes: 7 (expected 7)
+[ * ] Cross-file consistency (AGENTS R-rules vs CLAUDE Critical Rules) PASS — 0 hits
+         AGENTS.md R-rules: 15 (expected 15)
+         CLAUDE.md numbered Critical Rules: 17 (expected 17)
+
+8/8 PASS — no documentation drift detected.
+```
+
+Bit-for-bit identical to iter-157 / iter-156 / iter-155 final-state output. The 5-tick streak (iter-155 → iter-158) of identical PASS output is a strong stability signal — the doc-quality audit infrastructure (iter-145 → iter-151) is bedded in and produces deterministic output across cold cron-tick re-runs.
+
+14-package dep `latest` quick-check (zero deltas vs iter-154 / iter-157 baselines):
+
+| Package | Workspace caret floor | `latest` (iter-158) | Δ | Cohort entry |
+|---------|-----------------------|---------------------|---|---------------|
+| `astro` | `^6.1.9` | `6.1.9` | 0 | high-churn |
+| `preact` | `^10.29.1` | `10.29.1` | 0 | high-churn |
+| `tailwindcss` | `^4.2.4` | `4.2.4` | 0 | high-churn |
+| `typescript` | `^6.0.3` | `6.0.3` | 0 | high-churn |
+| `vitest` | `^4.1.5` | `4.1.5` | 0 | high-churn |
+| `@playwright/test` | `^1.59.1` | `1.59.1` | 0 | high-churn |
+| `monocart-coverage-reports` | `^2.12.11` | `2.12.11` | 0 | high-churn |
+| `monocart-reporter` | `^2.10.1` | `2.10.1` | 0 | high-churn |
+| `eslint` | `^10.2.1` | `10.2.1` | 0 | high-churn |
+| `prettier` | `^3.8.3` | `3.8.3` | 0 | high-churn |
+| `turbo` | `^2.9.6` | `2.9.6` | 0 | high-churn |
+| `isomorphic-git` | `^1.37.6` | `1.37.6` | 0 | high-churn |
+| `@typescript-eslint/parser` | `^8.59.1` | `8.59.1` | 0 | iter-154-lifted |
+| `jsdom` | `^29.1.0` | `29.1.0` | 0 | iter-154-lifted |
+
+14/14 zero deltas. Note: `@typescript-eslint/eslint-plugin` was also lifted in iter-154 alongside `@typescript-eslint/parser`, but the typescript-eslint monorepo cuts releases atomically — the two packages share a version. Querying `parser` is sufficient surveillance; querying both is redundant. Cohort migration adds the canonical proxy (`parser`) only.
+
+`pnpm typecheck` / `pnpm lint` / `pnpm test` not re-run this tick — no source / test / config / dep / lockfile changes; iter-154's full quartet (typecheck 23/23 + lint 18/18 + test 16/16 / 1122/1122 + audit 8/8) carries forward through iter-155 / iter-156 / iter-157 / iter-158.
+
+### Cohort migration policy (codified iter-158)
+
+After iter-158, the every-tick verification cohort is **14 packages**, comprising:
+
+- **12 high-churn baseline (iter-152)**: astro / preact / tailwindcss / typescript / vitest / @playwright/test / monocart-coverage-reports / monocart-reporter / eslint / prettier / turbo / isomorphic-git.
+- **2 iter-154-lifted migrants**: @typescript-eslint/parser / jsdom.
+
+The deferred cohort (iter-155-verified) remains 11 packages (the original 12 minus `@typescript-eslint/parser` which migrated to high-churn): @astrojs/{vercel,preact,sitemap,check} / @playwright/experimental-ct-react / vitest-monocart-coverage / marked / yaml / pagefind / postcss / tailwind-merge / @vitest/coverage-v8.
+
+**Migration rule (codified)**: when a deferred-cohort package gets lifted via the iter-128 / iter-154 caret-range-patch precedent, it migrates to the high-churn cohort for ongoing every-tick verification. The cohorts together always sum to the documented 27-package matrix.
+
+This rule is codified here for future iterations to apply automatically without re-derivation. It does not require a new audit class — the cohort assignments are tracked in this log entry and propagated to subsequent iter-N+1 verification logs.
+
+### Sub-mode classification
+
+Per the iter-154 sub-mode taxonomy:
+
+| Sub-mode | Trigger | Iter-158 fit |
+|----------|---------|--------------|
+| Verification-only | All audit/dep classes return zero deltas | ✅ This iteration (audit 8/8 + 14-package cohort zero-delta) |
+| Doc drift fix | One audit class returns hits | ❌ Audit clean |
+| Dep delta apply | One or more dep ranges have movement | ❌ All 14 cohort packages zero-delta |
+
+Iter-158 is a **verification-only** sub-mode iteration. The verification-only sequence is now iter-152 / 153 / 155 / 157 / 158 — **5 verification-only ticks** with iter-154 (dep-delta-apply) and iter-156 (doc-drift-fix) interleaved. Bounded per-tick cost held at ~3-4 min walltime (~5s audit + ~35s parallel `pnpm view` for 14 packages + 3 doc edits + commit).
+
+### Files touched
+
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor 157 → 158; iter-157 demoted to "(history)" status.
+- `.specify/project.md` — Current State header bumped 157 → 158; matrix re-verification iter list extended (`/ 157 / 158`).
+
+No other files touched. No source / test / config / dep / lockfile / spec / plan changes. Doc-only iteration.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)**. `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127. Project enters its **29th consecutive "no carried open work" steady-state iteration** (iter 130-158).
+
+### Deferrals carried (updated)
+
+1. **Regex-equivalence checking** (iter-151 → iter-158 deferred): still deferred — no real regex-divergence drift in 14 iterations.
+2. **Sample-app port consistency as a NEW audit class** (iter-153 considered/rejected): rejection still stands.
+3. ~~Full 26-package dep matrix re-verification~~ — CLOSED iter-155.
+4. **Optional `pnpm test:e2e` re-run** — defer per iter-134's policy.
+5. **Optional `pnpm coverage` re-run** — defer until material dep churn lands.
+6. **react / react-dom 18 → 19 in `@ever-works/docs-minimal`** — held back by Docusaurus 3.x's React 18 peer-range constraint. Tracked; not actionable.
+7. **`whatwg-encoding@3.1.1` deprecation warning** — transitive sub-dep of jsdom; not actionable from our manifest.
+8. ~~**Matrix-count off-by-one** (iter-155 finding)~~ — CLOSED iter-156.
+9. **Matrix-prose audit class** (iter-156 → iter-158 deferred): codify-then-execute meta-pattern says wait for a *second* matrix-prose drift before codifying. Iter-158 finds zero recurrence (~1h since iter-156's fix); deferral continues.
+10. **Full 27-package dep matrix re-verification** (iter-155 → iter-158 deferred): the 14-package every-tick check + 11-package deferred cohort partition continues; full re-verification triggers on next material dep-touching iteration. **Updated by iter-158**: cohort partition is now 14 + 11 (was 12 + 12 + 3-lifted), matching the iter-158 cohort-migration rule.
+11. **Cohort-migration log retention** (iter-158 NEW): future verification ticks should reference the iter-158 cohort partition (`14 high-churn + 11 deferred`) rather than re-deriving from iter-152's original 12 + iter-154's 3 + iter-155's 12. If another lift happens (e.g., one of the 11 deferred packages bumps), update both the high-churn cohort table and this deferral entry in the same commit.
+
+### Next Steps (for next scheduled run)
+
+1. **Continue verification-only ticks** while audit + 14-package cohort stay zero-delta. Bounded ~3-5 min per tick.
+2. **Lift any new patch-level dep deltas inline** if surfaced (iter-128 / iter-154 precedent); migrate the lifted package from deferred → high-churn cohort per iter-158 codified rule.
+3. **Watch for matrix-prose drift recurrence** — if surfaced, that's the trigger to codify the audit class (deferral #9).
+4. **Watch for full-cohort re-verification opportunity** — next dep-touching iteration should include the full 27-package quick-check (deferral #10).
+
 ## 2026-04-27 — Iteration 157: routine verification tick on iter-156 baseline — `pnpm audit:docs` 8/8 PASS + 12-package high-churn dep cohort all zero-delta against workspace caret floors
 
 ### Headline
