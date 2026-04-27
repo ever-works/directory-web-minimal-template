@@ -3,6 +3,133 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 127: CT-flake watch ✅ CLOSED (3/3); routine dep audit one delta inside caret range (`isomorphic-git@1.37.5 → 1.37.6`)
+
+### Headline
+
+Iteration 126 advanced the CT-flake watch counter 1/3 → 2/3 with the first complete-suite absence-of-recurrence signal since iteration 111. Iteration 127 is the second clean full-CT run as planned: `pnpm test:ct` completes 48/48 passing in **1m 39s with 0 retries / 0 flaky** on Windows 10 + Node 24.14.0 + Chromium 147 + Playwright 1.59.1. Watch counter advances 2/3 → **3/3 — CLOSED**. The single-occurrence `filter-bar.ct › selects category on click` retry from iteration 111 has not recurred across two consecutive full-CT runs (iter 126 + iter 127) — the full Playwright Component-Testing surface is now considered stable on the documented toolchain. Routine dep audit surfaces a single delta inside the caret range: `isomorphic-git@1.37.5 → 1.37.6` (caret-resolved, no `pnpm install` needed). Pure-verification iteration: no source / test / config / `package.json` / lockfile changes; iteration 124's `pnpm coverage` 100%-aggregate numbers remain authoritative.
+
+### What was verified
+
+#### 1. Full Playwright CT run — 48/48 pass, 0 retries (second consecutive clean signal)
+
+```
+48 passed (1.6m)
+[MR] @ever-works/ui CT Coverage
+Tests       │ 48
+├ Failed    │ 0  (0.0%)
+├ Flaky     │ 0  (0.0%)
+├ Skipped   │ 0  (0.0%)
+└ Passed    │ 48 (100.0%)
+Retries     │ 0
+Steps       │ 772
+Duration    │ 1m 39s
+```
+
+CT-only V8 numbers (independent signal, not the merged number):
+
+```
+[MCR] @ever-works/ui CT Coverage
+Bytes      │ 100.00 % │ 20,432 / 20,432
+Statements │ 100.00 % │   115 /   115
+Branches   │  98.81 % │    83 /    84
+Functions  │ 100.00 % │    40 /    40
+Lines      │ 100.00 % │   495 /   495
+```
+
+The single uncovered branch in the CT-only view remains the `/* v8 ignore next */`-pragma'd defensive `menuRef` race-guard (line 72 of `MobileMenu.tsx`) that iteration 124 added — the pragma drops it from the V8 denominator on the merged-Vitest+CT report (where the aggregate reads 100%) but the standalone CT-only summary still tallies it. Identical to iteration 126; expected and consistent with iteration 124.
+
+The 48 cases break down identically to iteration 126:
+
+- 16 × `filter-bar.ct.test.tsx` (since iteration 105)
+- 12 × `layout-switcher.ct.test.tsx` (since iteration 107)
+- 20 × `mobile-menu.ct.test.tsx` (15 since iter 108 → 17 after iter 120's focus-trap forward/backward wrap → 20 after iter 124's Q27 — empty-panel + synthetic-Tab-from-last + non-boundary Tab)
+
+Walltime delta vs iter 126: 1m 25s → 1m 39s (+14s, ~16%). Both are well within Playwright cold-start variance on the same hardware/toolchain — no signal of regression. The longer iteration-127 run is consistent with first-of-day Chromium cold start (iter 126 ran ~3.5h earlier in the same session; iter 127 ran cold).
+
+#### 2. Routine dep audit — one delta inside caret range
+
+`npm view <pkg> version` re-run against the package.json pins for the full load-bearing surface. Single delta: `isomorphic-git@1.37.5 → 1.37.6` (patch bump, caret-resolved at `^1.37.5` — no `pnpm install` needed; the next `pnpm install` will pick it up automatically). All other 21 packages identical to iter 126 audit (~3.5h prior).
+
+| Package | Pin | Latest on npm | Drift |
+|---------|-----|---------------|-------|
+| `astro` | `^6.1.9` | 6.1.9 | none |
+| `vitest` | `^4.1.5` | 4.1.5 | none |
+| `playwright` | `^1.59.1` | 1.59.1 | none |
+| `tailwindcss` | `^4.2.4` | 4.2.4 | none |
+| `preact` | `^10.29.1` | 10.29.1 | none |
+| `monocart-coverage-reports` | `^2.12.9` | 2.12.11 (caret-resolved ✅) | none (within range) |
+| `monocart-reporter` | `^2.10.0` | 2.10.1 (caret-resolved ✅) | none (within range) |
+| `vitest-monocart-coverage` | `^4.0.2` | 4.0.2 | none |
+| `@astrojs/vercel` | `^10.0.5` | 10.0.5 | none |
+| `@astrojs/preact` | `^5.1.2` | 5.1.2 | none |
+| `@astrojs/sitemap` | `^3.7.2` | 3.7.2 | none |
+| `@astrojs/check` | `^0.9.8` | 0.9.8 | none |
+| `@playwright/test` | `^1.59.1` | 1.59.1 | none |
+| `@playwright/experimental-ct-react` | `^1.59.1` | 1.59.1 | none |
+| `typescript` | `^6.0.3` | 6.0.3 | none |
+| `prettier` | `^3.8.3` | 3.8.3 | none |
+| `turbo` | `^2.9.6` | 2.9.6 | none |
+| `marked` | `^18.0.2` | 18.0.2 | none |
+| `yaml` | `^2.8.3` | 2.8.3 | none |
+| `pagefind` | `^1.5.2` | 1.5.2 | none |
+| `isomorphic-git` | `^1.37.5` | **1.37.6** (caret-resolvable ✅) | **patch bump available** (within range — next `pnpm install` adopts) |
+
+ESLint major-version gap (`^9.0.0` pin vs `10.2.1` latest) remains the single out-of-scope drift item — flagged in iter 123 / 125 / 126, not autonomous (manual changelog review required for ESLint 9 → 10 plugin/config compat).
+
+#### 3. typecheck + lint — green (FULL TURBO cache hits)
+
+- `pnpm typecheck` — 23/23 successful, FULL TURBO (1.165s).
+- `pnpm lint` — 18/18 successful, FULL TURBO (1.574s).
+
+Cache hits confirm no source/test/config drift since iteration 126's commit `57b2b50`.
+
+### What was NOT touched (intentional)
+
+- **No source files** (`packages/` and `apps/` unchanged).
+- **No test files** (existing 48 CT cases + 1122 Vitest unit tests unchanged).
+- **No config files** (`package.json`, `pnpm-lock.yaml`, `turbo.json`, `.github/workflows/`, etc. unchanged).
+- **No `pnpm install`** — `isomorphic-git` patch bump is caret-resolvable; deferred to the next code-touching iteration that runs `pnpm install` for any other reason. Bumping just for this would mutate the lockfile for a single one-line change with zero behavioral impact (pure patch release on a transitively-used Git client) and burn an iteration on noise.
+- **No `pnpm coverage`** end-to-end run (CT-only is sufficient for flake-watch close; the iter-124 100%-aggregate merged numbers remain authoritative until the next code-touching iteration).
+- **No ESLint 9 → 10 work** — manual changelog review required, not autonomous; deferred to a future doc-only iteration that opens a Q28.
+
+### CT-flake watch — CLOSED
+
+Per iteration 125's "Next Steps" #1: "Watch will close at iter 127 if a future full-suite run completes without recurrence." Iteration 126 was that "future full-suite run" #1 (counter 1/3 → 2/3); iteration 127 is the closing run #2 (counter 2/3 → **3/3 CLOSED**).
+
+| Iteration | Action | CT result | Watch counter |
+|-----------|--------|-----------|---------------|
+| 111 | Full CT run during CLAUDE.md update | `filter-bar.ct › selects category on click` failed once, passed on retry (single occurrence) | 1/3 (opened) |
+| 112-123 | Various doc / dep audit / Q22-arc work | mixed: some iterations ran subsets, no full-suite recurrence | 1/3 (carried) |
+| 124 | Q27 execution | `mobile-menu.ct.test.tsx` 20/20 in 55.3s + `pnpm coverage` end-to-end clean | 1/3 (partial-suite signal only — not a full-suite advance) |
+| 125 | Doc health-check | doc-only, no CT runs | 1/3 (carried) |
+| 126 | Full CT run | 48/48 in 1m 25s, 0 retries / 0 flaky | 2/3 (advanced) |
+| 127 | This run | **48/48 in 1m 39s, 0 retries / 0 flaky** | **3/3 ✅ CLOSED** |
+
+Rationale for closing: two consecutive complete-suite runs (iter 126 + iter 127) exercising all three CT files (FilterBar, LayoutSwitcher, MobileMenu) have completed with 0 retries and 0 flaky. The iter-111 single-occurrence retry has not recurred. The Playwright Component-Testing surface is considered stable on the documented toolchain (Windows 10 + Node 24.14.0 + Chromium 147 + Playwright 1.59.1). If a future flake recurrence happens, a fresh watch (or a Q28 if it recurs ≥3× in 3 iterations per the iter-111 reopening criterion) is appropriate; this watch is fully closed.
+
+### Verification summary
+
+- **CT suite**: 48/48 pass in 1m 39s on Windows 10 + Node 24.14.0 + Chromium 147 + Playwright 1.59.1, 0 retries / 0 flaky.
+- **`pnpm typecheck`**: 23/23 (FULL TURBO).
+- **`pnpm lint`**: 18/18 (FULL TURBO).
+- **`git status`**: clean post-edits (only `docs/log.md` + `docs/index.md` + `.specify/project.md` modified for this entry).
+
+### Files touched
+
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 126 → 127; iteration 126 entry preserved as next history block.
+- `.specify/project.md` — Current State header bumped 126 → 127; CT-flake-watch line refreshed with **3/3 CLOSED** state.
+
+### Next Steps (for next scheduled run)
+
+1. **CT-flake watch** — ✅ CLOSED at iter 127. No active watch carries forward into iter 128.
+2. **Routine maintenance** — dep audit per the iter-92/97/99/108/123/125/126/127 cadence. Single patch bump available (`isomorphic-git@1.37.5 → 1.37.6`, caret-resolvable). A code-touching iteration that runs `pnpm install` will adopt it; no autonomous action required for a pure patch release.
+3. **Sample apps** — no current open work (all 5 reference implementations feature-complete since iter 111 / Phase 11). Sample-app extensions remain a future direction not yet requested.
+4. **ESLint 9 → 10 upgrade** — single out-of-scope dep drift, flagged in iter 123 / 125 / 126 / 127. Manual changelog review required before opening a Q28; not autonomous. Candidate for a future doc-only iteration that opens the question with options + default.
+5. **The Q22→Q27 saga is fully closed.** No follow-up questions remain in the test/coverage thread.
+6. **Doc health-check pass** — appropriate after the next code-touching iteration. The auditing technique that worked at iter 125: `grep -rn "<old number>" .specify/ docs/architecture/ docs/specs/ README.md AGENTS.md` for each headline number that just changed; classify each match as "intentional historical context" (keep) or "stale current-state claim" (flip).
+
 ## 2026-04-27 — Iteration 126: CT-flake watch advance (2/3 → close pending at iter 127); routine dep audit re-verified (zero deltas)
 
 ### Headline
