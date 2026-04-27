@@ -3,6 +3,100 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 152: routine verification tick — `pnpm audit:docs` 8/8 PASS on iter-151 baseline + 12-package dep quick-check zero deltas
+
+### Headline
+
+Routine verification iteration. No source / spec / plan / dep / lockfile changes. Confirms the iter-151 self-parity audit class (`[7/7] Checklist ↔ runner parity`) holds steady on a fresh autonomous cron tick — exercising the iter-149 codification + iter-150 CI gate + iter-151 self-validation chain end-to-end against an unchanged tree. Plus a 12-package dep `latest` quick-check over the most-frequently-churning subset of the documented 26-package matrix: every line still resolves to the same version captured in the iter-151 baseline.
+
+### Why this matters
+
+After 22 consecutive "no carried open work" steady-state iterations (iter 130-151), the dominant per-iteration cost shifts from feature work to **verifying that the steady-state invariants still hold**. Iter-149 made `pnpm audit:docs` one-command. Iter-150 made it PR-blocking. Iter-151 made it self-validating. Iter-152 is the first full autonomous tick after that chain landed: running it on an unchanged tree confirms the audit's PASS output is **stable across cold cron-tick re-runs** (i.e., the audit isn't silently dependent on machine-local cached state, environment variables, or transient package-manager state). A reproducibility signal of this kind is normally invisible in single-author work but matters for an autonomous-loop workstream where every cron tick is effectively a fresh CI run.
+
+The 12-package dep quick-check serves the same role for the dependency surface. The documented 26-package matrix has been verified zero-delta across iter 132/135/140/143/147 (10-package subsets) and iter 142 (22-package subset). Iter-152 picks 12 highest-churn packages — all 4 toolchain anchors (Astro/Preact/Tailwind/TypeScript) + 4 testing-runner anchors (Vitest/Playwright/monocart-coverage-reports/monocart-reporter) + 4 ancillary tools (ESLint/Prettier/Turbo/isomorphic-git) — and confirms every `latest` resolution matches the iter-151 baseline. The 14-package gap to the full 26-package matrix is unlikely to have moved at the ~3-hour interval since iter-151 (those packages were verified at iter-133/iter-135/iter-142 and have low historical churn), so a full re-verification is deferred.
+
+### What landed
+
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor 151 → 152.
+- `.specify/project.md` — Current State header bumped 151 → 152; steady-state count bumped 22 → 23.
+
+No other files touched. No source changes. No dep changes. No spec/plan changes.
+
+### Verification
+
+- `pnpm audit:docs` on iter-151 commit `63b1bf9` baseline (unchanged tree):
+  ```
+  [1/7] Status drift (line-anchored, iter-145)                     PASS — 0 hits
+  [2/7] Status drift (blockquote-tolerant, iter-147)               PASS — 0 hits
+  [3/7] Value drift (count parity)                                 PASS — 0 hits
+           spec count: All N .specify/ feature specs: 33 ✓
+           package count: **N packages**: 18 ✓
+           app count: **N apps**: 8 ✓
+  [4/7] Toolchain version drift                                    PASS — 0 hits
+           astro: pinned 6.1.9 (major 6)
+           preact: pinned 10.29.1 (major 10)
+           tailwindcss: pinned 4.2.4 (major 4)
+           typescript: pinned 6.0.3 (major 6)
+  [5/7] ISR wording drift                                          PASS — 0 hits
+  [6/7] Structural / link drift                                    PASS — 0 hits
+  [7/7] Checklist ↔ runner parity (iter-151)                       PASS — 0 hits
+           AGENTS.md checklist headings discovered: 7
+           EXPECTED_MAPPING entries: 7
+           numbered runner classes: 7 (expected 7)
+  [ * ] Cross-file consistency (AGENTS R-rules vs CLAUDE Critical Rules) PASS — 0 hits
+           AGENTS.md R-rules: 15 (expected 15)
+           CLAUDE.md numbered Critical Rules: 17 (expected 17)
+
+  8/8 PASS — no documentation drift detected.
+  ```
+  Identical to the iter-151 final-state output. Confirms the runner is deterministic across cron-tick re-runs.
+- 12-package dep `latest` quick-check (zero deltas vs iter-151 baseline):
+  ```
+  astro                       6.1.9    ✓
+  preact                     10.29.1   ✓
+  tailwindcss                 4.2.4    ✓
+  typescript                  6.0.3    ✓
+  vitest                      4.1.5    ✓
+  @playwright/test            1.59.1   ✓
+  monocart-coverage-reports   2.12.11  ✓
+  monocart-reporter           2.10.1   ✓
+  eslint                     10.2.1    ✓
+  prettier                    3.8.3    ✓
+  turbo                       2.9.6    ✓
+  isomorphic-git              1.37.6   ✓
+  ```
+- `pnpm typecheck` / `pnpm lint` not re-run this tick — doc-only edits to `docs/log.md` + `docs/index.md` + `.specify/project.md` are out of all `tsconfig.*.json` `include` arrays and out of `eslint.config.js` `files` globs, so neither task's input set is invalidated. Last green run from iter-151: `pnpm typecheck` 23/23 + `pnpm lint` 18/18, both FULL TURBO.
+
+### Pattern progression
+
+Iter-152 is the **first verification-only iteration** after the iter-145 → iter-151 codify-then-execute meta-arc. The sequence:
+
+| # | Iter | Step | Net effect |
+|---|------|------|-----------|
+| 1 | 145 | Codify audit playbook in `AGENTS.md` text | Grep-and-fix instead of reason-from-scratch |
+| 2 | 146 | Surface miss-target | First retry-and-tighten cycle |
+| 3 | 147 | Tighten regex | Codified miss-target permanently |
+| 4 | 148 | Add 6th drift class (cross-file) | Surface new structural drift class |
+| 5 | 149 | Codify checklist as runnable script `pnpm audit:docs` | One-command instead of grep-by-grep |
+| 6 | 150 | Wire `pnpm audit:docs` into CI as PR-blocking step | Drift PR-blocking instead of cron-tick-dependent |
+| 7 | 151 | Self-parity audit (script verifies AGENTS.md heading set) | Forgotten add/remove drift caught on every run |
+| 8 | 152 | First verification-only run after the chain | Confirms the steady-state invariants hold across cold cron-tick re-runs |
+
+After the iter-145 → iter-151 chain, autonomous cron ticks against an unchanged tree should converge to ~5s `pnpm audit:docs` runs reporting `8/8 PASS` plus a brief dep quick-check. Iter-152 is the canonical exemplar of that converged steady-state shape: ~5s audit run + ~12 parallel `pnpm view` calls + 3 doc edits + a commit. The bounded per-tick cost is now small enough that future autonomous iterations can run dozens of consecutive verification-only ticks without accumulating drift or expanding the doc surface.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)**. `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127. Project enters its **23rd consecutive "no carried open work" steady-state iteration** (iter 130-152).
+
+### Next Steps (for next scheduled run)
+
+1. **Regex-equivalence checking (iter-153 candidate, carried from iter-151)** — verify that the regex literal in each AGENTS.md fenced code block is *behaviorally equivalent* to the regex object compiled in the runner. Spec out-of-scope flag from iter-151: deferred until a real regex-divergence drift surfaces.
+2. **Full 26-package dep matrix re-verification** — defer until next material dep-touching iteration; iter-152's 12-package subset confirms the highest-churn cohort hasn't moved.
+3. **Continue running `pnpm audit:docs`** on each cron tick — bounded ~5s cost; PASS output is now reproducibility-verified across cold runs.
+4. **Optional `pnpm test:e2e` re-run** — defer per iter-134's policy.
+5. **Optional `pnpm coverage` re-run** — defer until material dep churn lands.
+
 ## 2026-04-27 — Iteration 151: add 7th audit class — `auditChecklistRunnerParity()` self-validates the script against `AGENTS.md § Doc-Quality Audit Checklist` on every run
 
 ### Headline
