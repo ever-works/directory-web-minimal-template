@@ -3,6 +3,67 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 139: README.md Common Commands refresh — split conflated `pnpm test` row, add missing `pnpm test:ct` / `pnpm test:ct:install` / `pnpm coverage` rows
+
+### Headline
+
+Iter-132 found the same drift in `CLAUDE.md` Common Commands; iter-135 in `docs/guides/deployment.md`; iter-136 in `docs/guides/quickstart.md` + `getting-started.md`. This iteration extends the audit to `README.md`, which is the **first reader-facing surface** anyone reaching the repo sees. Pre-iter-139 state had two distinct issues:
+
+1. **Conflated `pnpm test` row**: `| pnpm test | Run all unit tests — 1170+ tests, 76 test files, 16 suites (1122 Vitest + 48 Playwright CT) |`. Post-iter-132 reality: `pnpm test` runs **Vitest only** (1122 tests, 73 files, 16 suites). The CT suite is invoked separately via `pnpm test:ct` (turbo's `test` task does NOT chain to `test:ct`). A reader copying the README's claim would incorrectly believe `pnpm test` exercises the full 1170-test surface, miss the Q22 / Q23 / Q24 / Q27 CT-migrated coverage, and potentially under-test their changes.
+2. **Missing rows**: `pnpm test:ct` (added iter 105 / Q22 Phase 1), `pnpm test:ct:install` (added iter 105), `pnpm coverage` (added iter 116 / Q22 follow-up #3 Phase 3). Same omissions iter-136 caught in the two `docs/guides/` Common Commands tables.
+
+### What was done
+
+Pure-doc iteration. **No source / test / config / dep / lockfile changes.**
+
+1. **`README.md` Common Commands table refreshed**:
+   - **`pnpm test` row split**: now reads `Run unit tests (Vitest) — 1122 tests, 73 test files, 16 suites`. The conflated 1170/76 number is gone; the CT count moves to its own row below.
+   - **3 new rows added** (in their natural ordering between `test:coverage` and `test:e2e`):
+     - `pnpm test:ct` — describes the 48-test / 3-file CT surface, names the three migrated components, notes the first-run `pnpm test:ct:install` prerequisite.
+     - `pnpm test:ct:install` — one-time-per-machine browser install; safe to re-run.
+     - `pnpm coverage` — merged Vitest+CT V8 coverage; cites the iter-124 100%/100%/99.76% per-file gate-green numbers inline so a reader sees the saga's headline result without leaving the README.
+   - **1-line cross-reference appended** below the table pointing readers at `CLAUDE.md` "Common Commands" for the canonical and exhaustive list (which includes the defensive `pnpm test:ui:safe` per-file Vitest fallback intentionally omitted from the README — it's a diagnostic-only escape hatch and noisy in a top-level README).
+
+### Pattern progression
+
+This is the **fourth** instance of the iter-132 / iter-135 / iter-136 / iter-139 pattern: command/env-var/feature additions to the toolchain do not auto-propagate to all reader-facing surfaces. The full audit progression now reads:
+
+| Iteration | Surface flipped | Drift kind |
+|-----------|-----------------|------------|
+| 132 | `CLAUDE.md` Common Commands | Missing `pnpm test:ct` + `pnpm test:ct:install` |
+| 135 | `docs/guides/deployment.md` | Missing ISR env vars + output-mode decision (predates iter-17/Q17) |
+| 136 | `docs/guides/quickstart.md` + `getting-started.md` Common Commands | Missing `pnpm test`, `pnpm test:coverage`, `pnpm test:ct`, `pnpm coverage`, `pnpm format`, `pnpm dev:docs` |
+| 137 | `.specify/project.md` 22-package matrix → 26-package matrix | Stale package-matrix count (post iter-132/133 expansion) |
+| 138 | `.specify/project.md` "All 28 specs" → "All 31 specs" | Stale spec-count baseline (3 saga-additions never summed in) |
+| **139** | **`README.md`** Commands table | Conflated `pnpm test` row + missing CT/coverage rows |
+
+Each surface's drift was caught at iteration N+1 (or later) of the change that introduced the new command/feature, not at iteration N. Doc-quality audits remain the canonical recurring background task in steady-state iterations.
+
+### Verification
+
+- `pnpm typecheck` — 23/23 FULL TURBO (1.7s, 100% cache hits — README change does not invalidate any task input).
+- `pnpm lint` — 18/18 FULL TURBO (1.5s, same reason).
+
+### Files touched
+
+- `README.md` — Commands table updated (`pnpm test` row split + 3 new rows + 1 cross-ref line).
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 138 → 139.
+- `.specify/project.md` — Current State header bumped 138 → 139.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)** (iter-124 / iter-133 numbers stay authoritative). `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127. Project enters its **10th consecutive "no carried open work" steady-state iteration** (iter 130-139).
+
+### Next Steps (for next scheduled run)
+
+1. **Continue the doc-quality audit** — surfaces still un-greppy:
+   - `apps/docs/` Docusaurus content (the bundled rendered docs site; if it ships `pnpm` commands references in MDX they would have the same drift class).
+   - `AGENTS.md` rules R12-R14 specific factual claims (commands, paths, package names) that may have drifted.
+   - The remaining 9 unaudited guides (`analytics.md`, `building-from-template.md`, `creating-a-plugin.md`, `creating-an-adapter.md`, `customizing.md`, `interactive-components.md`, `performance-testing.md`, `troubleshooting.md`, `content-sync.md`) for any `pnpm` / iteration-number / package-name references.
+2. **Routine dep audit** — re-check the dep matrix; expect zero deltas (iter-138 verified zero deltas ~1h prior).
+3. **Optional `pnpm test:e2e` re-run** — same logic as iter-134's build verification; defer unless a regression is suspected.
+
 ## 2026-04-27 — Iteration 138: spec inventory pass — flip stale `All 28 .specify/ feature specs` claim in `.specify/project.md` to `All 31` with explicit `wc -l` provenance and Q23/Q25/Q26-absorbed-inline footnote
 
 ### Headline

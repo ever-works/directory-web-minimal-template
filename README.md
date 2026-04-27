@@ -93,11 +93,16 @@ packages/
 | `pnpm lint` | Lint all packages |
 | `pnpm lint:fix` | Lint and auto-fix all packages |
 | `pnpm typecheck` | Type-check all packages |
-| `pnpm test` | Run all unit tests — 1170+ tests, 76 test files, 16 suites (1122 Vitest + 48 Playwright CT) |
+| `pnpm test` | Run unit tests (Vitest) — 1122 tests, 73 test files, 16 suites |
 | `pnpm test:coverage` | Run unit tests with V8 coverage reports |
+| `pnpm test:ct` | Run `@ever-works/ui` Playwright Component Tests — 48 tests, 3 files (FilterBar / LayoutSwitcher / MobileMenu) in real Chromium. First run requires `pnpm test:ct:install`. |
+| `pnpm test:ct:install` | Install Chromium for Playwright CT (one-time per machine; safe to re-run). |
+| `pnpm coverage` | Merge Vitest + Playwright CT V8 coverage into `packages/ui/coverage/merged/` (single per-package number — branches 100%, functions 100%, lines 99.76%). |
 | `pnpm test:e2e` | Run E2E tests — 367 tests, 57 specs, 11 projects (Playwright) |
 | `pnpm format` | Format code with Prettier |
 | `pnpm clean` | Clean all build artifacts |
+
+The defensive `pnpm test:ui:safe` per-file Vitest fallback is kept for diagnostic use only — see `CLAUDE.md` "Common Commands" for the canonical and exhaustive list.
 
 ## Samples
 
