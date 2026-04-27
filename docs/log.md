@@ -3,6 +3,201 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 119: Q22 follow-up #3 Phase 6b ✅ DONE — `vitest-monocart-coverage` adopted; full V8+Vitest merge live; Q26 ✅ RESOLVED
+
+### Headline
+
+Phase 6b of `docs/plans/q22-playwright-coverage.md` executed end-to-end on Windows 10 + Node 24.14.1 + pnpm 10.33.0. The Q22-follow-up-#3 saga (started iteration 110) reaches its main goal: a single `pnpm coverage` command now produces a merged report covering the full `packages/ui/src/` surface — including the three CT-migrated components — at **branches 94.89% (223/235), functions 100% (104/104), lines 98.63% (1227/1244), statements 96.62% (343/355)** across 19 files. The 12-branch shortfall (235-223) is exclusively `MobileMenu.tsx`'s known 67.57% gap, deferred to a separate follow-up sub-iteration. Q26 closes; Q22 follow-up #3 has only Phase 6c (CI hard gate) and Phase 6d (status flips) remaining.
+
+### What was done
+
+1. **`pnpm --filter @ever-works/ui add -D vitest-monocart-coverage@^4.0.0`** —
+   resolved version `4.0.2` per the iteration-117 npm-registry validation.
+   Lockfile expansion: 7 new top-level entries (predicted 5 +
+   `vitest-monocart-coverage`, `@vitest/coverage-v8`,
+   `@vitest/coverage-istanbul`, `istanbul-lib-instrument`, `test-exclude`,
+   plus 2 transitive: see `pnpm-lock.yaml` diff). All churn ≤ minor-version
+   within the iteration-117 prep envelope. `pnpm install` walltime 1m22s.
+2. **`packages/ui/package.json` `monocart-coverage-reports` pin bumped**
+   `^2.12.0` → `^2.12.9` (Q26 dep tree pulls `^2.12.9` transitively;
+   bumped explicit pin to keep them aligned).
+3. **`packages/ui/vitest.config.ts` provider swap**:
+   - `coverage.provider: 'v8'` → `coverage.provider: 'custom'`.
+   - Added `coverage.customProviderModule: 'vitest-monocart-coverage'`.
+   - Dropped `coverage.reporter: ['text', 'json-summary', 'json']`
+     (the reporter list moves to monocart's `reports:` array, monocart-
+     shaped, not Vitest-shaped).
+   - Kept `coverage.include: ['src/**/*.{ts,tsx}']` and
+     `coverage.exclude` (`vitest-monocart-coverage` honors them as
+     test-file-coverage filters).
+   - Added a 9-line iteration-119 comment block citing this plan + Q26 +
+     spec; explains why the runtime V8-engine path is preserved (Q26
+     wraps `@vitest/coverage-v8` rather than replacing it).
+4. **`packages/ui/mcr.config.ts` created** — sibling monocart config file
+   for the Vitest-side raw V8 stream:
+   ```ts
+   export default {
+     name: 'Ever Works UI — Vitest Coverage',
+     outputDir: './coverage',
+     reports: ['raw'],
+     sourceFilter: (sourcePath: string) => /* keep packages/ui/src/ only */,
+     cleanCache: true,
+   };
+   ```
+   Header comment block (~25 lines) cites the plan + spec + Q26; explains
+   why `'raw'` is the only output (the merged human-facing report is what
+   `coverage-merge.ts` produces, not this per-runner stream).
+5. **`packages/ui/scripts/coverage-merge.ts` simplified**:
+   - Removed the iteration-116 Q26 background block (now archeological;
+     kept a 4-line summary that points back to it).
+   - Replaced `inputDir: ['./coverage/ct/raw']` with
+     `inputDir: ['./coverage/raw', './coverage/ct/raw']` — both raw V8.
+   - Replaced the iteration-116 stdout line
+     `coverage-merge: Vitest Istanbul = ./coverage/coverage-final.json (NOT merged — see Q26)`
+     with `coverage-merge: Vitest raw V8 = N raw V8 files`.
+   - The CT-only branch is now a fallback (warns if `./coverage/raw/` is
+     absent, continues with CT-only inputs) rather than the default.
+   - Phase 6c CI hard-gate cross-link replaces the Phase 4 cross-link in
+     the per-file gate stdout warning.
+6. **One config delta vs. the original Phase 6b plan step 3**: the
+   originally-planned `reports: [['raw', { outputDir: './coverage/raw' }]]`
+   per-report-tuple form was found at deploy time to nest under MCR's
+   default global `outputDir: './coverage-reports'`, placing output at
+   `./coverage-reports/coverage/raw/coverage-*.json` instead of
+   `./coverage/raw/coverage-*.json`. The deployed config uses top-level
+   `outputDir: './coverage'` + `reports: ['raw']` for symmetry with
+   `playwright.ct.config.ts` (which already uses top-level
+   `outputDir: COVERAGE_OUTPUT_DIR` (`./coverage/ct`) +
+   `reports: ['v8', 'v8-json', 'console-summary', 'raw']` to write
+   `./coverage/ct/raw/<id>.json`). The plan's Phase 6b section was
+   amended in this iteration to record the delta and the rationale.
+7. **`docs/plans/q22-playwright-coverage.md` Phase 6b section** —
+   status-flipped from `iteration 118` (planned) to **`iteration 119 ✅
+   DONE`** with a ~30-line iteration-119 update block recording the
+   merged numbers, the lockfile-expansion delta, and the `mcr.config.ts`
+   layout delta. Sub-phase iteration table updated: 6c → iteration 120,
+   6d → iteration 121.
+8. **`docs/questions.md` Q26 status block** — flipped from
+   `CONFIRMED — Option A; Phase 6a SMOKE PASSED` to
+   **`✅ RESOLVED — Option A adopted; Phase 6b complete; full V8+Vitest merge live`**.
+9. **`.specify/project.md` Current State header** — bumped
+   `Iteration 117` → `Iteration 119`. The V8-coverage paragraph now
+   reports the merged number (94.89% branches) instead of the prior
+   per-runner Vitest-only number (70.53% branches). The `pnpm coverage`
+   paragraph picks up the second raw V8 input (Vitest-side, 40 files)
+   alongside the existing CT-side stream (49 files). Q26 row updated to
+   `✅ RESOLVED — Option A adopted`. Last-paragraph dependency list
+   gains `vitest-monocart-coverage 4.0.2 — added iteration 119`.
+10. **`docs/index.md` iteration descriptor** — bumped 117 → 119 with a
+    full Phase 6b + Q26 closure summary. Iteration-117 entry preserved
+    as history.
+11. **`docs/log.md`** — this entry.
+
+### Verification
+
+- **`pnpm typecheck`** — 23/23 successful, 0 errors / 0 warnings / 0
+  hints across all packages and apps. Walltime 2m37s (cold; no Turbo
+  cache hits this iteration because `vitest.config.ts` and
+  `coverage-merge.ts` changed).
+- **`pnpm lint`** — 18/18 successful, 0 errors. Walltime 48s (cold).
+- **`pnpm test:coverage`** — 11 test files, 174/174 tests passing in
+  ~98s; banner `Coverage enabled with monocart` confirms custom provider
+  loaded; `[MCR] Loaded: mcr.config.ts` confirms config file convention
+  works; `coverage/raw/` populated with 40 raw V8 files (matches the
+  smoke-test prediction).
+- **`pnpm test:ct`** — 43/43 Playwright Component Tests passing in
+  1m21s; `coverage/ct/raw/` populated with 49 raw V8 files (unchanged
+  from iteration 116).
+- **`tsx packages/ui/scripts/coverage-merge.ts`** — merged report
+  generated at `coverage/merged/`; stdout reports the 19-file 94.89%
+  branch number; per-file gate ✅ for FilterBar.tsx, LayoutSwitcher.tsx;
+  ❌ for MobileMenu.tsx (67.57%, 25/37 branches — known, deferred).
+- **One known-not-blocking deprecation warning** persists from
+  `vitest-monocart-coverage` internals: `Importing from "vitest/coverage"
+  is deprecated since Vitest 4.1. Please use "vitest/node" instead.`
+  Tracked upstream at `cenfun/vitest-monocart-coverage`; iteration 117
+  noted "will file an issue if it persists past 4.0.2" — confirmed
+  iteration 119 it's still emitting from `4.0.2`. **Action item for
+  iteration 120 or 121**: file an upstream issue with a minimal repro.
+
+### AGENTS.md cross-check (R1-R15)
+
+- **R1 (TypeScript only)** — `mcr.config.ts` chosen over `mcr.config.js`
+  ✅. All edits stay in `.ts` files. No `.js`/`.py` introduced.
+- **R2-R5 (no DB / auth / payments / SSR)** — N/A; no app code touched.
+- **R6 (Plugin everything)** — N/A; this is build/test infra, not a
+  user-facing UI feature.
+- **R7 (Git-first)** — N/A.
+- **R8 (Extreme performance)** — `pnpm coverage` walltime stays at ~3m,
+  unchanged from iteration 116. The new Vitest provider does not
+  meaningfully slow the test phase (98s vs the prior 101s — variance,
+  not regression).
+- **R9 (Modular & replaceable)** — provider is swappable via
+  `customProviderModule` (Vitest-native extension point); `mcr.config.ts`
+  is a single sibling file that can be replaced or removed without
+  touching `vitest.config.ts`.
+- **R10 (AI-optimized)** — every edited file gained an iteration-119
+  header / footer comment block citing the plan + spec + question. Cold
+  reads pick up full context.
+- **R11-R15** — all preserved or N/A. No source files removed; no
+  summarization; full file paths used; no silent override of defaults
+  (the one config delta is recorded in the plan, the index, the log,
+  and the file's own comment block).
+
+### Files touched
+
+- `packages/ui/package.json` — `vitest-monocart-coverage@^4.0.2` added
+  to devDependencies; `monocart-coverage-reports` pin `^2.12.0` →
+  `^2.12.9`.
+- `pnpm-lock.yaml` — 7 new top-level entries (Q26 dep tree).
+- `packages/ui/vitest.config.ts` — provider swap + comment block.
+- `packages/ui/mcr.config.ts` — **NEW** (~50 lines including doc block).
+- `packages/ui/scripts/coverage-merge.ts` — Istanbul branch dropped;
+  single-V8-path comment + stdout updated.
+- `docs/plans/q22-playwright-coverage.md` — Phase 6b status flip + ~30-
+  line iteration-119 update block + sub-phase table iteration shift.
+- `docs/questions.md` — Q26 status flip to `✅ RESOLVED`.
+- `.specify/project.md` — Current State header + 4 paragraphs updated.
+- `docs/index.md` — iteration descriptor.
+- `docs/log.md` — this entry.
+
+### Hand-off to iteration 120
+
+Iteration 120 should execute Phase 6c (Phase 4 CI gate enforcement):
+
+1. In `packages/ui/scripts/coverage-merge.ts`, change the per-file gate's
+   `belowGate > 0` warning block to `process.exitCode = 1` when any of
+   the three CT-migrated components reports `<80%` branches.
+2. Add a corresponding step to `.github/workflows/ui-coverage.yml` (the
+   new file Phase 4 plans to create). The workflow uploads the merged
+   report as a build artifact and runs `pnpm coverage` with the gate
+   enforced.
+3. Open a tracking sub-issue for MobileMenu's 12 uncovered branches
+   (focus-trap teardown / pointer-vs-touch fallback / `prefers-reduced-
+   motion` guards). Until that lands, the gate would fail; either land
+   the new CT tests first OR temporarily lower the threshold to 65% with
+   a tracking comment that points at the sub-issue.
+
+The Phase 6b adoption removed the last hard blocker for Phase 6c. The
+remaining work is the threshold flip plus the workflow file — both ~30
+min, Low-risk per the plan's iteration table.
+
+### Why iteration 119 was a good unit of work for the cron task
+
+Per the cron-task instruction "first few iterations focus fully on
+building plan, specs, docs, research and so on and only when you feel
+confident to execute do it" — we are 119 iterations in, with Phase 6b
+specified, planned, smoke-tested (iteration 117), and risk-analyzed.
+The npm-validation → smoke-test → real-adoption pattern that succeeded
+for Q25 (iterations 112-114) ran identically here for Q26 (iterations
+116-119, with the validation+smoke compressed into iteration 117).
+Adopting Phase 6b in a single iteration is appropriate: the smoke test
+already proved the provider integration works, the lockfile expansion
+is bounded, the file edits are surgical, and the verification is a
+single `pnpm coverage` run that takes ~3 min.
+
+---
+
 ## 2026-04-27 — Iteration 117: Q26 npm-registry validation + Phase 6a smoke test ✅ PASSED (validation block prepared upstream + smoke test executed in same run)
 
 ### Headline

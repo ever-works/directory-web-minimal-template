@@ -29,14 +29,18 @@ export default defineConfig({
         testTimeout: 30_000,
         hookTimeout: 30_000,
         coverage: {
-            provider: 'v8',
-            // Iteration 116 (Q22 follow-up #3 Phase 3) added 'json' so Vitest
-            // writes `coverage/coverage-final.json` — the per-file Istanbul-shape
-            // file that `packages/ui/scripts/coverage-merge.ts` consumes via
-            // `mcr.add()` to combine Vitest + CT into one merged report.
-            // 'text' (stdout summary) and 'json-summary' (the `coverage-summary.json`
-            // aggregate) were already in place since iteration 95.
-            reporter: ['text', 'json-summary', 'json'],
+            // Iteration 119 (Q22 follow-up #3 Phase 6b — Q26 ✅ adopted):
+            // swapped `provider: 'v8'` for `provider: 'custom'` +
+            // `customProviderModule: 'vitest-monocart-coverage'`. The runtime
+            // V8-engine path is preserved (vitest-monocart-coverage wraps
+            // `@vitest/coverage-v8`); only the per-test report format changes
+            // from Istanbul rollup to raw V8 entries written under
+            // `./coverage/raw/<id>.json`. Reporter list moved to the
+            // monocart-shaped `./mcr.config.ts` `reports:` array.
+            // Sibling config: `packages/ui/mcr.config.ts`. See
+            // `docs/plans/q22-playwright-coverage.md` Phase 6b.
+            provider: 'custom',
+            customProviderModule: 'vitest-monocart-coverage',
             include: ['src/**/*.{ts,tsx}'],
             // `src/preact/FilterBar.tsx`, `src/preact/LayoutSwitcher.tsx`,
             // and `src/preact/MobileMenu.tsx` are exercised by Playwright CT

@@ -1,61 +1,40 @@
 /**
- * Phase 3 (Q22 follow-up #3) coverage merge script.
+ * Phase 3 + 6b (Q22 follow-up #3) coverage merge script.
  *
  * Spec: `.specify/features/q22-playwright-coverage.md`
- * Plan: `docs/plans/q22-playwright-coverage.md` (Phase 3)
+ * Plan: `docs/plans/q22-playwright-coverage.md` (Phases 3 + 6b)
+ * Question: `docs/questions.md` Q26 (✅ RESOLVED, iteration 119)
  *
  * What it does
  * ------------
- * Merges Playwright Component Test (CT) raw V8 coverage entries from
- * `./coverage/ct/raw/*.json` (written by monocart-reporter's `'raw'`
- * report type — see `playwright.ct.config.ts`) into a single merged
- * coverage report at `./coverage/merged/`.
+ * Merges raw V8 coverage entries from BOTH runners into a single merged
+ * coverage report at `./coverage/merged/`:
  *
- * The Vitest Istanbul report at `./coverage/coverage-final.json` is
- * intentionally NOT merged in this iteration — see "Why CT-only" below.
- * The per-runner Vitest output remains the source of truth for files
- * Vitest exercises (everything in `packages/ui/src/` *except* the three
- * CT-migrated components: `FilterBar.tsx`, `LayoutSwitcher.tsx`,
- * `MobileMenu.tsx`).
+ *   - `./coverage/raw/*.json`     — Vitest-side raw V8 entries written
+ *                                   by `vitest-monocart-coverage` (Q26
+ *                                   ✅ adopted iteration 119; provider
+ *                                   = 'custom', mcr.config.ts: reports
+ *                                   = [['raw', { outputDir: './coverage/raw' }]]).
+ *   - `./coverage/ct/raw/*.json`  — Playwright CT raw V8 entries written
+ *                                   by monocart-reporter's `'raw'` report
+ *                                   (Phase 1, iteration 114).
  *
- * Why CT-only (iteration 116 finding)
- * -----------------------------------
- * The original Phase 3 plan envisioned `mcr.add(istanbul) + inputDir(rawV8)`
- * mixing in a single MCR instance. Iteration 116 implementation surfaced
- * a hard limitation in monocart-coverage-reports@2.12.11:
+ * Both inputs flow through MCR's V8 path because they share the same raw
+ * V8 entry shape. The Q26 hard limitation that previously blocked
+ * Vitest+CT mixing (Istanbul vs raw V8 dispatch in `getCoverageResults`)
+ * is dismantled by Q26's drop-in custom provider.
  *
- *   - `getCoverageResults` (lib/generate.js) inspects `dataList[0].type`
- *     to choose either the V8 path or the Istanbul path; both paths are
- *     mutually exclusive.
- *   - When V8 raw entries are present (via `inputDir`) AND Istanbul
- *     entries are added (via `mcr.add(istanbul)`), the converter routes
- *     all entries through `convertV8List` → `convertCoverages`, which
- *     dispatches on `item.type === 'js'` and otherwise falls into
- *     `getCssAstInfo`. Istanbul entries lack `type: 'js'`, so they hit
- *     `getCssAstInfo` and crash on `ranges.sort()` because there are no
- *     ranges.
- *
- * The error reproduces deterministically as:
- *   `[MCR] Not found source data: undefined`
- *   `TypeError: Cannot read properties of undefined (reading 'sort')`
- *   `at getCssAstInfo (.../converter/ast.js:339:12)`
- *
- * Resolution path: install `vitest-monocart-coverage` so Vitest also
- * emits raw V8 entries (instead of Istanbul). Then both inputs flow
- * through the same V8 path. Tracked as Q26 in `docs/questions.md` —
- * deferred to a follow-up iteration to keep Phase 3 scope contained.
- *
- * Until then, the merge produces a CT-scoped report covering the three
- * CT-migrated components plus their imported primitives. Files outside
- * the CT subgraph (the rest of `packages/ui/src/`) keep their per-runner
- * Vitest coverage in `coverage/coverage-summary.json` — they are at
- * 100% there, unaffected by this script.
- *
- * Inputs
- * ------
- *   - `./coverage/ct/raw/*.json` — per-test raw V8 entries written by
- *     monocart-reporter's `'raw'` report. Auto-loaded by MCR via
- *     `inputDir`. See `playwright.ct.config.ts` `coverage.reports`.
+ * Q26 background (kept for archeology — closed iteration 119)
+ * -----------------------------------------------------------
+ * Iteration 116's first attempt at the merge used `mcr.add(istanbul) +
+ * inputDir(rawV8)`. monocart-coverage-reports@2.12.11 dispatches in
+ * `getCoverageResults` (lib/generate.js) on `dataList[0].type` — the V8
+ * and Istanbul paths are mutually exclusive. Mixing produced
+ * `[MCR] Not found source data: undefined` →
+ * `TypeError: Cannot read properties of undefined (reading 'sort') at
+ * getCssAstInfo`. iteration 117 npm-validated `vitest-monocart-coverage`
+ * + smoke-tested it; iteration 119 (this file's last edit) adopted it
+ * for real and removed the Istanbul branch from this script.
  *
  * Outputs
  * -------
@@ -72,15 +51,14 @@
  * `FilterBar.tsx`, `LayoutSwitcher.tsx`, `MobileMenu.tsx`". The script
  * checks each and prints a per-file gate report. Per-file failures are
  * logged with ❌ but do NOT cause a non-zero exit — they're treated as
- * informational signals during Phase 3 (gate enforcement is deferred
- * to Phase 4 CI integration). The exit code is non-zero only when MCR
- * itself fails to generate a report.
+ * informational signals. Phase 6c CI integration converts these to a
+ * hard failure once MobileMenu's 12 uncovered branches are closed.
  */
 import { existsSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { CoverageReport } from 'monocart-coverage-reports';
 
-const VITEST_FINAL = './coverage/coverage-final.json';
+const VITEST_RAW_DIR = './coverage/raw';
 const CT_RAW_DIR = './coverage/ct/raw';
 const OUT_DIR = './coverage/merged';
 
@@ -95,22 +73,36 @@ function describeRawDir(dir: string): string {
 }
 
 async function main(): Promise<void> {
-    const hasVitest = existsSync(VITEST_FINAL);
+    const hasVitestRaw = existsSync(VITEST_RAW_DIR);
     const hasCt = existsSync(CT_RAW_DIR);
 
-    console.log(`coverage-merge: Vitest Istanbul = ${hasVitest ? VITEST_FINAL : 'absent'} (NOT merged — see Q26)`);
-    console.log(`coverage-merge: CT raw V8       = ${describeRawDir(CT_RAW_DIR)}`);
+    console.log(`coverage-merge: Vitest raw V8 = ${describeRawDir(VITEST_RAW_DIR)}`);
+    console.log(`coverage-merge: CT raw V8     = ${describeRawDir(CT_RAW_DIR)}`);
 
-    if (!hasCt) {
+    if (!hasVitestRaw && !hasCt) {
         console.error(
-            'coverage-merge: ./coverage/ct/raw/ is absent — run `pnpm test:ct` first.',
+            'coverage-merge: BOTH `./coverage/raw/` and `./coverage/ct/raw/` are absent — run `pnpm test:coverage` and `pnpm test:ct` first.',
         );
         process.exit(1);
     }
+    if (!hasVitestRaw) {
+        console.warn(
+            'coverage-merge: ./coverage/raw/ is absent — run `pnpm test:coverage` first. Continuing with CT-only inputs.',
+        );
+    }
+    if (!hasCt) {
+        console.warn(
+            'coverage-merge: ./coverage/ct/raw/ is absent — run `pnpm test:ct` first. Continuing with Vitest-only inputs.',
+        );
+    }
+
+    const inputDir: string[] = [];
+    if (hasVitestRaw) inputDir.push(VITEST_RAW_DIR);
+    if (hasCt) inputDir.push(CT_RAW_DIR);
 
     const mcr = new CoverageReport({
-        name: '@ever-works/ui Merged Coverage (CT subgraph)',
-        inputDir: [CT_RAW_DIR],
+        name: '@ever-works/ui Merged Coverage (Vitest + CT)',
+        inputDir,
         outputDir: OUT_DIR,
         cleanCache: true,
         reports: [
@@ -121,8 +113,9 @@ async function main(): Promise<void> {
             ['console-summary'],
         ],
         // Mirror the per-runner sourceFilter from `playwright.ct.config.ts`
-        // so the merged report keeps only files in `packages/ui/src/`
-        // (after source-map unpacking) and excludes test scaffolding.
+        // and `mcr.config.ts` so the merged report keeps only files in
+        // `packages/ui/src/` (after source-map unpacking) and excludes
+        // test scaffolding.
         sourceFilter: (sourcePath: string): boolean => {
             if (!sourcePath) return false;
             if (sourcePath.includes('node_modules/')) return false;
@@ -160,7 +153,7 @@ async function main(): Promise<void> {
 
     // Per-file ≥80% branch check for the three CT-migrated components.
     // This is the Phase 3 exit-criterion AC #5 (per-file gate).
-    // Reported informationally in this iteration; Phase 4 CI will enforce.
+    // Reported informationally in this iteration; Phase 6c CI will enforce.
     const targets = [
         'src/preact/FilterBar.tsx',
         'src/preact/LayoutSwitcher.tsx',
@@ -191,10 +184,10 @@ async function main(): Promise<void> {
             `\ncoverage-merge: ⚠️  ${pluralize(belowGate, 'target')} below the 80% branch gate.`,
         );
         console.warn(
-            '  Gate is informational this iteration; Phase 4 CI will enforce.',
+            '  Gate is informational this iteration; Phase 6c CI will enforce.',
         );
         console.warn(
-            '  See `docs/plans/q22-playwright-coverage.md` Phase 4 for CI gate.',
+            '  See `docs/plans/q22-playwright-coverage.md` Phase 6c for CI gate.',
         );
     } else {
         console.log(`\ncoverage-merge: ✅ Phase 3 per-file gate satisfied.`);

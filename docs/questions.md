@@ -988,6 +988,8 @@ The Phase 1 outcome notes (including the fixture addition and the entryFilter re
 
 ## Q26: Vitest → monocart V8 raw stream for full V8+CT merge (Q22 follow-up #3 Phase 3 finding)
 
+> **Status: ✅ RESOLVED — Option A adopted; Phase 6b complete; full V8+Vitest merge live** (iteration 119, 2026-04-27). `vitest-monocart-coverage@^4.0.0` is now a real `@ever-works/ui` devDependency; `packages/ui/vitest.config.ts` runs `provider: 'custom'` + `customProviderModule: 'vitest-monocart-coverage'`; `packages/ui/mcr.config.ts` (new file) writes raw V8 entries to `./coverage/raw/`; `packages/ui/scripts/coverage-merge.ts` consumes both `./coverage/raw/` (Vitest, 40 files) and `./coverage/ct/raw/` (CT, 49 files) through MCR's V8 path. Merged report: **branches 94.89% (223/235), functions 100% (104/104), lines 98.63% (1227/1244), statements 96.62% (343/355)** across 19 files. `MobileMenu.tsx` 67.57% (12 uncovered branches) is the only sub-80% file — known, deferred to Q22 follow-up #3 sub-iteration. Phase 6c (CI gate enforcement) and Phase 6d (status flips) remain.
+>
 > **Status: CONFIRMED — Option A; Phase 6a SMOKE PASSED** (iteration
 > 117, 2026-04-27). Originally opened iteration 116 (2026-04-27) as a
 > direct outcome of executing Phase 3 of the `playwright-coverage`

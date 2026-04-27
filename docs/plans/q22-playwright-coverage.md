@@ -503,9 +503,9 @@ per-iteration risk):
 | Sub-phase | Effort | Risk | Iteration |
 |-----------|--------|------|-----------|
 | 6a — Smoke test in `packages/ui/scratch/q26-vitest-monocart/` (Phase 0-style: prove `vitest-monocart-coverage` writes raw V8 entries that source-map back to `.tsx` files under our Vite + Preact alias chain) | ~30 min | Low | **117 ✅ DONE** |
-| 6b — Adopt `vitest-monocart-coverage` in real `vitest.config.ts`; add `mcr.config.ts`; update merge script to drop Istanbul branch; verify per-package merged number on full include set | ~1 hr | Med | 118 |
-| 6c — Phase 4 CI gate enforcement (per-file ≥80% branch threshold, hard fail) | ~30 min | Low | 119 |
-| 6d — Phase 5 (existing) doc + status flips | ~30 min | Low | 120 |
+| 6b — Adopt `vitest-monocart-coverage` in real `vitest.config.ts`; add `mcr.config.ts`; update merge script to drop Istanbul branch; verify per-package merged number on full include set | ~1 hr | Med | **119 ✅ DONE** |
+| 6c — Phase 4 CI gate enforcement (per-file ≥80% branch threshold, hard fail) | ~30 min | Low | 120 |
+| 6d — Phase 5 (existing) doc + status flips | ~30 min | Low | 121 |
 
 ### Phase 6a — Smoke test (gate before any code lands)
 
@@ -604,7 +604,34 @@ adoption (warning only, runs cleanly).
 **Phase 6b is unblocked.** The Q26 reopen condition (smoke-test failure
 → Option B custom converter) does not trigger.
 
-### Phase 6b — Real adoption
+### Phase 6b — Real adoption ✅ DONE iteration 119
+
+> **Iteration 119 (2026-04-27)** executed all five steps end-to-end
+> on Windows 10 + Node 24.14.1 + pnpm 10.33.0. The merged report now
+> covers the full `packages/ui/src/` include set: **94.89% branches
+> (223/235), 100% functions (104/104), 98.63% lines (1227/1244),
+> 96.62% statements (343/355)** across 19 files. The per-file gate
+> reports `FilterBar.tsx 100%` ✅, `LayoutSwitcher.tsx 100%` ✅,
+> `MobileMenu.tsx 67.57%` ❌ — the 12 uncovered MobileMenu branches
+> (`235 - 223 = 12`) are exactly the known gap acknowledged in the
+> exit criterion below. Q26 ✅ RESOLVED.
+>
+> **One config delta vs. the original step 3 layout**: monocart-
+> coverage-reports treats per-report `outputDir` as RELATIVE to its
+> default global root (`./coverage-reports`), so the originally-planned
+> `[['raw', { outputDir: './coverage/raw' }]]` placed output at
+> `./coverage-reports/coverage/raw/` instead of `./coverage/raw/`. The
+> deployed config uses top-level `outputDir: './coverage'` + `reports:
+> ['raw']` for symmetry with Playwright CT's `playwright.ct.config.ts`
+> (top-level `outputDir: COVERAGE_OUTPUT_DIR` + raw report). Output
+> verified at `packages/ui/coverage/raw/coverage-<id>.json` (40 files
+> per Vitest run, matching the 11 test files × ~2-4 fork pools
+> envelope). See the iteration-119 log entry for the full delta.
+>
+> **Lockfile expansion**: 7 new top-level entries (the predicted 5 +
+> 2 transitive moves: `astral-regex` and `whatwg-encoding` whose floors
+> drift). All ≤ minor-version churn within `2.x` / `4.x` / `8.x` —
+> within the iteration-117 prep envelope.
 
 **Steps**:
 
