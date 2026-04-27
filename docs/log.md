@@ -3,6 +3,114 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 138: spec inventory pass — flip stale `All 28 .specify/ feature specs` claim in `.specify/project.md` to `All 31` with explicit `wc -l` provenance and Q23/Q25/Q26-absorbed-inline footnote
+
+### Headline
+
+Iteration 137 noted: `.specify/features/` directory contains **31 `.md` files** but `.specify/project.md` line 87 claimed **"All 28 .specify/ feature specs"**. Iter-137 deferred the per-file accounting because the 3-spec gap could be either drift or intentional exclusion (the speculation was "stale `q22-upstream-repro.md` debug spec, the Q24 spec absorbed into the Q23 follow-up, etc."). Iter 138 executes the bounded ~30-min spec-inventory iteration and resolves the gap definitively.
+
+**Finding**: there is no excluded-debug-spec / superseded-spec category. The drift is a clean **off-by-3 baseline-vs-final accounting error**: the iter-129 project.md edit (and the iter-130 / iter-137 carry-forwards) explicitly listed the 3 saga-additions by name but never summed them into the headline count. The actual count has been **31** since iteration 129 landed `q28-eslint-10-upgrade.md`.
+
+```
+$ ls .specify/features/*.md | wc -l
+31
+
+# Catalogued by name (alphabetical):
+content-sync.md, data-layer.md, lighthouse-ci.md, plugin-analytics.md,
+plugin-breadcrumbs.md, plugin-filters.md, plugin-pagination.md,
+plugin-related-items.md, plugin-rss.md, plugin-search.md, plugin-sitemap.md,
+plugin-sort.md, plugin-system.md, plugins-phase4.md, q22-mobilemenu-ct.md,
+q22-playwright-coverage.md, q22-playwright-ct.md,
+q24-layoutswitcher-empty-modes.md, q27-mobilemenu-empty-items-coverage.md,
+q28-eslint-10-upgrade.md, robots-txt.md, sample-basic.md, sample-events.md,
+sample-git.md, sample-jobs.md, sample-real-estate.md, static-pages.md,
+testing.md, ui-components.md, visual-regression.md, web-app.md
+```
+
+The 28-pre-saga baseline = 31 - 3 saga-additions, where:
+
+- **`q22-mobilemenu-ct.md`** — added iter 108 (Q22 follow-up #1: preemptive MobileMenu CT migration; ✅ COMPLETE).
+- **`q27-mobilemenu-empty-items-coverage.md`** — added iter 123 (Q27: 3-branch outlier coverage closure; ✅ RESOLVED iter 124).
+- **`q28-eslint-10-upgrade.md`** — added iter 129 (Q28: ESLint 9 → 10 upgrade; ✅ RESOLVED iter 130).
+
+**Q23 / Q25 / Q26 do not have dedicated spec files** in `.specify/features/`:
+
+- **Q23** (LayoutSwitcher Vitest IPC hang): resolved inline in `docs/questions.md` (option A — Playwright CT migration — landed iter 107). The Q22 follow-up #1 spec `q22-mobilemenu-ct.md` continued the same line of work; no separate Q23 spec was authored.
+- **Q25** (coverage library choice — `monocart-coverage-reports` vs alternatives): resolved inline in `docs/questions.md` Phase 0 smoke test (iter 113). The Q22 follow-up #3 spec `q22-playwright-coverage.md` codifies the chosen library; no separate Q25 spec was authored.
+- **Q26** (Vitest → monocart V8 raw stream for full V8+CT merge): resolved inline in `docs/questions.md` (Option A — `vitest-monocart-coverage` adopted iter 119). The same `q22-playwright-coverage.md` spec carries the Q26 outcome in its Decisions table; no separate Q26 spec was authored.
+
+This is a deliberate **per-saga-arc spec consolidation**: the Q22 family's three follow-ups each have their own spec, but the side-quest questions (Q23 spawned during Q22's CT migration, Q25 spawned during Q22-follow-up-#3's library selection, Q26 spawned during Q22-follow-up-#3's Vitest-merge integration) get folded into the parent's spec rather than fragmenting the spec surface across `.specify/features/`. Future side-quest questions should follow the same pattern unless the side-quest grows to its own ~200-line spec surface.
+
+### What was flipped
+
+#### `.specify/project.md` line 87 (the spec-count claim + Q23/Q25/Q26 footnote)
+
+The pre-iter-138 wording explicitly enumerated the 3 saga-additions but headlined `All 28 .specify/ feature specs`. Iter 138 flips to `All 31` with provenance command, per-spec catalogue cross-ref to `docs/index.md`, Q23/Q25/Q26-absorbed-inline footnote, and drift-resolution annotation citing iter-129 → iter-138 history.
+
+The new wording adds:
+
+- The **provenance command** (`ls .specify/features/*.md | wc -l = 31`) so a future reader can re-verify in 1 second.
+- The **per-spec catalogue cross-ref** to `docs/index.md` "Spec Kit (.specify/)" section (which already enumerates all 31 specs by name with GitHub view links — verified iter 138 by `grep -c "^- \*\*features/" docs/index.md` = 31, matching the directory).
+- The **Q23/Q25/Q26 absorbed-inline footnote** explaining why those question numbers don't have dedicated spec files (they were folded into the Q22 family's parent specs as side-quests). Future readers seeing "Q22-Q28 fully closed" + only 6 dedicated specs (Q22 / Q22-followup-1 / Q22-followup-3 / Q24 / Q27 / Q28 = 6) won't have to re-derive the per-saga consolidation pattern.
+- The **drift-resolution annotation** ("baseline-vs-final off-by-3 ... flipped to 'All 31' in iter 138 with explicit `wc -l` provenance") so the iter-129 → iter-137 history is auditable from inside the project.md text.
+
+#### `.specify/project.md` line 79 (Current State header)
+
+```diff
+-## Current State (Iteration 137)
++## Current State (Iteration 138)
+```
+
+Standard per-iteration bump.
+
+### What was NOT touched (intentional)
+
+- **`docs/index.md` "Spec Kit (.specify/)" section** — already enumerates all 31 specs by name with per-file descriptions and GitHub view links. Verified by `grep -c "^- \*\*features/"` = 31, matching the directory. No drift.
+- **`docs/questions.md` Q23 / Q25 / Q26 entries** — already say "RESOLVED" with the corresponding iteration number (107 / 113 / 119) and pointers to the parent Q22-arc spec files. The absorbed-inline pattern is already implicit in the question structure; the iter-138 project.md edit just makes it explicit at the headline-count level for readers who don't drill down.
+- **`docs/log.md` historical iteration entries** — no edit; they describe state AS OF that iteration (when the spec count was indeed 28, then 29, then 30, then 31 across iters 108 / 123 / 129).
+
+### Routine dep audit (deferred this iteration)
+
+Iter 138 is a pure-doc iteration. Iter 137 deferred the dep audit; iter 138 inherits the deferral. Most recent verified audit: iter 135's 9-package quick-check subset (~zero deltas vs iter-134 baseline). No reason to expect deltas have appeared in the ~3-cron-tick interval since.
+
+### Generalization of the iter-132 / iter-135 / iter-136 / iter-137 / iter-138 pattern (now confirmed FIVE times)
+
+| # | Iteration | Surface | Stale claim | Fixed value | Latency |
+|---|-----------|---------|-------------|-------------|---------|
+| 1 | iter 132 | `CLAUDE.md` line 122 | `43 cases for FilterBar/LayoutSwitcher/MobileMenu, ~1.3 min` | `48 cases — 16 + 12 + 20; iter-127 walltime ~1.5 min` | 27 iters |
+| 2 | iter 135 | `docs/guides/deployment.md` env-var table + 4 narrative claims | "fully static output, no server functions" | "ISR mode (default) ships a single Vercel server function" | 117 iters |
+| 3 | iter 136 | `docs/guides/quickstart.md` + `docs/guides/getting-started.md` Common Commands tables | 7-row table missing 5-6 commands | 12-13 row table + cross-ref to CLAUDE.md | ~30+ iters |
+| 4 | iter 137 | `.specify/project.md` line 94 | `The 22-package matrix is now ... for the first time across the entire iteration history` | `The 26-package matrix is now zero-delta with no carried open work` | 7 iters |
+| 5 | iter 138 | `.specify/project.md` line 87 | `All 28 .specify/ feature specs complete and verified` | `All 31 .specify/ feature specs complete and verified ... (wc -l = 31; Q23/Q25/Q26 absorbed inline)` | 9 iters (iter-129 → iter-138) |
+
+**Pattern (re-stated)**: count/feature/env-var/command additions to one surface (the spec / commit / log entry that introduced them) do not auto-propagate to all reader-facing surfaces. Targeted greps catch the latency at iteration N+M (M = 5 → 117 in observed cases); without the grep technique the drift accumulates indefinitely and only surfaces when a new contributor reads the file cold and notices the inconsistency.
+
+### Verification
+
+- `pnpm typecheck` — expected **23/23 FULL TURBO** (doc-only changes don't invalidate any task input).
+- `pnpm lint` — expected **18/18 FULL TURBO** + 0 warnings + 0 errors.
+
+### Files touched
+
+- `.specify/project.md` — Current State header bumped 137 → 138; line 87 spec-count flipped 28 → 31 with `wc -l` provenance + Q23/Q25/Q26-absorbed-inline footnote + drift-resolution annotation.
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 137 → 138.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)**. `pnpm lint` 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED. Project remains in "no carried open work" steady state for the **9th consecutive iteration** (iters 130 → 138).
+
+### Next Steps (for next scheduled run)
+
+1. **Continue the doc-quality audit using the now-5x-confirmed grep technique**:
+   - `grep -rn "<old-number>" CLAUDE.md AGENTS.md README.md docs/architecture/ docs/specs/ docs/guides/ .specify/` (count drift)
+   - `grep -nE "pnpm test|pnpm coverage|pnpm test:ct|pnpm dev:" docs/guides/` (Common Commands drift)
+   - `grep -nE "iteration\s+\d+|iter\s+\d+" .specify/project.md docs/architecture/ docs/specs/` (iteration-number drift)
+   - `ls .specify/features/*.md | wc -l` vs `grep "All [0-9]+ .specify" .specify/project.md` (spec-count drift — confirmed iter 138)
+2. **Routine dep audit** — re-check the 26-package matrix; expect zero deltas.
+3. **Optional `pnpm coverage` re-run** — defer until material dep churn lands.
+4. **Optional `pnpm test:e2e` run** — still deferred per iter-134's "defer unless regression suspected"; no regression suspected.
+
 ## 2026-04-27 — Iteration 137: continued doc-quality audit — flip stale `22-package matrix` claim in `.specify/project.md` to `26-package matrix` (post iter-132/133 expansion)
 
 ### Headline
