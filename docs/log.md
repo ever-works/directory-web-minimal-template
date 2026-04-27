@@ -3,6 +3,138 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 143: AGENTS.md R14/R15 bullet placement fix — relocate "Prefer conventions that reduce boilerplate" from R15 (Specification First) to R14 (Convention Over Configuration); 9-guide `docs/guides/` audit verified clean; routine 10-package dep quick-check zero deltas
+
+### Headline
+
+Iter-142 closed the cross-repo `.specify/` link convention by flipping 5 Q-track plan front-matter `Spec:` links from broken relative paths to absolute GitHub URLs. Iter-143 executes iter-142's Next Step #1 — audit remaining surfaces, specifically AGENTS.md R12-R14 specific factual claims and the 9 unaudited guides (`analytics.md`, `building-from-template.md`, `creating-a-plugin.md`, `creating-an-adapter.md`, `customizing.md`, `interactive-components.md`, `performance-testing.md`, `troubleshooting.md`, `content-sync.md`).
+
+**One real drift found**: AGENTS.md line 105 "- Prefer conventions that reduce boilerplate" appeared as the 7th bullet under R15 (Specification First) — semantically incongruous because that rule is about specs / docs / architecture / questions / PR-cross-checks, NOT about conventions / defaults / boilerplate-reduction. The bullet semantically belongs to **R14 (Convention Over Configuration)**, which had only 2 bullets ("Good defaults for everything" + "Users can override via config when needed"). Likely root cause: a copy-paste / refactor-time accident when R15 was inserted between R14 and what later became "Working Process" (the bullet got reattached to the wrong rule heading).
+
+**9-guide `docs/guides/` audit verified clean** (no drift in the iter-132/etc. drift class). All targeted-grep matches are in proper context.
+
+### Iter-142 collision note
+
+An earlier scheduled run committed iter-142 (`commit 226e4c0` at 18:16:48 UTC, "complete cross-repo .specify/ link audit") in parallel with the current session's first ~90 minutes of work. The earlier run independently found and fixed the same 5 broken `../../.specify/features/*.md` markdown links in the Q-track plan files that the current session would have fixed (and did edit, before discovering the collision). Current session's `git status` was clean after both completed because the edits were byte-identical; current session pivoted to iter-143 to avoid a duplicate commit attempt.
+
+The collision is itself a useful signal: in fully-autonomous parallel-scheduled runs against a low-churn doc-only workstream, two cron ticks can independently converge on the same fix. **Generalization for future iterations**: at session start, `git fetch` + check `git log -1` head shape against the iteration descriptor in `docs/index.md`. If a parallel run has already advanced the iteration counter, pivot to N+1 immediately rather than spending audit cycles on the same surface.
+
+### What was fixed
+
+#### 1. AGENTS.md R14/R15 bullet relocation (1 line moved)
+
+```diff
+ ### R14: Convention Over Configuration
+ - Good defaults for everything
+ - Users can override via config when needed
++- Prefer conventions that reduce boilerplate
+
+ ### R15: Specification First
+ - Always write specs and documentation BEFORE implementation code
+ - Every feature must have a `.specify/features/<name>.md` spec before coding starts
+ - Architecture decisions documented in `docs/architecture/` before building
+ - Guides written in `docs/guides/` alongside or before implementation
+ - If a question arises during spec writing, add it to `docs/questions.md` with a `[DEFAULT]` choice
+ - Cross-check: no PR / commit should introduce code without a matching spec
+-- Prefer conventions that reduce boilerplate
+```
+
+Net diff: +1/-1, single bullet relocated.
+
+R14 was clearly under-specified pre-iter-143 — only 2 bullets, both essentially restating the rule heading. The relocated bullet adds substantive *guidance* ("conventions that reduce boilerplate") which is the actionable corollary of "Convention Over Configuration". R15 is now back to its original 6-bullet substantive list focused entirely on the specification-first workflow.
+
+### What was NOT touched (intentional — verified clean)
+
+#### 9-guide `docs/guides/` audit — zero drift
+
+Targeted greps run across the 9 unaudited guides (3,692 total lines):
+
+| Grep pattern | Hits | Status |
+|--------------|------|--------|
+| `1170\|1165\|1122\|43 cases\|48 cases\|All 28\|All 31\|22-package\|26-package` | 0 | ✅ no test-count or matrix-count drift |
+| `Fully static\|fully static\|no SSR\|output.*static` | 5 | ✅ all correctly scoped to `ENABLE_ISR=false` discussions (`getting-started.md:1162`, `content-sync.md:92`, `deployment.md:27/129/137/142`) |
+| `Astro 6\.[0-9]\|Vitest 4\.[0-9]\|Tailwind 4\.[0-9]\|Preact 10\.[0-9]\|TypeScript [56]\.[0-9]\|Node 2[0-4]` | 0 specific-version | ✅ guides reference major versions only ("Astro 6", "Node.js 22+ (24 LTS recommended)") — no patch-version drift surface |
+| `@astrojs/vercel\|isomorphic-git` | 5 | ✅ `troubleshooting.md:229/231/238/244` (Vite SSR externalization — correct), `deployment.md:129` (`@astrojs/vercel` — correct) |
+| `@ever-works/web-minimal` | 11 | ✅ all match `apps/web/package.json` `"name": "@ever-works/web-minimal"` (verified) |
+| `sample-basic\|sample-jobs\|sample-events\|sample-real-estate\|sample-git` | 8 | ✅ all reference existing apps |
+| `apps/sample-basic/src/components/ItemBrowser.tsx` (interactive-components.md:62) | 1 | ✅ file exists |
+| `apps/sample-basic/src/styles/global.css` (interactive-components.md:76) | 1 | ✅ file exists |
+| `DataAdapter\|AdapterConfig` (creating-an-adapter.md) | 4 | ✅ both types exported from `packages/adapters/src/types.ts:13` and `:79` |
+| `\]\(\.\./\|\]\(\.\.\.\/\.specify/` (relative markdown links into out-of-`docs/` paths) | 0 | ✅ no remaining broken-relative-link drift after iter-142 |
+| `\]\(/guides/\|\]\(/architecture/\|\]\(/specs/\|\]\(/plans/` (Docusaurus absolute links) | 21 | ✅ all resolve under Docusaurus content tree |
+
+The `../` matches in code blocks (TypeScript `import` statements like `import SearchBar from '../components/SearchBar.tsx';`) are not markdown links — they are code fence content.
+
+#### Other un-greppy surfaces (sampled per iter-142 Next Step #1)
+
+- **`apps/docs/src/components/HomepageFeatures/index.tsx`** (44 lines): the default `FeatureList` array with "Docusaurus was designed..." Docusaurus boilerplate strings is wrapped in a multi-line `/* */` comment block (lines 52-66). The exported `FeatureList` array on lines 6-37 is unused (no `export` keyword on the array itself; only the component export is commented out). The file is **dead code** but does NOT render in production — flagging as **out-of-scope for iter-143** (would require a code change, not doc audit; no readers see the boilerplate strings).
+- **`apps/docs/src/pages/markdown-page.md`** (8 lines): single-paragraph Docusaurus example page ("You don't need React to write simple standalone pages."). Not project-specific drift.
+- **`apps/docs/static/`**: only `.nojekyll` (empty), `CNAME` (`docs.ever.works`), and 12 image files. No markdown / TypeScript / config content. No drift surface.
+
+### Routine dep audit (zero deltas — 10-package quick-check subset re-verified)
+
+10 packages re-checked against npm `latest` (~3h after iter-142's 22-package subset audit):
+
+| Package | Pinned | Current `latest` | Status |
+|---------|--------|------------------|--------|
+| astro | 6.1.9 | 6.1.9 | ✅ |
+| vitest | 4.1.5 | 4.1.5 | ✅ |
+| @playwright/test | 1.59.1 | 1.59.1 | ✅ |
+| tailwindcss | 4.2.4 | 4.2.4 | ✅ |
+| preact | 10.29.1 | 10.29.1 | ✅ |
+| typescript | 6.0.3 | 6.0.3 | ✅ |
+| eslint | 10.2.1 | 10.2.1 | ✅ |
+| isomorphic-git | 1.37.6 | 1.37.6 | ✅ |
+| turbo | 2.9.6 | 2.9.6 | ✅ |
+| prettier | 3.8.3 | 3.8.3 | ✅ |
+
+10/10 zero deltas. The 16-package gap to the documented 26-package matrix is unlikely to have moved at this 3-hour interval; full 26-package re-verification deferred to next iteration that materially touches deps (consistent with iter-140 / iter-142 policy).
+
+### Pattern progression — now confirmed for the 9th iteration in a row (with iter-143's twist)
+
+| # | Iteration | Surface | Drift kind |
+|---|-----------|---------|------------|
+| 1 | iter 132 | `CLAUDE.md` Common Commands | `43 cases` → `48 cases` + walltime/Chromium/flake-signal |
+| 2 | iter 135 | `docs/guides/deployment.md` | Missing ISR env vars + 4 narrative claims (predates iter-17/Q17) |
+| 3 | iter 136 | `docs/guides/quickstart.md` + `getting-started.md` | Missing 5-6 Common Commands rows |
+| 4 | iter 137 | `.specify/project.md` package matrix | `22-package` → `26-package` |
+| 5 | iter 138 | `.specify/project.md` spec count | `All 28` → `All 31` |
+| 6 | iter 139 | `README.md` Commands table | Conflated `pnpm test` row + missing CT/coverage rows |
+| 7 | iter 140 | `.specify/features/q28-*.md` AC #5 + `docs/plans/q28-*.md` Step 4 | Same conflated-`pnpm test=1170` drift |
+| 8 | iter 141 | `apps/docs/blog/2026-04-11-welcome.md` line 21 + `apps/docs/sidebarsTemplate.ts` | Pre-iter-17/Q17 ISR wording + sidebar missing 1 architecture + 7 Q-track plans |
+| 9 | iter 142 | 5 `docs/plans/q*.md` line-8 spec pointers | `../../.specify/features/*.md` markdown links broken under Docusaurus content scope |
+| 10 | iter 143 | `AGENTS.md` line 105 bullet | Bullet "Prefer conventions that reduce boilerplate" misplaced in R15 (Specification First); semantically belongs to R14 (Convention Over Configuration) |
+
+**Pattern (re-stated, with iter-143's twist)**: drift in steady-state iterations is no longer dominated by stale-count or stale-toolchain claims (those were closed iter-132 → iter-141). The remaining drift class is **structural micro-drift** — bullets in the wrong list, links to the wrong path scheme, sidebar entries missing for navigable content. Each instance is bounded (1-5 lines) and only surfaces under cross-cut greps that target *placement* and *scope* rather than *count* or *value*. Future doc-quality audits should rotate through structural-grep patterns (`^- `, `^### `, markdown-link-target-vs-content-scope) in addition to value-grep patterns (`1122`, `pnpm test`, `26-package`).
+
+### Verification
+
+- **`pnpm typecheck`**: 23/23 FULL TURBO in 1.431s (100% cache hits — AGENTS.md is not under typecheck scope).
+- **`pnpm lint`**: 18/18 FULL TURBO in 1.403s (100% cache hits — AGENTS.md is not under lint scope).
+- **No source / test / config / dep / lockfile changes.**
+
+### Files touched
+
+- `AGENTS.md` line 105 → moved to under R14 — single bullet relocation.
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 142 → 143.
+- `.specify/project.md` — Current State header bumped 142 → 143.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)**. `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127. Project enters its **14th consecutive "no carried open work" steady-state iteration** (iter 130-143).
+
+### Next Steps (for next scheduled run)
+
+1. **Continue structural-grep audit** (the new pattern surfaced this iteration):
+   - `apps/docs/src/components/HomepageFeatures/index.tsx` — dead Docusaurus boilerplate (FeatureList unused, export commented out). Flagging as out-of-scope for iter-143 (code change, not doc); revisit as a code-cleanup iteration if a future cron tick is light on doc work.
+   - `CLAUDE.md` rule headings (R1-R10, AGENTS.md has R1-R15 but CLAUDE.md uses a different "Critical Rules" structure) — verify all bullets are under their semantically-correct headings.
+   - `.specify/features/*.md` AC numbering — spot-check a sample for any AC bullets that might be misnumbered or under the wrong heading.
+2. **Routine dep audit** — re-check the 26-package matrix; expect zero deltas (iter-143 verified 10-package subset zero deltas ~3h after iter-142's 22-subset).
+3. **Optional `pnpm test:e2e` re-run** — defer per iter-134's policy.
+4. **Optional `pnpm coverage` re-run** — defer until material dep churn lands.
+5. **Pre-session collision check** (new): at session start, `git fetch` + `git log -1` to verify the iteration counter in `docs/index.md` matches the `git log` head. If a parallel run has advanced the counter, pivot to N+1 immediately rather than auditing the same surface.
+
 ## 2026-04-27 — Iteration 142: complete the cross-repo `.specify/` link audit — 5 Q-track plan files flipped from broken relative paths to absolute GitHub URLs
 
 ### Headline

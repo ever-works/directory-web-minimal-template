@@ -94,6 +94,7 @@ Every document, specification, code file, and decision MUST comply with these ru
 ### R14: Convention Over Configuration
 - Good defaults for everything
 - Users can override via config when needed
+- Prefer conventions that reduce boilerplate
 
 ### R15: Specification First
 - Always write specs and documentation BEFORE implementation code
@@ -102,7 +103,6 @@ Every document, specification, code file, and decision MUST comply with these ru
 - Guides written in `docs/guides/` alongside or before implementation
 - If a question arises during spec writing, add it to `docs/questions.md` with a `[DEFAULT]` choice
 - Cross-check: no PR / commit should introduce code without a matching spec
-- Prefer conventions that reduce boilerplate
 
 ## Working Process
 
