@@ -32,7 +32,8 @@
         "test:ct": "playwright test --config=playwright.ct.config.ts",
         "test:ct:install": "playwright install --with-deps chromium",
         "clean": "rm -rf dist",
-        "test:coverage": "vitest run --coverage"
+        "test:coverage": "vitest run --coverage",
+        "coverage": "pnpm test:coverage && pnpm test:ct && tsx scripts/coverage-merge.ts"
     },
     "dependencies": {
         "@ever-works/core": "workspace:*",

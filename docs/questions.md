@@ -983,3 +983,107 @@ Empirical evidence:
 **Q25 closes here.** Option B (`@bgotink/playwright-coverage`) is no longer a contingency — Phase 2-5 build directly on the Phase 1 artifacts.
 
 The Phase 1 outcome notes (including the fixture addition and the entryFilter rewrite) are documented at the plan: [`docs/plans/q22-playwright-coverage.md`](plans/q22-playwright-coverage.md) "Phase 1 / Outcome (iteration 114, 2026-04-27)".
+
+---
+
+## Q26: Vitest → monocart V8 raw stream for full V8+CT merge (Q22 follow-up #3 Phase 3 finding)
+
+> **Status: OPEN [DEFAULT]** — opened iteration 116 (2026-04-27) as a
+> direct outcome of executing Phase 3 of the
+> `playwright-coverage` integration plan
+> (`docs/plans/q22-playwright-coverage.md`). Phase 3 landed as a CT-only
+> merge (`packages/ui/scripts/coverage-merge.ts` writes to
+> `coverage/merged/`). The plan's original ambition (a single MCR
+> instance combining Vitest Istanbul + CT raw V8) is blocked by a hard
+> limitation in monocart-coverage-reports@2.12.11. Q26 chooses how to
+> close the gap.
+
+**Context**: monocart-coverage-reports' `getCoverageResults`
+(`lib/generate.js`) inspects `dataList[0].type` to dispatch into either
+the V8 path (`convertV8List` → `convertCoverages` → `getJsAstInfo` /
+`getCssAstInfo`) or the Istanbul path (`mergeIstanbulCoverage` →
+`saveIstanbulReports`). Both paths are mutually exclusive — when raw
+V8 entries are loaded via `inputDir` AND Istanbul data is added via
+`mcr.add(istanbul)`, the converter routes everything through the V8
+path, hits Istanbul entries that lack `type: 'js'`, falls into
+`getCssAstInfo`, and crashes on `ranges.sort()` (no ranges). The
+empirical reproduction is documented in
+`packages/ui/scripts/coverage-merge.ts` header comment.
+
+**Options**:
+
+- **A) `vitest-monocart-coverage`** — drop-in Vitest coverage provider
+  that emits raw V8 entries (instead of Istanbul `coverage-final.json`)
+  to a configured outputDir. The merge script then consumes both raw V8
+  dirs (`coverage/raw/` from Vitest and `coverage/ct/raw/` from CT) via
+  `inputDir: [...]`. Both flow through the same V8 path; no mixing.
+  `[DEFAULT]`
+- B) **Custom Istanbul→V8 converter** — pre-process Vitest's
+  `coverage-final.json` into raw V8 shape, then add via `mcr.add()`. A
+  small adapter (~50-100 LOC) that handles the structural translation
+  for Istanbul's `statementMap` / `branchMap` / `fnMap` to V8's
+  `functions[]` with byte ranges. High risk: has to handle every
+  Istanbul shape variant; maintenance burden.
+- C) **Two-stage report (status quo)** — accept that the merged
+  report is CT-scoped only. Document that the per-runner Vitest report
+  (`coverage/coverage-summary.json` at 100% for Vitest-executed files)
+  is the source of truth for non-CT files. Don't try to combine.
+- D) **Switch the entire `@ever-works/ui` coverage stack to monocart**
+  (replace Vitest's V8 provider with `vitest-monocart-coverage`,
+  retire `@vitest/coverage-v8`). Same as A but more aggressive.
+- E) **Defer indefinitely** — the per-runner reports are sufficient
+  for AC #5; merge is a "nice to have" for a single rolled-up number.
+
+**Default choice**: **A — `vitest-monocart-coverage`**. Rationale:
+
+1. Single dep change at the Vitest layer; no source-format conversion
+   logic in our codebase.
+2. Documented integration path in the monocart README's "Vitest" entry
+   under "Integration Examples".
+3. Keeps the merge script simple (`inputDir: [vitest, ct]` with no
+   `mcr.add(istanbul)` call).
+4. Vitest's V8 provider already collects V8 internally; this just
+   exposes the raw format instead of the Istanbul rollup.
+5. Aligns with the existing CT-side architecture (monocart
+   end-to-end), reducing toolchain divergence.
+
+**Risks**:
+
+- R1 (Low): `vitest-monocart-coverage` may not be at parity with
+  `@vitest/coverage-v8`'s V8 provider on every coverage detail (e.g.,
+  source-map handling for `.tsx` under Vite + Preact alias). Mitigation:
+  smoke-test in a scratch dir before adopting in `vitest.config.ts`,
+  exactly like Q25 Phase 0 did for monocart-reporter. Hold the existing
+  Vitest provider in place until parity is verified.
+- R2 (Low): adding a second dep increases install time and lockfile
+  churn. Acceptable given the value (single rolled-up number).
+- R3 (Medium): `vitest-monocart-coverage` lock-step with monocart
+  versions may force coupled upgrades. Mitigation: pin to a verified
+  major and bump deliberately.
+
+**Out of scope for Q26**: writing additional MobileMenu CT tests to
+close the 67.57% branch gap. That's a separate spec (the current Phase
+3 merge surfaced the gap as an informational signal — Phase 4 CI
+enforcement is what makes it a hard gate). Tracked under the same
+Q22 follow-up #3 thread but as a separate sub-iteration.
+
+**Next steps if Option A holds**:
+
+1. Smoke-test `vitest-monocart-coverage` in a scratch dir against the
+   existing `vitest.config.ts` (Vite + Preact alias chain). Verify
+   raw V8 entries land at `coverage/raw/` and resolve back to `.tsx`
+   sources via source-maps. ~30 min.
+2. If smoke passes, update `packages/ui/vitest.config.ts` to use
+   `vitest-monocart-coverage` provider (replaces `@vitest/coverage-v8`).
+3. Update `packages/ui/scripts/coverage-merge.ts` to drop the Q26
+   limitation comment block and simplify to a pure
+   `inputDir: ['./coverage/raw', './coverage/ct/raw']` setup. Remove
+   the Istanbul-loading branch.
+4. Re-run `pnpm coverage` and verify the merged report includes ALL
+   `packages/ui/src/` files (not just the CT subgraph) at the expected
+   coverage levels.
+5. Phase 3's per-file ≥80% branch gate naturally re-applies, this time
+   over the full include set.
+
+If Option A fails (Phase 0-style smoke), open the Q26 reopen condition
+and pick Option B (custom converter) as the contingency.

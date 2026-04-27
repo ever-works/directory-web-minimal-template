@@ -26,6 +26,7 @@
         "test:ui:safe": "pnpm --filter @ever-works/ui test:safe",
         "test:ct": "pnpm --filter @ever-works/ui test:ct",
         "test:ct:install": "pnpm --filter @ever-works/ui test:ct:install",
+        "coverage": "pnpm --filter @ever-works/ui coverage",
         "typecheck": "turbo run typecheck"
     },
     "devDependencies": {

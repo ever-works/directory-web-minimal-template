@@ -237,41 +237,200 @@ This is the intended pre-merge state. Phase 3 (the merge command) restores the p
 runs Vitest coverage, then CT coverage, then merges both into a single
 report.
 
+### Reconciled strategy (informed by iteration 116 monocart README + d.ts review)
+
+The schematic from iteration 110 had `mcr.add(JSON.parse(...raw-v8.json))`
+using the monocart-reporter `onEnd` summary file. Iteration 116 review
+of `node_modules/monocart-coverage-reports/lib/index.d.ts` and the
+upstream README "Manual Merging" section pinpointed two corrections:
+
+1. **The Phase 1 `raw-v8.json` is a SUMMARY shape**, not raw V8 byte
+   ranges. It cannot be re-fed to `mcr.add()` (which expects either a
+   V8 entry array from `page.coverage.stopJSCoverage()` or an Istanbul
+   coverage object). It exists purely as the Phase 1 exit-criterion
+   sentinel; we leave it in place but do NOT consume it in the merge.
+2. **monocart's documented "Manual Merging" pattern is `inputDir` +
+   raw V8 dirs, not `mcr.add(serialized-summary)`.** The CT side gets
+   a `'raw'` report added so each test's V8 entries land at
+   `coverage/ct/raw/<id>.json`. The merge script then uses
+   `inputDir: ['./coverage/ct/raw']` to pick them up automatically and
+   `mcr.add(istanbulFromVitest)` for the Vitest Istanbul side.
+
+The Vitest side stays exactly as-is (V8 provider, Istanbul
+`coverage-final.json` output). monocart's `add()` recognizes Istanbul
+data structurally — no separate `vitest-monocart-coverage` install is
+needed.
+
 ### Steps
 
-1. Create `packages/ui/scripts/coverage-merge.ts`:
+1. **Edit `packages/ui/playwright.ct.config.ts`**: add `'raw'` to the
+   `coverage.reports` list so each CT test's raw V8 entries land at
+   `coverage/ct/raw/<id>.json`. Keep `'v8'`, `'v8-json'`,
+   `'console-summary'` for human-readable single-source CT reports;
+   add `'raw'` purely as the merge-input feed. The Phase 1 `onEnd`
+   hook stays untouched (Phase 1 sentinel + AC #5 progress signal).
+2. Create `packages/ui/scripts/coverage-merge.ts`:
    ```ts
-   import MCR from 'monocart-coverage-reports';
-   const mcr = MCR({
-       outputDir: './coverage',
-       reports: ['v8', 'lcov', 'codecov'],
-       sourceFilter: { '**/packages/ui/src/**': true },
+   import { readFileSync, existsSync } from 'node:fs';
+   import { resolve } from 'node:path';
+   import { CoverageReport } from 'monocart-coverage-reports';
+
+   const VITEST_FINAL = './coverage/coverage-final.json';
+   const CT_RAW_DIR  = './coverage/ct/raw';
+   const OUT_DIR     = './coverage/merged';
+
+   const mcr = new CoverageReport({
+       name: '@ever-works/ui Merged Coverage',
+       inputDir: existsSync(CT_RAW_DIR) ? [CT_RAW_DIR] : undefined,
+       outputDir: OUT_DIR,
+       cleanCache: true,
+       reports: [
+           ['v8'], ['v8-json'], ['lcov'], ['codecov'], ['console-summary'],
+       ],
+       sourceFilter: (sourcePath: string) => {
+           if (!sourcePath) return false;
+           if (sourcePath.includes('node_modules/')) return false;
+           if (sourcePath.includes('__tests__/')) return false;
+           if (sourcePath.includes('playwright/index.')) return false;
+           return (
+               sourcePath.includes('packages/ui/src/') ||
+               sourcePath.startsWith('src/')
+           );
+       },
    });
-   await mcr.add(JSON.parse(readFileSync('./coverage/ct/raw-v8.json')));
-   await mcr.add(JSON.parse(readFileSync('./coverage/coverage-final.json')));
-   await mcr.generate();
+
+   if (existsSync(VITEST_FINAL)) {
+       const istanbul = JSON.parse(readFileSync(VITEST_FINAL, 'utf8'));
+       await mcr.add(istanbul);
+   }
+   const report = await mcr.generate();
+   if (!report) throw new Error('coverage-merge: no report generated');
    ```
-   (Schematic — actual API surface is reconciled against
-   `monocart-coverage-reports@^2.12.0` README at execution time.
-   Iteration 112 verified the API matches: `MCR(options).add(data)
-   .generate()` is the documented entry point.)
-2. Add `packages/ui/package.json` script:
+   (`CoverageReport` is the same surface as `MCR()` — the d.ts file at
+   `node_modules/monocart-coverage-reports/lib/index.d.ts` shows
+   `add(coverageData: any[] | any)` accepts Istanbul objects directly.)
+3. Add `packages/ui/package.json` script:
    ```json
    "coverage": "pnpm test:coverage && pnpm test:ct && tsx scripts/coverage-merge.ts"
    ```
-3. Add root `package.json` script:
+4. Add root `package.json` script:
    ```json
    "coverage": "pnpm --filter @ever-works/ui coverage"
    ```
-4. Add `pnpm coverage` to `CLAUDE.md` "Common Commands" and "Safe
+5. Add `pnpm coverage` to `CLAUDE.md` "Common Commands" and "Safe
    Operations" lists.
 
 ### Exit criterion
 
-`pnpm coverage` produces `packages/ui/coverage/coverage-summary.json`
-with branch number ≥ baseline (iteration 95). All three migrated
-components show ≥80% branch coverage in the merged
-`coverage-final.json`.
+`pnpm coverage` produces `packages/ui/coverage/merged/coverage-report.json`
+(monocart V8-JSON shape). The `summary.branches.pct` value is at or
+above the iteration-95 baseline (≥99%, modulo the three migrated
+components carrying real CT-measured branch counts now). Each of
+`FilterBar.tsx` / `LayoutSwitcher.tsx` / `MobileMenu.tsx` shows
+≥80% branch coverage in the merged report's `files[]` entry.
+
+### Outcome (iteration 116, 2026-04-27)
+
+✅ **PARTIALLY DONE — CT subgraph merged; Vitest Istanbul side
+deferred to Q26 follow-up.**
+
+**Landed**:
+
+1. `packages/ui/playwright.ct.config.ts` — `'raw'` added to
+   `coverage.reports`. Each CT test now writes a per-test raw V8
+   entries file at `coverage/ct/raw/<id>.json`. After a clean
+   `pnpm test:ct` run, that directory contains 49 JSON files (one per
+   test execution unit, including before/after fixture phases).
+2. `packages/ui/scripts/coverage-merge.ts` — new TypeScript script
+   (~190 lines including header documentation) that constructs a
+   `CoverageReport` instance with `inputDir: ['./coverage/ct/raw']`,
+   `outputDir: './coverage/merged'`, `cleanCache: true`, and
+   `reports: [['v8'], ['v8-json'], ['lcov'], ['codecov'], ['console-summary']]`.
+   Includes a per-file ≥80% branch gate over `FilterBar.tsx`,
+   `LayoutSwitcher.tsx`, `MobileMenu.tsx` reported as informational
+   warnings (Phase 4 CI will enforce).
+3. `packages/ui/vitest.config.ts` — `'json'` added to the V8
+   provider's `reporter` array so Vitest writes
+   `coverage/coverage-final.json` (Istanbul shape) on every
+   `pnpm test:coverage` run. Comment block in the same file updated
+   to drop the "Phase 3 will introduce…" forward-reference now that it
+   has landed.
+4. `packages/ui/package.json` — new script
+   `"coverage": "pnpm test:coverage && pnpm test:ct && tsx scripts/coverage-merge.ts"`.
+5. Root `package.json` — new script
+   `"coverage": "pnpm --filter @ever-works/ui coverage"`.
+6. `CLAUDE.md` — `pnpm coverage` added to Common Commands AND Safe
+   Operations.
+
+**Verified**:
+
+- `pnpm coverage` runs end-to-end on Windows + Node 24.14.0 in
+  ~3m walltime (107s Vitest + 78s CT + ~1s merge).
+- Outputs land at `packages/ui/coverage/merged/`:
+  `coverage-report.json` (V8-JSON), `lcov.info`, `codecov.json`,
+  `index.html`, `lcov-report/`, `coverage-data.js`.
+- Aggregate: branches 84.88% (73/86), functions 100% (40/40), lines
+  97.18% (482/496), statements 90.60% (106/117), bytes 97.53%
+  (19,903/20,407) — all 9 files in the CT subgraph.
+- Per-file gate (informational): **FilterBar.tsx 100% (27/27) ✅**,
+  **LayoutSwitcher.tsx 100% (15/15) ✅**, **MobileMenu.tsx 67.57%
+  (25/37) ❌**. The MobileMenu gap is a real signal — 12 branches
+  uncovered in CT — and is treated as a Phase 4 prerequisite, not a
+  Phase 3 blocker. See "Phase 3 follow-ups" below.
+
+**Deviation from plan**:
+
+The plan's original `mcr.add(istanbul) + inputDir(rawV8)` mixing fails
+deterministically in monocart-coverage-reports@2.12.11. Diagnosis (per
+`packages/ui/scripts/coverage-merge.ts` header):
+
+- `getCoverageResults` (`lib/generate.js`) inspects `dataList[0].type`
+  to dispatch into either the V8 or Istanbul code path — they're
+  mutually exclusive.
+- When raw V8 entries are loaded via `inputDir` AND Istanbul data is
+  added via `mcr.add(istanbul)`, the converter routes everything
+  through the V8 path. Istanbul entries lack `type: 'js'`, fall into
+  `getCssAstInfo`, and crash on `ranges.sort()` (no ranges).
+- Error: `[MCR] Not found source data: undefined` →
+  `TypeError: Cannot read properties of undefined (reading 'sort')` at
+  `getCssAstInfo (.../converter/ast.js:339:12)`.
+
+The merge script therefore consumes ONLY the CT raw V8 directory.
+Vitest Istanbul `coverage-final.json` is detected and reported in the
+header line ("Vitest Istanbul = ./coverage/coverage-final.json (NOT
+merged — see Q26)") but NOT fed to MCR. Files that Vitest exercises
+(everything in `packages/ui/src/` *except* the three CT components)
+keep their per-runner Vitest coverage in
+`coverage/coverage-summary.json`.
+
+**Phase 3 follow-ups** (next iterations):
+
+1. **Q26** (new this iteration): integrate `vitest-monocart-coverage`
+   so Vitest also emits raw V8 entries to `coverage/raw/`. Then both
+   inputs flow through the same V8 path and the merge becomes a true
+   union of all `packages/ui/src/` files. Default Option A (drop-in
+   provider replacement). See `docs/questions.md` Q26.
+2. **MobileMenu CT branch coverage**: 12 uncovered branches need
+   either additional CT tests OR identification as defensive paths
+   that don't need exercise. Likely targets in the file: error
+   recovery paths in the focus-trap teardown, the touch-event
+   listeners (PointerEvent vs TouchEvent fallback), and the
+   `prefers-reduced-motion` guard inside the slide animation.
+3. **Phase 4 CI integration**: convert the per-file ≥80% gate from
+   informational warning to hard failure once Q26 lands AND the
+   MobileMenu gap is closed.
+
+**Phase 3 satisfies AC #1 (merge command exists), AC #2 (single
+output dir), AC #4 (CT raw stream consumed), AC #7 (idempotent — re-running
+`pnpm coverage` produces stable numbers within ±0.1pp from the same
+source). AC #5 (per-file ≥80% branches) satisfied for 2/3 components
+— MobileMenu pending. AC #6 (full per-package number from a single
+report) deferred to Q26.**
+
+**Phase 4 unblocked** for the artifact-upload portion (CT raw
+directory, Vitest Istanbul, merged report all separately
+upload-able). Phase 4's gate enforcement should sequence AFTER Q26
++ MobileMenu test additions.
 
 ---
 
@@ -288,9 +447,12 @@ numbers.
      `packages/ui/coverage/coverage-final.json` as artifact
      `ui-coverage-vitest`.
 2. Edit `.github/workflows/ci.yml` `test-ct` job:
-   - After `pnpm test:ct`, upload
-     `packages/ui/coverage/ct/raw-v8.json` as artifact
-     `ui-coverage-ct`.
+   - After `pnpm test:ct`, upload the entire
+     `packages/ui/coverage/ct/raw/` directory (raw V8 entries written
+     by the `'raw'` report type added in Phase 3 step 1) as artifact
+     `ui-coverage-ct`. The `coverage/ct/raw-v8.json` Phase 1 sentinel
+     is also uploaded for traceability but is not consumed by the
+     merge job.
 3. Add a new job `coverage-merge`:
    - Depends on `test` and `test-ct` (both OS cells of test-ct).
    - Downloads both artifacts.

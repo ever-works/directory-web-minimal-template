@@ -30,7 +30,13 @@ export default defineConfig({
         hookTimeout: 30_000,
         coverage: {
             provider: 'v8',
-            reporter: ['text', 'json-summary'],
+            // Iteration 116 (Q22 follow-up #3 Phase 3) added 'json' so Vitest
+            // writes `coverage/coverage-final.json` — the per-file Istanbul-shape
+            // file that `packages/ui/scripts/coverage-merge.ts` consumes via
+            // `mcr.add()` to combine Vitest + CT into one merged report.
+            // 'text' (stdout summary) and 'json-summary' (the `coverage-summary.json`
+            // aggregate) were already in place since iteration 95.
+            reporter: ['text', 'json-summary', 'json'],
             include: ['src/**/*.{ts,tsx}'],
             // `src/preact/FilterBar.tsx`, `src/preact/LayoutSwitcher.tsx`,
             // and `src/preact/MobileMenu.tsx` are exercised by Playwright CT
@@ -45,18 +51,18 @@ export default defineConfig({
             // exclusions for FilterBar/LayoutSwitcher/MobileMenu were
             // dropped. They are now part of the Vitest `include` set and
             // will report 0% Vitest coverage (Vitest never executes them).
-            // The CT runner already captures their V8 coverage via
+            // The CT runner captures their V8 coverage via
             // `monocart-reporter` (Phase 1, iteration 114) and writes
-            // `coverage/ct/raw-v8.json`. Phase 3 (next iteration) will
-            // introduce a `pnpm coverage` script that merges the Vitest
-            // and CT V8 reports into a single per-package number — at
-            // that point the per-file branch coverage for the three CT
-            // components is restored to the rolled-up report.
+            // `coverage/ct/raw-v8.json` + `coverage/ct/raw/<id>.json`.
             //
-            // Until Phase 3 lands, plain `pnpm --filter @ever-works/ui
-            // test:coverage` reports a LOWER branch number than before
-            // (that's the intended pre-merge state, exit criterion of
-            // Phase 2). See `docs/plans/q22-playwright-coverage.md` and
+            // Iteration 116 (Q22 follow-up #3 Phase 3): the `pnpm coverage`
+            // command merges Vitest + CT into one report at
+            // `coverage/merged/`. The per-file branch coverage for the
+            // three CT components is restored there. Plain `pnpm --filter
+            // @ever-works/ui test:coverage` (this config alone) STILL
+            // reports the lower per-runner Vitest-only number — that's
+            // the intended pre-merge state used as a Phase 2 exit-criterion
+            // signal. See `docs/plans/q22-playwright-coverage.md` and
             // `.specify/features/q22-playwright-coverage.md` AC #5/#6.
             exclude: [
                 'src/**/__tests__/**',

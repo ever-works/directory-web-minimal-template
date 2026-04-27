@@ -3,6 +3,89 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 116: Q22 follow-up #3 Phase 3 ✅ DONE (CT subgraph) — `pnpm coverage` merge command landed; Q26 opened for full V8+Vitest merge
+
+### Headline
+
+Phase 3 of the `playwright-coverage` integration plan executed end-to-end on Windows + Node 24.14.0. A new `pnpm coverage` command (root + per-package `@ever-works/ui` script) runs Vitest coverage, then Playwright Component Tests, then a TypeScript merge script (`packages/ui/scripts/coverage-merge.ts`) that combines per-test raw V8 entries from `coverage/ct/raw/` into a single merged report at `coverage/merged/`. The merge writes `coverage-report.json` (V8-JSON shape, the input-able format), `lcov.info`, `codecov.json`, `index.html`, and a per-test `lcov-report/`.
+
+The per-file ≥80% branch gate for the three CT-migrated components produced its first real data: **FilterBar.tsx 100% (27/27) ✅**, **LayoutSwitcher.tsx 100% (15/15) ✅**, **MobileMenu.tsx 67.57% (25/37) ❌**. The MobileMenu gap is reported as an informational warning this iteration (Phase 4 CI will enforce); 12 branches uncovered in CT, likely focus-trap teardown / pointer-vs-touch fallback / `prefers-reduced-motion` guards.
+
+**Q26 opened** as a Phase 3 finding: monocart-coverage-reports@2.12.11 has a hard limitation that prevents mixing raw V8 + Istanbul in a single MCR instance (`getCoverageResults` dispatches mutually-exclusive code paths on `dataList[0].type`). The plan's original "single MCR instance with both inputs" ambition crashes deterministically with `[MCR] Not found source data: undefined` → `TypeError: Cannot read properties of undefined (reading 'sort')` at `getCssAstInfo`. Q26 chooses how to close the gap; default is Option A (`vitest-monocart-coverage` drop-in provider so Vitest also emits raw V8). The merge script logs "Vitest Istanbul = ./coverage/coverage-final.json (NOT merged — see Q26)" so future contributors are not surprised.
+
+### What was done
+
+1. **`packages/ui/playwright.ct.config.ts`** — added `'raw'` to the `coverage.reports` list inside the `monocart-reporter` config block. Each per-test V8 stream now lands at `coverage/ct/raw/<id>.json`. Header comment expanded with a new "Phase 3" block explaining the input/output relationship and clarifying that the Phase 1 `onEnd` `raw-v8.json` summary is intentionally retained as a traceability sentinel (not consumed by the merge).
+2. **`packages/ui/scripts/coverage-merge.ts`** — NEW (~190 lines including the header comment block). Constructs `new CoverageReport({ inputDir: ['./coverage/ct/raw'], outputDir: './coverage/merged', cleanCache: true, reports: [['v8'], ['v8-json'], ['lcov'], ['codecov'], ['console-summary']], sourceFilter })`. Calls `mcr.generate()`. Reports aggregate metrics + per-file ≥80% gate over `FilterBar.tsx` / `LayoutSwitcher.tsx` / `MobileMenu.tsx` to stdout. Per-file failures are printed with ❌ but exit code stays 0 — gate enforcement is Phase 4's job.
+3. **`packages/ui/vitest.config.ts`** — added `'json'` to the V8 provider's `reporter` array so Vitest writes `coverage/coverage-final.json` (Istanbul shape) on every `pnpm test:coverage` run. The file was previously only writing `text` (stdout) and `json-summary` (the small aggregate). Even though the merge script doesn't consume `coverage-final.json` this iteration (Q26 blocked), it's the right primitive to have in place for when Q26 lands. Comment block in `coverage.exclude` updated to drop the "Phase 3 will introduce…" forward-reference.
+4. **`packages/ui/package.json`** — new script `"coverage": "pnpm test:coverage && pnpm test:ct && tsx scripts/coverage-merge.ts"`.
+5. **Root `package.json`** — new script `"coverage": "pnpm --filter @ever-works/ui coverage"`.
+6. **`CLAUDE.md`** — `pnpm coverage` added to the Common Commands table (with description block) and the Safe Operations list. Walltime estimate: ~3m on Windows + Node 24.
+7. **`docs/plans/q22-playwright-coverage.md`** — Phase 3 section rewritten with a "Reconciled strategy (informed by iteration 116 monocart README + d.ts review)" block explaining the `inputDir` + `mcr.add()` original design intent. Phase 3 outcome block filled with the ✅ PARTIALLY DONE status, the deviation rationale (MCR mixing limitation), the per-file gate findings, and the three follow-ups (Q26, MobileMenu CT branches, Phase 4 CI sequencing).
+8. **`docs/questions.md`** — new Q26: "Vitest → monocart V8 raw stream for full V8+CT merge (Q22 follow-up #3 Phase 3 finding)". Five options (A through E), default A (`vitest-monocart-coverage`), full risk analysis, next-steps checklist if Option A holds.
+9. **`docs/log.md`** — this entry.
+10. **`docs/index.md`** — iteration descriptor bumped 115 → 116.
+11. **`.specify/project.md`** — Current State header bumped 115 → 116.
+
+### Verification
+
+- `pnpm --filter @ever-works/ui typecheck` — pre-edit pass (verified before changes); post-edit re-run confirms 0 errors. The `scripts/` directory is excluded from the package's `tsconfig.json` `include` list, so the new `coverage-merge.ts` does not affect typecheck (it executes via `tsx` at runtime).
+- `pnpm coverage` (full chain: 107s Vitest + 78s CT + ~1s merge) — produces:
+  - **Vitest Vitest-side artifacts**: `packages/ui/coverage/coverage-final.json` (28 files, Istanbul shape), `coverage-summary.json` (small aggregate).
+  - **CT-side artifacts**: `packages/ui/coverage/ct/{coverage-report.json, coverage-data.js, index.html, index.json, raw-v8.json}` + 49 raw V8 files in `packages/ui/coverage/ct/raw/`.
+  - **Merged-side artifacts**: `packages/ui/coverage/merged/{coverage-report.json, coverage-data.js, codecov.json, lcov.info, index.html, lcov-report/, assets/}`.
+- **Merged aggregate**: branches 84.88% (73/86), functions 100% (40/40), lines 97.18% (482/496), statements 90.60% (106/117), bytes 97.53% (19,903/20,407) — across 9 files in the CT subgraph (the three migrated components + their imported primitives + utility libs).
+- **Per-file gate (informational this iteration; Phase 4 CI hard gate)**: FilterBar.tsx 100% branches ✅, LayoutSwitcher.tsx 100% branches ✅, MobileMenu.tsx 67.57% branches ❌.
+- **Re-running the merge alone** (without re-running Vitest/CT) is idempotent: the merged numbers are stable within ±0pp on a clean re-run because monocart's `cleanCache: true` clears the cache subdirectory at the start of each run.
+
+### Files touched
+
+- `packages/ui/playwright.ct.config.ts` — `'raw'` added to reports + Phase 3 comment block.
+- `packages/ui/scripts/coverage-merge.ts` — NEW.
+- `packages/ui/vitest.config.ts` — `'json'` added to reporter list + comment block updated.
+- `packages/ui/package.json` — `coverage` script added.
+- `package.json` — root `coverage` script added.
+- `CLAUDE.md` — `pnpm coverage` documented in Common Commands + Safe Operations.
+- `docs/plans/q22-playwright-coverage.md` — reconciled strategy + Phase 3 outcome block.
+- `docs/questions.md` — Q26 added (~120 lines).
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bump.
+- `.specify/project.md` — Current State header bump.
+
+### Files created
+
+- `packages/ui/scripts/coverage-merge.ts` (~190 lines).
+
+### Q22 / Q23 / Q24 / Q25 / Q26 status snapshot
+
+- **Q22** (Vitest UI hang): ✅ RESOLVED in iteration 105 (FilterBar CT migration).
+- **Q22 follow-up #1** (MobileMenu preemptive CT migration): ✅ COMPLETE in iteration 108.
+- **Q22 follow-up #2** (`pnpm test:ui:safe` removal): SUPERSEDED in iteration 110 (soft-deprecated as defensive fallback).
+- **Q22 follow-up #3** (`playwright-coverage` integration):
+  - Phase 0 (smoke test): ✅ PASS in iteration 113.
+  - Phase 1 (reporter wiring): ✅ DONE in iteration 114.
+  - Phase 2 (Vitest exclusions drop): ✅ DONE in iteration 115.
+  - Phase 3 (merge command): **✅ PARTIALLY DONE in iteration 116** (CT subgraph; full V8+Vitest deferred to Q26).
+  - Phase 4 (CI integration): unblocked for the artifact-upload portion; gate enforcement waits on Q26 + MobileMenu CT branches.
+  - Phase 5 (status flips + docs): in flight (this entry, plan outcome block, index.md descriptor, project.md state).
+- **Q23** (LayoutSwitcher Q22-shape hang): ✅ RESOLVED in iteration 107.
+- **Q24** (LayoutSwitcher EMPTY_MODES allocation): ✅ RESOLVED in iteration 109.
+- **Q25** (coverage library choice): ✅ RESOLVED — Option A adopted (monocart-coverage-reports 2.x).
+- **Q26** (Vitest → monocart V8 raw stream): **OPEN [DEFAULT Option A]** — opened iteration 116 as a direct outcome of Phase 3 execution.
+
+### Next Steps (for next scheduled run)
+
+Execute Q26 (Phase 0-style smoke test for `vitest-monocart-coverage`):
+
+1. Create scratch dir at `packages/ui/scratch/vitest-monocart-smoke/` (gitignored — already covered by `packages/ui/.gitignore` from iteration 112).
+2. Run `pnpm add -D vitest-monocart-coverage@latest` against a one-off `package.json` in the scratch dir.
+3. Author a minimal `vitest.config.ts` mirroring the package's real config (Vite + Preact alias) and a single trivial test that covers a small file with at least one branch.
+4. Run with `--coverage --coverage.provider=monocart` (or whatever the documented provider name is) and confirm raw V8 entries land at `scratch/coverage/raw/`.
+5. Inspect one of the raw entries — confirm `url` resolves to a `.tsx` source path under source-map application.
+6. Document the smoke outcome in `docs/log.md` iteration 117 entry; flip Q26 status from `OPEN [DEFAULT]` to `CONFIRMED — Option A` (or REOPEN with Option B contingency if smoke fails).
+
+If iteration 117 also has bandwidth: write 2-3 additional MobileMenu CT cases targeting the 12 uncovered branches identified by the Phase 3 merge report at `packages/ui/coverage/merged/coverage-report.json` (look for `MobileMenu.tsx` entry, follow `data.branches[].count === 0` to pinpoint the source ranges).
+
 ## 2026-04-27 — Iteration 115: Q22 follow-up #3 Phase 2 ✅ DONE — Vitest exclusions for `FilterBar`/`LayoutSwitcher`/`MobileMenu` dropped (intended pre-merge state captured)
 
 ### Headline

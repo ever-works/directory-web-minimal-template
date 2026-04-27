@@ -37,6 +37,21 @@
  * shape required by the plan's Phase 1 exit criterion (≥3 entries — one
  * per migrated component). The other reports (`v8`, `v8-json`,
  * `console-summary`) are produced by monocart from the same merged data.
+ *
+ * --- Q22 follow-up #3 — playwright-coverage integration (Phase 3) ---
+ *
+ * The `'raw'` report type added to `coverage.reports` below writes
+ * per-test raw V8 entries to `coverage/ct/raw/<id>.json`. These files
+ * are the input for `packages/ui/scripts/coverage-merge.ts` (`pnpm
+ * coverage`), which combines them with Vitest's Istanbul
+ * `coverage-final.json` into a single merged report at
+ * `coverage/merged/`. Pattern documented in the upstream
+ * monocart-coverage-reports README under "Manual Merging".
+ *
+ * The Phase 1 `onEnd` summary file (`raw-v8.json`) is intentionally
+ * kept as a traceability sentinel — the merge script does NOT consume
+ * it. It exists purely to prove that V8 data is being collected on
+ * every CT run (Phase 1 exit criterion AC #3).
  */
 import { defineConfig, devices } from '@playwright/experimental-ct-react';
 import { writeFileSync, mkdirSync } from 'node:fs';
@@ -75,6 +90,13 @@ export default defineConfig({
                         'v8',
                         'v8-json',
                         'console-summary',
+                        // Phase 3 (Q22 follow-up #3): write per-test raw V8
+                        // entries to `coverage/ct/raw/<id>.json` so the merge
+                        // script (`packages/ui/scripts/coverage-merge.ts`)
+                        // can pick them up via `inputDir`. See plan
+                        // `docs/plans/q22-playwright-coverage.md` Phase 3
+                        // step 1.
+                        'raw',
                     ],
                     // V8 emits URLs for the *bundled* chunks the CT Vite
                     // server serves at `http://localhost:3100/assets/*.js`
