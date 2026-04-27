@@ -3,6 +3,54 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 122: Q22 follow-up #3 Phase 6d ✅ DONE — status flips across architecture / spec / questions / plan; Q22 follow-up #3 fully ✅ COMPLETE
+
+### Headline
+
+The final phase of Q22 follow-up #3 (`playwright-coverage` integration) lands as a doc-only iteration. The pipeline itself was already green at iteration 121's commit — `pnpm coverage` produces a per-package merged report at branches 98.72% / functions 100% / lines 99.60% / statements 99.15% across 19 files, and `coverage-merge.ts` exits non-zero if any of FilterBar/LayoutSwitcher/MobileMenu drops below 80% branches. Iteration 122 closes the loop by flipping every relevant status marker so future readers see "✅ RESOLVED" instead of "🚧 in progress" or stale iteration-116 wording.
+
+After iteration 122 the saga is closed: **Q22 ✅ + Q23 ✅ + Q24 ✅ + Q25 ✅ + Q26 ✅; Q22 follow-ups #1 ✅ + #2 ~~SUPERSEDED~~ + #3 ✅**.
+
+### What was flipped
+
+1. **`docs/architecture/testing-runners.md`** — the "Coverage handling" section was rewritten end-to-end. The previous text described iteration-116's CT-only Phase 3 merge (`MobileMenu.tsx` at 67.57%, "Vitest Istanbul side NOT yet folded in", reference to "Q26 path forward"). It now describes the steady state from iteration 121: both runners emit raw V8, merge through MCR's V8 path, gate enforced. Per-file gate numbers updated to FilterBar 100% / LayoutSwitcher 100% / MobileMenu 91.89%; aggregate updated to 98.72% / 100% / 99.60% / 99.15%. The "Future work" `playwright-coverage` bullet was converted from `🚧` to ✅ COMPLETE with a per-phase recap (Phase 0 / 1 / 2 / 3 / 6a / 6b / 6c referenced by iteration number).
+2. **`.specify/features/q22-playwright-coverage.md`** — front-matter status flipped from `SPECIFIED (iteration 110)` → `✅ RESOLVED (iteration 121)` with the final per-package merged numbers, the per-file gate result, and pointers to Q25 / Q26 resolution blocks. Description text adjusted from future-tense "this spec integrates" to past-tense "resolved the gap".
+3. **`docs/questions.md` Q22 status block** — appended a 3-item list marking all follow-ups closed: #1 ✅ COMPLETE (iter 108), #2 ~~SUPERSEDED~~ (iter 110), #3 ✅ COMPLETE (iter 121). Cross-links to the spec and to `docs/architecture/testing-runners.md`'s Coverage handling section so a reader can find the canonical numbers in one hop.
+4. **`docs/questions.md` Q25** — status `OPEN (npm-registry validation done in iteration 112 — Phase 0 smoke test still pending)` → `✅ RESOLVED — Option A (monocart-coverage-reports@^2.12.0)`, citing Phase 0 smoke-test pass (iter 113) and the full Phase 1-3-6b adoption trail (iter 114-119). Notes that the Q25 reopen condition (smoke-test failure → Option B = `@bgotink/playwright-coverage`) never triggered.
+5. **`docs/questions.md` Q26** — pre-existing `✅ RESOLVED (iteration 119)` expanded to credit Phase 6c (CI gate enforcement, iter 121) and Phase 6d (this iteration's status flip). The final per-package merged number is inline so a Q26 reader doesn't have to chase it through Q25 / the spec / the plan.
+6. **`docs/plans/q22-playwright-coverage.md`** — Phase 6d gained an "Outcome (iteration 122)" block listing every doc surface that flipped, with verification (`pnpm typecheck` / `pnpm lint` FULL TURBO cache hits since the changes are doc-only).
+
+### What was NOT touched
+
+- No source files. No tests added or removed. No config changes. No package.json changes. No `pnpm install`.
+- No CI workflow changes. The iteration-121 `coverage-gate` job is unaffected.
+- No coverage re-run. Iteration 121's verification numbers (`pnpm coverage` end-to-end clean, per-file gate green) are still authoritative.
+
+### Verification
+
+- `git status` (post-edits): only the 6 doc files above modified.
+- `pnpm typecheck` — 23/23 (FULL TURBO cache hit, doc-only changes).
+- `pnpm lint` — 18/18 (FULL TURBO cache hit).
+
+### Files touched
+
+- `docs/architecture/testing-runners.md` — "Coverage handling" section + "Future work" `playwright-coverage` bullet.
+- `.specify/features/q22-playwright-coverage.md` — front-matter status block.
+- `docs/questions.md` — Q22 follow-ups list, Q25 status block, Q26 status expansion.
+- `docs/plans/q22-playwright-coverage.md` — Phase 6d outcome block.
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 121 → 122.
+- `.specify/project.md` — Current State header bumped 121 → 122; Q22 follow-up #3 line updated to fully closed.
+
+### Next Steps (for next scheduled run)
+
+The Q22 saga is closed. Open work moving forward:
+
+1. **CT-flake watch (Q26 candidate)** — iteration 111 noted `filter-bar.ct › selects category on click` as a one-time flake. Watch count remains at **1/3**; no further occurrences across iterations 112-121. If a second-or-third occurrence appears in a future `pnpm coverage` run, open a fresh question with the failure trace.
+2. **MobileMenu 3-branch outlier** — `if (focusable.length === 0) return;` early-return + 2 fall-through branches remain uncovered. Closing them needs an `<MobileMenu items={[]} />` test that doesn't trip the CT-host-page focus-attribution edge case (iteration-120 deferral). Likely solved by an `aria-hidden` guard on the empty panel, but that's a component-spec issue, not a coverage-pipeline issue. Track separately if/when it surfaces.
+3. **Routine maintenance** — Vitest / Astro / Tailwind / Playwright patch bumps continue on the iteration cadence established by 92 / 97 / 99 / 108. Next dep audit pass is appropriate when the next minor version of any of `astro@^6` / `vitest@^4` / `playwright@^1.59` is published.
+4. **Sample apps** — no current open work. The five sample apps (basic, jobs, events, real-estate, git) remain feature-complete per `.specify/features/sample-*.md`.
+
 ## 2026-04-27 — Iteration 121: Q22 follow-up #3 Phase 6c ✅ DONE — coverage gate hard-fail enforced (script + CI job)
 
 ### Headline

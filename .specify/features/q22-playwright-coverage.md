@@ -1,21 +1,32 @@
 # Feature: Q22 follow-up #3 — `playwright-coverage` integration
 
-> **Status: SPECIFIED (iteration 110, 2026-04-27).** Pending implementation.
-> Tracks the third and final follow-up on the Q22 / Q23 / Q24 CT-migration
-> arc. Resolves the gap left by iterations 105, 107, and 108: three
-> components (`FilterBar`, `LayoutSwitcher`, `MobileMenu`) now run only
-> under Playwright CT and have been excluded from the Vitest V8 branch
-> report so the per-package coverage number does not regress. This spec
-> integrates a coverage tool that captures V8 coverage *during* CT runs
-> and merges it back into the Vitest V8 report — restoring those three
-> components to the branch-coverage roll without sacrificing the CT
-> migration's correctness gains.
+> **Status: ✅ RESOLVED (iteration 121, 2026-04-27).** Fully shipped
+> across iterations 110-121. Spec authored iteration 110; all six
+> implementation phases landed (113 / 114 / 115 / 116 / 117 / 119 /
+> 120 / 121 — see `docs/plans/q22-playwright-coverage.md` Phase 0 / 1 /
+> 2 / 3 / 6a / 6b / 6c outcome blocks for the per-iteration verification
+> numbers, and `docs/architecture/testing-runners.md` "Future work" for
+> the consolidated outcome list).
 >
-> See **Q25** in `docs/questions.md` for the library-choice decision tree
-> (`@bgotink/playwright-coverage` vs `monocart-coverage-reports` vs custom
-> harness). Default: `monocart-coverage-reports` because of explicit
-> `playwright-ct-react` support and explicit V8-merge story for combining
-> Vitest + CT coverage.
+> Final per-package merged coverage on `@ever-works/ui`: branches
+> 98.72% (232/235), functions 100% (104/104), lines 99.60% (1239/1244),
+> statements 99.15% (352/355) across 19 files. Per-file Phase 6c gate:
+> FilterBar 100% ✅, LayoutSwitcher 100% ✅, MobileMenu 91.89% (34/37)
+> ✅ — all three above the 80%-branch hard threshold enforced by
+> `packages/ui/scripts/coverage-merge.ts` and the `.github/workflows/
+> ci.yml` `coverage-gate` job. Q25 and Q26 both ✅ RESOLVED in their
+> respective entries in `docs/questions.md`.
+>
+> Tracks the third and final follow-up on the Q22 / Q23 / Q24
+> CT-migration arc. Resolved the gap left by iterations 105, 107, and
+> 108: three components (`FilterBar`, `LayoutSwitcher`, `MobileMenu`)
+> ran only under Playwright CT and were excluded from the Vitest V8
+> branch report so the per-package coverage number did not regress.
+> This spec's integration captures V8 coverage during BOTH Vitest and
+> CT runs and merges them via MCR (Q26 default — `vitest-monocart-
+> coverage` adopted iteration 119) — restoring those three components
+> to the branch-coverage roll without sacrificing the CT migration's
+> correctness gains.
 
 ## Description
 

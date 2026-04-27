@@ -361,6 +361,30 @@ Default choice: **The 5 listed**. Users needing others use the `custom` provider
 > on every render, causing `useEffect([initialTags])` to reset state on
 > every re-render and silently discard user clicks. Fixed via a stable
 > `EMPTY_TAGS` module-level sentinel.
+>
+> **All three Q22 follow-ups now ✅ CLOSED** (as of iteration 121,
+> 2026-04-27):
+>
+> 1. **#1 — preemptive `MobileMenu` CT migration** ✅ COMPLETE iteration
+>    108 (15 cases ported; the same `EMPTY_MODES`-style allocation bug
+>    surfaced separately for `LayoutSwitcher` and was fixed in iteration
+>    109 / Q24).
+> 2. **#2 — `pnpm test:ui:safe` removal** ~~SUPERSEDED~~ iteration 110:
+>    plain `pnpm --filter @ever-works/ui test` runs all 11 Vitest files
+>    (174 tests) in ~98 s without re-introducing the IPC hang; the
+>    per-file runner is preserved as a defensive fallback per
+>    AGENTS.md R15 ("Replace, don't remove").
+> 3. **#3 — `playwright-coverage` integration** ✅ COMPLETE iteration
+>    121 (phases 0/1/2/3/6a/6b/6c/6d across iterations 113-121). Final
+>    merged per-package coverage: branches 98.72% (232/235), functions
+>    100% (104/104), lines 99.60% (1239/1244), statements 99.15%
+>    (352/355) across 19 files. Per-file gate green for FilterBar
+>    100%, LayoutSwitcher 100%, MobileMenu 91.89% (Phase 6c CI hard-
+>    fail enforced via `packages/ui/scripts/coverage-merge.ts` exit
+>    code + `.github/workflows/ci.yml` `coverage-gate` job). See
+>    `.specify/features/q22-playwright-coverage.md` for the full
+>    spec → resolved trail and `docs/architecture/testing-runners.md`
+>    Coverage handling section for the steady-state pipeline.
 
 
 **Context**: Discovered in iteration 97 (2026-04-26). Running `vitest run` for `packages/ui` (which has Preact + jsdom tests) hangs after the first ~4 test files complete with the error:
@@ -841,12 +865,14 @@ If any of the above fails after the fix, capture the failure shape and re-open Q
 
 ## Q25: Coverage library for Playwright CT — `monocart-coverage-reports` vs `@bgotink/playwright-coverage` vs custom
 
-> **Status: OPEN (npm-registry validation done in iteration 112,
-> 2026-04-27 — Phase 0 smoke test still pending).** Default
-> implies a smoke-test gate in Phase 0 of the plan at
-> [`docs/plans/q22-playwright-coverage.md`](plans/q22-playwright-coverage.md);
-> if the smoke test fails, re-open this question with the failure
-> shape attached and pick Option B.
+> **Status: ✅ RESOLVED — Option A (`monocart-coverage-reports@^2.12.0`).**
+> Phase 0 smoke test passed on Windows + Node 24.14.0 + Chromium 147 +
+> Playwright 1.59.1 in iteration 113; library wired into
+> `playwright.ct.config.ts` in iteration 114 (Phase 1); merge command
+> in iteration 116 (Phase 3); full-merge story closed by Q26 +
+> `vitest-monocart-coverage` adoption in iteration 119. The reopen
+> condition (Phase 0 smoke-test failure → Option B) never triggered.
+> Q22 follow-up #3 ✅ RESOLVED in iteration 121.
 >
 > **Iteration 112 npm-registry verification** (Apr 27, 2026):
 > - `monocart-coverage-reports@2.12.11` is the current `latest` dist-tag
@@ -988,7 +1014,7 @@ The Phase 1 outcome notes (including the fixture addition and the entryFilter re
 
 ## Q26: Vitest → monocart V8 raw stream for full V8+CT merge (Q22 follow-up #3 Phase 3 finding)
 
-> **Status: ✅ RESOLVED — Option A adopted; Phase 6b complete; full V8+Vitest merge live** (iteration 119, 2026-04-27). `vitest-monocart-coverage@^4.0.0` is now a real `@ever-works/ui` devDependency; `packages/ui/vitest.config.ts` runs `provider: 'custom'` + `customProviderModule: 'vitest-monocart-coverage'`; `packages/ui/mcr.config.ts` (new file) writes raw V8 entries to `./coverage/raw/`; `packages/ui/scripts/coverage-merge.ts` consumes both `./coverage/raw/` (Vitest, 40 files) and `./coverage/ct/raw/` (CT, 49 files) through MCR's V8 path. Merged report: **branches 94.89% (223/235), functions 100% (104/104), lines 98.63% (1227/1244), statements 96.62% (343/355)** across 19 files. `MobileMenu.tsx` 67.57% (12 uncovered branches) is the only sub-80% file — known, deferred to Q22 follow-up #3 sub-iteration. Phase 6c (CI gate enforcement) and Phase 6d (status flips) remain.
+> **Status: ✅ RESOLVED — Option A adopted; full V8+Vitest merge live; Phase 6c CI hard-gate enforced; Q22 follow-up #3 closed** (iteration 121, 2026-04-27). `vitest-monocart-coverage@^4.0.0` is a real `@ever-works/ui` devDependency; `packages/ui/vitest.config.ts` runs `provider: 'custom'` + `customProviderModule: 'vitest-monocart-coverage'`; `packages/ui/mcr.config.ts` writes raw V8 to `./coverage/raw/`; `packages/ui/scripts/coverage-merge.ts` consumes both `./coverage/raw/` (Vitest, 40 files) and `./coverage/ct/raw/` (CT, 49 files) through MCR's V8 path; the merge script `process.exit(1)`s when any allow-listed file drops below 80% branches; `.github/workflows/ci.yml` `coverage-gate` job inherits the merge exit code and uploads the merged HTML report as a 14-day artifact. Final merged coverage (iteration 121): **branches 98.72% (232/235), functions 100% (104/104), lines 99.60% (1239/1244), statements 99.15% (352/355)** across 19 files. Per-file gate: FilterBar 100% ✅, LayoutSwitcher 100% ✅, MobileMenu 91.89% (34/37) ✅ — all above the 80%-branch threshold. The 3-branch shortfall is `MobileMenu.tsx`'s `if (focusable.length === 0) return;` early-return + 2 fall-through branches (deferred — see iteration 120 entry in `docs/log.md` for the CT-host-page focus-attribution edge case that blocks the `<MobileMenu items={[]} />` test).
 >
 > **Status: CONFIRMED — Option A; Phase 6a SMOKE PASSED** (iteration
 > 117, 2026-04-27). Originally opened iteration 116 (2026-04-27) as a

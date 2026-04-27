@@ -767,6 +767,59 @@ Identical to the existing Phase 5 below, with one extra line item:
 9. **`docs/log.md`**: new iteration entry for Phase 6d. Cross-link
    to all three Phase 6 sub-iterations.
 
+### Outcome (iteration 122, 2026-04-27)
+
+✅ **DONE.** Status flips landed across all five doc surfaces:
+
+- **`docs/architecture/testing-runners.md`** — "Coverage handling"
+  section rewritten to describe the steady-state Vitest+CT V8 merge
+  (was still describing iteration-116 CT-only state). "Future work"
+  item for `playwright-coverage` integration converted from in-progress
+  to ✅ COMPLETE with a per-phase recap (Phase 0 / 1 / 2 / 3 / 6a /
+  6b / 6c). Per-file gate numbers updated to reflect iteration 121's
+  98.72% aggregate / 91.89% MobileMenu (was 67.57%).
+- **`.specify/features/q22-playwright-coverage.md`** — front-matter
+  status flipped `SPECIFIED (iteration 110, 2026-04-27)` →
+  `✅ RESOLVED (iteration 121, 2026-04-27)` with the final per-package
+  merged number, the per-file gate result, and pointers to Q25 / Q26
+  resolutions.
+- **`docs/questions.md` Q22 status block** — appended a list block
+  marking all three follow-ups (#1 ✅ COMPLETE iteration 108,
+  #2 ~~SUPERSEDED~~ iteration 110, #3 ✅ COMPLETE iteration 121)
+  with verification numbers and cross-links.
+- **`docs/questions.md` Q25** — status `OPEN (npm-registry validation
+  done in iteration 112)` → `✅ RESOLVED — Option A
+  (monocart-coverage-reports@^2.12.0)`, citing Phase 0 smoke-test pass
+  and the full Phase 1-3-6b adoption trail.
+- **`docs/questions.md` Q26** — status `✅ RESOLVED (iteration 119)`
+  expanded to include Phase 6c (CI gate enforcement, iteration 121)
+  and Phase 6d (this iteration's status flip), with the final
+  per-package merged number inline.
+
+Verification:
+- `pnpm typecheck` — 23/23 (FULL TURBO cache hit, doc-only changes
+  do not invalidate any task input).
+- `pnpm lint` — 18/18 (FULL TURBO cache hit, same reason).
+- `pnpm coverage` — not re-run this iteration (no source/config
+  changes). Iteration 121 verification still authoritative.
+
+**Q22 follow-up #3 ✅ COMPLETE.** The plan reaches its final state.
+No additional sub-phases planned; the only future-work hook is the
+`<MobileMenu items={[]} />` 1-branch outlier (3-branch shortfall
+documented in iteration 120 entry of `docs/log.md`), which is a
+component-spec issue, not a coverage-pipeline issue.
+
+Files touched (5):
+- `docs/architecture/testing-runners.md`
+- `.specify/features/q22-playwright-coverage.md`
+- `docs/questions.md`
+- `docs/plans/q22-playwright-coverage.md` (this Outcome block)
+- `docs/log.md` (iteration 122 entry)
+
+Plus iteration descriptor bumps in `docs/index.md` and
+`.specify/project.md` (iteration 121 → 122). Doc-only iteration; no
+code, dep, or config changes.
+
 ---
 
 ## Phase 5 — Documentation + status flips

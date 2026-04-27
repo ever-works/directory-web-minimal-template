@@ -210,49 +210,29 @@ migration, this bug would have remained dormant under the worker crash.
 
 ## Coverage handling
 
-V8 coverage is reported by both Vitest and Playwright CT. There are three
-distinct artifact streams in `packages/ui/coverage/`:
+V8 coverage is reported by both Vitest and Playwright CT. As of iteration 119 (Q22 follow-up #3 Phase 6b), **both runners emit the same raw-V8 shape** so a single `pnpm coverage` merge command produces the canonical per-package coverage number.
 
-1. **`coverage/` (Vitest)** — written by `pnpm test:coverage`. Per-file
-   Istanbul coverage from Vitest's `@vitest/coverage-v8` provider:
-   - `coverage-final.json` — full per-file Istanbul shape (added in
-     iteration 116 by adding `'json'` to the reporter array; consumed in
-     the future by Q26's full-merge implementation).
-   - `coverage-summary.json` — small aggregate (always written via
-     `'json-summary'`).
-2. **`coverage/ct/` (Playwright CT)** — written by `pnpm test:ct` via
-   `monocart-reporter` (configured in `packages/ui/playwright.ct.config.ts`).
+There are three distinct artifact streams in `packages/ui/coverage/`:
+
+1. **`coverage/` (Vitest)** — written by `pnpm test:coverage`. Vitest's coverage provider is `vitest-monocart-coverage` (custom; wraps `@vitest/coverage-v8`); options live in `packages/ui/mcr.config.ts` (sibling to `vitest.config.ts`).
+   - `raw/<id>.json` — per-test raw V8 entries (40 files per Vitest run). Consumed by the merge script via MCR `inputDir`. Same shape as the CT side.
+2. **`coverage/ct/` (Playwright CT)** — written by `pnpm test:ct` via `monocart-reporter` (configured in `packages/ui/playwright.ct.config.ts`).
    - `coverage-report.json` — V8-JSON shape with full per-byte data.
-   - `raw-v8.json` — Phase 1 traceability sentinel (post-merge file
-     summary, not consumed by Phase 3).
-   - `raw/<id>.json` — per-test raw V8 entries (added iteration 116 by
-     adding `'raw'` to the `coverage.reports` list; consumed by the Phase 3
-     merge script via MCR `inputDir`).
+   - `raw-v8.json` — Phase 1 traceability sentinel (post-merge file summary).
+   - `raw/<id>.json` — per-test raw V8 entries (49 files per CT run). Consumed by the merge script via MCR `inputDir`.
    - `index.html`, `index.json`, `coverage-data.js` — the visual report.
-3. **`coverage/merged/` (Phase 3 merge)** — written by `pnpm coverage`
-   (`packages/ui/scripts/coverage-merge.ts`). MCR loads
-   `coverage/ct/raw/*.json` via `inputDir`, applies the same `sourceFilter`
-   as the per-runner CT config, and writes `coverage-report.json` (V8-JSON),
-   `lcov.info`, `codecov.json`, `index.html`, and `lcov-report/`.
+3. **`coverage/merged/` (canonical merged report)** — written by `pnpm coverage` (`packages/ui/scripts/coverage-merge.ts`). MCR loads `coverage/raw/*.json` AND `coverage/ct/raw/*.json` via `inputDir: [...]`, applies a shared `sourceFilter`, and writes `coverage-report.json` (V8-JSON), `lcov.info`, `codecov.json`, `index.html`, and `lcov-report/`.
 
-**Current scope (iteration 116)**: the Phase 3 merge covers only the CT
-subgraph (the three CT-migrated components — `FilterBar.tsx`,
-`LayoutSwitcher.tsx`, `MobileMenu.tsx` — plus their imported primitives
-and utility libs). The Vitest Istanbul side is NOT yet folded into the
-merged report; the per-runner Vitest report at `coverage/` retains the
-source-of-truth coverage for the rest of `packages/ui/src/`. See **Q26**
-in `docs/questions.md` for the path to the full V8+Vitest merge
-(`vitest-monocart-coverage` drop-in provider).
+**Current scope (iteration 121)**: the merged report covers the **full** `packages/ui/src/` surface — every file Vitest exercises plus the three CT-migrated components. Both inputs flow through MCR's V8 path; there is no Istanbul mixing.
 
-**Phase 3 per-file gate (informational; Phase 4 CI will enforce)**:
+**Per-file gate (Phase 6c — `coverage-merge.ts` exits non-zero if any allow-listed file drops below 80% branches)**:
 - `FilterBar.tsx` — 100% branches (27/27) ✅
-- `LayoutSwitcher.tsx` — 100% branches (15/15) ✅
-- `MobileMenu.tsx` — 67.57% branches (25/37) ❌ (12 uncovered branches;
-  follow-up to add CT cases for focus-trap teardown / pointer-vs-touch
-  fallback / `prefers-reduced-motion` guards)
+- `LayoutSwitcher.tsx` — 100% branches (22/22) ✅
+- `MobileMenu.tsx` — 91.89% branches (34/37) ✅ (was 67.57% pre-iteration-120; closed by the focus-trap CT additions)
 
-The Phase 1/2/3 implementation history lives in
-`docs/plans/q22-playwright-coverage.md`.
+**Aggregate** (iteration 121, 19 files): branches 98.72% (232/235), functions 100% (104/104), lines 99.60% (1239/1244), statements 99.15% (352/355).
+
+The Phase 0-6c implementation history lives in `docs/plans/q22-playwright-coverage.md`. Phase 6d (this iteration) is the final status-flip pass.
 
 ## Local commands
 
@@ -342,12 +322,27 @@ Step 4 for traceability):
   outright deletion. See `docs/log.md` iteration 110 and
   `docs/questions.md` Q22 for the decision trail.
 - ~~**`playwright-coverage` integration** (Q22 follow-up #3)~~ —
-  Phases 0-3 ✅ in iterations 113-116. `monocart-coverage-reports@^2.12.0`
-  + `monocart-reporter@^2.10.0` adopted (Q25 ✅ RESOLVED). The three
-  exclusions in `packages/ui/vitest.config.ts` for `FilterBar.tsx`,
-  `LayoutSwitcher.tsx`, `MobileMenu.tsx` were lifted in Phase 2 (iter 115);
-  the Phase 3 `pnpm coverage` merge command (iter 116) writes to
-  `coverage/merged/` covering the CT subgraph. **Phase 4 (CI integration)
-  and Q26 (Vitest → monocart V8 raw stream for full V8+Vitest merge)**
-  remain. See `docs/plans/q22-playwright-coverage.md` and Q26 in
-  `docs/questions.md` for the next-iteration plan.
+  ✅ **COMPLETE iteration 121** (Phase 6d, this entry). All six phases
+  landed across iterations 113–121:
+  - Phase 0 (iter 113) — library smoke test PASS-API.
+  - Phase 1 (iter 114) — `monocart-reporter` wired into
+    `playwright.ct.config.ts`; CT now emits source-mapped raw V8.
+  - Phase 2 (iter 115) — three Vitest `coverage.exclude` lines for
+    the migrated components dropped.
+  - Phase 3 (iter 116) — `pnpm coverage` merge command landed for the
+    CT subgraph; opened Q26 for the Istanbul-vs-V8 hard limitation.
+  - Phase 6a (iter 117) — `vitest-monocart-coverage` smoke test
+    PASSED; Q25 + Q26 confirmed.
+  - Phase 6b (iter 119) — `vitest-monocart-coverage` adopted as the
+    Vitest provider; both runners now emit raw V8; Q26 ✅ RESOLVED.
+  - Phase 6c (iter 121) — coverage gate flipped from informational
+    `⚠️` to `process.exit(1)`; CI `coverage-gate` job added with
+    14-day artifact upload of the merged HTML report.
+  Aggregate merged coverage on the full `packages/ui/src/` surface:
+  **branches 98.72% (232/235), functions 100% (104/104), lines
+  99.60% (1239/1244)**. Per-file gate green for all three migrated
+  components. The 3-branch shortfall is `MobileMenu.tsx`'s
+  `focusable.length === 0` early-return + 2 fall-through branches
+  (deferred — see iteration 120 entry in `docs/log.md` for the
+  CT-host-page focus-attribution edge case that blocks the
+  `<MobileMenu items={[]} />` test).
