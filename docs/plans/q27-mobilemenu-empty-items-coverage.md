@@ -5,7 +5,7 @@ sidebar_label: "Q27 — MobileMenu coverage"
 
 # Q27 — `MobileMenu` 3-branch outlier coverage closure
 
-> **Spec:** [`.specify/features/q27-mobilemenu-empty-items-coverage.md`](../../.specify/features/q27-mobilemenu-empty-items-coverage.md)
+> **Spec:** [`.specify/features/q27-mobilemenu-empty-items-coverage.md`](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/q27-mobilemenu-empty-items-coverage.md)
 > **Status:** PLANNED (iteration 123, 2026-04-27).
 > **Iterations referenced:** 105 (Q22 / FilterBar CT migration), 108
 > (MobileMenu CT migration), 119 (Phase 6b — Vitest+CT V8 merge live;

@@ -3,6 +3,95 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 142: complete the cross-repo `.specify/` link audit — 5 Q-track plan files flipped from broken relative paths to absolute GitHub URLs
+
+### Headline
+
+Iter-141 closed two drifts in `apps/docs/` (Docusaurus blog post pre-iter-17 wording + sidebar topology missing 1 architecture page + 7 Q-track plans). The five Q-track plan files in `docs/plans/q22-mobilemenu-ct.md` / `docs/plans/q22-playwright-ct.md` / `docs/plans/q24-layoutswitcher-empty-modes.md` / `docs/plans/q27-mobilemenu-empty-items-coverage.md` / `docs/plans/q28-eslint-10-upgrade.md` retained one consistent piece of latent drift: their front-matter `Spec:` link still pointed at the relative path `../../.specify/features/<name>.md`. That relative path **resolves correctly when reading the plan in the source tree** (the editor / GitHub renderer follows directory levels), but **breaks on the published Docusaurus site** because `.specify/` is excluded from the Docusaurus content tree (the directory lives at the repository root, not under `docs/`, and Docusaurus only serves `docs/`-rooted content).
+
+Iter-141's headline drift list called out "7 Q-track plans" affected by the sidebar-topology issue, but the `.specify/`-relative-link drift was a separate per-file issue inside those plans — caught in the same audit window but not resolved in iter-141's commit. Iter-142 closes the loop with the 5 line-changes that complete the cross-repo `.specify/` link convention.
+
+### What was done
+
+Pure-doc iteration. **No source / test / config / dep / lockfile changes.**
+
+Five plan-file `Spec:` line edits, each substituting the relative path with the absolute GitHub URL convention already in use across `docs/index.md` Spec Kit section (since iter 102) and per-plan callouts:
+
+| File | Line | Before | After |
+|------|------|--------|-------|
+| `docs/plans/q22-mobilemenu-ct.md` | 8 | `[`q22-mobilemenu-ct.md`](../../.specify/features/q22-mobilemenu-ct.md)` | `[`q22-mobilemenu-ct.md`](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/q22-mobilemenu-ct.md)` |
+| `docs/plans/q22-playwright-ct.md` | 8 | `[`q22-playwright-ct.md`](../../.specify/features/q22-playwright-ct.md)` | `[…](https://github.com/…/blob/main/.specify/features/q22-playwright-ct.md)` |
+| `docs/plans/q24-layoutswitcher-empty-modes.md` | 8 | same shape | same fix |
+| `docs/plans/q27-mobilemenu-empty-items-coverage.md` | 8 | same shape | same fix |
+| `docs/plans/q28-eslint-10-upgrade.md` | 8 | same shape | same fix |
+
+Five lines total; net diff +5/-5; one fix per file, all on the same line index in each plan. No other plan-file content changed.
+
+### Why this was latent
+
+The five plan files were authored across iterations 102, 108, 109, 123, 129. At authoring time, the relative path resolved correctly in the source tree (the canonical reading surface for plans in active iterations). The Docusaurus-published version of these plans only became externally important after the saga closed — readers visiting the rendered docs site to trace the Q-arc resolution history would click the `Spec:` link and hit a 404. The fix establishes the same reading-experience contract for the published site as for the source tree.
+
+### Continued grep audit hygiene
+
+The grep that surfaced this drift:
+
+```
+grep -rEn "\(\.\./\.\./\.specify/|\(\.\./\.specify/" docs/
+```
+
+Pre-iter-142: 5 hits across 5 plan files (above table).
+Post-iter-142: 0 hits. **The cross-repo `.specify/` relative-link convention is now consistent across all of `docs/`.**
+
+The grep remains in the iter-138 "standard greps" list — future iterations should pre-emptively run it before assuming the convention holds.
+
+### Pattern progression — the iter-132 → iter-142 doc-audit run
+
+This is the **eighth** instance of the iter-132 / iter-135 / iter-136 / iter-137 / iter-138 / iter-139 / iter-140 / iter-141 / iter-142 audit pattern. The full progression:
+
+| Iteration | Surface flipped | Drift kind |
+|-----------|-----------------|------------|
+| 132 | `CLAUDE.md` Common Commands | Missing `pnpm test:ct` + `pnpm test:ct:install` |
+| 135 | `docs/guides/deployment.md` | Missing ISR env vars + output-mode decision (predates iter-17/Q17) |
+| 136 | `docs/guides/quickstart.md` + `getting-started.md` | Stale Common Commands (6 missing) |
+| 137 | `.specify/project.md` package matrix | 22 → 26 packages (post iter-132/133 expansion) |
+| 138 | `.specify/project.md` spec count | 28 → 31 specs (off-by-3 baseline-vs-final accounting) |
+| 139 | `README.md` Commands table | Conflated `pnpm test` row + 3 missing rows |
+| 140 | `.specify/features/q28` AC #5 + `docs/plans/q28` Step 4 | Same conflated `pnpm test` claim from iter-130 spec/plan |
+| 141 | `apps/docs/` Docusaurus blog + sidebar topology | Pre-iter-17 ISR wording + missing architecture page + 7 Q-track plans |
+| **142** | **`docs/plans/q*` `.specify/` `Spec:` links** | **Broken relative paths on published site (5 files)** |
+
+This is now the longest sustained doc-audit-only run in the saga's history — 11 consecutive iterations since iter-132 (132/135/136/137/138/139/140/141/142, with 133/134 inserting health-audit re-runs). Pattern: in steady-state ("no carried open work") iterations, doc-quality micro-audits are the canonical productive use of an autonomous cron tick.
+
+### Verification
+
+- `pnpm typecheck` — 23/23 FULL TURBO (2.0s, 100% cache hits — doc-only changes don't invalidate any task input).
+- `pnpm lint` — 18/18 FULL TURBO (2.5s, same reason).
+- `grep -rEn "\(\.\./\.\./\.specify/|\(\.\./\.specify/" docs/` — 0 hits (was 5).
+
+### Files touched
+
+- `docs/plans/q22-mobilemenu-ct.md` — 1-line `Spec:` link fix.
+- `docs/plans/q22-playwright-ct.md` — same.
+- `docs/plans/q24-layoutswitcher-empty-modes.md` — same.
+- `docs/plans/q27-mobilemenu-empty-items-coverage.md` — same.
+- `docs/plans/q28-eslint-10-upgrade.md` — same.
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 141 → 142.
+- `.specify/project.md` — Current State header bumped 141 → 142.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)** (iter-124 / iter-133 numbers stay authoritative). `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127. Project enters its **13th consecutive "no carried open work" steady-state iteration** (iter 130-142).
+
+### Next Steps (for next scheduled run)
+
+1. **Continue the grep-audit pattern** on still-unaudited surfaces:
+   - `apps/docs/` Docusaurus content beyond the iter-141 fixes (e.g., the rendered `customizing.md` / `analytics.md` / `creating-a-plugin.md` if they get bundled into the Docusaurus tree).
+   - `AGENTS.md` rules R12-R14 specific factual claims (commands, paths, package names).
+   - The remaining unaudited guides (`analytics.md`, `building-from-template.md`, `creating-a-plugin.md`, `creating-an-adapter.md`, `customizing.md`, `interactive-components.md`, `performance-testing.md`, `troubleshooting.md`, `content-sync.md`).
+2. **Routine dep audit** — re-check the dep matrix; expect zero deltas (iter-140 verified zero deltas ~2h prior).
+3. **Optional `pnpm test:e2e` re-run** — same logic as iter-134's build verification; defer unless a regression is suspected.
+
 ## 2026-04-27 — Iteration 141: continue cross-repo grep audit — close 2 drifts in `apps/docs/` (Docusaurus blog post pre-iter-17 wording + sidebar topology missing 1 architecture page + 7 Q-track plans)
 
 ### Headline

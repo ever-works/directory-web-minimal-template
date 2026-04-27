@@ -5,7 +5,7 @@ sidebar_label: "Q22 follow-up #1 — MobileMenu CT"
 
 # Q22 follow-up #1 — Preemptive MobileMenu CT migration
 
-> **Spec:** [`.specify/features/q22-mobilemenu-ct.md`](../../.specify/features/q22-mobilemenu-ct.md)
+> **Spec:** [`.specify/features/q22-mobilemenu-ct.md`](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/q22-mobilemenu-ct.md)
 > **Status:** PLANNED (iteration 108, 2026-04-27). Pending implementation in
 > the same iteration.
 > **Iterations referenced:** 105 (Q22 / `FilterBar`), 107 (Q23 / `LayoutSwitcher`).

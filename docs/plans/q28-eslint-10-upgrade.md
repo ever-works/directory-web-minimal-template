@@ -5,7 +5,7 @@ sidebar_label: "Q28 — ESLint 10 upgrade"
 
 # Q28 — ESLint 9 → 10 major-version upgrade
 
-> **Spec:** [`.specify/features/q28-eslint-10-upgrade.md`](../../.specify/features/q28-eslint-10-upgrade.md)
+> **Spec:** [`.specify/features/q28-eslint-10-upgrade.md`](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/q28-eslint-10-upgrade.md)
 > **Status:** ✅ RESOLVED (iteration 130, 2026-04-27). PLANNED
 > iteration 129; executed iteration 130. See **Outcome (iteration
 > 130)** at the bottom of this file.

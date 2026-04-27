@@ -5,7 +5,7 @@ sidebar_label: "Q22 Playwright CT Migration"
 
 # Plan: Q22 — Playwright Component Testing migration for `FilterBar`
 
-> Implementation plan paired with [`.specify/features/q22-playwright-ct.md`](../../.specify/features/q22-playwright-ct.md).
+> Implementation plan paired with [`.specify/features/q22-playwright-ct.md`](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/q22-playwright-ct.md).
 >
 > Authored: iteration 102 (2026-04-26).
 > Corrected: iteration 103 (2026-04-26).

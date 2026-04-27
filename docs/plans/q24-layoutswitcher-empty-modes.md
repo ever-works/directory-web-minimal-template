@@ -5,7 +5,7 @@ sidebar_label: "Q24 — EMPTY_MODES fix"
 
 # Q24 — LayoutSwitcher `EMPTY_MODES` allocation fix
 
-> **Spec:** [`.specify/features/q24-layoutswitcher-empty-modes.md`](../../.specify/features/q24-layoutswitcher-empty-modes.md)
+> **Spec:** [`.specify/features/q24-layoutswitcher-empty-modes.md`](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/q24-layoutswitcher-empty-modes.md)
 > **Status:** PLANNED (iteration 109, 2026-04-27).
 > **Iterations referenced:** 105 (Q22 / `EMPTY_TAGS` fix in `FilterBar`), 107
 > (Q23 / `LayoutSwitcher` initial CT migration), 108 (Q24 opened).
