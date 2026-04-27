@@ -3,6 +3,61 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 134: deferred build-pipeline health audit — `pnpm build` end-to-end across all 7 buildable tasks succeeds in 13m 14s with 0 cached
+
+### Headline
+
+Iteration 133 verified the merged `pnpm coverage` pipeline reproduces the iter-124 100%-branches authoritative number under the post-Q28 (ESLint 10) + post-iter-128 (`isomorphic-git@1.37.6`) toolchain. This iteration extends that signal to the **build pipeline**: a full cold `pnpm build` (all caches invalidated by the dep churn since iter 92's last full-build verification) completes successfully across **all 7 turbo build tasks** (web + sample-basic + sample-jobs + sample-events + sample-real-estate + sample-git + docs).
+
+Build wall-time (Windows 10 + Node 24.14.0 + pnpm 10.33.0 + Turbo 2.9.6 + Astro 6.1.9 + Vite 7 + Preact 10.29.1 + ESLint 10.2.1):
+
+```
+Tasks:    7 successful, 7 total
+Cached:    0 cached, 7 total
+Time:    13m14.66s
+```
+
+The heaviest single app remains `sample-git` (the 3264-item time-tracking-tools directory): **5030 pages built in 745.01s** (~12m 25s), with every plugin firing correctly:
+
+- `[plugin:sort] Sorted 3264 items by name (asc)`
+- `[plugin:breadcrumbs] Generated breadcrumbs for 4753 pages`
+- `[plugin:related-items] Computed 13056 related-item links across 3264 items`
+- `[plugin:search] Pagefind indexing completed successfully`
+- `[@astrojs/sitemap] sitemap-index.xml created at dist`
+- `[@astrojs/vercel] Copying static files to .vercel/output/static`
+
+No build error, no plugin error, no bundler error, no Vercel adapter error. The build pipeline is invariant to the iter-128 (`isomorphic-git@1.37.6`) and iter-130 (ESLint 9 → 10) churn — exactly the prediction made by the spec at the time those changes landed (ESLint is static-analysis only; isomorphic-git is invoked at content-sync time, not build time, for the static-output adapter path used by all 7 buildable apps).
+
+### Why this matters
+
+Until this iteration, the most recent **end-to-end build verification** in the change log was iteration 92 (when Astro / Vite / Preact / Tailwind major-versions last bumped). Every iteration since then verified `typecheck` + `lint` + `test` (and from iter 113 onward `coverage` + `test:ct`), but `pnpm build` itself was implicitly assumed-good. Six iterations of dep churn (iter 97 / 99 / 108 / 128 / 130 / 131) accumulated since then. Catching a build regression early is much cheaper than catching it on a CI rerun the moment a real PR lands; iter 134 closes that window.
+
+The verification cost is bounded: 13m 14s on a cold cache; subsequent runs hit FULL TURBO and complete in seconds. CI runs always cold by default, so the cold-run number is the true CI signal — and it remains well within Vercel's 45-min build-step timeout.
+
+### What was done
+
+Verification-only iteration. **No source / test / config / dep / lockfile changes.**
+
+1. **`pnpm build`** — invoked at the workspace root after `git status` confirmed a clean tree on `develop` at `b506ce2` (iter-133's commit).
+2. **Captured per-task summary** — 7/7 successful, 0 cached, 13m 14s.
+3. **Spot-checked sample-git** (the slowest task) — confirmed all 6 plugin / integration steps emit their expected outputs.
+
+### Files touched
+
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 133 → 134.
+- `.specify/project.md` — Current State header bumped 133 → 134.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)** (iter-124/iter-133 numbers stay authoritative). `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127. Project remains in "no carried open work" steady state for the fifth consecutive iteration.
+
+### Next Steps (for next scheduled run)
+
+1. **Optionally run `pnpm test:e2e`** — same logic as iter 134's build verification: the E2E surface (367 cases across 57 spec files / 11 Playwright projects / 5 sample apps) hasn't been verified end-to-end since iteration 70-ish. The full-suite walltime is ~30 min so it's a cron-tick-and-a-half investment; defer unless a regression is suspected.
+2. **Routine dep audit** — re-check the 26-package matrix; expect zero deltas (iter 133 verified zero deltas; the next likely deltas are upstream patch bumps within caret ranges, picked up via `pnpm update <pkg>` per iter-128's playbook correction).
+3. **Continued steady-state monitoring** — the saga is closed and the gates are enforced. Iterations 132-134 form a coherent "post-saga health check" pattern: doc-drift sweep, deferred coverage re-run, deferred build re-run. After iter 134, no further deferred verifications remain.
+
 ## 2026-04-27 — Iteration 133: deferred health audit re-run — `pnpm coverage` end-to-end clean; 100% branches reproducible (233/233); 26-package dep matrix zero deltas
 
 ### Headline
