@@ -3,6 +3,81 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 125: doc health-check pass — flip 5 stale-claim surfaces after iter 124's Q27 closure (CT counts + per-file coverage + aggregate)
+
+### Headline
+
+Iteration 124 closed Q27 (MobileMenu 91.89% → 100% branches; aggregate 98.72% → 100% (233/233)) and updated the user-facing front-page doc surfaces (`docs/index.md` descriptor, `.specify/project.md` "V8 code coverage" line) inline with the source/test changes. Iteration 125 sweeps the remaining doc surfaces that still claim the iteration-121 baseline numbers (98.72% / 91.89% / 232/235 / 34/37) or the pre-iter-120 CT case counts (15 MobileMenu / 43 total CT / 1165 grand total) and brings them current. Pure-documentation iteration: no source / test / config / `package.json` / lockfile changes. The iter-124 commit `2480d6a` verification numbers (`pnpm typecheck` 23/23, `pnpm lint` 18/18, `pnpm coverage` end-to-end clean, gate green) remain authoritative.
+
+### What was flipped
+
+Five stale-claim surfaces brought current:
+
+#### 1. `.specify/project.md` (lines 79, 83, 87)
+
+- **Header**: `## Current State (Iteration 124)` → `## Current State (Iteration 125)`.
+- **Test count line (line 83)**: `43 Playwright Component Tests (16 + 12 + 15 MobileMenu) — total 1165` → `48 Playwright Component Tests (16 + 12 + 20 MobileMenu) — total 1170`. Appended a sentence noting MobileMenu CT case count growth: 15 → 17 (iter 120 focus-trap forward/backward wrap) and 17 → 20 (iter 124 Q27 — empty-panel + synthetic-Tab-from-last + non-boundary Tab).
+- **Spec-status block (line 87)**: replaced the iter-123 wording (which said "**`q27-mobilemenu-empty-items-coverage.md` SPECIFIED in iteration 123** ... status `OPEN — Option A.1 chosen [DEFAULT]`" + the full options/risks paragraph) with a tight 2-sentence current-state line: "All 27 .specify/ feature specs complete and verified against code (added `q22-mobilemenu-ct.md` in iter 108; added `q27-mobilemenu-empty-items-coverage.md` in iter 123, ✅ RESOLVED in iter 124). The Q22→Q27 saga is fully closed; merged `pnpm coverage` reports branches **100% (233/233)** without any open follow-ups in the test/coverage thread." Spec count bumped 26 → 27 to reflect Q27 spec creation.
+
+#### 2. `.specify/features/q22-playwright-coverage.md` (front-matter status block + Decisions table row)
+
+- **Front-matter status block (lines 11-18)**: aggregate `branches 98.72% (232/235)` → `branches 100% (233/233)`; per-file gate `MobileMenu 91.89% (34/37)` → `MobileMenu 100% (35/35)`; lines `99.60% (1239/1244)` → `99.76% (1240/1243)`; statements `99.15% (352/355)` → `99.72% (352/353)`. Appended a "(Iteration 121 baseline — preserved for archeology — was 98.72% / MobileMenu 91.89%; the 3-branch outlier closed in iteration 124 via Q27.)" archeology footer for traceability. Q25 + Q26 line extended to "Q25, Q26, and Q27 all ✅ RESOLVED".
+- **Decisions table "Threshold for merged number" row (line 287)**: appended "rose to **100% (233/233)** in iteration 124 after Q27 closed the 3-branch outlier (CI hard-gate now has zero margin)."
+
+#### 3. `.specify/features/testing.md` (AC #10 + AC #12)
+
+- **AC #10**: `43 Playwright Component Tests (16 + 12 + 15 MobileMenu)` → `48 Playwright Component Tests (16 + 12 + 20 MobileMenu)`; total `1165 across both runners` → `1170 across both runners`. Appended a sentence noting the iter-120 + iter-124 case count growth and a cross-reference to `docs/plans/q27-mobilemenu-empty-items-coverage.md`.
+- **AC #12**: rewrote the trailing "CT output is excluded from the V8 coverage report; `src/preact/FilterBar.tsx`, `src/preact/LayoutSwitcher.tsx`, and `src/preact/MobileMenu.tsx` are excluded from `vitest.config.ts` `coverage.include` to keep the coverage signal honest until `playwright-coverage` integration (Q22 follow-up #3) merges the two runners' reports" sentence — that exclusion was dropped in iteration 115 (Phase 2). New wording describes the steady-state Vitest+CT V8 merge: monocart-reporter `addCoverageReport()` fixture (iter 114) + `vitest-monocart-coverage` Vitest provider (Q26, iter 119) + `pnpm coverage` merge script + Phase 6c `GATE_TARGETS` allow-list ≥80% hard-fail (iter 121); ends with current-state numbers ("100% branches (233/233) across the full `packages/ui/src/` surface") and Q22-follow-up-#3 ✅ COMPLETE / Q27 ✅ RESOLVED status.
+
+#### 4. `docs/architecture/testing-runners.md` ("Current scope" + "Future work" outcome)
+
+- **Current scope block (lines 226-233)**: `iteration 121` → `iteration 124`; per-file gate `MobileMenu.tsx — 91.89% branches (34/37) ✅` → `MobileMenu.tsx — 100% branches (35/35) ✅` with the full 67.57% → 91.89% → 100% growth chain in parentheses (cites iter 120 focus-trap CT additions + iter 124 Q27 — synthetic Tab dispatch + v8-ignore pragma). Aggregate `branches 98.72% (232/235), functions 100% (104/104), lines 99.60% (1239/1244), statements 99.15% (352/355)` → `branches 100% (233/233), functions 100% (104/104), lines 99.76% (1240/1243), statements 99.72% (352/353), bytes 99.79% (45,558/45,650)`. Appended a sentence on the CI hard-gate now having zero regression margin.
+- **Future work outcome block (lines 341-348)**: aggregate numbers updated identically; "3-branch shortfall is `MobileMenu.tsx`'s `focusable.length === 0` early-return + 2 fall-through branches (deferred — see iteration 120 entry)" → "the previous 3-branch shortfall ... closed in iteration 124 via Q27 — three new CT tests using synthetic `KeyboardEvent` dispatch through `page.evaluate` (Option A.1, bypassed the iter-120 CT-host-page focus-attribution edge case by using `toBeAttached()` instead of `toBeVisible()`) plus one `/* v8 ignore next */` pragma on a defensive `menuRef` race-guard that surfaced during execution (Option A.3). See `docs/plans/q27-mobilemenu-empty-items-coverage.md` and `docs/log.md` iteration 124 for the full closure trail."
+
+#### 5. `README.md` Common Commands table
+
+- `pnpm test` row: `1165+ tests, 76 test files, 16 suites (Vitest)` → `1170+ tests, 76 test files, 16 suites (1122 Vitest + 48 Playwright CT)`. The original wording attributed all 1165 to Vitest, which has been incorrect since iter 105 introduced the CT split — also fixed in this pass.
+
+### What was NOT touched (intentional)
+
+- **Q27 spec body** (`.specify/features/q27-mobilemenu-empty-items-coverage.md` lines 19, 83, 85, 323) — still references `91.89% (34/37)` and `98.72% (232/235)`. These are intentional historical context describing what the gap WAS before Q27 closed; the front-matter status block at the top is already updated to ✅ RESOLVED with the final 100% numbers. Touching the body would re-write the spec narrative.
+- **Q22 / Q23 / Q24 spec bodies** — describe iter 105/107/109 outcomes as historical context. No current-state claims to flip.
+- **`docs/log.md` iteration 105/107-122 entries** — historical change log; iteration entries describe the state AS OF that iteration. Not mutated.
+- **Previously-resolved spec/plan/question entries with ✅ RESOLVED status** — only the front-matter status blocks of LIVE specs (q22-playwright-coverage, q27-mobilemenu-empty-items-coverage) carry forward-looking current-state numbers; the body of each remains as a narrative.
+
+### Routine maintenance audit (zero deltas — re-verified)
+
+`npm view <pkg> version` re-run for the 15 most-load-bearing packages (`astro`, `vitest`, `playwright`, `tailwindcss`, `preact`, `monocart-coverage-reports`, `monocart-reporter`, `vitest-monocart-coverage`, `@astrojs/{vercel,preact,sitemap,check}`, `@playwright/test`, `typescript`, `prettier`). All identical to iter 123 (1.5h prior). No published patch/minor versions in the interim. Pin matrix unchanged.
+
+### Verification
+
+- `git status` (pre-edit): clean (post-iter-124 commit `2480d6a`).
+- `git status` (post-edits): only the 5 doc surfaces modified (`.specify/project.md`, `.specify/features/q22-playwright-coverage.md`, `.specify/features/testing.md`, `docs/architecture/testing-runners.md`, `README.md`) plus `docs/log.md` (this entry) + `docs/index.md` (descriptor bumped 124 → 125).
+- `pnpm typecheck` — pending verification at commit time (expected: 23/23, FULL TURBO cache hit, doc-only).
+- `pnpm lint` — pending verification at commit time (expected: 18/18, FULL TURBO cache hit, doc-only).
+
+### Files touched
+
+- `.specify/project.md` — Current State header bumped 124 → 125; CT count line refreshed (43 → 48, 15 → 20 MobileMenu, 1165 → 1170); spec-status block tightened (Q27 OPEN → ✅ RESOLVED; spec count 26 → 27).
+- `.specify/features/q22-playwright-coverage.md` — front-matter status block aggregate + per-file numbers updated to post-Q27 state with archeology footer; Decisions table "Threshold for merged number" row appended Q27 outcome.
+- `.specify/features/testing.md` — AC #10 test count refreshed; AC #12 rewritten to reflect Vitest+CT merge steady state.
+- `docs/architecture/testing-runners.md` — "Current scope (iteration 121)" → 124; per-file gate + aggregate numbers updated; Future work outcome block rewritten to credit Q27 closure.
+- `README.md` — Common Commands `pnpm test` row test count refreshed (1165 → 1170; CT split now explicit).
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 124 → 125; iteration 124 entry preserved as the next history block.
+
+### Next Steps (for next scheduled run)
+
+1. **CT-flake watch** — count remains **1/3** since iter 111. Iter 124 ran the full mobile-menu CT suite cleanly (20/20 in 55.3s) + `pnpm coverage` end-to-end clean. Iter 125 was doc-only (no CT runs). Will close at iter 127 if a future full-suite run completes without recurrence.
+2. **Routine maintenance** — dep audit per the iter-92/97/99/108/123/125 cadence. No published patch/minor bumps available across the surveyed packages (verified iter 123 + iter 125). ESLint 10 major bump remains a manual-review item, not autonomous.
+3. **Sample apps** — no current open work (all 5 reference implementations feature-complete since iter 111 / Phase 11).
+4. **Doc health-check pass** — iter 125 was the post-Q27 sweep. Next health-check is appropriate after the next code-touching iteration (likely a Q28 if one opens, or a routine-maintenance dep bump). The auditing technique that worked here: `grep -rn "<old number>" .specify/ docs/architecture/ docs/specs/ README.md AGENTS.md` for each headline number that just changed; classify each match as "intentional historical context" (keep) or "stale current-state claim" (flip).
+5. **The Q22→Q27 saga is fully closed.** No follow-up questions remain in the test/coverage thread. New question candidates would need to come from outside that thread (e.g. ESLint 10 upgrade, sample-app extensions, plugin/adapter additions).
+
+### CT-flake watch (carried)
+
+Iteration 111's single-occurrence `filter-bar.ct › selects category on click` retry. Iteration 124 ran `mobile-menu.ct.test.tsx` (20/20 in 55.3s) and `pnpm coverage` end-to-end clean — no recurrence in the partial-suite signal. Iteration 125 doc-only (no CT runs). Watch count remains **1/3**; will close at iteration 127 if no recurrence.
+
 ## 2026-04-27 — Iteration 124: Q27 ✅ RESOLVED — `MobileMenu` reaches 100% branches; aggregate `@ever-works/ui` reaches 100% branches (233/233)
 
 ### Headline

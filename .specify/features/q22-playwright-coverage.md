@@ -8,14 +8,19 @@
 > numbers, and `docs/architecture/testing-runners.md` "Future work" for
 > the consolidated outcome list).
 >
-> Final per-package merged coverage on `@ever-works/ui`: branches
-> 98.72% (232/235), functions 100% (104/104), lines 99.60% (1239/1244),
-> statements 99.15% (352/355) across 19 files. Per-file Phase 6c gate:
-> FilterBar 100% ✅, LayoutSwitcher 100% ✅, MobileMenu 91.89% (34/37)
-> ✅ — all three above the 80%-branch hard threshold enforced by
-> `packages/ui/scripts/coverage-merge.ts` and the `.github/workflows/
-> ci.yml` `coverage-gate` job. Q25 and Q26 both ✅ RESOLVED in their
-> respective entries in `docs/questions.md`.
+> Final per-package merged coverage on `@ever-works/ui` after Q27
+> closed in iteration 124: branches **100% (233/233)**, functions
+> 100% (104/104), lines 99.76% (1240/1243), statements 99.72%
+> (352/353), bytes 99.79% (45,558/45,650) across 19 files. Per-file
+> Phase 6c gate: FilterBar **100%** ✅, LayoutSwitcher **100%** ✅,
+> MobileMenu **100% (35/35)** ✅ — all three above the 80%-branch
+> hard threshold enforced by `packages/ui/scripts/coverage-merge.ts`
+> and the `.github/workflows/ci.yml` `coverage-gate` job. The CI
+> hard-gate now has zero margin to absorb regressions. Q25, Q26,
+> and Q27 all ✅ RESOLVED in their respective entries in
+> `docs/questions.md`. (Iteration 121 baseline — preserved for
+> archeology — was 98.72% / MobileMenu 91.89%; the 3-branch
+> outlier closed in iteration 124 via Q27.)
 >
 > Tracks the third and final follow-up on the Q22 / Q23 / Q24
 > CT-migration arc. Resolved the gap left by iterations 105, 107, and
@@ -284,7 +289,7 @@ The merge step is provided by the chosen library:
 | Companion Playwright reporter             | `monocart-reporter@^2.x.x` | **`monocart-reporter@^2.10.0`** ✅ ADOPTED — installed iteration 114; reporter wired into `playwright.ct.config.ts`. |
 | CT coverage output dir                    | `packages/ui/coverage/ct/` | **`packages/ui/coverage/ct/`** ✅ implemented iteration 114 — same as default. |
 | Merge command                             | `pnpm coverage` (new) | **✅ ADOPTED iteration 116** — root + per-package script; `packages/ui/scripts/coverage-merge.ts` wraps `monocart-coverage-reports` `inputDir: ['./coverage/raw', './coverage/ct/raw']`. Phase 6c (iteration 121) flipped the per-file gate to `process.exit(1)`. |
-| Threshold for merged number               | inherited from `vitest.config.ts` (`branch: 100`) | **✅ ENFORCED iteration 121** — `GATE_THRESHOLD = 80` (named constant in `coverage-merge.ts`) for the three CT-migrated components (`GATE_TARGETS` allow-list); aggregate merged number 98.72% branches (232/235). |
+| Threshold for merged number               | inherited from `vitest.config.ts` (`branch: 100`) | **✅ ENFORCED iteration 121** — `GATE_THRESHOLD = 80` (named constant in `coverage-merge.ts`) for the three CT-migrated components (`GATE_TARGETS` allow-list); aggregate merged number was 98.72% branches (232/235) at iteration 121 baseline; rose to **100% (233/233)** in iteration 124 after Q27 closed the 3-branch outlier (CI hard-gate now has zero margin). |
 | CI artifact name                          | `ui-coverage-ct` | **✅ DEPLOYED iteration 121** as `ui-coverage-merged` — uploaded `if: always()` from the new `coverage-gate` job (`.github/workflows/ci.yml`) for 14-day retention. The CT-only artifact name was superseded by the merged artifact since `coverage-gate` runs the full `pnpm coverage`. |
 | `vitest.config.ts` exclusions removed?    | yes (AC #5) | _pending Phase 2_ |
 | Reporter formats                          | `['v8', 'lcov', 'codecov']` | **`['v8', 'v8-json', 'console-summary']`** ✅ for the CT-only stage (Phase 1) — `lcov`/`codecov` deferred to Phase 3's merged-report stage where they're more useful (per-file Istanbul output is more useful for the merged report than for the per-CT-run report). The Phase 1 set includes `v8` (HTML), `v8-json` (`coverage-report.json`), and `console-summary` (stdout); the V8-shape `raw-v8.json` is written via a `coverage.onEnd` hook (see plan Phase 1 outcome notes). |

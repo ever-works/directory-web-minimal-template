@@ -223,16 +223,16 @@ There are three distinct artifact streams in `packages/ui/coverage/`:
    - `index.html`, `index.json`, `coverage-data.js` — the visual report.
 3. **`coverage/merged/` (canonical merged report)** — written by `pnpm coverage` (`packages/ui/scripts/coverage-merge.ts`). MCR loads `coverage/raw/*.json` AND `coverage/ct/raw/*.json` via `inputDir: [...]`, applies a shared `sourceFilter`, and writes `coverage-report.json` (V8-JSON), `lcov.info`, `codecov.json`, `index.html`, and `lcov-report/`.
 
-**Current scope (iteration 121)**: the merged report covers the **full** `packages/ui/src/` surface — every file Vitest exercises plus the three CT-migrated components. Both inputs flow through MCR's V8 path; there is no Istanbul mixing.
+**Current scope (iteration 124)**: the merged report covers the **full** `packages/ui/src/` surface — every file Vitest exercises plus the three CT-migrated components. Both inputs flow through MCR's V8 path; there is no Istanbul mixing.
 
 **Per-file gate (Phase 6c — `coverage-merge.ts` exits non-zero if any allow-listed file drops below 80% branches)**:
 - `FilterBar.tsx` — 100% branches (27/27) ✅
 - `LayoutSwitcher.tsx` — 100% branches (22/22) ✅
-- `MobileMenu.tsx` — 91.89% branches (34/37) ✅ (was 67.57% pre-iteration-120; closed by the focus-trap CT additions)
+- `MobileMenu.tsx` — **100% branches (35/35)** ✅ (was 67.57% pre-iteration-120; rose to 91.89% (34/37) in iteration 120 via focus-trap CT additions; reached 100% in iteration 124 via Q27 — synthetic Tab dispatch through `page.evaluate` for B1/B2/B3 + one `/* v8 ignore next */` pragma on the defensive `menuRef` race-guard)
 
-**Aggregate** (iteration 121, 19 files): branches 98.72% (232/235), functions 100% (104/104), lines 99.60% (1239/1244), statements 99.15% (352/355).
+**Aggregate** (iteration 124, 19 files): branches **100% (233/233)**, functions 100% (104/104), lines 99.76% (1240/1243), statements 99.72% (352/353), bytes 99.79% (45,558/45,650). The CI `coverage-gate` job from iteration 121 now has zero margin to absorb regressions — any future code change that drops a branch will fail the merge.
 
-The Phase 0-6c implementation history lives in `docs/plans/q22-playwright-coverage.md`. Phase 6d (this iteration) is the final status-flip pass.
+The Phase 0-6c implementation history lives in `docs/plans/q22-playwright-coverage.md`; Q27's 3-branch outlier closure lives in `docs/plans/q27-mobilemenu-empty-items-coverage.md`. Phase 6d (iteration 122) was the original status-flip pass; Q27 (iteration 124) lifted the per-file MobileMenu number to 100% and the aggregate to 100%.
 
 ## Local commands
 
@@ -338,11 +338,17 @@ Step 4 for traceability):
   - Phase 6c (iter 121) — coverage gate flipped from informational
     `⚠️` to `process.exit(1)`; CI `coverage-gate` job added with
     14-day artifact upload of the merged HTML report.
-  Aggregate merged coverage on the full `packages/ui/src/` surface:
-  **branches 98.72% (232/235), functions 100% (104/104), lines
-  99.60% (1239/1244)**. Per-file gate green for all three migrated
-  components. The 3-branch shortfall is `MobileMenu.tsx`'s
-  `focusable.length === 0` early-return + 2 fall-through branches
-  (deferred — see iteration 120 entry in `docs/log.md` for the
-  CT-host-page focus-attribution edge case that blocks the
-  `<MobileMenu items={[]} />` test).
+  Aggregate merged coverage on the full `packages/ui/src/` surface
+  after Q27 closed in iteration 124:
+  **branches 100% (233/233), functions 100% (104/104), lines
+  99.76% (1240/1243), statements 99.72% (352/353)**. Per-file gate
+  green for all three migrated components at 100%. The previous
+  3-branch shortfall (`focusable.length === 0` early-return + 2
+  fall-through branches) closed in iteration 124 via Q27 — three
+  new CT tests using synthetic `KeyboardEvent` dispatch through
+  `page.evaluate` (Option A.1, bypassed the iter-120 CT-host-page
+  focus-attribution edge case by using `toBeAttached()` instead of
+  `toBeVisible()`) plus one `/* v8 ignore next */` pragma on a
+  defensive `menuRef` race-guard that surfaced during execution
+  (Option A.3). See `docs/plans/q27-mobilemenu-empty-items-coverage.md`
+  and `docs/log.md` iteration 124 for the full closure trail.
