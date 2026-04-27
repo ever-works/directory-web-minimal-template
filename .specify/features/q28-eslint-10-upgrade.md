@@ -80,9 +80,12 @@ lint` verification round.
    indirect breakage (e.g. a shared transitive dep that updates
    simultaneously).
 5. **AC #5 — Tests stay green.** `pnpm test` reports the full
-   1170-test suite passing (or whatever the count is at execution
-   time — must be ≥ pre-bump). Defensive: ESLint changes do not
-   touch runtime, but a transitive-dep bounce could.
+   1122-Vitest suite passing (or whatever the count is at execution
+   time — must be ≥ pre-bump). The 48 Playwright CT cases run
+   separately via `pnpm test:ct` and are intentionally skipped
+   here per AC #6 (ESLint is static-analysis only — cannot affect
+   runtime). Defensive: ESLint changes do not touch runtime, but a
+   transitive-dep bounce could.
 6. **AC #6 — Optional `engines.node` bump.** If chosen,
    `package.json` `engines.node` changes from `">=22.12.0"` to
    `">=22.13.0"` to match ESLint 10's floor verbatim. Skip if the

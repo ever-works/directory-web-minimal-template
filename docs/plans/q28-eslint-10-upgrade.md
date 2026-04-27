@@ -132,7 +132,7 @@ If `pnpm lint` reports new violations:
 
 ```bash
 pnpm typecheck   # 23/23 expected (FULL FRESH first run, ~2m)
-pnpm test        # full 1170-test suite green expected (1122 Vitest + 48 CT)
+pnpm test        # 1122 Vitest tests green expected (the 48 CT cases run via `pnpm test:ct`, intentionally skipped per AC #6 — ESLint is static-analysis only)
 pnpm coverage    # OPTIONAL — 100% aggregate stays unchanged (ESLint doesn't touch source)
 ```
 

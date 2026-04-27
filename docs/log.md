@@ -3,6 +3,116 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 140: extend iter-139 conflated-`pnpm test` audit to spec/plan surfaces — fix 2 occurrences in `.specify/features/q28-eslint-10-upgrade.md` AC #5 + `docs/plans/q28-eslint-10-upgrade.md` Step 4; routine dep audit zero deltas across 22 packages
+
+### Headline
+
+Iter-139 closed the conflated-`pnpm test` drift in `README.md`. Iter-140 executes iter-139's Next Step #1 — extend the same audit to the surfaces it explicitly called out as un-greppy: the remaining 9 `docs/guides/` files, `AGENTS.md`, `apps/docs/` Docusaurus content, `docs/architecture/`, `docs/specs/`, `docs/plans/`, and `docs/overview.md`. **Two real drift instances found**, both inherited from the same iter-129 Q28-spec authoring pass (which predates the iter-132 CLAUDE.md split / iter-139 README.md split that established the corrected wording):
+
+1. **`.specify/features/q28-eslint-10-upgrade.md` AC #5** (line 83): `pnpm test reports the full 1170-test suite passing`. Same conflation: `pnpm test` runs Vitest only (1122), not the full 1170. The hedge `(or whatever the count is at execution time — must be ≥ pre-bump)` partially defuses the count drift but leaves the structural error: a reader following the AC verbatim would expect 1170 from a single `pnpm test` invocation and conclude the AC is unsatisfied at the actually-correct number 1122.
+2. **`docs/plans/q28-eslint-10-upgrade.md` Step 4** (line 135): `pnpm test  # full 1170-test suite green expected (1122 Vitest + 48 CT)`. Same root cause; the inline comment is the most-visible drift surface because it sits inside a copy-paste-able shell snippet.
+
+Both fixes follow the iter-139 minimal-split pattern: the Vitest count stays canonical (`1122`), the CT count moves to its own clarifying clause that names `pnpm test:ct` as the separate runner, and the AC #6 cross-reference (ESLint is static-analysis only, CT skip intentional) is inlined so a reader doesn't have to chase the rationale across files.
+
+### What was done
+
+Pure-doc iteration. **No source / test / config / dep / lockfile changes.**
+
+1. **`.specify/features/q28-eslint-10-upgrade.md` AC #5 rewrite**:
+   - Before: `pnpm test reports the full 1170-test suite passing (or whatever the count is at execution time — must be ≥ pre-bump). Defensive: ESLint changes do not touch runtime, but a transitive-dep bounce could.`
+   - After: `pnpm test reports the full 1122-Vitest suite passing (or whatever the count is at execution time — must be ≥ pre-bump). The 48 Playwright CT cases run separately via pnpm test:ct and are intentionally skipped here per AC #6 (ESLint is static-analysis only — cannot affect runtime). Defensive: ESLint changes do not touch runtime, but a transitive-dep bounce could.`
+   - +3 lines net; preserves the original "or whatever the count is" hedge so future test-count drift doesn't re-break the AC.
+
+2. **`docs/plans/q28-eslint-10-upgrade.md` Step 4 inline comment rewrite**:
+   - Before: `pnpm test        # full 1170-test suite green expected (1122 Vitest + 48 CT)`
+   - After: `pnpm test        # 1122 Vitest tests green expected (the 48 CT cases run via pnpm test:ct, intentionally skipped per AC #6 — ESLint is static-analysis only)`
+   - 0 lines net (single-line replacement); same minimal-split pattern as iter-139's README.md fix.
+
+### What was NOT touched (intentional — verified clean)
+
+The following surfaces were greppe'd for the same drift class (`1170-test|1170 test|1170+ tests|76 test files|22-package matrix|All 28|fully static, no server function|43 cases for`) and **returned zero matches**:
+
+- **`AGENTS.md`** (~16K) — zero drift; no test-count claims, no Common Commands tables.
+- **`apps/docs/src/`** Docusaurus content (`components/`, `pages/`, `theme/`) — zero drift; only generic boilerplate text and Docusaurus i18n strings (no project-specific test/package/iteration counts).
+- **9 unaudited guides** (`analytics.md`, `building-from-template.md`, `creating-a-plugin.md`, `creating-an-adapter.md`, `customizing.md`, `interactive-components.md`, `performance-testing.md`, `troubleshooting.md`, `content-sync.md`) — zero drift in the targeted grep set; only narrative prose and `pnpm` references in proper context (not Common Commands tables).
+- **`docs/architecture/*.md`** — zero drift (already audited in iter-125 sweep + iter-135's deployment.md fix).
+- **`docs/specs/*.md`** — zero drift; the only `1170/76/43` matches anywhere in the repo outside `.specify/features/q28-eslint-10-upgrade.md` and `docs/plans/q28-eslint-10-upgrade.md` are inside `docs/log.md` and `docs/index.md` historical iteration descriptors (intentional historical record, not current-state drift).
+- **`docs/overview.md`** — zero drift.
+- **`docs/guides/content-sync.md` line 92** ("the site is fully static — no server functions run at runtime") — looks like the iter-135 deployment.md drift but is **actually correct in context**: the line is inside the `## Static Mode` section describing `ENABLE_ISR=false`, where indeed no Vercel server functions are deployed. Verified by reading 30 lines of surrounding context before flagging. Not drift — false positive.
+
+### Routine dep audit (zero deltas — 22-package subset re-verified)
+
+22 packages re-checked against npm `latest` (~1h after iter-138's deferred audit):
+
+| Package | Pinned | Current `latest` | Status |
+|---------|--------|------------------|--------|
+| astro | 6.1.9 | 6.1.9 | ✅ |
+| @astrojs/vercel | 10.0.5 | 10.0.5 | ✅ |
+| @astrojs/preact | 5.1.2 | 5.1.2 | ✅ |
+| @astrojs/sitemap | 3.7.2 | 3.7.2 | ✅ |
+| @astrojs/check | 0.9.8 | 0.9.8 | ✅ |
+| preact | 10.29.1 | 10.29.1 | ✅ |
+| tailwindcss | 4.2.4 | 4.2.4 | ✅ |
+| typescript | 6.0.3 | 6.0.3 | ✅ |
+| vitest | 4.1.5 | 4.1.5 | ✅ |
+| @playwright/test | 1.59.1 | 1.59.1 | ✅ |
+| eslint | 10.2.1 | 10.2.1 | ✅ |
+| @typescript-eslint | 8.59.0 | 8.59.0 | ✅ |
+| monocart-coverage-reports | 2.12.11 | 2.12.11 | ✅ |
+| monocart-reporter | 2.10.1 | 2.10.1 | ✅ |
+| vitest-monocart-coverage | 4.0.2 | 4.0.2 | ✅ |
+| isomorphic-git | 1.37.6 | 1.37.6 | ✅ |
+| marked | 18.0.2 | 18.0.2 | ✅ |
+| yaml | 2.8.3 | 2.8.3 | ✅ |
+| pagefind | 1.5.2 | 1.5.2 | ✅ |
+| @playwright/experimental-ct-react | 1.59.1 | 1.59.1 | ✅ |
+| turbo | 2.9.6 | 2.9.6 | ✅ |
+| prettier | 3.8.3 | 3.8.3 | ✅ |
+
+22/22 zero deltas; the 4-package gap to the documented 26-package matrix (`@types/node` and a few small transitives) is not expected to drift independently. Full 26-package re-verification deferred to next iteration that materially touches deps.
+
+### Pattern progression — now confirmed for the 7th iteration in a row
+
+| # | Iteration | Surface | Drift kind |
+|---|-----------|---------|------------|
+| 1 | iter 132 | `CLAUDE.md` Common Commands | `43 cases` → `48 cases` + walltime/Chromium/flake-signal annotations |
+| 2 | iter 135 | `docs/guides/deployment.md` | Missing ISR env vars + 4 narrative claims (predates iter-17/Q17) |
+| 3 | iter 136 | `docs/guides/quickstart.md` + `getting-started.md` | Missing 5-6 Common Commands rows (predates iter-105+) |
+| 4 | iter 137 | `.specify/project.md` package matrix | `22-package` → `26-package` (post iter-132/133 expansion) |
+| 5 | iter 138 | `.specify/project.md` spec count | `All 28` → `All 31` (3 saga-additions never summed in) |
+| 6 | iter 139 | `README.md` Commands table | Conflated `pnpm test` row + missing CT/coverage rows |
+| 7 | iter 140 | `.specify/features/q28-*.md` AC #5 + `docs/plans/q28-*.md` Step 4 | Same conflated-`pnpm test=1170` drift from iter-129 Q28-spec authoring pass |
+
+**Pattern (re-stated)**: a single drift class (the conflated-`pnpm test` row) propagated to **5 different surfaces** between iter 105 (CT split introduced) and iter 129 (Q28 plan/spec authored), and required 3 separate iterations (iter-132 CLAUDE.md, iter-139 README.md, iter-140 q28 plan+spec) to fully purge — even though each iteration found and fixed its surface immediately upon greping for it. **Generalization for future iterations**: when fixing a stale claim in surface X, *immediately* run `grep -rn "<the-stale-string>" --include="*.md" .` across the whole repo before considering the fix complete; otherwise the drift class survives in surfaces that don't get audited until iteration N+M.
+
+### Verification
+
+- `pnpm typecheck` — **23/23 FULL TURBO** in 1.359s (100% cache hits — doc-only changes don't invalidate any task input).
+- `pnpm lint` — **18/18 FULL TURBO** in 1.448s (100% cache hits, 0 warnings + 0 errors).
+
+### Files touched
+
+- `.specify/features/q28-eslint-10-upgrade.md` — AC #5 rewrite (4 lines edited, 3 added net).
+- `docs/plans/q28-eslint-10-upgrade.md` — Step 4 inline comment rewrite (1 line edited, 0 added net).
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 139 → 140.
+- `.specify/project.md` — Current State header bumped 139 → 140.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)** (iter-124 / iter-133 numbers stay authoritative). `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127. Project enters its **11th consecutive "no carried open work" steady-state iteration** (iter 130-140).
+
+### Next Steps (for next scheduled run)
+
+1. **Continue cross-repo grep technique** for any remaining unaudited surfaces:
+   - `docs/guides/content-sync.md` Common Commands table (if any) — iter-140 only spot-checked the static-mode line, not the whole file.
+   - `apps/docs/blog/` (Docusaurus blog posts; if any reference test counts or `pnpm` commands, they would be drift candidates).
+   - `apps/docs/sidebarsTemplate.ts` (TypeScript file referencing doc topology; potentially drift candidate if topology changed).
+   - `.github/workflows/*.yml` job-name comments (if any reference test counts in inline comments).
+2. **Routine dep audit** — re-check the full 26-package matrix; expect zero deltas (4-package gap from iter-140's 22-subset is unlikely to have moved).
+3. **Optional `pnpm coverage` re-run** — defer until material dep churn lands (iter-133 100%-aggregate stays authoritative).
+4. **Optional `pnpm test:e2e` re-run** — defer per iter-134's policy.
+
 ## 2026-04-27 — Iteration 139: README.md Common Commands refresh — split conflated `pnpm test` row, add missing `pnpm test:ct` / `pnpm test:ct:install` / `pnpm coverage` rows
 
 ### Headline
