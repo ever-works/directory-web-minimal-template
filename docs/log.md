@@ -3,6 +3,179 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-28 — Iteration 161: codify `auditMatrixProseCountParity()` as the 8th audit class — iter-156 deferral #9 codify-trigger fired by iter-160 after 2 drift instances; `pnpm audit:docs` 9/9 PASS post-add
+
+### Headline
+
+Substantive code-artefact iteration. Iter-160's Next Steps #1 explicitly called for iter-161 to codify the matrix-prose count parity audit class — iter-156 deferral #9 codify-trigger had fired after iter-158's `14 + 11 = 25` drift propagated through iter-159 and was caught at iter-160. Iter-161 lands the codification, closing the loop on a deferral chain that started 5 iterations earlier (iter-156).
+
+The new audit class follows the same pattern as iter-148 (cross-file consistency, codified after 1 instance), iter-149 (audit-script codification, codified after 4 single-class drift fixes), and iter-151 (self-parity audit, codified after 2 audit-script iterations). The codify-then-execute meta-pattern is the dominant institutional rhythm of the audit-saga: surface a drift class organically, wait for the second instance to confirm recurrence, codify into the runner.
+
+### What landed
+
+#### `scripts/audit-docs.ts` — new audit class + EXPECTED_MAPPING update + classes[] reorder
+
+New function `auditMatrixProseCountParity()` inserted between class `7/8` (`auditChecklistRunnerParity`) and the `[ * ]` cross-file class. ~85 LOC including JSDoc header documenting the codify-then-execute trigger history (iter-133 first instance + iter-158 second instance + iter-160 trigger fire).
+
+Function behavior:
+
+1. Read `.specify/project.md` via `readFileSync`.
+2. Match `**(\d+)-package matrix**` — the canonical total-claim form (used since iter-156 introduced `27-package matrix`).
+3. Match `(high-churn cohort,\s+(\d+)\s+packages?)` — canonical high-churn label.
+4. Match `(iter-\d+\s+lifted,\s+(\d+)\s+packages?)` — canonical lifted-cohort label.
+5. Match `(deferred cohort,\s+(\d+)\s+packages?)` — canonical deferred-cohort label.
+6. If total claim missing OR any cohort label missing, return `pass: true` with explanatory note (silent-pass on partial / transitional matrix-prose; no false positives).
+7. Compute sum and compare against claim.
+
+`EXPECTED_MAPPING` table updated:
+
+- New entry `{ heading: 'Matrix-prose count parity (added iter 161)', runnerClassId: '8/8', establishedIter: 161 }` between iter-151 self-parity and `Rerun cadence` meta entries.
+- All existing `runnerClassId` values flipped from `N/7` → `N/8` denominators: `'3/7+4/7'` → `'3/8+4/8'`, `'1/7+2/7+5/7'` → `'1/8+2/8+5/8'`, `'6/7'` → `'6/8'`, `'7/7'` → `'7/8'`.
+
+`classes[]` array updated:
+
+- All existing 7 numbered entries' `id` flipped `N/7` → `N/8`.
+- New entry `{ id: '8/8', name: 'Matrix-prose count parity (iter-161)', description: '...', run: auditMatrixProseCountParity }` between `7/8` and the `[ * ]` cross-file entry.
+
+Self-parity audit class (`7/8`) automatically picks up the new heading + new mapping entry on first run — its parsing logic doesn't need to change.
+
+#### `AGENTS.md § Doc-Quality Audit Checklist` — new sub-section + 7→8 reference bumps
+
+New `### Matrix-prose count parity (added iter 161)` sub-section inserted immediately above `### Rerun cadence`. Contents:
+
+1. 1-paragraph drift-class description (canonical 3-cohort breakdown form, `(high-churn cohort, X packages)` etc.).
+2. Both drift-instance citations (iter-133 22-iter latency + iter-158 1-iter latency) documenting the codify-trigger history.
+3. Manual grep-equivalent block (4 grep commands for total + 3 cohorts) for diagnostic re-runs without invoking the script.
+4. Spec / Plan cross-references.
+
+Updated `### Runner (added iter 149)` reference from "7 grep blocks" to "8 grep blocks".
+
+Updated `### Checklist ↔ runner parity (added iter 151)` canonical heading-to-class mapping table:
+
+- New row for `### Matrix-prose count parity (added iter 161)` → `audit class 8/8`.
+- All existing rows flipped from `N/7` → `N/8` denominators.
+- Heading-count summary line bumped 7 → 8 `### ` headings + 5 → 6 drift-class headings.
+
+#### `.specify/features/audit-docs-matrix-prose.md` — NEW spec (15 ACs, ~200 lines)
+
+Full feature spec following the iter-149/151 spec convention: Why / Acceptance Criteria (15 items) / Out of Scope / Notes on naming / Pattern progression confirmation. Status flipped to ✅ RESOLVED in the same commit.
+
+#### `docs/plans/audit-docs-matrix-prose.md` — NEW plan (~250 lines)
+
+Full plan following the iter-149/151 plan convention: Why / Steps (1-10) / Acceptance Criteria reference / Risk Analysis (5 risks) / Pattern progression confirmation. Status flipped to ✅ RESOLVED in the same commit.
+
+#### `.specify/project.md`
+
+- Current State header bumped 160 → 161.
+- Spec count flipped 33 → 34 (audit class 3 caught the off-by-one on first run after spec file added; flipped in the same commit before final verification).
+- "All 33 .specify/ feature specs" prose updated to "All 34" + cohort breakdown updated with the new `audit-docs-matrix-prose.md` entry tagged ✅ RESOLVED iter 161.
+
+#### `CLAUDE.md` Common Commands `pnpm audit:docs` row
+
+Updated 7 → 8 drift classes; added "Matrix-prose count parity" to the enumerated list; added "iter-161 added 8th audit class for `**N-package matrix**` total ↔ canonical 3-cohort breakdown sum parity, codify-trigger fired iter-160 after 2 drift instances" provenance phrase.
+
+#### `README.md` Commands table `pnpm audit:docs` row
+
+Same content update as `CLAUDE.md`.
+
+#### `docs/index.md`
+
+- Updated header descriptor 160 → 161 with full iter-161 narrative.
+- Added `plans/audit-docs-matrix-prose.md` entry to the Plans section.
+- Added `features/audit-docs-matrix-prose.md` entry to the Spec Kit section.
+
+#### `docs/log.md` — this entry
+
+### Verification
+
+`pnpm audit:docs` on iter-161 final state:
+
+```
+[1/8] Status drift (line-anchored, iter-145)                     PASS — 0 hits
+[2/8] Status drift (blockquote-tolerant, iter-147)               PASS — 0 hits
+[3/8] Value drift (count parity)                                 PASS — 0 hits
+         spec count: All N .specify/ feature specs: 34 ✓
+         package count: **N packages**: 18 ✓
+         app count: **N apps**: 8 ✓
+[4/8] Toolchain version drift                                    PASS — 0 hits
+         astro: pinned 6.1.9 (major 6)
+         preact: pinned 10.29.1 (major 10)
+         tailwindcss: pinned 4.2.4 (major 4)
+         typescript: pinned 6.0.3 (major 6)
+[5/8] ISR wording drift                                          PASS — 0 hits
+[6/8] Structural / link drift                                    PASS — 0 hits
+[7/8] Checklist ↔ runner parity (iter-151)                       PASS — 0 hits
+         AGENTS.md checklist headings discovered: 8
+         EXPECTED_MAPPING entries: 8
+         numbered runner classes: 8 (expected 8)
+[8/8] Matrix-prose count parity (iter-161)                       PASS — 0 hits
+         high-churn 12 + lifted 3 + deferred 12 = 27 (claim: 27-package matrix)
+[ * ] Cross-file consistency (AGENTS R-rules vs CLAUDE Critical Rules) PASS — 0 hits
+         AGENTS.md R-rules: 15 (expected 15)
+         CLAUDE.md numbered Critical Rules: 17 (expected 17)
+
+9/9 PASS — no documentation drift detected.
+```
+
+`pnpm typecheck` / `pnpm lint` not re-run — `scripts/audit-docs.ts` is at repo root, not under any tsconfig/eslint scope; runtime executes via `tsx`. AGENTS.md / CLAUDE.md / README.md / spec / plan / index / log / project edits are doc-only.
+
+#### Caught real drift this iteration
+
+The new audit class plus value-drift class (3/8) jointly surfaced two real drifts during the first `pnpm audit:docs` run (before fixes):
+
+1. **Spec count drift (caught by class 3/8)**: adding `audit-docs-matrix-prose.md` bumped `ls .specify/features/*.md | wc -l` from 33 → 34; project.md still claimed 33. Auto-flagged + flipped in the same commit. Same drift class as iter-149 (32 → 33) and iter-151 (32 → 33).
+
+2. **Self-parity drift (caught by class 7/8)**: during initial implementation, the new `EXPECTED_MAPPING` entry was added before the `classes[]` entry was added, so the numbered-class count was 7 vs expected 8 from the mapping table. Class 7/8 caught the asymmetric edit on its first run. Both edits land in the same commit per the iter-151 spec AC #6 self-exclusion contract.
+
+Both drifts surfaced at first-run, fixed inline, both confirmed PASS at final-run. Exactly the codify-and-execute pattern working as intended.
+
+### What was NOT touched (intentional)
+
+- **Existing 7 audit classes** — no behavior change. Class id strings flipped from `N/7` → `N/8` but each class's `run()` function is untouched.
+- **`.github/workflows/ci.yml`** — the iter-150 wire-up already runs `pnpm audit:docs` as a PR-blocking step. The new audit class joins the existing pass automatically; no CI YAML edit needed.
+- **`packages/ui/`, `apps/web/`, etc.** — no source-tree changes. The iter-161 work is bounded to `scripts/audit-docs.ts` + `AGENTS.md` + spec/plan/CLAUDE/README/index/project/log doc surfaces.
+- **`pnpm-lock.yaml`** — zero-delta. No new dependencies.
+- **Routine dep audit** — deferred this iteration. Iter-158/159 zero-delta on 14-package cohort; no churn expected at this interval.
+
+### Files touched
+
+- `scripts/audit-docs.ts` — new function `auditMatrixProseCountParity()` + `EXPECTED_MAPPING` entry + classes[] renumber (~95 lines added).
+- `AGENTS.md` — new `### Matrix-prose count parity (added iter 161)` sub-section + Runner sub-section reference bumped 7 → 8 + Canonical mapping table updated (~50 lines added).
+- `.specify/features/audit-docs-matrix-prose.md` — new file (~200 lines).
+- `docs/plans/audit-docs-matrix-prose.md` — new file (~250 lines).
+- `.specify/project.md` — Current State header 160 → 161 + spec count 33 → 34 + cohort prose updated.
+- `CLAUDE.md` — Common Commands `pnpm audit:docs` row 7 → 8 drift classes.
+- `README.md` — Commands table `pnpm audit:docs` row 7 → 8 drift classes.
+- `docs/index.md` — iteration descriptor 160 → 161 + Plans section entry + Spec Kit section entry.
+- `docs/log.md` — this entry.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)**. `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127. Project enters its **32nd consecutive "no carried open work" steady-state iteration** (iter 130-161).
+
+### Deferrals carried (updated)
+
+1. **Regex-equivalence checking** (iter-151 → iter-161 deferred): still deferred — no real regex-divergence drift in 17 iterations.
+2. **Sample-app port consistency as a NEW audit class** (iter-153 considered/rejected): rejection still stands.
+3. ~~Full 26-package dep matrix re-verification~~ — CLOSED iter-155.
+4. **Optional `pnpm test:e2e` re-run** — defer per iter-134's policy.
+5. **Optional `pnpm coverage` re-run** — defer until material dep churn lands.
+6. **react / react-dom 18 → 19 in `@ever-works/docs-minimal`** — held back by Docusaurus 3.x's React 18 peer-range constraint. Tracked; not actionable.
+7. **`whatwg-encoding@3.1.1` deprecation warning** — transitive sub-dep of jsdom; not actionable from our manifest.
+8. ~~**Matrix-count off-by-one** (iter-155 finding)~~ — CLOSED iter-156.
+9. ~~**Matrix-prose audit class**~~ — **CODIFIED iter-161**. Closed.
+10. **Full 27-package dep matrix re-verification** (iter-155 → iter-161 deferred): triggers on next material dep-touching iteration.
+11. **Cohort-migration log retention** (iter-158 → iter-160 corrected → iter-161 carried): future verification ticks should reference the iter-160 corrected cohort partition (`14 high-churn + 12 deferred + 1 redundant proxy = 27`). Now also enforced automatically by the iter-161 matrix-prose audit class.
+12. **Calendar-day annotation in per-tick preamble** (iter-159 → iter-161 deferred): no second cross-day verification tick yet; codify-trigger has not fired.
+13. **Table-form matrix-prose audit** (iter-161 NEW): the iter-161 audit class only checks prose-form cohort labels (`(high-churn cohort, N packages)`). Iter-160's matrix-table form (`| **High-churn (every-tick)** | 14 |`) is out of scope. If a future drift instance surfaces in table form, that's the trigger to broaden the regex set per codify-then-execute.
+
+### Next Steps (for next scheduled run)
+
+1. **Continue routine verification ticks** while audit + 14-package cohort stay zero-delta. The 9-class audit (8 numbered + 1 cross-file) now runs on every cron tick + every PR; matrix-prose drift cannot accumulate undetected.
+2. **Lift any new patch-level dep deltas inline** if surfaced (iter-128 / iter-154 precedent); migrate the lifted package from deferred → high-churn cohort per iter-158 codified rule.
+3. **Watch for table-form matrix-prose drift recurrence** (deferral #13) — if surfaced, that's the trigger to broaden the regex set.
+4. **Watch for calendar-day annotation drift** (deferral #12) — if a second cross-day verification tick surfaces a real drift, codify-trigger may fire.
+
 ## 2026-04-28 — Iteration 160: catch + correct the iter-158/159 cohort-math drift propagation — second matrix-prose drift instance fires the iter-156 deferral #9 codify-trigger; correct math is `14 high-churn + 12 deferred + 1 redundant proxy = 27` (was `14 + 11 = 25` in iter-158/159)
 
 ### Headline

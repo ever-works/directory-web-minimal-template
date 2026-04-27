@@ -22,6 +22,11 @@
  *   - iter 149: codified all 6 classes in this script
  *   - iter 150: wired `pnpm audit:docs` into CI as PR-blocking step
  *   - iter 151: added 7th class — Checklist ↔ runner self-parity
+ *   - iter 161: added 8th class — Matrix-prose count parity (deferral #9
+ *     codify-trigger fired by iter-160 after 2 instances of cohort-sum
+ *     drift surfaced: iter-133 "expanded by 3" vs 4 names → 22-iter latency,
+ *     and iter-158 "14 + 11 = 25" vs canonical 14 + 1 + 12 = 27 → 1-iter
+ *     latency caught by iter-160)
  */
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
@@ -531,18 +536,18 @@ const EXPECTED_MAPPING: MappingEntry[] = [
     // 'Value drift' fans out into class 3 (count parity) + class 4 (toolchain).
     {
         heading: 'Value drift (stale numbers / counts / versions)',
-        runnerClassId: '3/7+4/7',
+        runnerClassId: '3/8+4/8',
         establishedIter: 145
     },
     // 'Status / state drift' fans out into class 1 (line-anchored) + class 2
     // (blockquote-tolerant); the ISR-wording sub-grep partitions out as class 5.
     {
         heading: 'Status / state drift (claims that have moved on)',
-        runnerClassId: '1/7+2/7+5/7',
+        runnerClassId: '1/8+2/8+5/8',
         establishedIter: 145
     },
     // 'Structural / link drift' → class 6.
-    { heading: 'Structural / link drift', runnerClassId: '6/7', establishedIter: 145 },
+    { heading: 'Structural / link drift', runnerClassId: '6/8', establishedIter: 145 },
     // 'Cross-file consistency' → cross-file parity class (the [ * ] entry).
     {
         heading: 'Cross-file consistency (added iter 148)',
@@ -553,8 +558,17 @@ const EXPECTED_MAPPING: MappingEntry[] = [
     // as the audit-docs.ts edit per spec AC #6 — self-exclusion safety).
     {
         heading: 'Checklist ↔ runner parity (added iter 151)',
-        runnerClassId: '7/7',
+        runnerClassId: '7/8',
         establishedIter: 151
+    },
+    // iter-161: matrix-prose count parity (deferral-#9 codify-trigger fired
+    // by iter-160 after 2 instances of cohort-sum drift; same self-exclusion
+    // contract as iter-151's class above — heading + audit-docs.ts edit land
+    // in the same commit).
+    {
+        heading: 'Matrix-prose count parity (added iter 161)',
+        runnerClassId: '8/8',
+        establishedIter: 161
     },
     // 'Rerun cadence' is meta — informational reference table.
     { heading: 'Rerun cadence', runnerClassId: 'meta', establishedIter: 145 }
@@ -659,6 +673,89 @@ function auditChecklistRunnerParity(): AuditResult {
 }
 
 /* ------------------------------------------------------------------ */
+/* AUDIT CLASS 8 — Matrix-prose count parity (added iter 161)         */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Verify the dep-cohort matrix-count claim in `.specify/project.md`
+ * against the canonical 3-cohort breakdown.
+ *
+ * Drift class: claims of the form `**N-package matrix**` whose stated
+ * total doesn't equal the sum of the immediately-listed cohort counts
+ * `(high-churn cohort, X packages)` + `(iter-N lifted, Y packages)` +
+ * `(deferred cohort, Z packages)`. Two instances surfaced before this
+ * audit was codified:
+ *
+ *   - iter-133 "expanded by 3" while listing 4 package names; latency
+ *     22 iterations until iter-156 fixed it.
+ *   - iter-158 "14 + 11 = 25" while the canonical sum is 14 + 1 + 12 = 27;
+ *     latency 1 iteration until iter-160 caught the drift at the
+ *     propagation site.
+ *
+ * Per iter-156 deferral #9 codify-then-execute meta-pattern, the second
+ * drift instance triggered codification — implemented here.
+ *
+ * The audit is intentionally narrow: it scans only `.specify/project.md`
+ * (the canonical location for the matrix-prose claim) and looks for the
+ * canonical `(high-churn cohort, N packages)` / `(iter-N lifted, N packages)`
+ * / `(deferred cohort, N packages)` breakdown form. Other framings (tables,
+ * non-canonical phrasings) are tolerated to keep the false-positive rate
+ * at zero. If a future iteration re-frames the breakdown, the audit
+ * silently passes (no false positives) and a future iteration can
+ * broaden the regex set to cover the new framing.
+ */
+function auditMatrixProseCountParity(): AuditResult {
+    const text = readFileSync(join(REPO_ROOT, '.specify', 'project.md'), 'utf8');
+    const fileRel = '.specify/project.md';
+    const hits: Hit[] = [];
+    const notes: string[] = [];
+
+    // Total claim: `**N-package matrix**` (the canonical form, used since iter-156).
+    const totalMatch = text.match(/\*\*(\d+)-package matrix\*\*/);
+    if (!totalMatch) {
+        notes.push('no `**N-package matrix**` claim found (audit silent)');
+        return { pass: true, hits: [], notes };
+    }
+
+    // Canonical 3-cohort breakdown (codified iter-160).
+    // Each regex matches the parenthesized cohort label `(<name>, <N> packages)`.
+    const highChurnMatch = text.match(/\(high-churn cohort,\s+(\d+)\s+packages?\b/);
+    const liftedMatch = text.match(/\(iter-\d+\s+lifted,\s+(\d+)\s+packages?\b/);
+    const deferredMatch = text.match(/\(deferred cohort,\s+(\d+)\s+packages?\b/);
+
+    if (!highChurnMatch || !liftedMatch || !deferredMatch) {
+        const missing: string[] = [];
+        if (!highChurnMatch) missing.push('high-churn cohort');
+        if (!liftedMatch) missing.push('iter-N lifted');
+        if (!deferredMatch) missing.push('deferred cohort');
+        notes.push(
+            `not all 3 canonical cohort labels present (missing: ${missing.join(', ')}); audit silent`
+        );
+        return { pass: true, hits: [], notes };
+    }
+
+    const claimedTotal = parseInt(totalMatch[1], 10);
+    const hc = parseInt(highChurnMatch[1], 10);
+    const lifted = parseInt(liftedMatch[1], 10);
+    const deferred = parseInt(deferredMatch[1], 10);
+    const sum = hc + lifted + deferred;
+
+    notes.push(
+        `high-churn ${hc} + lifted ${lifted} + deferred ${deferred} = ${sum} (claim: ${claimedTotal}-package matrix)`
+    );
+
+    if (sum !== claimedTotal) {
+        hits.push({
+            file: fileRel,
+            line: 0,
+            text: `matrix-prose count drift: claim ${claimedTotal} ≠ cohort sum ${sum} (high-churn ${hc} + lifted ${lifted} + deferred ${deferred})`
+        });
+    }
+
+    return { pass: hits.length === 0, hits, notes };
+}
+
+/* ------------------------------------------------------------------ */
 /* AUDIT CLASS * — Cross-file consistency (parity check)              */
 /* ------------------------------------------------------------------ */
 
@@ -696,47 +793,54 @@ function auditCrossFileConsistency(): AuditResult {
 
 const classes: AuditClass[] = [
     {
-        id: '1/7',
+        id: '1/8',
         name: 'Status drift (line-anchored, iter-145)',
         description: '^Status:.*PLANNED|SPECIFIED|DRAFT in docs/plans/ + .specify/features/',
         run: auditStatusDriftLineAnchored
     },
     {
-        id: '2/7',
+        id: '2/8',
         name: 'Status drift (blockquote-tolerant, iter-147)',
         description: '^>?\\s*\\*?\\*?Status:\\s+\\*?\\*?[^✅🗄] (skips resolved sigils)',
         run: auditStatusDriftBlockquoteTolerant
     },
     {
-        id: '3/7',
+        id: '3/8',
         name: 'Value drift (count parity)',
         description: 'spec/package/app counts in project.md vs filesystem; CT-count claim 43→48',
         run: auditValueDrift
     },
     {
-        id: '4/7',
+        id: '4/8',
         name: 'Toolchain version drift',
         description: 'Astro/Preact/Tailwind/TypeScript major-version mentions vs apps/web/package.json',
         run: auditToolchainVersionDrift
     },
     {
-        id: '5/7',
+        id: '5/8',
         name: 'ISR wording drift',
         description: '"fully static" / "no SSR" claims that contradict R5 (post iter-17)',
         run: auditISRWordingDrift
     },
     {
-        id: '6/7',
+        id: '6/8',
         name: 'Structural / link drift',
         description: '](../ relative links from docs/ that escape the Docusaurus content scope',
         run: auditStructuralLinkDrift
     },
     {
-        id: '7/7',
+        id: '7/8',
         name: 'Checklist ↔ runner parity (iter-151)',
         description:
             'AGENTS.md § Doc-Quality Audit Checklist ### headings ↔ EXPECTED_MAPPING parity',
         run: auditChecklistRunnerParity
+    },
+    {
+        id: '8/8',
+        name: 'Matrix-prose count parity (iter-161)',
+        description:
+            '`**N-package matrix**` total claim vs sum of (high-churn cohort, X) + (iter-N lifted, Y) + (deferred cohort, Z) breakdown in .specify/project.md',
+        run: auditMatrixProseCountParity
     },
     {
         id: ' * ',

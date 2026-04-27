@@ -332,7 +332,7 @@ Always run from the repo root.
 
 ### Runner (added iter 149)
 
-The 7 grep blocks below are codified into an executable runner at
+The 8 grep blocks below are codified into an executable runner at
 [`scripts/audit-docs.ts`](../scripts/audit-docs.ts), wired as the root-level npm script
 `pnpm audit:docs`. Each audit class wraps the exact regex from this checklist and reports
 `PASS` / `FAIL <N hits>` with line-anchored output for any hits; the runner exits non-zero on
@@ -440,7 +440,7 @@ When an R-rule is added, removed, or reworded, update both files in the same com
 ### Checklist ↔ runner parity (added iter 151)
 
 The runner at `scripts/audit-docs.ts` self-validates against this section's text on every
-invocation. The 7th audit class (`auditChecklistRunnerParity()`) reads `AGENTS.md` directly
+invocation. The 7th audit class (`auditChecklistRunnerParity()`, added iter 151) reads `AGENTS.md` directly
 with `node:fs`, locates the `## Doc-Quality Audit Checklist` section bounds, extracts every
 `### ` sub-section heading inside, and asserts a 1:1 parity against an in-script
 `EXPECTED_MAPPING` table. Adding a new drift class requires updating **both** the AGENTS.md
@@ -451,20 +451,57 @@ Canonical heading-to-class mapping (mirrored in `scripts/audit-docs.ts § EXPECT
 
 ```
 ### Runner (added iter 149)                                  → meta (describes the script itself)
-### Value drift (stale numbers / counts / versions)          → audit class 3/7 (count parity) + 4/7 (toolchain)
-### Status / state drift (claims that have moved on)         → audit class 1/7 (line-anchored) + 2/7 (blockquote) + 5/7 (ISR)
-### Structural / link drift                                  → audit class 6/7
+### Value drift (stale numbers / counts / versions)          → audit class 3/8 (count parity) + 4/8 (toolchain)
+### Status / state drift (claims that have moved on)         → audit class 1/8 (line-anchored) + 2/8 (blockquote) + 5/8 (ISR)
+### Structural / link drift                                  → audit class 6/8
 ### Cross-file consistency (added iter 148)                  → cross-file parity class ([ * ])
-### Checklist ↔ runner parity (added iter 151)               → audit class 7/7 (this section)
+### Checklist ↔ runner parity (added iter 151)               → audit class 7/8 (this section)
+### Matrix-prose count parity (added iter 161)               → audit class 8/8
 ### Rerun cadence                                            → meta (informational table)
 ```
 
-Total: 7 `### ` headings under `## Doc-Quality Audit Checklist` — 5 drift-class headings
+Total: 8 `### ` headings under `## Doc-Quality Audit Checklist` — 6 drift-class headings
 (some fan out into multiple runner classes) + 2 meta sub-sections (`Runner`, `Rerun cadence`).
 The runner asserts this count and the heading-set parity on every invocation.
 
 Spec: [`.specify/features/audit-docs-self-parity.md`](../.specify/features/audit-docs-self-parity.md).
 Plan: [`docs/plans/audit-docs-self-parity.md`](../docs/plans/audit-docs-self-parity.md).
+
+### Matrix-prose count parity (added iter 161)
+
+Verifies the dep-cohort matrix-count claim in `.specify/project.md` against the canonical
+3-cohort breakdown. Drift class: claims of the form `**N-package matrix**` whose stated total
+doesn't equal the sum of `(high-churn cohort, X packages)` + `(iter-N lifted, Y packages)` +
+`(deferred cohort, Z packages)`.
+
+Two instances surfaced before this audit was codified:
+
+- **Iter-133** "expanded by 3" while listing 4 package names — latency 22 iterations until
+  iter-156 fixed it.
+- **Iter-158** "14 + 11 = 25" while the canonical sum is 14 + 1 + 12 = 27 — latency 1 iteration
+  until iter-160 caught the drift at the propagation site.
+
+Per iter-156 deferral #9 codify-then-execute meta-pattern, the second drift instance triggered
+codification — implemented in `scripts/audit-docs.ts § auditMatrixProseCountParity()`.
+
+The audit is intentionally narrow: it scans only `.specify/project.md` (the canonical matrix
+location) and looks for the canonical `(high-churn cohort, N packages)` / `(iter-N lifted,
+N packages)` / `(deferred cohort, N packages)` breakdown form. Other framings (tables,
+non-canonical phrasings) are tolerated to keep the false-positive rate at zero. If a future
+iteration re-frames the breakdown, the audit silently passes (no false positives) and a
+later iteration can broaden the regex set to cover the new framing.
+
+Manual grep equivalent (for diagnostic re-runs without invoking the script):
+
+```bash
+grep -nE '\*\*[0-9]+-package matrix\*\*' .specify/project.md
+grep -nE '\(high-churn cohort,\s+[0-9]+\s+packages?\b' .specify/project.md
+grep -nE '\(iter-[0-9]+\s+lifted,\s+[0-9]+\s+packages?\b' .specify/project.md
+grep -nE '\(deferred cohort,\s+[0-9]+\s+packages?\b' .specify/project.md
+```
+
+Spec: [`.specify/features/audit-docs-matrix-prose.md`](../.specify/features/audit-docs-matrix-prose.md).
+Plan: [`docs/plans/audit-docs-matrix-prose.md`](../docs/plans/audit-docs-matrix-prose.md).
 
 ### Rerun cadence
 
