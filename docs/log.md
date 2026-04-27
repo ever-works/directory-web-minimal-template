@@ -3,6 +3,120 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 133: deferred health audit re-run — `pnpm coverage` end-to-end clean; 100% branches reproducible (233/233); 26-package dep matrix zero deltas
+
+### Headline
+
+Iteration 132's "Next Steps" listed three follow-ups; #1 (routine dep audit) and #3 (doc drift sweep) were already executed by iter 132 itself, leaving #2 — **"Health audit re-run — eventually re-run `pnpm coverage` end-to-end to confirm the 100% aggregate is reproducible after recent dep churn (iter 128 + 130). Cheap signal, no expected delta. Skipped this iteration to keep the cron tick minimal."** — as the only carried action item. Iter 133 executes that. Result: the iter-124 100%-branches authoritative number reproduces exactly under the post-Q28 (ESLint 10) + post-iter-128 (`isomorphic-git@1.37.6`) toolchain.
+
+**End-to-end `pnpm coverage` numbers (Windows 10 + Node 24.14.0 + pnpm 10.33.0 + Chromium 147 + Playwright 1.59.1 + Vitest 4.1.5 + monocart-coverage-reports 2.12.11 + vitest-monocart-coverage 4.0.2):**
+
+| Metric | Iter 124 (authoritative) | Iter 133 | Delta |
+|--------|--------------------------|----------|-------|
+| Branches | **100% (233/233)** | **100% (233/233)** | none |
+| Functions | 100% (104/104) | 100% (104/104) | none |
+| Lines | 99.76% (1240/1243) | 99.76% (1240/1243) | none |
+| Statements | 99.72% (352/353) | 99.72% (352/353) | none |
+| Bytes | 99.79% (45,558/45,650) | 99.76% (45,667/45,775) | -0.03 pp; +125 total / +16 uncovered |
+| Files | 19 | 19 | none |
+
+**All four logical-coverage metrics (branches/functions/lines/statements) are bit-for-bit identical to iter 124.** The bytes denominator drift (+125 total bytes / +16 uncovered bytes / -0.03 pp) is non-material and below the per-file gate's 80%-branch threshold by ~20 percentage points. Likely cause: the iter-128 `isomorphic-git@1.37.5 → 1.37.6` patch and/or iter-130 ESLint 9 → 10 transitive deps re-emitted the Vite/Preact bundle with marginally different chunk boundaries (V8's coverage byte ranges count emitted-bundle bytes, not source bytes — bundle re-chunking shifts the denominator). Branches/functions/statements/lines count source-level entities through the source-map, which is invariant to bundling. **No code regression; no test regression; no gate regression.**
+
+**Per-file gate (`packages/ui/scripts/coverage-merge.ts` `GATE_TARGETS` allow-list, ≥80% branches hard-fail):**
+
+| File | Iter 124 | Iter 133 | Status |
+|------|----------|----------|--------|
+| `src/preact/FilterBar.tsx` | 100% (27/27) | 100% (27/27) | ✅ identical |
+| `src/preact/LayoutSwitcher.tsx` | 100% (22/22) | 100% (22/22) | ✅ identical |
+| `src/preact/MobileMenu.tsx` | 100% (35/35) | 100% (35/35) | ✅ identical |
+
+`coverage-merge: ✅ Phase 6c per-file gate satisfied.` printed at the end of the merge step — the iter-121 `process.exit(1)` hard-gate would have fired if any file dropped below 80%; it did not.
+
+### CT-flake watch ✅ remains CLOSED (iter-127 closure stable)
+
+`pnpm test:ct` ran the full 48-case Playwright Component-Testing surface in **1m 21s**: **48 passed / 0 failed / 0 flaky / 0 retries / 772 steps**. Walltime almost identical to iter 127 (1m 39s) and iter 126 (1m 25s) — well within Playwright cold-start variance on the same toolchain. The iter-111 single-occurrence `filter-bar.ct › selects category on click` flake has now not recurred across **three** consecutive full-suite runs (iters 126, 127, 133) — the closure from iter 127 holds.
+
+CT-only V8 (identical to iters 126/127): bytes 100% (20,432/20,432), statements 100% (115/115), branches 98.81% (83/84 — 1 uncovered branch is the iter-124 `/* v8 ignore next */`-pragma'd defensive `menuRef` race-guard, dropped from V8 denominator on the merged report where it reads 100%), functions 100% (40/40), lines 100% (495/495).
+
+### Vitest re-verified
+
+`@ever-works/ui` package re-ran from scratch (1 cached + 15 fresh in `pnpm test`; the `@ever-works/ui` cache key is invalidated by Vitest's custom-provider raw V8 emission so it always rebuilds): **174 passed / 11 files / 93.46s** — matches iter-110's "all 11 UI test files in ~98s" baseline. Full `pnpm test` walltime 2m 20s. Per-package totals unchanged: 1122 Vitest tests across 16 packages.
+
+### Raw V8 file inventory
+
+| Source | Count (iter 119 baseline) | Count (iter 133) | Notes |
+|--------|---------------------------|------------------|-------|
+| `coverage/raw/` (Vitest) | 40 | 40 | identical — 40 Vitest test files |
+| `coverage/ct/raw/` (CT) | 49 | 54 | +5 expected: iter 120 +2 (MobileMenu 15→17), iter 124 +3 (MobileMenu 17→20) — `~1.125 entries/test` ratio matches |
+
+Both inputs flow through MCR's V8 path; no Istanbul mixing; no `getCoverageResults` crash (the Q26 hazard).
+
+### Routine dep audit — zero deltas (26-package matrix re-verified)
+
+`npm view <pkg> version` re-run for the full load-bearing surface (~1.5h after iter 132's 23-package audit; expanded to 26 by adding `marked@18.0.2`, `yaml@2.8.3`, `pagefind@1.5.2`, and `@playwright/experimental-ct-react@1.59.1` for completeness). Every dep at the same `latest` version as iter 132:
+
+| Package | Pin | Latest on npm | Drift |
+|---------|-----|---------------|-------|
+| `eslint` | `^10.0.0` | 10.2.1 | none (caret-resolved) |
+| `astro` | `^6.1.9` | 6.1.9 | none |
+| `vitest` | `^4.1.5` | 4.1.5 | none |
+| `playwright` | `^1.59.1` | 1.59.1 | none |
+| `tailwindcss` | `^4.2.4` | 4.2.4 | none |
+| `preact` | `^10.29.1` | 10.29.1 | none |
+| `monocart-coverage-reports` | `^2.12.9` | 2.12.11 | none (caret-resolved) |
+| `monocart-reporter` | `^2.10.0` | 2.10.1 | none (caret-resolved) |
+| `vitest-monocart-coverage` | `^4.0.2` | 4.0.2 | none |
+| `isomorphic-git` | `^1.37.6` | 1.37.6 | none |
+| `typescript` | `~6.0.3` / `^6.0.3` | 6.0.3 | none |
+| `prettier` | `^3.8.3` | 3.8.3 | none |
+| `turbo` | `^2.9.6` | 2.9.6 | none |
+| `@astrojs/vercel` | `^10.0.5` | 10.0.5 | none |
+| `@astrojs/preact` | `^5.1.2` | 5.1.2 | none |
+| `@astrojs/sitemap` | `^3.7.2` | 3.7.2 | none |
+| `@astrojs/check` | `^0.9.8` | 0.9.8 | none |
+| `@playwright/test` | `^1.59.1` | 1.59.1 | none |
+| `@playwright/experimental-ct-react` | `^1.59.1` | 1.59.1 | none |
+| `@typescript-eslint/parser` | `^8.59.0` | 8.59.0 | none |
+| `@typescript-eslint/eslint-plugin` | `^8.59.0` | 8.59.0 | none |
+| `postcss` | `^8.5.12` | 8.5.12 | none |
+| `tailwind-merge` | `^3.5.0` | 3.5.0 | none |
+| `marked` | `^18.0.2` | 18.0.2 | none |
+| `yaml` | `^2.8.3` | 2.8.3 | none |
+| `pagefind` | `^1.5.2` | 1.5.2 | none |
+
+**Zero out-of-scope drift.** The "no carried open work" steady state from iter 130 holds across iter 132 + iter 133.
+
+### Verification summary
+
+- `pnpm typecheck` — **23/23 FULL TURBO** (1.7s; all cache hits — no source / config / `package.json` / lockfile changes since iter 132's commit `9588469`).
+- `pnpm lint` — **18/18 FULL TURBO** (1.2s; all cache hits; 0 warnings + 0 errors carried from iter 131).
+- `pnpm test` — **16/16 packages, 1122/1122 Vitest tests** (2m 20s; 1 cached + 15 fresh — `@ever-works/ui` always rebuilds for Vitest's custom raw V8 provider).
+- `pnpm coverage` — end-to-end clean; merged report at `packages/ui/coverage/merged/{coverage-report.json, codecov.json, lcov.info, index.html, lcov-report/}` (~3 min walltime).
+- `pnpm test:ct` — 48/48 / 0 retries / 0 flaky / 1m 21s.
+
+### Files touched
+
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 132 → 133.
+- `.specify/project.md` — Current State header bumped 132 → 133.
+
+### Why this counts (not just verification noise)
+
+The iter-128 `isomorphic-git@1.37.5 → 1.37.6` patch + iter-130 ESLint 9 → 10 in-place upgrade together churned **+22 transitive deps and -22 legacy drops** across the workspace. Up until iter 133, no end-to-end `pnpm coverage` had been run after the second of those bumps; the standing "100% aggregate" number was iter-124-authoritative (pre-Q28). Iter 132 explicitly deferred this check to keep the cron tick minimal, so iter 133 is the first iteration to actually verify the post-Q28 toolchain reproduces the 100%-branches signal. **It does, exactly**, in all four logical-coverage metrics. The bytes-denominator drift (-0.03 pp / +125 bytes / +16 uncovered) is the expected V8-byte-counting artifact of bundle re-chunking after dep churn and is well clear of any gate threshold. Future code-touching iterations can now trust the iter-124 numbers as still-current without re-running the 3-min coverage pipeline.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)** (iter-124 numbers stay authoritative AND now empirically re-verified at iter 133). CT-flake watch ✅ CLOSED at iter 127 (3/3 clean → empirically 4/4 with iter 133's clean run). `pnpm lint` baseline 18/18 + 0 warnings + 0 errors (iter 131) carries forward unchanged. ESLint pin `^10.0.0` resolves to 10.2.1 (no out-of-scope drift items remaining).
+
+### Next Steps (for next scheduled run)
+
+The "no carried open work" steady state continues. Future iterations are bounded maintenance:
+
+1. **Routine dep audit** — re-check the 26-package matrix; expect zero deltas. Most recent bumps: iter 128 `isomorphic-git@1.37.6`, iter 130 `eslint@10.2.1`. No other major-version gaps remain.
+2. **Doc drift sweep** — repeat iter-132's pattern (`grep -rn "<old number>" CLAUDE.md AGENTS.md README.md docs/architecture/ docs/specs/ .specify/`) when a future iteration changes a headline number. Iter 132's process note (sweep ALL surfaces, not just the ones the previous iteration touched) carries forward.
+3. **Health audit re-run** — next time material dep churn lands (any non-patch bump in Astro / Vite / Vitest / Playwright / Preact / Tailwind / monocart / vitest-monocart-coverage / isomorphic-git / TypeScript / ESLint), re-run `pnpm coverage` to verify the 100%-branches signal still reproduces. Iter 133's bytes-denominator drift establishes the precedent: logical metrics are stable across patch+minor dep churn, but a major bundling-chain change could shift them.
+4. **CT-flake watch ✅ remains CLOSED** — counter advanced 3/3 → 4/4 with iter 133's clean run. No active watch carries forward.
+
 ## 2026-04-27 — Iteration 132: doc drift sweep — flip stale CT count in CLAUDE.md (`43 cases` → `48 cases`); routine dep audit zero deltas
 
 ### Headline
