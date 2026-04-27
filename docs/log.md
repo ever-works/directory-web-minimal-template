@@ -3,6 +3,50 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-28 — Iteration 162: open Q29 — flag cron-cadence saturation; deliberately short entry
+
+### Headline
+
+The project has reached steady state on the original brief. Every primary deliverable is implemented and green; iterations 132 → 161 added no user-facing functionality and instead codified an 8-class doc-quality audit runner whose own internals now produce most of the "drift" it catches. Iteration 162 resists the codify-then-execute reflex: instead of inventing a 9th audit class, it opens **Q29** in `docs/questions.md` flagging the saturation and offering the user 4 concrete options (wind down to weekly cron / pivot to feature additions / continue the audit-loop / archive accumulated overhead). Default choice: **A** — wind down to weekly cadence until real new scope arrives.
+
+### Health snapshot (pre-iter-162)
+
+- `pnpm audit:docs` → **9/9 PASS**, no documentation drift detected.
+- `pnpm typecheck` → **23/23 turborepo tasks PASS**, 0 errors / 0 warnings / 0 hints (full TURBO cache hit, replay completed in 1.374s).
+- 18-package monorepo, 5 sample apps, 34 `.specify/` feature specs, 28 prior questions all ✅ RESOLVED.
+- `docs/log.md` is ~840 KB / ~10 982 lines — large but uncompressed; option D in Q29 contemplates moving iters 1-100 to `docs/log-archive/`.
+
+### What changed this iteration
+
+1. `docs/questions.md` — appended Q29 (Cron-cadence saturation) with 4 options A/B/C/D and `[DEFAULT] = A`. ~80 lines.
+2. `docs/log.md` — this entry (intentionally short — ~30 lines vs. the recent ~100-200-line norm — to demonstrate the meta-prose curtailment proposed in Q29's body).
+3. `docs/index.md` — Updated-line bumped to iter 162 with a one-sentence summary (also intentionally short — no audit-class essay).
+
+### What did NOT change
+
+- `scripts/audit-docs.ts` — no new audit classes added. The 8 classes from iter 161 remain authoritative; this iteration explicitly declines to add a 9th.
+- `AGENTS.md` / `CLAUDE.md` — no changes. The R-rule and Critical-Rule sets remain as-is at iter 161.
+- `package.json` / `pnpm-lock.yaml` — no dependency churn this iteration.
+- All `apps/*` and `packages/*` source — untouched.
+
+### Verification
+
+- `pnpm audit:docs` re-run after edits → still 9/9 PASS (Q29 addition is plain prose; falls under the "Q-track question with options" pattern that the audit script already whitelists).
+
+### Why this is the right move
+
+iters 132 → 161 followed a "find drift → codify drift class → run codified class → find next drift in the codification → repeat" recursion. That recursion was productive through iter ~132 (real drift was real). Past that point, drift surface area is dominated by internal renaming inside the audit-script itself, not by changes in production code. A 9th audit class would not catch a 9th real bug — it would catch a 9th internal naming convention. Q29 makes the saturation visible and asks the user for direction rather than continuing autonomously.
+
+### Next steps
+
+- Await user decision on Q29.
+- If A (wind-down): no further iterations until real new scope arrives.
+- If B (pivot): user names a new vertical/feature; agent writes spec → plan → implements.
+- If C (continue): agent goes back to inventing audit classes (current trajectory).
+- If D (archive): agent moves iter-1-100 to `docs/log-archive/` and prunes Q1-Q28 to bookmarks, after updating audit-script whitelists.
+
+---
+
 ## 2026-04-28 — Iteration 161: codify `auditMatrixProseCountParity()` as the 8th audit class — iter-156 deferral #9 codify-trigger fired by iter-160 after 2 drift instances; `pnpm audit:docs` 9/9 PASS post-add
 
 ### Headline

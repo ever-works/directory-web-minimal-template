@@ -1543,3 +1543,106 @@ flipped iter 130); plan at `docs/plans/q28-eslint-10-upgrade.md`
 (install ~92s + typecheck ~133s + test ~173s + lint ~51s + ~5 min
 doc edits) — well under the 30-45 min plan estimate because the
 test-suite-fresh costs amortized across one verification pass.
+
+---
+
+## Q29: Cron-cadence saturation — should the hourly schedule wind down or pivot? (iteration 162)
+
+**Context**: At iteration 162 (2026-04-28), every primary deliverable
+called out in the original scheduled-task brief is implemented and
+green:
+
+- ✅ Astro 6 static template (`apps/web`) with item / category / tag /
+  comparison / collection / paginated-listing / 404 / robots / RSS /
+  Atom / sitemap pages.
+- ✅ 18-package monorepo: `core`, `ui`, `plugins`, `adapters`,
+  `astro-integration`, `sync`, `eslint-config`, `tsconfig`, plus 10
+  feature plugins (`plugin-search`, `plugin-filters`,
+  `plugin-pagination`, `plugin-seo`, `plugin-sitemap`, `plugin-sort`,
+  `plugin-breadcrumbs`, `plugin-rss`, `plugin-analytics`,
+  `plugin-related-items`).
+- ✅ 5 sample apps end-to-end: `sample-basic` (UI components dir,
+  12 items), `sample-jobs` (8 jobs), `sample-events`,
+  `sample-real-estate`, `sample-git` (3200+ items via isomorphic-git
+  adapter).
+- ✅ Full doc surface: `AGENTS.md` (15 R-rules), `CLAUDE.md`
+  (17 Critical Rules), `SKILLS.md`, 34 `.specify/` feature specs,
+  9 `docs/guides/`, 20 `docs/plans/`, full `docs/architecture/`
+  topology, `docs/log.md` (162 iterations), `docs/questions.md`
+  (28 questions Q1-Q28 closed, Q29 this one).
+- ✅ All 28 prior questions ✅ RESOLVED.
+- ✅ Test surface: 23/23 turborepo typecheck, 18/18 lint, 16/16
+  unit-test packages with 1122/1122 Vitest cases, 48/48 Playwright CT
+  cases, 27 Playwright E2E cases, V8+CT coverage merge at 100%
+  branches on `@ever-works/ui`.
+- ✅ CI: GitHub Actions PR-blocking on lint + typecheck + test +
+  `pnpm audit:docs`; Vercel deploy workflow on `main`.
+
+The last ~30 iterations (132 → 161) have not added any new code-path
+or user-facing feature — they have all been **doc-quality drift fixes
+and audit-class codifications** (status-flip drifts, dependency caret
+deltas inside the existing 27-package audit matrix, value-count
+re-baselines, and meta-audits codifying the audit-script that codifies
+the checklist that audits the previous audits). The codify-then-execute
+meta-pattern that delivered real value through iter ~132 has saturated:
+each new "drift instance" surfaced now is itself a side-effect of the
+audit-script becoming larger, not a real signal about the codebase.
+
+**Question**: at hourly cadence, what should the next 30+ iterations
+focus on?
+
+**Options**:
+
+- **A) Wind down the hourly cron to weekly (or pause until a real
+  triggering event)** `[DEFAULT]` — the project is at a natural
+  steady-state. A weekly cadence is enough to catch genuine drift
+  (npm outdated bumps, security advisories, upstream Astro/Vite/Vitest
+  releases) without manufacturing meta-meta-audits to fill the hour.
+  When a real new feature requirement arrives (vertical-specific
+  template, new plugin, new sample), the cron can be re-cranked back
+  to hourly for that feature's spec → plan → implement cadence.
+  Concretely: the user changes the schedule outside this repo; this Q
+  documents that the hourly cadence has out-paced incoming work.
+- **B) Pivot focus to feature additions** — the original brief
+  mentions "future vertical-specific templates (real estate, SaaS,
+  etc.)". Real-estate already exists as `sample-real-estate`, but a
+  full SaaS vertical, a podcast-directory vertical, a books-directory
+  vertical, or a "starter" component theme could be drafted as new
+  spec → plan → implement cohorts. This would require user direction
+  on which verticals to build (and stops the audit-loop because real
+  feature work pre-empts meta-audits).
+- **C) Continue the current audit-loop pattern** — keep adding new
+  audit classes (9th, 10th, 11th…) and codifying every drift instance.
+  Each iteration produces a small, auditable commit and keeps the
+  green-bar dashboard green, but produces no user-facing value. This
+  is the de-facto trajectory of iters 132-161. **Not recommended**
+  because the audit machinery is now larger than the production code
+  it audits, and most "drift" surfaced is internal to that machinery.
+- **D) Trim and archive accumulated maintenance overhead** — move
+  iterations 1-100 from `docs/log.md` (currently ~840 KB / ~10 982
+  lines) to `docs/log-archive/2026-04-iter-1-100.md`, prune Q1-Q28's
+  resolved-only sections in `docs/questions.md` to one-line
+  ✅ RESOLVED bookmarks (with full text retained in
+  `docs/questions-archive/`), and consolidate the `.specify/features/`
+  audit-* triplet into a single `audit-docs.md` spec. Real "improve,
+  don't remove" work that lowers active-doc surface area without
+  losing history. Pre-condition: update the audit-script whitelists
+  for `docs/log.md` and `docs/questions.md` to also accept the
+  archive paths.
+
+**Default choice**: **A — wind down to weekly cron**. The brief said
+"Proceed as far as you can go" and the agent has reached the as-far-
+as-it-can-go boundary on the *original* brief. New scope is a user
+decision, not an audit-script decision.
+
+**Why this is OPEN, not deferred**: the audit-loop has measurable
+overhead (each iteration commits ~100-200 lines of meta-prose and
+churns `package.json`/`pnpm-lock.yaml`) but the codebase is not
+actually changing. Flagging this explicitly so the user can decide
+between A, B, C, D rather than letting the agent invent a 9th, 10th,
+… audit class autonomously.
+
+**Status**: OPEN — awaiting user decision. Until decided, the agent
+will favor light-touch verification ticks (no new audit-class
+inventions) and avoid bloating `docs/log.md` further.
+
