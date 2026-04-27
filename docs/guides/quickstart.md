@@ -108,11 +108,19 @@ Or push to GitHub with the included CI/CD workflow (`.github/workflows/deploy.ym
 |---------|-------------|
 | `pnpm dev` | Start all dev servers |
 | `pnpm dev:web` | Start web app only |
+| `pnpm dev:docs` | Start the Docusaurus docs site |
 | `pnpm build` | Build all apps |
 | `pnpm typecheck` | Type-check all packages |
 | `pnpm lint` | Lint all packages |
-| `pnpm test:e2e` | Run E2E tests |
+| `pnpm test` | Run unit tests (Vitest) |
+| `pnpm test:coverage` | Run unit tests with V8 coverage reports |
+| `pnpm test:ct` | Run `@ever-works/ui` Playwright Component Tests (real Chromium; first run requires `pnpm test:ct:install`) |
+| `pnpm coverage` | Merge Vitest + Playwright CT V8 coverage into a single report at `packages/ui/coverage/merged/` |
+| `pnpm test:e2e` | Run Playwright E2E tests |
+| `pnpm format` | Format code with Prettier |
 | `pnpm clean` | Clean build artifacts |
+
+For the canonical and exhaustive list (including the defensive `pnpm test:ui:safe` per-file Vitest fallback), see `CLAUDE.md` "Common Commands".
 
 ## Next Steps
 

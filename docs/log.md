@@ -3,6 +3,62 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 136: continued `docs/guides/` audit — refresh stale Common Commands tables in `quickstart.md` and `getting-started.md`
+
+### Headline
+
+Iteration 135 surfaced the iter-17/Q17 ISR-doc gap in `docs/guides/deployment.md` and recommended extending the iter-132 grep set to `docs/guides/` (~3,668 lines across 12 files). This iteration follows that recommendation: a targeted grep for `pnpm test|pnpm coverage|pnpm test:ct|pnpm dev:` across all guides surfaced two more stale Common Commands tables. Both predate the post-Q22 toolchain additions:
+
+- **`docs/guides/quickstart.md`** "Common Commands" (~Apr 12, before iter 17). Was missing `pnpm test`, `pnpm test:coverage`, `pnpm test:ct`, `pnpm coverage`, `pnpm format`, `pnpm dev:docs` — every command added since iteration 98 (`pnpm test:ui:safe` initial), iteration 105 (`pnpm test:ct`), iteration 116 (`pnpm coverage`), and the long-standing `pnpm test`/`pnpm test:coverage`/`pnpm format`. Pre-iter-136 quickstart pointed new contributors at a stale 7-row table; CLAUDE.md's authoritative list (refreshed iteration 132) carried 14 rows.
+- **`docs/guides/getting-started.md`** "Common Commands Reference" (~Apr 12). Same gap minus `pnpm test`/`pnpm test:e2e` (those two were present). Missing `pnpm test:coverage`, `pnpm test:ct`, `pnpm coverage`, `pnpm format`, `pnpm dev:docs`.
+
+### What was done
+
+Pure-doc iteration. **No source / test / config / dep / lockfile changes.**
+
+1. **`docs/guides/quickstart.md` "Common Commands" table refreshed**: added 6 rows (`pnpm dev:docs`, `pnpm test`, `pnpm test:coverage`, `pnpm test:ct`, `pnpm coverage`, `pnpm format`) plus a 1-line cross-reference pointing readers at `CLAUDE.md` for the canonical and exhaustive list (which includes the defensive `pnpm test:ui:safe` per-file Vitest fallback that doesn't belong in a quickstart guide).
+2. **`docs/guides/getting-started.md` "Common Commands Reference" table refreshed**: added 5 rows (`pnpm dev:docs`, `pnpm test:coverage`, `pnpm test:ct`, `pnpm coverage`, `pnpm format`) plus the same 1-line pointer.
+
+The table descriptions are deliberately concise but include the *non-obvious why* where applicable — e.g. `pnpm test:ct` notes "first run requires `pnpm test:ct:install`" and `pnpm coverage` notes the merged-output target — so a reader who only skims the guide can still get correct intuition. The `pnpm test:ui:safe` defensive fallback is intentionally NOT listed in the guides (it's a diagnostic-only escape hatch); both guides instead point at CLAUDE.md.
+
+### Generalization of the iter-132 / iter-135 pattern (now confirmed three times)
+
+Iter-132 surfaced the CLAUDE.md gap (Common Commands missed `pnpm test:ct` / `pnpm test:ct:install`). Iter-135 surfaced the deployment.md gap (ISR env vars + output-mode decision absent post-iter-17). Iter-136 surfaces two more guides files with the same kind of latent drift. Pattern: **command/env-var/feature additions to the toolchain do not auto-propagate to all reader-facing surfaces; targeted greps catch latency at iteration N+1, not at iteration N**. Doc-quality audits should be a recurring background task, not a one-off.
+
+The full grep used this iteration was:
+
+```
+grep -nE "pnpm test|pnpm coverage|pnpm test:ct|pnpm dev:" docs/guides/
+```
+
+Output before iter-136: 8 hits across 3 files (quickstart, getting-started, building-from-template). All 3 reviewed; 2 had stale tables, 1 (building-from-template) had only narrative mentions of `pnpm dev:web` which were correct.
+
+### Verification
+
+- `pnpm typecheck` — 23/23 FULL TURBO (1.7s, all cache hits — doc-only changes don't invalidate any task input).
+- `pnpm lint` — 18/18 FULL TURBO (1.6s, same reason).
+
+### Files touched
+
+- `docs/guides/quickstart.md` — Common Commands table refreshed (+6 rows, +1 cross-ref line).
+- `docs/guides/getting-started.md` — Common Commands Reference table refreshed (+5 rows, +1 cross-ref line).
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 135 → 136.
+- `.specify/project.md` — Current State header bumped 135 → 136.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)** (iter-124/iter-133 numbers stay authoritative). `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127. Project remains in "no carried open work" steady state for the **7th consecutive iteration**.
+
+### Next Steps (for next scheduled run)
+
+1. **Continue the doc-quality audit** — extend the grep to other reader-facing surfaces:
+   - `apps/docs/` Docusaurus content (the bundled rendered docs).
+   - The remaining 9 guides files (`analytics.md`, `building-from-template.md`, `content-sync.md`, `creating-a-plugin.md`, `creating-an-adapter.md`, `customizing.md`, `interactive-components.md`, `performance-testing.md`, `troubleshooting.md`).
+   - Any references to specific iteration numbers / counts (e.g. "16 packages") that may have drifted post-saga.
+2. **Routine dep audit** — re-check the dep matrix; expect zero deltas (iter-135 verified zero deltas ~1.5h prior).
+3. **Optional `pnpm test:e2e` re-run** — same logic as iter-134's build verification; defer unless a regression is suspected.
+
 ## 2026-04-27 — Iteration 135: doc-quality audit on `docs/guides/` — close the ISR documentation gap in `deployment.md` (predates iter-17/Q17)
 
 ### Headline

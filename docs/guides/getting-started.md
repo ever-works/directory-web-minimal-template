@@ -1188,12 +1188,19 @@ All of these are pre-generated at build time as static HTML. No JavaScript is se
 |---------|-------------|
 | `pnpm dev` | Start all dev servers |
 | `pnpm dev:web` | Start the web app only |
+| `pnpm dev:docs` | Start the Docusaurus docs site |
 | `pnpm build` | Build all apps and packages |
 | `pnpm typecheck` | Run TypeScript type checking |
 | `pnpm lint` | Lint all packages |
 | `pnpm test` | Run unit tests (Vitest) |
+| `pnpm test:coverage` | Run unit tests with V8 coverage reports |
+| `pnpm test:ct` | Run `@ever-works/ui` Playwright Component Tests (real Chromium; first run requires `pnpm test:ct:install`) |
+| `pnpm coverage` | Merge Vitest + Playwright CT V8 coverage into `packages/ui/coverage/merged/` (single per-package number) |
 | `pnpm test:e2e` | Run Playwright E2E tests |
+| `pnpm format` | Format code with Prettier |
 | `pnpm clean` | Remove all build artifacts |
+
+The defensive `pnpm test:ui:safe` per-file Vitest fallback is kept for diagnostic use only; see `CLAUDE.md` "Common Commands" for the canonical and exhaustive list.
 
 ## Troubleshooting
 
