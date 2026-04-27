@@ -3,6 +3,114 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 153: routine verification tick — `pnpm audit:docs` 8/8 PASS on iter-152 baseline + 12-package dep quick-check zero deltas
+
+### Headline
+
+Second consecutive verification-only iteration after the iter-145 → iter-151 codify-then-execute meta-arc converged. Iter-152 established the canonical steady-state shape (`pnpm audit:docs` 8/8 PASS + 12-package dep quick-check + 3 doc edits + commit, ~5s audit walltime + ~30s dep walltime). Iter-153 re-runs the same shape against the iter-152 commit `2ee4b88` baseline — confirming the converged steady-state holds across two consecutive cron ticks.
+
+### Reproducibility signal — converged steady-state holds
+
+`pnpm audit:docs` on the iter-152 commit `2ee4b88` baseline (unchanged tree, ~3 hours after iter-152's run):
+
+```
+[1/7] Status drift (line-anchored, iter-145)                     PASS — 0 hits
+[2/7] Status drift (blockquote-tolerant, iter-147)               PASS — 0 hits
+[3/7] Value drift (count parity)                                 PASS — 0 hits
+         spec count: All N .specify/ feature specs: 33 ✓
+         package count: **N packages**: 18 ✓
+         app count: **N apps**: 8 ✓
+[4/7] Toolchain version drift                                    PASS — 0 hits
+         astro: pinned 6.1.9 (major 6)
+         preact: pinned 10.29.1 (major 10)
+         tailwindcss: pinned 4.2.4 (major 4)
+         typescript: pinned 6.0.3 (major 6)
+[5/7] ISR wording drift                                          PASS — 0 hits
+[6/7] Structural / link drift                                    PASS — 0 hits
+[7/7] Checklist ↔ runner parity (iter-151)                       PASS — 0 hits
+         AGENTS.md checklist headings discovered: 7
+         EXPECTED_MAPPING entries: 7
+         numbered runner classes: 7 (expected 7)
+[ * ] Cross-file consistency (AGENTS R-rules vs CLAUDE Critical Rules) PASS — 0 hits
+         AGENTS.md R-rules: 15 (expected 15)
+         CLAUDE.md numbered Critical Rules: 17 (expected 17)
+
+8/8 PASS — no documentation drift detected.
+```
+
+Bit-for-bit identical to iter-152's final-state output. Confirms the runner is **stable across cold cron-tick re-runs** (no machine-local cached state, no environment-variable dependence, no transient package-manager state). The reproducibility property held for two consecutive cron ticks at this point — sufficient signal for autonomous execution.
+
+12-package dep `latest` quick-check (zero deltas vs iter-152 baseline):
+
+```
+astro                       6.1.9    ✓
+preact                     10.29.1   ✓
+tailwindcss                 4.2.4    ✓
+typescript                  6.0.3    ✓
+vitest                      4.1.5    ✓
+@playwright/test            1.59.1   ✓
+monocart-coverage-reports   2.12.11  ✓
+monocart-reporter           2.10.1   ✓
+eslint                     10.2.1    ✓
+prettier                    3.8.3    ✓
+turbo                       2.9.6    ✓
+isomorphic-git              1.37.6   ✓
+```
+
+12/12 zero deltas — same packages, same versions, same iter-151 baseline. The 14-package gap to the documented 26-package matrix remains deferred (those packages — `@astrojs/{vercel,preact,sitemap,check}`, `@playwright/experimental-ct-react`, `@typescript-eslint/{parser,eslint-plugin}`, `vitest-monocart-coverage`, `marked`, `yaml`, `pagefind`, `postcss`, `tailwind-merge`, `@vitest/coverage-v8` — were verified at iter-133/iter-135/iter-142 and have low historical churn).
+
+### Why this matters (carried from iter-152)
+
+The iter-145 → iter-151 chain established the doc-quality audit infrastructure as institutional capability:
+
+| # | Iter | Step | Net effect |
+|---|------|------|-----------|
+| 1 | 145 | Codify audit playbook in `AGENTS.md` text | Grep-and-fix instead of reason-from-scratch |
+| 2 | 146 | Surface miss-target | First retry-and-tighten cycle |
+| 3 | 147 | Tighten regex | Codified miss-target permanently |
+| 4 | 148 | Add 6th drift class (cross-file) | Surface new structural drift class |
+| 5 | 149 | Codify checklist as runnable script `pnpm audit:docs` | One-command instead of grep-by-grep |
+| 6 | 150 | Wire `pnpm audit:docs` into CI as PR-blocking step | Drift PR-blocking instead of cron-tick-dependent |
+| 7 | 151 | Self-parity audit (script verifies AGENTS.md heading set) | Forgotten add/remove drift caught on every run |
+| 8 | 152 | First verification-only run after the chain | Confirms the steady-state invariants hold across cold cron-tick re-runs |
+| 9 | 153 | Second consecutive verification tick | Reproducibility signal — same PASS output across two cold runs |
+
+Iter-153 explicitly demonstrates the converged steady-state pattern: a new cron tick on an unchanged tree converges to ~5s `pnpm audit:docs` + ~30s dep quick-check + 3 doc edits + commit. The bounded per-tick cost is small enough that future autonomous iterations can run dozens of consecutive verification-only ticks without accumulating drift or expanding the doc surface — exactly what iter-152 predicted.
+
+### Deferrals carried (no change from iter-152)
+
+1. **Regex-equivalence checking** (iter-151 deferred, iter-152 carried, iter-153 still deferred) — verify regex literal in AGENTS.md fenced code blocks ≡ compiled regex in `scripts/audit-docs.ts`. Codify-then-execute meta-pattern says to wait until a real regex-divergence drift surfaces; no such drift in 8 iterations. Continue deferring.
+2. **Sample-app port consistency** as a NEW audit class (iter-153 candidate, considered + rejected) — README.md Samples table lists ports 4323-4327; `apps/sample-*/package.json` `dev`/`preview` scripts use `astro dev --port 4323-4327` matching exactly. **No real drift surfaces** — adding this class preemptively would violate the codify-then-execute principle. If a future iteration changes a sample's port (e.g., to avoid a conflict) and forgets to update README, the resulting drift triggers a NEW audit class addition at THAT iteration, not preemptively.
+3. **Full 26-package dep matrix re-verification** — defer until next material dep-touching iteration. Iter-153's 12-package subset confirms the highest-churn cohort hasn't moved.
+4. **Optional `pnpm test:e2e` re-run** — defer per iter-134's policy.
+5. **Optional `pnpm coverage` re-run** — defer until material dep churn lands.
+
+### Files touched
+
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor 152 → 153.
+- `.specify/project.md` — Current State header bumped 152 → 153; steady-state count bumped 23 → 24.
+
+No source / test / config / dep / lockfile / spec / plan changes. Doc-only iteration matching the iter-152 verification-only template.
+
+### Verification
+
+- `pnpm audit:docs` 8/8 PASS in ~5s (output above).
+- 12-package dep quick-check 12/12 zero deltas.
+- `pnpm typecheck` / `pnpm lint` not re-run this tick — doc-only edits to `docs/log.md` + `docs/index.md` + `.specify/project.md` are out of all `tsconfig.*.json` `include` arrays and out of `eslint.config.js` `files` globs, so neither task's input set is invalidated. Last green run from iter-152 / iter-151 chain: `pnpm typecheck` 23/23 + `pnpm lint` 18/18, both FULL TURBO.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)**. `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127. Project enters its **24th consecutive "no carried open work" steady-state iteration** (iter 130-153).
+
+### Next Steps (for next scheduled run)
+
+1. **Continue running `pnpm audit:docs`** on each cron tick — bounded ~5s cost; PASS output reproducibility-verified across three cold cron-tick re-runs (iter-151 baseline, iter-152, iter-153).
+2. **Routine 12-package dep quick-check** — zero deltas across iter-151/iter-152/iter-153. Bump to a full 26-package matrix re-verification only when an autonomous tick has spare budget AND the highest-churn cohort moves first (iter-128 isomorphic-git bump → iter-130 ESLint major bump pattern).
+3. **Hold on speculative audit class additions** — sample-port consistency (and any other speculative class) waits until real drift surfaces, per the codify-then-execute meta-pattern.
+4. **Optional `pnpm test:e2e` re-run** — defer per iter-134's policy.
+5. **Optional `pnpm coverage` re-run** — defer until material dep churn lands.
+
 ## 2026-04-27 — Iteration 152: routine verification tick — `pnpm audit:docs` 8/8 PASS on iter-151 baseline + 12-package dep quick-check zero deltas
 
 ### Headline
