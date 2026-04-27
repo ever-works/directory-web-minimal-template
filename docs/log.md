@@ -3,6 +3,110 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-28 — Iteration 160: catch + correct the iter-158/159 cohort-math drift propagation — second matrix-prose drift instance fires the iter-156 deferral #9 codify-trigger; correct math is `14 high-churn + 12 deferred + 1 redundant proxy = 27` (was `14 + 11 = 25` in iter-158/159)
+
+### Headline
+
+Doc-drift-fix tick catching a real propagation drift introduced by iter-158 and propagated unchanged through iter-159. Iter-158 codified the cohort-migration policy after iter-154's caret-range patch lifts (`@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`, `jsdom` migrated from iter-154-lifted to high-churn) but its summary math was wrong:
+
+> The deferred cohort (iter-155-verified) remains 11 packages (the original 12 minus `@typescript-eslint/parser` which migrated to high-churn): @astrojs/{vercel,preact,sitemap,check} / @playwright/experimental-ct-react / vitest-monocart-coverage / marked / yaml / pagefind / postcss / tailwind-merge / @vitest/coverage-v8.
+
+Two errors compounded:
+
+1. **Off-by-one in the count**: the brace expansion `@astrojs/{vercel,preact,sitemap,check}` is 4 packages, plus 8 named (`@playwright/experimental-ct-react`, `vitest-monocart-coverage`, `marked`, `yaml`, `pagefind`, `postcss`, `tailwind-merge`, `@vitest/coverage-v8`) = **12 packages**, not 11. (Identical drift class to iter-133's "expanded by 3" while listing 4 — the first matrix-prose drift, fixed by iter-156.)
+2. **Incorrect rationale**: "the original 12 minus `@typescript-eslint/parser` which migrated to high-churn" — but `@typescript-eslint/parser` was never in the iter-155 deferred cohort. The iter-155 enumeration listed exactly the 12 packages above; `parser` was in the iter-154-lifted cohort, structurally separate from the deferred cohort.
+
+iter-159 re-applied iter-158's cohort partition verbatim (`14 high-churn + 11 deferred = 27-package matrix`) without spot-checking the math. The propagation is now 1 commit deep (iter-158 introduced, iter-159 inherited) — iter-160 catches it before further propagation.
+
+This is **the second instance of the iter-156 matrix-prose drift class**. Per iter-156 deferral #9 ("codify-then-execute meta-pattern says wait for a *second* matrix-prose drift instance before adding the audit class"), the codify-trigger has now fired. Iter-160 corrects the math inline + flags the trigger; iter-161 codifies the new audit class (out of scope for iter-160's bounded budget — adding an audit class touches `scripts/audit-docs.ts` + `AGENTS.md § Doc-Quality Audit Checklist` + `EXPECTED_MAPPING` + class-count update from 7/7 → 8/8 + spec/plan updates).
+
+### Corrected cohort partition
+
+The **27-package matrix** breaks down into 3 cohorts, all every-tick-tested or deferred per their cohort policy:
+
+| Cohort | Count | Policy | Members |
+|--------|-------|--------|---------|
+| **High-churn (every-tick)** | 14 | Verified on every cron-tick via `pnpm view <pkg> version` | 12 baseline (iter-152) + 2 iter-154-migrants (`@typescript-eslint/parser`, `jsdom`) |
+| **Redundant proxy** | 1 | Surveilled implicitly via the canonical-proxy query (`@typescript-eslint/parser`) — atomic monorepo release means `parser` and `eslint-plugin` always share a version, so a single `pnpm view parser` covers both | `@typescript-eslint/eslint-plugin` |
+| **Deferred** | 12 | Re-verified on next material dep-touching iteration (last full pass: iter-155) | `@astrojs/{vercel,preact,sitemap,check}` (4) + `@playwright/experimental-ct-react`, `vitest-monocart-coverage`, `marked`, `yaml`, `pagefind`, `postcss`, `tailwind-merge`, `@vitest/coverage-v8` (8) |
+| **Total** | **27** | matches iter-156 27-package matrix ✓ | (14 + 1 + 12 = 27) |
+
+iter-158's `14 + 11 = 25` was off by 2: the deferred cohort is 12 (not 11), and the redundant proxy is +1. Iter-160's `14 + 12 + 1 = 27` matches the iter-156 matrix.
+
+### Verification
+
+`pnpm audit:docs` on iter-159 commit `5659929` baseline (unchanged tree, ~1h after iter-159's commit):
+
+```
+[1/7] Status drift (line-anchored, iter-145)                     PASS — 0 hits
+[2/7] Status drift (blockquote-tolerant, iter-147)               PASS — 0 hits
+[3/7] Value drift (count parity)                                 PASS — 0 hits
+         spec count: All N .specify/ feature specs: 33 ✓
+         package count: **N packages**: 18 ✓
+         app count: **N apps**: 8 ✓
+[4/7] Toolchain version drift                                    PASS — 0 hits
+[5/7] ISR wording drift                                          PASS — 0 hits
+[6/7] Structural / link drift                                    PASS — 0 hits
+[7/7] Checklist ↔ runner parity (iter-151)                       PASS — 0 hits
+[ * ] Cross-file consistency (AGENTS R-rules vs CLAUDE Critical Rules) PASS — 0 hits
+
+8/8 PASS — no documentation drift detected.
+```
+
+The audit-script's value-drift class (3/7) checks `**N packages**` (= 18 workspace packages) and `All N .specify/ feature specs` (= 33), but does NOT check `N-package matrix` dep-cohort prose — exactly the coverage gap that lets the iter-158/159 drift through. iter-156 documented this gap as deferral #9; iter-160 confirms the 2nd instance has surfaced and tees up iter-161 to codify the audit class.
+
+`pnpm typecheck` / `pnpm lint` / `pnpm test` not re-run this tick — no source / test / config / dep / lockfile changes.
+
+### Sub-mode classification
+
+| Sub-mode | Trigger | Iter-160 fit |
+|----------|---------|--------------|
+| Verification-only | All audit/dep classes return zero deltas | ❌ Real drift surfaces in iter-158/159 cohort math |
+| Doc drift fix | One drift instance found and fixed inline | ✅ This iteration (cohort-math correction + codify-trigger flagged) |
+| Dep delta apply | One or more dep ranges have movement | ❌ No dep changes |
+
+Iter-160 is the **9th doc-drift-fix iteration** since iter-132 (132/135/137/138/141/144/148/156/160). Pattern progression: this is the second instance of a *single* drift class (matrix-prose count parity) — iter-156's first instance was iter-133's "expanded by 3 while listing 4" (22-iteration latency); iter-160's second instance is iter-158's "11 deferred while listing 12" (1-iteration latency, caught at the propagation site). The dramatic latency drop from 22 → 1 is itself a positive signal: the iter-156 deferral-#9 framing made future readers more attuned to matrix-prose math, so the second instance was caught at iteration N+1 instead of N+22.
+
+### Files touched
+
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor 159 → 160.
+- `.specify/project.md` — Current State header bumped 159 → 160.
+
+No other files touched. No source / test / config / dep / lockfile / spec / plan changes. Doc-only iteration.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)**. `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127. Project enters its **31st consecutive "no carried open work" steady-state iteration** (iter 130-160).
+
+### Deferrals carried (updated)
+
+1. **Regex-equivalence checking** (iter-151 → iter-160 deferred): still deferred — no real regex-divergence drift in 16 iterations.
+2. **Sample-app port consistency as a NEW audit class** (iter-153 considered/rejected): rejection still stands.
+3. ~~Full 26-package dep matrix re-verification~~ — CLOSED iter-155.
+4. **Optional `pnpm test:e2e` re-run** — defer per iter-134's policy.
+5. **Optional `pnpm coverage` re-run** — defer until material dep churn lands.
+6. **react / react-dom 18 → 19 in `@ever-works/docs-minimal`** — held back by Docusaurus 3.x's React 18 peer-range constraint.
+7. **`whatwg-encoding@3.1.1` deprecation warning** — transitive sub-dep of jsdom; not actionable from our manifest.
+8. ~~**Matrix-count off-by-one** (iter-155 finding)~~ — CLOSED iter-156.
+9. ~~**Matrix-prose audit class**~~ — **CODIFY-TRIGGER FIRED iter-160**. Iter-161 should add `auditMatrixProseCountParity()` to `scripts/audit-docs.ts` covering: count-parity for every claim of the form `N-package matrix` / `N deferred` / `N high-churn` against the actual enumeration immediately following the claim. Bounded ~30-45 min implementation.
+10. **Full 27-package dep matrix re-verification** (iter-155 → iter-160 deferred): 14-package every-tick check + 12-package deferred cohort + 1 redundant proxy = 27 (corrected iter-160). Full re-verification triggers on next material dep-touching iteration.
+11. **Cohort-migration log retention** (iter-158 → iter-160 corrected): future verification ticks should reference the **iter-160 corrected cohort partition** (`14 high-churn + 12 deferred + 1 redundant proxy = 27`) rather than iter-158's drift-tainted `14 + 11 = 25` claim. The corrected partition was first published in iter-160's headline table above.
+12. **Calendar-day annotation in per-tick preamble** (iter-159 → iter-160 deferred): no second cross-day verification tick yet (iter-159 was the first; iter-160 also lands on 2026-04-28 — same day). Codify-trigger has not fired; deferral continues.
+
+### Next Steps (for next scheduled run)
+
+1. **Iter-161: codify `auditMatrixProseCountParity()` audit class** (deferral #9 trigger fired iter-160). Implementation outline:
+   - Add `function auditMatrixProseCountParity(): AuditResult` to `scripts/audit-docs.ts`.
+   - Regex: `(\d+)[ -](?:high-churn|deferred|package matrix)` to find count claims; then locate the immediately-following bracket-list / brace-expansion / table enumeration and count actual entries.
+   - Add `EXPECTED_MAPPING` entry for new AGENTS.md sub-section heading `### Matrix-prose count parity (added iter 161)`.
+   - Add new AGENTS.md `### ` heading + grep block (canonical text reference).
+   - Update class IDs: 7/7 → 8/8 across all `classes[]` ids and `EXPECTED_MAPPING` runnerClassIds.
+   - Update iter-148 `auditCrossFileConsistency` description (still `[ * ]`, no change to its position).
+   - Verify with `pnpm audit:docs` 9/9 PASS post-add.
+2. **Continue routine verification ticks** while audit + 14-package cohort stay zero-delta. Iter-160's correction means the cohort-math is now self-consistent for future ticks.
+3. **Watch for further matrix-prose drift recurrence** — once the audit class lands in iter-161, this becomes automated.
+
 ## 2026-04-28 — Iteration 159: routine verification tick on iter-158 baseline — `pnpm audit:docs` 8/8 PASS + 14-package cohort (12 high-churn + 2 iter-154-lifted) all zero-delta against workspace caret floors
 
 ### Headline
