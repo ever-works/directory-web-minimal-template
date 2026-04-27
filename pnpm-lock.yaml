@@ -629,8 +629,8 @@ importers:
   packages/adapters:
     dependencies:
       isomorphic-git:
-        specifier: ^1.37.5
-        version: 1.37.5
+        specifier: ^1.37.6
+        version: 1.37.6
     devDependencies:
       '@ever-works/eslint-config':
         specifier: workspace:*
@@ -7177,8 +7177,8 @@ packages:
     resolution: {integrity: sha512-WhB9zCku7EGTj/HQQRz5aUQEUeoQZH2bWcltRErOpymJ4boYE6wL9Tbr23krRPSZ+C5zqNSrSw+Cc7sZZ4b7vg==}
     engines: {node: '>=0.10.0'}
 
-  isomorphic-git@1.37.5:
-    resolution: {integrity: sha512-wek54c5uFvd3WsxewLWt6h0GXKWQh0P8rRXns9bN1rHNjcgCb3+0lmyAsP594NeTtQFeCJQVS9b0kjbkD1l5qg==}
+  isomorphic-git@1.37.6:
+    resolution: {integrity: sha512-qr1NFCPsVTZ6YGqTXw0CzamnsHyH9QQ1OTEfeXIweSljRUMzuHFCJdUn0wc6OcjtTDns6knxjPb7N6LmJeftOA==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -17785,7 +17785,7 @@ snapshots:
 
   isobject@3.0.1: {}
 
-  isomorphic-git@1.37.5:
+  isomorphic-git@1.37.6:
     dependencies:
       async-lock: 1.4.1
       clean-git-ref: 2.0.1

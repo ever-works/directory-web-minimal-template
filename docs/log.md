@@ -3,6 +3,58 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 128: pick up the iter-127 caret-range delta — `isomorphic-git@1.37.5 → 1.37.6` lockfile + package.json pin bump
+
+### Headline
+
+Iteration 127 surfaced a single delta inside the caret range: `isomorphic-git@1.37.5 → 1.37.6` (patch bump). Iter-127's note said "the next `pnpm install` will pick it up automatically" — empirically that turned out to be wrong. `pnpm install` reported "Lockfile is up to date, resolution step is skipped" and left `pnpm-lock.yaml` at 1.37.5. The caret-range bump only lands when `pnpm update` is invoked explicitly. This iteration runs `pnpm update isomorphic-git --filter @ever-works/adapters` to land the bump, verifies the dep is healthy via `packages/adapters` tests, and commits the lockfile + pin update. `packages/adapters/package.json` pin bumped from `^1.37.5` → `^1.37.6` simultaneously (pnpm update's default behavior — keeps the caret floor aligned with the resolved version).
+
+### What was learned (iter-127 note correction)
+
+The iter-127 audit's claim that *"the next `pnpm install` will pick it up automatically"* is incorrect for caret-range patch bumps. pnpm's lockfile is sticky once resolved: `pnpm install` only re-resolves when the manifest changes or the lockfile is missing. To pick up an in-range upstream patch, you need `pnpm update <pkg>` explicitly. Future routine audits should either:
+
+- Invoke `pnpm update <pkg>` on the day of the audit (preferred — picks up the bump immediately while toolchain context is fresh).
+- Document the deferral with the explicit caveat *"will land on the next iteration that runs `pnpm update`"* (more honest than "next `pnpm install`").
+
+This iteration follows the first form.
+
+### What was done
+
+1. **`pnpm update isomorphic-git --filter @ever-works/adapters`** — resolved `1.37.5` → `1.37.6`, updated `pnpm-lock.yaml` (one entry-pair: package and its dependency lookup) and bumped `packages/adapters/package.json` `dependencies.isomorphic-git` from `^1.37.5` → `^1.37.6`.
+2. **`pnpm typecheck`** — 23/23 pass (1 cached + 22 fresh in 2m9s; the lockfile change invalidated the turbo cache).
+3. **`pnpm lint`** — 18/18 pass (1 cached + 17 fresh in 45.8s; same reason).
+4. **`pnpm --filter @ever-works/adapters test`** — 4/4 files / **104/104 tests** pass in 8.0s. Confirms `isomorphic-git@1.37.6` does not change any tracked behavior (file-tree walking, head-ref resolution, refresh path).
+
+### Verification
+
+Net cache-cost of the bump:
+
+| Task | Before (cached) | After (fresh) | Delta |
+|------|-----------------|---------------|-------|
+| typecheck | FULL TURBO (cache hit) | 1 cached / 22 fresh | +2m9s walltime once |
+| lint | FULL TURBO (cache hit) | 1 cached / 17 fresh | +46s walltime once |
+| adapters test | n/a (separately invoked) | 104/104 in 8.0s | n/a |
+
+After this iteration's commit, the next `pnpm typecheck` / `pnpm lint` / `pnpm test` invocation will hit the regenerated cache and return to FULL TURBO.
+
+### Files touched
+
+- `packages/adapters/package.json` — `isomorphic-git` pin `^1.37.5` → `^1.37.6`.
+- `pnpm-lock.yaml` — `isomorphic-git@1.37.5` → `isomorphic-git@1.37.6` (two grep-matched entries: the package itself and its dependency-graph reference).
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 127 → 128.
+- `.specify/project.md` — Current State header bumped 127 → 128.
+
+### Saga status (carried)
+
+Q22 → Q27 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)**, functions 100% (104/104), lines 99.76% (1240/1243), statements 99.72% (352/353) — iter-124 numbers stay authoritative; this iteration did not touch any source under `packages/ui/`. CT-flake watch ✅ CLOSED at iter 127 (3/3 clean).
+
+### Next Steps (for next scheduled run)
+
+1. **Routine dep audit** — re-check the 22-package matrix; expect zero deltas (this iteration just consumed iter-127's only delta). If new patch bumps surface, run `pnpm update <pkg>` per the corrected playbook above.
+2. **ESLint 9 → 10 review** — still the single out-of-scope drift item. Manual changelog review required (ESLint 10 has flat-config requirements that may interact with `packages/eslint-config`; not autonomous).
+3. **No urgent open work** — the saga is closed, the gate is enforced, the lockfile is current. Future iterations are bounded maintenance.
+
 ## 2026-04-27 — Iteration 127: CT-flake watch ✅ CLOSED (3/3); routine dep audit one delta inside caret range (`isomorphic-git@1.37.5 → 1.37.6`)
 
 ### Headline
