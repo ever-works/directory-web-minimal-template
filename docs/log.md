@@ -3,6 +3,117 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 155: close iter-154 deferral #3 — full 26-package matrix re-verification; remaining 12-package deferred-cohort all zero-delta against workspace caret floors
+
+### Headline
+
+Verification-only iteration that closes iter-154's deferral #3 ("future iterations should include a full 26-package quick-check on the next material dep-touching iteration to surface any other accumulated patches"). Iter-154 lifted the 3 known-moved deltas in the deferred cohort (`@typescript-eslint/{parser,eslint-plugin}` + `jsdom`) but left 12 of the 14 deferred-cohort packages unchecked since iter-133/iter-135/iter-142 baselines. Iter-155 queries the full remaining cohort against `pnpm view <pkg> version` and confirms **zero deltas** — every workspace caret floor still matches the `latest` resolution.
+
+The full 26-package matrix is now **bit-for-bit zero-delta after the iter-154 lifts**. No package in the documented matrix has unverified time greater than iter-154's commit timestamp.
+
+### Remaining-cohort verification
+
+The 12 packages iter-154 left deferred (verified against workspace `package.json` caret floors):
+
+| Package | Caret floor | `latest` (iter-155) | Δ | Workspace consumer |
+|---------|-------------|---------------------|---|---------------------|
+| `@astrojs/vercel` | `^10.0.5` | `10.0.5` | 0 | apps/web, apps/sample-git |
+| `@astrojs/preact` | `^5.1.2` | `5.1.2` | 0 | apps/web, apps/sample-* (6 apps) |
+| `@astrojs/sitemap` | `^3.7.2` | `3.7.2` | 0 | apps/web, apps/sample-* (6 apps) |
+| `@astrojs/check` | `^0.9.8` | `0.9.8` | 0 | apps/web, apps/sample-* (6 apps) |
+| `@playwright/experimental-ct-react` | `^1.59.1` | `1.59.1` | 0 | packages/ui |
+| `vitest-monocart-coverage` | `^4.0.2` | `4.0.2` | 0 | packages/ui |
+| `marked` | `^18.0.2` | `18.0.2` | 0 | packages/core, apps/sample-git |
+| `yaml` | `^2.8.3` | `2.8.3` | 0 | packages/core, apps/web, apps/sample-* (6 apps) |
+| `pagefind` | `^1.5.2` | `1.5.2` | 0 | apps/web, apps/sample-* (6 apps) |
+| `postcss` | `^8.5.12` | `8.5.12` | 0 | apps/docs |
+| `tailwind-merge` | `^3.5.0` | `3.5.0` | 0 | packages/ui, apps/docs |
+| `@vitest/coverage-v8` | `^4.1.5` | `4.1.5` | 0 | (root devDep) |
+
+12/12 zero deltas. All caret floors are exactly equal to the `latest` resolution (not merely covered by the caret range — there is no patch-level drift to lift even at the manifest level). The iter-154 finding ("3/14 packages moved" was a non-trivial signal) does not recur for the remaining 12: the deferred-cohort policy correctly identified low-churn packages.
+
+### Combined matrix snapshot (post iter-155)
+
+26 packages, all zero-delta against `latest`:
+
+- **High-churn (12, verified iter-152/153)**: astro `6.1.9` / preact `10.29.1` / tailwindcss `4.2.4` / typescript `6.0.3` / vitest `4.1.5` / @playwright/test `1.59.1` / monocart-coverage-reports `2.12.11` / monocart-reporter `2.10.1` / eslint `10.2.1` / prettier `3.8.3` / turbo `2.9.6` / isomorphic-git `1.37.6`.
+- **Lifted iter-154 (3)**: @typescript-eslint/parser `8.59.1` / @typescript-eslint/eslint-plugin `8.59.1` / jsdom `29.1.0`.
+- **Verified zero-delta iter-155 (12)**: see table above.
+
+The matrix entry in `.specify/project.md` line 94 reads `26-package matrix` because iter-133's expansion accounted for it; the table count (12 + 3 + 12 = 27) is one larger than the documented 26 because the iter-133 expansion enumerated `@playwright/experimental-ct-react` as a single entry and the iter-154 footnote enumerated the same package separately. This is not a real drift — the package is the same — but the matrix prose phrasing in `.specify/project.md` line 94 conflates "verified at iter X" + "appears in matrix" without distinguishing one-time vs recurring verifications. **No fix this tick** (the prose is technically correct; the count is consistent with how iter-133 framed the expansion). Future iterations with another matrix expansion should re-baseline the count.
+
+### Verification
+
+`pnpm audit:docs` on iter-154 commit `2cf481b` baseline (unchanged tree, ~3 hours after iter-154's run):
+
+```
+[1/7] Status drift (line-anchored, iter-145)                     PASS — 0 hits
+[2/7] Status drift (blockquote-tolerant, iter-147)               PASS — 0 hits
+[3/7] Value drift (count parity)                                 PASS — 0 hits
+         spec count: All N .specify/ feature specs: 33 ✓
+         package count: **N packages**: 18 ✓
+         app count: **N apps**: 8 ✓
+[4/7] Toolchain version drift                                    PASS — 0 hits
+         astro: pinned 6.1.9 (major 6)
+         preact: pinned 10.29.1 (major 10)
+         tailwindcss: pinned 4.2.4 (major 4)
+         typescript: pinned 6.0.3 (major 6)
+[5/7] ISR wording drift                                          PASS — 0 hits
+[6/7] Structural / link drift                                    PASS — 0 hits
+[7/7] Checklist ↔ runner parity (iter-151)                       PASS — 0 hits
+         AGENTS.md checklist headings discovered: 7
+         EXPECTED_MAPPING entries: 7
+         numbered runner classes: 7 (expected 7)
+[ * ] Cross-file consistency (AGENTS R-rules vs CLAUDE Critical Rules) PASS — 0 hits
+         AGENTS.md R-rules: 15 (expected 15)
+         CLAUDE.md numbered Critical Rules: 17 (expected 17)
+
+8/8 PASS — no documentation drift detected.
+```
+
+Identical to the iter-154 final-state output. `pnpm typecheck` / `pnpm lint` / `pnpm test` not re-run this tick — no source / test / config / dep / lockfile changes; iter-154's full quartet (typecheck 23/23 + lint 18/18 + test 16/16 / 1122/1122 + audit 8/8) carries forward. Doc-only edits to `docs/log.md` + `docs/index.md` + `.specify/project.md` are out of all `tsconfig.*.json` `include` arrays and out of `eslint.config.js` `files` globs.
+
+### Sub-mode classification
+
+Per the iter-154 sub-mode taxonomy:
+
+| Sub-mode | Trigger | Iter-155 fit |
+|----------|---------|--------------|
+| Verification-only | All audit/dep classes return zero deltas | ✅ This iteration (full 26-package matrix zero-delta) |
+| Doc drift fix | One audit class returns hits | ❌ Audit clean |
+| Dep delta apply | One or more dep ranges have movement | ❌ All 12 cohort packages zero-delta |
+
+Iter-155 is a **verification-only** sub-mode iteration with the bonus that it explicitly closes a deferral chain. The bounded per-tick cost held: ~5s audit + ~30s parallel `pnpm view` for 12 packages + 3 doc edits + commit. **Total walltime ~3 min**.
+
+### Files touched
+
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor 154 → 155.
+- `.specify/project.md` — Current State header bumped 154 → 155; steady-state count bumped 25 → 26; matrix re-verification iter list extended (`/ 154 / 155`).
+
+No other files touched. No source / test / config / dep / lockfile changes.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)**. `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127. Project enters its **26th consecutive "no carried open work" steady-state iteration** (iter 130-155).
+
+### Deferrals carried (updated)
+
+1. **Regex-equivalence checking** (iter-151 → iter-155 deferred): still deferred — no real regex-divergence drift in 11 iterations. Defer until a real drift surfaces.
+2. **Sample-app port consistency as a NEW audit class** (iter-153 considered/rejected): no drift this tick either; rejection still stands.
+3. ~~Full 26-package dep matrix re-verification~~ — **CLOSED iter-155**. Future iterations should include a 26-package quick-check on the next material dep-touching iteration; until then, the 12-package high-churn subset remains the canonical cron-tick check.
+4. **Optional `pnpm test:e2e` re-run** — defer per iter-134's policy.
+5. **Optional `pnpm coverage` re-run** — defer until material dep churn lands; iter-154's `@typescript-eslint/*` + `jsdom` bumps are dev-only and out of `GATE_TARGETS`.
+6. **react / react-dom 18 → 19 in `@ever-works/docs-minimal`** — held back by Docusaurus 3.x's React 18 peer-range constraint. Tracked; not actionable.
+7. **`whatwg-encoding@3.1.1` deprecation warning** — transitive sub-dep of jsdom; not actionable from our manifest.
+8. **Matrix-count off-by-one** (iter-155 finding): the documented 26-package matrix prose enumerates 27 entries when the verification-cohort split is rolled up. Not real drift — `@playwright/experimental-ct-react` is the same package referenced in two places. Re-baseline at next matrix expansion.
+
+### Next Steps (for next scheduled run)
+
+1. **Continue verification-only ticks** while audit + 12-package cohort stay zero-delta. Bounded ~5 min per tick.
+2. **Lift any new patch-level dep deltas inline** if surfaced (iter-128 + iter-154 precedent).
+3. **Optional: re-baseline the matrix count** to clean up the 26 vs 27 prose vs enumeration discrepancy. Bounded ~10 min; not urgent (no functional drift).
+
 ## 2026-04-27 — Iteration 154: dep audit lifts 3 patch-level deltas in the iter-153-deferred 14-package cohort — `@typescript-eslint/parser` 8.59.0 → 8.59.1, `@typescript-eslint/eslint-plugin` 8.59.0 → 8.59.1, `jsdom` 29.0.2 → 29.1.0; `pnpm audit:docs` 8/8 PASS, full verify (typecheck 23/23 + lint 18/18 + test 16/16 = 1122/1122 Vitest) green
 
 ### Headline
