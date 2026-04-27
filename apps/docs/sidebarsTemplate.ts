@@ -14,6 +14,7 @@ const sidebars: SidebarsConfig = {
         "architecture/adapter-system",
         "architecture/component-system",
         "architecture/content-sync",
+        "architecture/testing-runners",
       ],
     },
     {
@@ -58,6 +59,13 @@ const sidebars: SidebarsConfig = {
         "plans/phase-6-deployment",
         "plans/phase-7-sample-events",
         "plans/phase-8-sample-real-estate",
+        "plans/q22-playwright-ct",
+        "plans/q22-mobilemenu-ct",
+        "plans/q22-upstream-repro",
+        "plans/q22-playwright-coverage",
+        "plans/q24-layoutswitcher-empty-modes",
+        "plans/q27-mobilemenu-empty-items-coverage",
+        "plans/q28-eslint-10-upgrade",
       ],
     },
     {

@@ -3,6 +3,117 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 141: continue cross-repo grep audit — close 2 drifts in `apps/docs/` (Docusaurus blog post pre-iter-17 wording + sidebar topology missing 1 architecture page + 7 Q-track plans)
+
+### Headline
+
+Iter-140 listed 4 unaudited surfaces in its "Next Steps" #1: `docs/guides/content-sync.md` (only spot-checked), `apps/docs/blog/`, `apps/docs/sidebarsTemplate.ts`, and `.github/workflows/*.yml`. Iter-141 executes that audit. **Two real drifts found; two surfaces verified clean**:
+
+1. **`apps/docs/blog/2026-04-11-welcome.md` line 21 (drift)**: pre-iter-17/Q17 wording — "Static-first — Astro 6 with fully static output, no SSR". Predates iteration 17's "ISR by Default, Static Opt-Out" architectural shift, exactly the same drift class iter-135 fixed in `docs/guides/deployment.md`. The blog post got missed because it lives under `apps/docs/blog/` not `docs/`. Latency: ~123 iterations (iter-17 → iter-141), longest single drift latency yet recorded in the audit history.
+
+2. **`apps/docs/sidebarsTemplate.ts` (drift, two-part)**: the Docusaurus sidebar topology (`templateSidebar`, consumed by `docusaurus.config.ts:43` `sidebarPath: './sidebarsTemplate.ts'` and rendered at `docusaurus.config.ts:124` `sidebarId: 'templateSidebar'`) was missing:
+   - **1 architecture page**: `architecture/testing-runners.md` (added to docs by iter-105 Q22, ~36 iterations of latency).
+   - **7 Q-track plans**: `q22-playwright-ct.md`, `q22-mobilemenu-ct.md`, `q22-upstream-repro.md`, `q22-playwright-coverage.md`, `q24-layoutswitcher-empty-modes.md`, `q27-mobilemenu-empty-items-coverage.md`, `q28-eslint-10-upgrade.md`. All authored across iters 105 / 108 / 109 / 110 / 123 / 129. Latency ranges 12 → 36 iterations.
+
+Net result: the deployed Docusaurus site at `apps/docs/` was missing **8 navigable doc pages** from its left-rail sidebar. Readers reaching the Docusaurus site cold (e.g. from a Q&A link or external referrer) would see the Architecture sidebar end at "Content Sync" with no entry for testing-runners (the canonical Vitest-vs-CT-vs-E2E decision matrix), and would see the Plans sidebar end at "Phase 8 Sample Real Estate" with no entry for any Q-track plan despite all 7 being canonically catalogued in `docs/index.md`'s "Plans" section.
+
+3. **`docs/guides/content-sync.md` (NO DRIFT — verified clean)**: line 92's "the site is fully static — no server functions run at runtime" is correctly scoped inside the `## Static Mode` section describing `ENABLE_ISR=false`. Iter-140 spot-checked this and was correct; iter-141 confirms via full-file read. No edit.
+
+4. **`.github/workflows/*.yml` (NO DRIFT — verified clean)**: targeted grep for `1170|1165|43 cases|48 cases|All [0-9]+|22-package|26-package|Fully static|fully static` across `ci.yml`, `deploy.yml`, `lighthouse.yml` returned zero matches. No edit.
+
+### What was fixed
+
+#### 1. `apps/docs/blog/2026-04-11-welcome.md` line 21 (the pre-iter-17 wording)
+
+```diff
+-- **Static-first** — Astro 6 with fully static output, no SSR
++- **Static-first with optional ISR** — Astro 6 with `output: 'static'` + `@astrojs/vercel` ISR adapter by default; opt out with `ENABLE_ISR=false` for pure static output
+```
+
+The new wording adds:
+
+- **Mode parity** with iter-135's deployment.md fix (same "ISR by default, opt out" framing).
+- **Concrete config** (`output: 'static'` + `@astrojs/vercel`) so a reader skimming the blog post understands the actual Astro config shape.
+- **Opt-out env var** (`ENABLE_ISR=false`) so the blog post matches CLAUDE.md's documented set of 12 env vars.
+
+#### 2. `apps/docs/sidebarsTemplate.ts` (Architecture + Plans expansion)
+
+Added to `Architecture` block:
+
+```diff
+   "architecture/component-system",
+   "architecture/content-sync",
++  "architecture/testing-runners",
+```
+
+Added to `Plans` block:
+
+```diff
+   "plans/phase-7-sample-events",
+   "plans/phase-8-sample-real-estate",
++  "plans/q22-playwright-ct",
++  "plans/q22-mobilemenu-ct",
++  "plans/q22-upstream-repro",
++  "plans/q22-playwright-coverage",
++  "plans/q24-layoutswitcher-empty-modes",
++  "plans/q27-mobilemenu-empty-items-coverage",
++  "plans/q28-eslint-10-upgrade",
+```
+
+The order matches `ls docs/plans/` alphabetical order for the q-prefix entries (q22-* before q24, q24 before q27, q27 before q28). The phase-prefix entries stay in their existing iteration-ordering (which is also numerical: 1 → 2 → 3 → 4 → 4b → 5 → 5-detail → 6 → 7 → 8). Phase entries first, then Q-track entries — consistent with the `docs/index.md` "Plans" section ordering.
+
+### What was NOT touched (intentional — verified clean)
+
+- **`docs/guides/content-sync.md`**: full-file read confirmed the iter-140 spot-check; the only "fully static" reference is correctly scoped inside `## Static Mode`. No edit.
+- **`.github/workflows/*.yml`**: targeted grep returned zero matches. No edit.
+- **`apps/docs/docusaurus.config.ts`**: spot-checked for stale doc-topology refs (`sidebarPath`, `sidebarId`); all references match the new sidebarsTemplate.ts entries. No edit.
+
+### Routine dep audit (deferred this iteration)
+
+Iter-140 verified zero deltas across 22 packages ~1h prior. No new churn expected; deferral consistent with iter-138's policy.
+
+### Pattern progression — now confirmed for the 8th iteration in a row
+
+| # | Iteration | Surface | Drift kind |
+|---|-----------|---------|------------|
+| 1 | iter 132 | `CLAUDE.md` Common Commands | `43 cases` → `48 cases` + walltime/Chromium/flake-signal |
+| 2 | iter 135 | `docs/guides/deployment.md` | Missing ISR env vars + 4 narrative claims (predates iter-17/Q17) |
+| 3 | iter 136 | `docs/guides/quickstart.md` + `getting-started.md` | Missing 5-6 Common Commands rows |
+| 4 | iter 137 | `.specify/project.md` package matrix | `22-package` → `26-package` |
+| 5 | iter 138 | `.specify/project.md` spec count | `All 28` → `All 31` |
+| 6 | iter 139 | `README.md` Commands table | Conflated `pnpm test` row + missing CT/coverage rows |
+| 7 | iter 140 | `.specify/features/q28-*.md` AC #5 + `docs/plans/q28-*.md` Step 4 | Same conflated-`pnpm test=1170` drift |
+| 8 | iter 141 | `apps/docs/blog/2026-04-11-welcome.md` line 21 + `apps/docs/sidebarsTemplate.ts` | Pre-iter-17/Q17 ISR wording + sidebar missing 1 architecture + 7 Q-track plans |
+
+**Pattern (re-stated)**: drift accumulates in surfaces that are not on the primary edit path of the feature/iteration that introduced the change. The Q22→Q28 saga authored its plans/specs in `docs/plans/` and `.specify/features/` and updated `docs/index.md` "Plans" section accordingly — but never updated the **Docusaurus** sidebar topology (`apps/docs/sidebarsTemplate.ts`), so the navigable doc-site experience drifted further from the canonical doc index with each Q-track plan added.
+
+### Verification
+
+- `pnpm typecheck` — pending verification at commit time (expected: 23/23 FULL TURBO; the `apps/docs/sidebarsTemplate.ts` edit only adds string literals to an existing typed array, so the Docusaurus typecheck step should accept it).
+- `pnpm lint` — pending verification at commit time (expected: 18/18 FULL TURBO; sidebars edit is in `apps/docs/` which has its own lint scope).
+
+### Files touched
+
+- `apps/docs/blog/2026-04-11-welcome.md` — line 21 ISR wording fix.
+- `apps/docs/sidebarsTemplate.ts` — Architecture +1 entry, Plans +7 entries.
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 140 → 141.
+- `.specify/project.md` — Current State header bumped 140 → 141.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)**. `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127. Project remains in "no carried open work" steady state for the **12th consecutive iteration** (iter 130-141).
+
+### Next Steps (for next scheduled run)
+
+1. **Verify the Docusaurus build** in a future iteration that does a full `pnpm build` — the new sidebar entries should render without breaking the Docusaurus dev server. If a build-step regression appears (e.g. a sidebar entry pointing to a non-existent path), fall back to removing the offending entry and capturing the failure shape in a Q&A entry. Bounded ~15 min if a regression appears; ~0 min if not.
+2. **Continue cross-repo grep technique** for any remaining unaudited surfaces:
+   - `.github/ISSUE_TEMPLATE/` and `.github/PULL_REQUEST_TEMPLATE/` (if present) — if any reference test counts or `pnpm` commands, they would be drift candidates.
+   - `apps/docs/static/` — if any robots.txt / sitemap.xml / etc. references stale URL or counts.
+3. **Routine dep audit** — re-check the 26-package matrix; expect zero deltas.
+4. **Optional `pnpm coverage` re-run** — defer until material dep churn lands.
+5. **Optional `pnpm test:e2e` re-run** — defer per iter-134's policy.
+
 ## 2026-04-27 — Iteration 140: extend iter-139 conflated-`pnpm test` audit to spec/plan surfaces — fix 2 occurrences in `.specify/features/q28-eslint-10-upgrade.md` AC #5 + `docs/plans/q28-eslint-10-upgrade.md` Step 4; routine dep audit zero deltas across 22 packages
 
 ### Headline
