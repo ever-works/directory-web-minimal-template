@@ -3,6 +3,146 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 110: Q22 follow-up #2 SUPERSEDED + Q22 follow-up #3 spec/plan/Q25 authored
+
+### Headline
+
+Iteration 110 resolves the two remaining Q22 follow-ups in two different
+shapes:
+
+- **Q22 follow-up #2** (`pnpm test:ui:safe` removal) — the original
+  goal was outright removal of the per-file Vitest runner once the
+  Q22 IPC-hang fingerprint stopped reproducing under plain `pnpm test`.
+  Verification this iteration: `pnpm --filter @ever-works/ui test`
+  ran **11/11 files, 174/174 tests in ~98s** on Windows + Node
+  24.14.0 — **2 of 2 consecutive runs** (97.46s and 99.05s). Q22 hang
+  does not reproduce. However, the cron-task instruction "**Do NOT
+  remove anything (move or improve is OK)**" combined with AGENTS.md
+  R15 ("Replace, don't remove") preclude actual deletion of the
+  script. Resolution shape: **soft-deprecate** the script as a
+  defensive fallback. Updates landed in this iteration:
+  - `packages/ui/scripts/test-per-file.ts` JSDoc rewritten to flag
+    the script as **DEFENSIVE FALLBACK** (no longer required) with
+    the supporting verification numbers + a 3-point rationale for
+    keeping it (operating-room failsafe, per-file debugging
+    convenience, AGENTS R15 + cron instruction compliance).
+  - `CLAUDE.md` "Common Commands" entry updated to lead with
+    "DEFENSIVE FALLBACK" rather than "Q22 Windows workaround".
+  - `docs/architecture/testing-runners.md` "Local commands" comment
+    block expanded with the iteration-110 verification result.
+  - `docs/architecture/testing-runners.md` "Future work"
+    `pnpm test:ui:safe` bullet flipped from active TODO to
+    **~~SUPERSEDED~~** with explicit rationale.
+  - Q22 follow-up #2 status in `docs/questions.md` is **SUPERSEDED**
+    (no longer "OPEN" or "RESOLVED" — the goal itself changed).
+- **Q22 follow-up #3** (`playwright-coverage` integration) —
+  **SPECIFIED + PLANNED**. New artifacts:
+  - `.specify/features/q22-playwright-coverage.md` — full feature
+    spec, 10 acceptance criteria, library risk analysis,
+    AGENTS.md R1-R15 cross-check.
+  - `docs/plans/q22-playwright-coverage.md` — 5-phase execution
+    plan with Phase 0 (smoke-test gate) → Phase 1 (library install +
+    reporter wiring) → Phase 2 (Vitest exclusions drop) → Phase 3
+    (merge command) → Phase 4 (CI integration) → Phase 5
+    (documentation + status flips). Iteration sequencing table
+    suggests phases 1-2 in iter 111, phase 3 in iter 112, phase 4
+    in iter 113, phase 5 in iter 114.
+  - `docs/questions.md` Q25 added — library choice tree
+    (`monocart-coverage-reports` 2.x [DEFAULT] vs
+    `@bgotink/playwright-coverage` vs custom V8+`v8-to-istanbul`
+    harness vs defer-indefinitely). Default rationale: monocart
+    explicitly supports `playwright-ct-react`, explicitly supports
+    merging V8 coverage from multiple sources, emits V8-native
+    reports matching Vitest's existing provider — three properties
+    that no other option combines.
+
+### Verification matrix
+
+| Command                                                                  | Result               |
+|--------------------------------------------------------------------------|----------------------|
+| `pnpm --filter @ever-works/ui test` (run 1/2)                            | 11/11 files, 174/174 tests, 99.05s |
+| `pnpm --filter @ever-works/ui test` (run 2/2)                            | 11/11 files, 174/174 tests, 97.46s |
+| `pnpm typecheck`                                                         | 23/23 cached, 0 err  |
+| `pnpm lint`                                                              | 18/18 cached, 0 err  |
+
+### What was done this iteration
+
+| File                                                          | Action |
+|---------------------------------------------------------------|--------|
+| `.specify/features/q22-playwright-coverage.md`                | CREATE — spec (~285 lines) |
+| `docs/plans/q22-playwright-coverage.md`                       | CREATE — plan (~265 lines) |
+| `docs/questions.md`                                           | EDIT — Q25 appended (library choice + smoke-test gate + Why-not-E rationale) |
+| `packages/ui/scripts/test-per-file.ts`                        | EDIT — JSDoc rewritten (DEFENSIVE FALLBACK status + rationale) |
+| `CLAUDE.md`                                                   | EDIT — `pnpm test:ui:safe` line in Common Commands rewritten |
+| `docs/architecture/testing-runners.md`                        | EDIT — Local commands comment + Future-work bullets (#2 SUPERSEDED, #3 detailed) |
+| `docs/index.md`                                               | EDIT — iteration descriptor + new spec/plan rows |
+| `docs/log.md`                                                 | EDIT — this entry |
+
+### Status flips
+
+- **Q22 follow-up #2**: OPEN → SUPERSEDED (script kept; goal redefined).
+- **Q22 follow-up #3**: OPEN → SPECIFIED + PLANNED (next 4 iterations
+  execute the 5-phase plan).
+- **Q25**: NEW (library choice for follow-up #3).
+
+### Why supersession over resolution for follow-up #2
+
+The original goal "remove `pnpm test:ui:safe`" predates the cron-task
+instruction "Do NOT remove anything (move or improve is OK)". Honoring
+both the cron and AGENTS.md R15 ("Replace, don't remove"), the script
+must stay. But the documented gating condition (Q22 IPC-hang stops
+reproducing under plain `pnpm test`) IS met as of iteration 110, so
+the question must reflect a status change. The honest description is
+**SUPERSEDED**: the original goal was overtaken by a different
+constraint (do-not-remove rule), and the new goal — soft-deprecate the
+script as a defensive fallback while keeping it functional — is what
+landed. Reusing "RESOLVED" would falsely imply removal happened.
+
+### Why follow-up #3 is the right next CT-arc move
+
+After iterations 105 (FilterBar CT), 107 (LayoutSwitcher CT), 108
+(MobileMenu CT), and 109 (LayoutSwitcher determinism fix), three
+production components are exercised only by Playwright Component
+Testing. They are excluded from the Vitest V8 branch report so the
+per-package coverage number does not regress visibly — but this means
+those three components are **not subject to coverage gating in CI**.
+A regression in `FilterBar.tsx` that the CT suite stops covering
+would slip through review undetected. Follow-up #3 closes this gap by
+merging the V8 coverage from the CT runs back into the package-level
+report. The 10 ACs in the spec turn this into a single-number
+contract: when `pnpm coverage` reports 100% branch for
+`@ever-works/ui`, that 100% covers the full source surface — not just
+the surface Vitest happens to reach.
+
+### Codebase pattern (now documented)
+
+> **`pnpm test:ui:safe` is a defensive fallback, not a workaround.**
+>
+> The script's status changed from "Q22 Windows workaround" to
+> "defensive fallback" between iterations 98 (creation) and 110
+> (this iteration). Plain `pnpm --filter @ever-works/ui test` is the
+> primary signal; the per-file runner exists to reproduce the
+> iteration-98 baseline if a future Vitest/jsdom/Node bump
+> re-introduces the IPC hang. Do not invoke it as part of routine
+> CI; do invoke it for per-file isolation when debugging a single
+> flaky Vitest file.
+
+### Remaining open items
+
+- **Q22 follow-up #3** — Phase 0 smoke test gates the rest of the
+  plan. Earliest execution: iteration 111. If smoke fails, Q25
+  reopens with the failure shape.
+- **Q25** — library choice. Default is `monocart-coverage-reports`;
+  switch to `@bgotink/playwright-coverage` if Phase 0 detects
+  source-map drift.
+- **CI matrix verification** — Q22 Step 6 observation-only on the
+  next CI run. Independent of follow-up #3.
+- **Vitest exclusions removal** — gated on follow-up #3 Phase 2
+  landing. Until then, the three exclusions in
+  `packages/ui/vitest.config.ts` remain a known compromise.
+
+---
+
 ## 2026-04-27 — Iteration 109: Q24 ✅ RESOLVED — `LayoutSwitcher` `EMPTY_MODES` allocation fix; full `pnpm test:ct` is 43/43 deterministic across 2 of 2 consecutive runs
 
 ### Headline

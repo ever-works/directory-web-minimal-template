@@ -230,9 +230,12 @@ pnpm test
 # Vitest — single package
 pnpm --filter @ever-works/ui test
 
-# Vitest — per-file fallback for the @ever-works/ui package, used historically
-# as a workaround for Q22 before the CT migration. Still useful for isolating
-# a single failing Vitest file.
+# Vitest — per-file defensive fallback for the @ever-works/ui package. Used
+# historically as a workaround for the Q22 Worker-IPC hang. As of iteration
+# 110 (2026-04-27), plain `pnpm test` runs all 11 UI Vitest files (174 tests)
+# in ~98s with no hangs; this script is preserved as an escape hatch in case
+# a future Vitest/jsdom/Node bump re-introduces the symptom. Also useful for
+# isolating a single failing Vitest file during debugging.
 pnpm test:ui:safe
 
 # Playwright CT — entire @ever-works/ui CT suite
@@ -279,9 +282,6 @@ Step 4 for traceability):
 
 ## Future work
 
-- **`playwright-coverage` integration** (Q22 follow-up #3) — merge CT V8
-  coverage into the per-package report so `FilterBar.tsx` and
-  `LayoutSwitcher.tsx` return to the branch-coverage roll.
 - ~~**Preemptive CT migration of `MobileMenu`** (Q22 follow-up #1)~~ —
   ✅ COMPLETE in iteration 108. `MobileMenu` (15 cases) is now exercised by
   `packages/ui/src/__tests__/ct/mobile-menu.ct.test.tsx` and verifies in
@@ -290,8 +290,26 @@ Step 4 for traceability):
   read via `page.evaluate(() => document.body.style.overflow)`, and the
   conditional panel remount — all real-browser idioms documented in
   `.specify/features/q22-mobilemenu-ct.md`.
-- **Removal of `pnpm test:ui:safe`** (Q22 follow-up #2 / Q23 follow-up #1)
-  — As of iteration 107, `pnpm test:ui:safe` reports **12/12 files passing
-  in 201.2s** (no Q22-shape hangs remain in the Vitest UI surface). The
-  per-file runner can stay as a defensive fallback until the next health
-  audit confirms it has no further callers, then be removed.
+- ~~**Removal of `pnpm test:ui:safe`**~~ (Q22 follow-up #2 / Q23
+  follow-up #1) — **SUPERSEDED in iteration 110**: the goal flipped
+  from "remove the script" to "keep as a defensive fallback". Plain
+  `pnpm --filter @ever-works/ui test` runs all 11 Vitest files (174
+  tests) in ~98s on Windows + Node 24.14.0 — verified 2 of 2
+  consecutive runs in iteration 110. The Q22 Worker-IPC hang
+  fingerprint does not reproduce. The script is left in place
+  (with updated JSDoc and CLAUDE.md note) as insurance against a
+  future Vitest/jsdom/Node regression. The cron-task instruction
+  "Do NOT remove anything (move or improve is OK)" + AGENTS.md R15
+  ("Replace, don't remove") both prefer this resolution shape over
+  outright deletion. See `docs/log.md` iteration 110 and
+  `docs/questions.md` Q22 for the decision trail.
+- **`playwright-coverage` integration** (Q22 follow-up #3) — see
+  spec at `.specify/features/q22-playwright-coverage.md` and plan
+  at `docs/plans/q22-playwright-coverage.md` (both authored in
+  iteration 110). Library choice tracked at Q25 (`docs/questions.md`);
+  default is `monocart-coverage-reports` 2.x, gated on a Phase 0
+  smoke test. When this lands, the three exclusions in
+  `packages/ui/vitest.config.ts` (`FilterBar.tsx`,
+  `LayoutSwitcher.tsx`, `MobileMenu.tsx`) drop and the per-package
+  branch number reflects the full surface area, including CT-only
+  components.

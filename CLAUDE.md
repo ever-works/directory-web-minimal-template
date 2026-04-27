@@ -118,7 +118,7 @@ pnpm lint:fix             # Lint and auto-fix all packages
 pnpm typecheck            # Type-check all packages
 pnpm test                 # Run all unit tests (Vitest)
 pnpm test:coverage        # Run unit tests with V8 coverage reports
-pnpm test:ui:safe         # Run @ever-works/ui tests one file at a time (Q22 Windows workaround)
+pnpm test:ui:safe         # DEFENSIVE FALLBACK — runs @ever-works/ui Vitest tests one file at a time. As of iteration 110 plain `pnpm test` runs all 11 UI test files in ~98s; this script is kept as an escape hatch if a future Vitest/jsdom/Node bump re-introduces the Q22 IPC hang.
 pnpm test:e2e             # Run E2E tests (Playwright)
 pnpm format               # Format code with Prettier
 pnpm clean                # Clean all build artifacts

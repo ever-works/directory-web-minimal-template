@@ -836,3 +836,91 @@ pnpm lint        # 18/18, 0 err
 ```
 
 If any of the above fails after the fix, capture the failure shape and re-open Q24 with a section labelled "Iteration 109 fix did not stabilize". The dev-server hypothesis (B) and combined hypothesis (C) would then need direct investigation. As of 2026-04-27 02:36 local, all five verification runs landed green.
+
+---
+
+## Q25: Coverage library for Playwright CT — `monocart-coverage-reports` vs `@bgotink/playwright-coverage` vs custom
+
+> **Status: OPEN — opened in iteration 110 (2026-04-27).** Default
+> implies a smoke-test gate in Phase 0 of the plan at
+> [`docs/plans/q22-playwright-coverage.md`](plans/q22-playwright-coverage.md);
+> if the smoke test fails, re-open this question with the failure
+> shape attached and pick Option B.
+
+**Context**: Q22 follow-up #3 — integrate a coverage tool that captures
+V8 coverage during Playwright Component Testing runs, source-maps it
+back to original `.tsx` files, and merges it with the existing Vitest
+V8 coverage report. Three components (`FilterBar`, `LayoutSwitcher`,
+`MobileMenu`) are currently excluded from the Vitest V8 branch report
+because they were migrated to CT in iterations 105 / 107 / 108. Without
+a merge step, those three production components are not subject to
+coverage gating — a regression risk this question resolves.
+
+Spec: `.specify/features/q22-playwright-coverage.md` (iteration 110).
+Plan: `docs/plans/q22-playwright-coverage.md` (iteration 110, 5 phases).
+
+**Options**:
+
+- **A) `monocart-coverage-reports`** — published version 2.11.0
+  (October 2024); explicitly supports `playwright-ct-react` per the
+  README; explicitly supports merging V8 coverage from multiple
+  sources (Vitest + Playwright); emits V8-native reports matching
+  Vitest's existing provider; reporter integration is a one-line
+  addition to `playwright.ct.config.ts`. `[DEFAULT]`
+- **B) `@bgotink/playwright-coverage`** — older package; converts
+  V8 to Istanbul before merging (lossier for source-mapped edge
+  cases); no explicit `playwright-ct-react` example in the README,
+  though `mergeTests` works for any Playwright extension; emits
+  lcov/Istanbul format that Vitest's V8 output would need to be
+  transcoded to before merging.
+- **C) Custom harness** — wire `Profiler.takePreciseCoverage()`
+  manually via Playwright's `addInitScript` + `evaluate`,
+  post-process with `c8` or `v8-to-istanbul`. Highest control,
+  highest maintenance cost; reasonable only if A and B both fail
+  the smoke test in Phase 0 of the plan.
+- **D) Defer follow-up #3 indefinitely** — keep the three exclusions
+  in `vitest.config.ts` as the long-term steady state. The CT suite
+  remains an assertion oracle without contributing to the coverage
+  number. Acceptable in a low-velocity project; not a fit for ours
+  (R8: extreme performance, R10: AI-optimized — opaque coverage
+  numbers hurt both AI and human reviewers).
+
+**Default choice**: **A — `monocart-coverage-reports`**. The explicit
+`playwright-ct-react` support and the V8-native merge are decisive.
+Option B remains the documented fallback if Phase 0's smoke test
+shows source-map drift; Option C is the fallback-of-last-resort.
+
+**Status**: OPEN — implementation gated on Phase 0 smoke test landing
+in a future iteration (110+1 if iteration 110 stops at spec/plan
+authorship; same iteration if bandwidth allows).
+
+### Smoke-test acceptance (Phase 0 of the plan)
+
+Before any production code lands, a 30-line throwaway script must
+prove that the chosen library:
+
+1. Captures V8 coverage from a `mount(<FilterBar />)` call in CT.
+2. Source-maps the V8 ranges back to `packages/ui/src/preact/FilterBar.tsx`
+   (not a Vite chunk hash or `__VITE_LOAD_*` synthetic path).
+3. Reports >0% branch coverage for at least one branch in
+   `FilterBar.tsx`.
+
+If any of those three assertions fails for the default (Option A),
+the question reopens with the smoke-test JSON attached and Option B
+becomes the new default.
+
+### Why not E (do nothing — keep exclusions and document them as the
+final state)?
+
+Considered. Rejected because:
+
+- Coverage numbers reported by CI become semantically misleading
+  ("`@ever-works/ui` at 100% branch" hides three components).
+- AI agents reading the report cannot tell that the 100% is
+  conditional on three opt-outs.
+- The exclusions create a slippery-slope precedent: any future
+  CT-only component will need a corresponding exclusion, and the
+  measured surface area shrinks over time.
+
+Documenting the exclusions is necessary regardless of which option
+wins — but the exclusions themselves are not a stable end state.
