@@ -3,6 +3,126 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 123: Q27 OPENED + spec + plan authored — `MobileMenu` 3-branch outlier coverage closure (carry from iteration 122 "Next Steps")
+
+### Headline
+
+The Q22→Q26 saga closed in iteration 122. The first carry from iteration 122's "Next Steps" — the MobileMenu 3-branch outlier — is now formally tracked as **Q27**, with full spec at `.specify/features/q27-mobilemenu-empty-items-coverage.md` and 4-step execution plan at `docs/plans/q27-mobilemenu-empty-items-coverage.md`. Pure documentation iteration: no source / test / config changes. Per the scheduled-task spec ("only implement things / changes if you have full detailed plan / spec / tasks for it written in the docs folder or in .specify folder"), iteration 123 lays the groundwork; execution is sequenced for a future iteration once the Phase 0 smoke test for Option A.1 (synthetic Tab dispatch via `page.evaluate`) confirms monocart-coverage-reports attributes the synthetic keydown to V8 coverage on the focus-trap handler.
+
+### What was authored
+
+#### 1. `.specify/features/q27-mobilemenu-empty-items-coverage.md` (NEW, ~280 lines)
+
+Full feature spec mirroring the Q24 (`EMPTY_MODES`) spec format. Sections:
+
+- **Description** — 3-branch breakdown (B1 / B2 / B3) with annotated MobileMenu.tsx focus-trap source extract; explicit citation of iteration 120's deferred B1 attempt and the inline-deferral comment at `mobile-menu.ct.test.tsx` lines 254-264.
+- **Why this is not blocking** — aggregate 98.72%, MobileMenu 91.89%, gate green at ≥80%; this is a *ceiling* lift, not a *floor* fix.
+- **User Stories** — maintainer (refactor-safe focus trap), AI agent (semantically accurate "100%"), reviewer (no permanent TODO marker in CT file).
+- **9 Acceptance Criteria**:
+  - AC #1: B1 covered by Option A.1 default OR formally excluded by Option A.3 fallback.
+  - AC #2: B2 + B3 covered by a non-boundary Tab CT test.
+  - AC #3: MobileMenu rises to ~97-100% / aggregate ≥99.4%.
+  - AC #4: Phase 6c gate stays green (no `GATE_THRESHOLD` lift required).
+  - AC #5: CT suite stays deterministic across 2 of 2 consecutive runs (CT-flake watch unaffected).
+  - AC #6: inline-deferral comment removed.
+  - AC #7: typecheck 23/23 + lint 18/18.
+  - AC #8: Q27 status flips on the execution iteration.
+  - AC #9: log entry on the execution iteration.
+- **Options for B1** — A.1 (synthetic dispatch, default) / A.2 (controlled-state API, rejected) / A.3 (`v8 ignore next`, contingency).
+- **Options for B2 + B3** — single AC #2 test, no alternative.
+- **Defaults table** — explicit B1 → A.1, B2/B3 → AC #2.
+- **Out of scope** — no MobileMenu refactor; no controlled-state API; no other-file branch-outlier audit; CT-flake watch tracked separately.
+- **4 Risks** — A.1 may not register V8 coverage (R1 → mitigated by Step 0 smoke test); future handler refactor breaks synthetic dispatch (R2 → cross-coverage from natural Tab tests); no GATE_THRESHOLD lift required (R3); spec may bit-rot if 6+ months pass (R4).
+- **Dependencies** — none (no new npm deps, no CI changes, no env vars; default path has zero source changes).
+- **References** — MobileMenu.tsx + mobile-menu.ct.test.tsx + coverage-merge.ts + parent Q22 follow-up #3 spec/plan + iteration 119/120/121/122 log entries.
+- **AGENTS.md cross-check (R1-R15)** — explicit per-rule applicability, mirroring the Q24 spec format.
+
+#### 2. `docs/plans/q27-mobilemenu-empty-items-coverage.md` (NEW, ~220 lines)
+
+Full execution plan with the same `---title:--- + Status + Iterations referenced` front-matter as the existing q24/q22 plans. Sections:
+
+- **Why** — 3-branch table (B1 / B2 / B3) + ceiling-vs-floor framing.
+- **Steps**:
+  - **Step 0 — Smoke-test Option A.1**: scratch CT file at `packages/ui/src/__tests__/ct/scratch-q27.ct.test.tsx`, `pnpm coverage` re-run + manual inspection of `coverage/merged/coverage-report.json` for `MobileMenu.tsx` early-return coverage. Falls back to A.3 (`v8 ignore next` pragma — verify exact syntax against monocart-coverage-reports@^2.12.9 docs first) if A.1 fails. Scratch file deleted at end of phase per Q25/Q26 convention.
+  - **Step 1 — Land B1 test**: 17-line diff replacing the inline-deferral comment block (lines 254-264 of `mobile-menu.ct.test.tsx`) with the synthetic-dispatch test from Step 0.
+  - **Step 2 — Land B2/B3 test**: 28-line diff appending the non-boundary Tab test (focuses Categories, dispatches Tab, asserts `defaultPrevented === false` + panel stays open).
+  - **Step 3 — Verify**: `pnpm exec playwright test mobile-menu.ct.test.tsx` (18-19/18-19 expected) + `pnpm test:ct` × 2 (47/47 or 46/46) + `pnpm coverage` (aggregate ≥99.4%, MobileMenu ≥97%, gate green) + `pnpm typecheck` 23/23 + `pnpm lint` 18/18.
+  - **Step 4 — Documentation updates**: Q27 status flip + log entry + index.md descriptor + project.md state line + spec front-matter status flip + plan outcome subsection (mirrors q22 Phase 6c/6d outcome blocks).
+- **File list (touched)** — 8-row table covering test edits + spec/plan creates + 5 doc updates.
+- **Phase sequencing** — 5-row table mapping phases to likely iterations + effort + risk; total estimate **1.5-2 hours across 1-2 future iterations**, single-iteration execution feasible if Step 0's smoke test passes.
+- **Rollback** — independent reversibility for each step.
+- **Cross-reference** — spec + parent Q22 follow-up #3 spec/plan + Q26 + 4 commit hashes (746ecd6 / 93380e4 / 71cba78 / d0ea027 from iterations 119-122).
+
+#### 3. `docs/questions.md` Q27 entry (~70 lines appended)
+
+New section structured identically to Q24/Q25/Q26. Lists Status (`OPEN — Option A.1 chosen [DEFAULT]`), Context (3-branch breakdown), Options for B1 (A.1/A.2/A.3 with default + rejection rationale), Options for B2/B3 (single AC #2 path), Default choice, "Why this is OPEN not deferred" (retires the iteration-120 inline TODO marker), Status footer with spec/plan references + Phase 0 entry-point pointer.
+
+### What was NOT touched
+
+- No source files (`packages/ui/src/preact/MobileMenu.tsx` unchanged).
+- No test files (`packages/ui/src/__tests__/ct/mobile-menu.ct.test.tsx` unchanged — the iteration-120 inline-deferral comment block lines 254-264 stays in place until the execution iteration replaces it).
+- No CI workflow changes.
+- No `package.json` / `pnpm-lock.yaml` / config changes.
+- No `pnpm install`.
+- No `pnpm coverage` re-run (iteration 121's verification numbers stay authoritative).
+
+### Routine maintenance audit (zero deltas)
+
+Verified via `npm view <pkg> version` against the package.json pins for the full dep surface. All deps are at the latest published versions and pins are caret-resolved to those exact versions:
+
+| Package | Pin | Latest on npm | Drift |
+|---------|-----|---------------|-------|
+| `astro` | `^6.1.9` | 6.1.9 | none |
+| `vitest` | `^4.1.5` | 4.1.5 | none |
+| `playwright` | `^1.59.1` | 1.59.1 | none |
+| `tailwindcss` | `^4.2.4` | 4.2.4 | none |
+| `preact` | `^10.29.1` | 10.29.1 | none |
+| `monocart-coverage-reports` | `^2.12.9` | 2.12.11 (caret-resolved ✅) | none (within range) |
+| `monocart-reporter` | `^2.10.0` | 2.10.1 (caret-resolved ✅) | none (within range) |
+| `vitest-monocart-coverage` | `^4.0.2` | 4.0.2 | none |
+| `@astrojs/vercel` | `^10.0.5` | 10.0.5 | none |
+| `@astrojs/preact` | `^5.1.2` | 5.1.2 | none |
+| `@astrojs/sitemap` | `^3.7.2` | 3.7.2 | none |
+| `@astrojs/check` | `^0.9.8` | 0.9.8 | none |
+| `@playwright/test` | `^1.59.1` | 1.59.1 | none |
+| `@playwright/experimental-ct-react` | `^1.59.1` | 1.59.1 | none |
+| `typescript` | `^6.0.3` | 6.0.3 | none |
+| `prettier` | `^3.8.3` | 3.8.3 | none |
+| `@typescript-eslint/parser` | `^8.59.0` | 8.59.0 | none |
+| `@typescript-eslint/eslint-plugin` | `^8.59.0` | 8.59.0 | none |
+| `postcss` | `^8.5.12` | 8.5.12 | none |
+| `tailwind-merge` | `^3.5.0` | 3.5.0 | none |
+| `@vitest/coverage-v8` | `^4.1.5` | 4.1.5 | none |
+| `turbo` | `^2.9.6` | 2.9.6 | none |
+
+ESLint shows a major-version gap (pin `^9.0.0` vs latest `10.2.1`). Out of scope for an autonomous dep-bump iteration — major version bumps require manual review of the changelog (config-format breaks, plugin compat, etc.) and are not a fit for the cron cadence. Tracked here as a future opportunity for the routine-maintenance line of work.
+
+### Verification
+
+- `git status` (post-edits): only the 5 doc files modified/created (questions.md edited, log.md edited, index.md edited, project.md edited, plus `q27-*.md` spec + plan created).
+- No source / test / config changes ⇒ no runtime verification needed. `pnpm typecheck` and `pnpm lint` remain at the iteration 122 results (23/23 and 18/18 respectively, FULL TURBO cache hits since all source files are unchanged).
+
+### Files touched
+
+- `.specify/features/q27-mobilemenu-empty-items-coverage.md` — CREATE (~280 lines).
+- `docs/plans/q27-mobilemenu-empty-items-coverage.md` — CREATE (~220 lines).
+- `docs/questions.md` — Q27 section appended (~70 lines).
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 122 → 123; new Q27 spec/plan rows added under "Plans" and "Spec Kit".
+- `.specify/project.md` — Current State header bumped 122 → 123; Q27 OPEN line added under V8 coverage section.
+
+### Next Steps (for next scheduled run)
+
+1. **Execute Q27 Step 0 — smoke-test Option A.1**. ~20 min. Scratch CT file at `packages/ui/src/__tests__/ct/scratch-q27.ct.test.tsx` with the synthetic Tab dispatch test from `docs/plans/q27-mobilemenu-empty-items-coverage.md` Step 0 § "Run". If `pnpm coverage` reports `MobileMenu.tsx` line 79 (`if (focusable.length === 0) return;`) early-return as covered after the test passes, Option A.1 holds — proceed to Steps 1-2. If not, fall back to Option A.3 (verify monocart-coverage-reports@^2.12.9 ignore-pragma syntax in the source / docs first).
+2. **OR — CT-flake watch advance**: iteration 121 ran the full CT suite cleanly (45/45). Iterations 122/123 were doc-only (no CT runs). Watch count remains **1/3**; will close at iteration 124 if a future run exercises the full suite without recurrence.
+3. **OR — pure dep-audit pause**: no published patch/minor bumps available across the 22-package matrix (verified iteration 123). Next dep audit pass is appropriate when the next minor version of any of `astro@^6` / `vitest@^4` / `playwright@^1.59` / `tailwindcss@^4.2` / `monocart-coverage-reports@^2.12` is published. ESLint 10 major bump is a manual-review item, not autonomous.
+
+The Q27 work is the most concrete and time-bounded carry from iteration 122. Default the next iteration to executing Q27 Step 0 unless the autonomous CT runtime is unstable on the cron cadence (in which case do another doc-pass iteration — e.g. lint/health-check the spec content, or write a question for the ESLint 10 upgrade path).
+
+### CT-flake watch (carried)
+
+Iteration 111's single-occurrence `filter-bar.ct › selects category on click` retry. Iteration 121 ran the full CT suite cleanly. Iterations 122 + 123 were doc-only (no CT runs). Watch count remains **1/3**; will close at iteration 124 if a future run exercises the full suite without recurrence.
+
 ## 2026-04-27 — Iteration 122: Q22 follow-up #3 Phase 6d ✅ DONE — status flips across architecture / spec / questions / plan; Q22 follow-up #3 fully ✅ COMPLETE
 
 ### Headline

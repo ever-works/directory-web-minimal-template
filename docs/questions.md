@@ -1230,3 +1230,81 @@ existence + integration shape + dep compat all verified. Phase 6
 **`^4.0.0`** in the plan and spec. The 4.x line is the only line that
 supports Vitest 4 (the older `1.x`/`2.x`/`3.x` lines tracked Vitest
 1/2/3 respectively).
+
+---
+
+## Q27: `MobileMenu` 3-branch outlier coverage closure (iteration 123)
+
+> **Status: OPEN — Option A.1 chosen `[DEFAULT]` (synthetic Tab dispatch
+> via `page.evaluate`).** Spec at
+> `.specify/features/q27-mobilemenu-empty-items-coverage.md`; plan at
+> `docs/plans/q27-mobilemenu-empty-items-coverage.md`. This is a
+> *quality* improvement — the merge pipeline + CI gate are already
+> green at 98.72% aggregate / 91.89% MobileMenu (≥80% gate threshold).
+> Closing this lifts MobileMenu to ~97-100% per file and the
+> aggregate to ~99.6%, but does not unblock anything.
+
+**Context**: After iteration 122 closed the Q22→Q26 saga, the
+"MobileMenu 3-branch outlier" was carried as a future opportunity in
+iteration 122's "Next Steps" section of `docs/log.md`. The 3 branches
+all live in the focus-trap `useEffect` of
+`packages/ui/src/preact/MobileMenu.tsx` (lines 69-95):
+
+- **B1** — `if (focusable.length === 0) return;` (line 79) early-return
+  TRUE branch. Iteration 120 attempted to reach this via
+  `<MobileMenu items={[]} />` + `page.keyboard.press('Tab')` but the
+  CT host page reproduced a focus-attribution edge case where the
+  panel becomes `hidden` post-mount.
+- **B2** — `if (e.shiftKey && document.activeElement === first)`
+  short-circuit FALSE on the `e.shiftKey` term. Fires when forward
+  Tab is pressed from anywhere not the last nav link.
+- **B3** — `else if (!e.shiftKey && document.activeElement === last)`
+  short-circuit FALSE on the `document.activeElement === last`
+  term. Fires when forward Tab is pressed from a non-boundary link.
+
+(Branch IDs are illustrative — V8 instrumentation reports
+short-circuit operands as separate branches; exact V8 byte ranges
+are visible in `coverage/merged/coverage-report.json`.)
+
+**Options for B1 (the empty-items branch)**:
+
+- **A.1) Synthetic Tab dispatch via `page.evaluate`** — mount
+  `<MobileMenu items={[]} />`, click toggle, then dispatch a
+  `KeyboardEvent('keydown', { key: 'Tab' })` directly via
+  `document.dispatchEvent(...)`. Asserts `event.defaultPrevented ===
+  false`. Bypasses the host-page focus-attribution race. Zero source
+  changes. `[DEFAULT]`
+- **A.2) Lift `isOpen` into a controlled prop** — adds API surface to
+  bypass the click step entirely. Behavior-changing public API; out
+  of scope for a coverage fix. **Rejected.**
+- **A.3) `/* v8 ignore next */` directive on line 79** — verify the
+  exact pragma syntax against `monocart-coverage-reports@^2.12.9`
+  before landing. Removes the branch from the denominator entirely;
+  trades coverage for simplicity. **Contingency only** if A.1's
+  smoke test fails.
+
+**Options for B2 + B3 (non-boundary Tab)**:
+
+- **AC #2** — single CT test that focuses the MIDDLE nav link
+  (Categories — index 1 of 3 in the existing fixture), dispatches a
+  synthetic Tab keydown, asserts `event.defaultPrevented === false`
+  and the panel stays open. No alternative — these are genuine
+  fall-through branches that need a real Tab from a non-boundary
+  position to exercise.
+
+**Default choice**: **A.1 + AC #2**. Zero source changes (assuming
+A.1 holds its smoke test); two new CT tests appended to the
+existing focus-trap section of `mobile-menu.ct.test.tsx`. Total
+estimated effort: 1.5-2 hours across 1-2 future iterations.
+
+**Why this is OPEN, not deferred**: the iteration 120 inline-deferral
+comment in `mobile-menu.ct.test.tsx` (lines 254-264) is a permanent
+"TODO" marker that this question retires. Closing Q27 also lifts
+the per-file MobileMenu number to ~100%, making the merged
+coverage report semantically accurate (no asterisks for "except
+for the 3 defensive branches we couldn't reach").
+
+**Status**: OPEN — Option A.1 chosen [DEFAULT]. Spec at
+`.specify/features/q27-mobilemenu-empty-items-coverage.md`; plan at
+`docs/plans/q27-mobilemenu-empty-items-coverage.md`. Phase 0
+smoke-test gate is the entry point for the execution iteration.
