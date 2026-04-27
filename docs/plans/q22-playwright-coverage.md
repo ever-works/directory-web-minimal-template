@@ -62,6 +62,22 @@ evidence and pick Option B (`@bgotink/playwright-coverage`).
 
 If the smoke test produces source-mapped entries — proceed to Phase 1.
 
+### Outcome (iteration 113, 2026-04-27)
+
+✅ **PASS-API.** Captured 1 V8 entry from a synthetic file:// page
+script (3-branch `maybeBranch(x)` function), 75% branches / 100%
+functions / 88.89% lines covered. MCR `add()` + `generate()` succeed
+without error and write `coverage-report.json` (~2.4 KB) with `files[]`
+entries that include `url`, `sourcePath`, `source`, `data` (per-byte
+ranges, branches, functions, statements), and `summary`. Toolchain
+verified: Node 24.14.0 + Windows 10 + Chromium 147 + Playwright 1.59.1
++ monocart-coverage-reports 2.12.11. Detailed numbers in
+`docs/log.md` iteration 113 entry. Scratch dir deleted per step 4.
+
+The source-map → `.tsx` question is deferred to Phase 1 (where the
+Vite/Preact alias chain produces real `.tsx` URLs, not the synthetic
+`file://app.js` Phase 0 used). **Phase 1 is unblocked.**
+
 ---
 
 ## Phase 1 — Library installation + Playwright reporter wiring

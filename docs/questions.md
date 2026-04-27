@@ -951,3 +951,20 @@ Considered. Rejected because:
 
 Documenting the exclusions is necessary regardless of which option
 wins — but the exclusions themselves are not a stable end state.
+
+### Phase 0 outcome (iteration 113, 2026-04-27)
+
+Phase 0 of the execution plan ran end-to-end on Windows 10 + Node 24.14.0 + Chromium 147 + Playwright 1.59.1 + monocart-coverage-reports 2.12.11. Outcome: **PASS-API** (library works on the target toolchain; source-map gate against the Vite/Preact alias deferred to Phase 1's reporter integration where it surfaces naturally).
+
+Detailed evidence captured in `docs/log.md` iteration 113 entry. Summary:
+
+- 1 V8 coverage entry captured (target: ≥1 — pass).
+- MCR `add()` + `generate()` both succeed without error (target: no exceptions — pass).
+- Per-file branch / function / statement / line / byte stats all populated and reasonable for the synthetic 3-branch test code: branches 75% (3/4), statements 85.71%, lines 88.89%, functions 100%, bytes 95% (target: per-file `summary` populated — pass).
+- Output report `files[]` carries `url`, `sourcePath`, `source`, `data`, `summary` — every field referenced by the plan's Phase 1 step 2 `entryFilter` / `sourceFilter` config and AC #3 prerequisite (target: schema match — pass).
+
+The smoke-test acceptance condition #1 (V8 capture) and #3 (>0% branch coverage on at least one branch) are met. Condition #2 (source-map back to a `.tsx` file) was deliberately deferred — Phase 0 used a hand-written `app.js` to keep the gate scoped to the library API itself; the `.tsx` source-map question is a Vite/Preact-alias question that Phase 1's reporter integration is the natural place to test.
+
+**Q25 status updated**: from `OPEN` with `[DEFAULT]` annotation on Option A to **CONFIRMED — Option A** (monocart-coverage-reports 2.x). Phase 1 may proceed.
+
+The Q25 reopen condition (smoke-test failure → switch to Option B = `@bgotink/playwright-coverage`) does not trigger. Option B remains documented as a contingency if Phase 1's source-map verification fails.

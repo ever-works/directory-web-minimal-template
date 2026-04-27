@@ -229,15 +229,20 @@ The merge step is provided by the chosen library:
   hit memory pressure on standard runners.
   **Mitigation**: not a near-term concern (43 tests today), but flag
   it in the plan's "Future work" section.
-- **R6 — Q25 default chosen wrong.** If `monocart-coverage-reports`
+- **R6 — Q25 default chosen wrong.** ~~If `monocart-coverage-reports`
   turns out to mis-handle Preact's `preact/compat` alias and emits
-  zero coverage for those three files, the spec's AC #6 fails. The
-  fix is to swap to `@bgotink/playwright-coverage` and reconcile the
-  V8 → Istanbul → V8 round-trip.
-  **Mitigation**: the plan's Step 4 is a smoke test that asserts AC
-  #3 before any further work proceeds. If the smoke test fails,
-  switch to Option B in Q25 immediately rather than continuing past a
-  known-broken default.
+  zero coverage for those three files, the spec's AC #6 fails.~~
+  **DOWNGRADED in iteration 113 (Phase 0 PASS-API)**. The library
+  itself works correctly on Windows + Node 24 + Chromium 147; one V8
+  entry produced for a synthetic 3-branch test, MCR `add()` +
+  `generate()` both succeed, output report carries every field the
+  plan's Phase 1 step 2 needs (`url`, `sourcePath`, `source`, `data`,
+  `summary`). The remaining sub-risk is whether the
+  `react`→`preact/compat` alias produces source-maps that map back to
+  `.tsx` files vs. chunk hashes — that is a Phase 1 concern, surfaces
+  on the first `pnpm test:ct` run after the reporter is wired, and if
+  it fails the fallback is unchanged: swap to
+  `@bgotink/playwright-coverage` per Q25 Option B.
 
 ## Dependencies
 

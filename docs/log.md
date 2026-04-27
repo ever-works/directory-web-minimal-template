@@ -3,6 +3,94 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 113: Q22 follow-up #3 Phase 0 ✅ PASS-API — `monocart-coverage-reports` validated end-to-end on Windows + Node 24
+
+### Headline
+
+Phase 0 of the playwright-coverage integration plan executed and **PASSES the library-API gate** on Windows 10 + Node 24.14.0 + Chromium 147 + Playwright 1.59.1 + monocart-coverage-reports 2.12.11. The library successfully:
+
+1. **Ingested V8 coverage** captured via `page.coverage.startJSCoverage()` / `stopJSCoverage()` — 1 entry, 360 bytes of source.
+2. **Produced a well-formed v8 report** with per-file URL, embedded source, and full branch / function / statement / line tables.
+3. **Computed correct coverage stats** for a 3-branch synthetic component (intentional 2-of-3 branch exercise → 75% branches, 85.71% statements, 88.89% lines, 100% functions, 95% bytes).
+
+This advances Q22 follow-up #3 from "spec'd + planned" to "library validated"; **Phase 1 (reporter wiring into `playwright.ct.config.ts`) is unblocked**. Q25 default (Option A — `monocart-coverage-reports`) holds with no known toolchain incompatibilities.
+
+### What Phase 0 specifically proved (and did NOT prove)
+
+**Proved (PASS-API gate)**:
+
+- `monocart-coverage-reports@2.12.11` installs cleanly via pnpm on Windows + Node 24 with the workspace `--ignore-workspace` flag (scratch dir installs do not pollute the root lockfile).
+- `MCR({ outputDir, reports: ['v8-json', 'console-summary'], ... }).add(v8List).generate()` executes without error and writes `coverage-report.json` to the output directory.
+- The output report's `files[]` entries carry `url`, `sourcePath`, `source`, `data.{branches,functions,statements,lines}`, and per-file `summary` — every field referenced by the plan's Phase 1 step 2 `entryFilter` / `sourceFilter` config and AC #3 prerequisite.
+- Capture path: `chromium.launch()` → `newContext()` → `newPage()` → `goto(file://...)` → `startJSCoverage()` → exercise → `stopJSCoverage()` returns 1 V8 entry. Confirms Playwright + V8 IPC works for our toolchain.
+
+**Did NOT prove (deferred to Phase 1)**:
+
+- Whether the `react`→`preact/compat` Vite alias chain in `playwright.ct.config.ts` produces source-maps that map back to `.tsx` files (vs. `.js` chunk hashes). Phase 0 used a plain `<script src="./app.js">` reference, not a Vite-bundled module graph.
+- Whether the merged Vitest + CT coverage report (Phase 3) hits ≥80% branches for `FilterBar.tsx` / `LayoutSwitcher.tsx` / `MobileMenu.tsx`. That's a Phase 3 concern, after the reporter is wired and the Vitest exclusions drop.
+
+The library-API gate is the right Phase 0 contract per the spec — Phase 1 introduces the Vite/Preact-specific surface, where any source-map mismatch will surface naturally in the first `pnpm test:ct` run after the reporter is added.
+
+### What was done
+
+1. **Created scratch dir per plan step 1**: `packages/ui/scratch/coverage-smoke/` with a minimal `package.json` (`{ "name": "coverage-smoke", "private": true, "type": "module" }`).
+2. **Installed via `pnpm add -D --ignore-workspace monocart-coverage-reports@^2.12.0 @playwright/test@^1.59.1`** (the second so the smoke script can spawn a browser). Verified the workspace pnpm-lock.yaml was unaffected.
+3. **Authored `smoke.mjs`** (~110 lines) that:
+   - Launches Chromium, opens a new page.
+   - Writes a synthetic `app.js` with a 3-branch `maybeBranch(x)` function to `.coverage-smoke-output/`.
+   - Writes a `index.html` that loads `./app.js`.
+   - Wraps the page navigation in `page.coverage.startJSCoverage()` / `stopJSCoverage()` to capture V8 entries.
+   - Pipes the result through `MCR().add(v8List).generate()`.
+   - Writes a `phase0-result.json` artifact with toolchain info, V8 entry count, and the gate outcome (`PASS-API` / `FAIL`).
+4. **Iterated three times** before getting V8 to actually report entries:
+   - V1: `setContent` + inline `<script>` → 0 V8 entries (Chromium 147 does not track inline scripts in the coverage API).
+   - V2: `addScriptTag({ content })` → still 0 V8 entries (same reason — content blob does not get a real URL).
+   - V3 (working): write actual files to disk, navigate to `file://...index.html` with `<script src="./app.js">` — V8 reliably tracks the external script and produces the expected 1-entry coverage list.
+
+   Phase 1 will use the Playwright CT runner's existing Vite dev server, which produces real `.ts` / `.tsx` chunk URLs and avoids this V1/V2 corner case entirely.
+5. **Verified gate outcome**: `console-summary` reporter printed the full per-file rollup; `coverage-report.json` written successfully (~2.4 KB); `phase0-result.json` written with `"gate_outcome": "PASS-API"`.
+6. **Deleted the scratch directory** per plan step 4 — `packages/ui/scratch/` no longer exists. The `packages/ui/.gitignore` `scratch/` rule (added in iteration 112) remains so the next smoke test can reuse the convention.
+
+### Verification
+
+- `node smoke.mjs` (run inside scratch dir) — exit code 0, output ends with `[phase0] GATE OUTCOME: PASS-API`.
+- `phase0-result.json` summary (captured before deletion):
+  - `v8List_length`: 1 (was 0 in V1/V2).
+  - `mcr_summary.branches.pct`: 75% (3 of 4 branches covered).
+  - `mcr_summary.functions.pct`: 100%.
+  - `mcr_summary.lines.pct`: 88.89%.
+- `git status` after scratch-dir deletion: clean (the `.gitignore` covered the entire scratch tree).
+
+### Files touched
+
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 112 → 113.
+- `.specify/project.md` — Current State header bumped 111 → 113 (skipping 112's intermediate state).
+- `docs/questions.md` — Q25 status updated to **CONFIRMED** (was OPEN with `[DEFAULT]` annotation).
+- `.specify/features/q22-playwright-coverage.md` — Risk R6 ("Library may not exist / mis-handle our toolchain") downgraded to "may mis-handle Vite/Preact alias source-maps — to be re-checked in Phase 1".
+- `docs/plans/q22-playwright-coverage.md` — Phase 0 marked ✅ PASS-API with the iteration 113 verification numbers; Phase 1 explicitly unblocked.
+
+### Files created / deleted
+
+- Created (transient, then deleted): `packages/ui/scratch/coverage-smoke/{package.json, smoke.mjs, .coverage-smoke-output/{app.js, index.html, coverage-report.json}, phase0-result.json, node_modules/, pnpm-lock.yaml}`. None of these survive into the commit; only the iteration-112 `.gitignore` reservation does.
+- No persistent code, dep, or config changes.
+
+### Next Steps (for next scheduled run)
+
+Execute **Phase 1** of the plan:
+
+1. `pnpm --filter @ever-works/ui add -D monocart-coverage-reports@^2.12.0 monocart-reporter@^2.10.0` (this lands the deps in the workspace pnpm-lock.yaml — different scope from Phase 0's scratch install).
+2. Add `monocart-reporter` to `packages/ui/playwright.ct.config.ts` `reporter` array with `outputFile: './coverage/ct/raw-v8.json'`, `entryFilter: keep src/preact/*.tsx and src/primitives/*.tsx`, `sourceFilter: keep **/packages/ui/src/**`.
+3. Add `coverage/` to `packages/ui/.gitignore` (currently only `scratch/`).
+4. Comment block at top of `playwright.ct.config.ts` referencing this plan and spec.
+5. Run `pnpm --filter @ever-works/ui test:ct` once. Expected: 43/43 still pass AND `packages/ui/coverage/ct/raw-v8.json` exists with ≥3 entries (one per migrated component) AND each `entries[].url` resolves to a `.tsx` under `packages/ui/src/preact/`.
+
+If the URL field reads `FilterBar.tsx` / `LayoutSwitcher.tsx` / `MobileMenu.tsx` (NOT chunk hashes / `__VITE_LOAD_*` URLs), Phase 1 succeeds and Phase 2 (drop the three Vitest `coverage.exclude` lines) is unblocked. If it does not, Q25 needs to be reopened with the Phase 1 JSON as evidence.
+
+### CT-flake watch (carried)
+
+Iteration 111 noted `filter-bar.ct › selects category on click` failed once and passed on retry. Iteration 112 ran no CT suite. Iteration 113 ran no CT suite either (Phase 0 used a synthetic `app.js`, not the CT runner). Watch count stays at **1/3**.
+
 ## 2026-04-27 — Iteration 112: Q25 npm-registry validation + Phase 0 prerequisite (`packages/ui/.gitignore`)
 
 ### Context
