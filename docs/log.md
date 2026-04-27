@@ -3,6 +3,130 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 150: wire `pnpm audit:docs` into CI — convert the iter-149 doc-quality audit script from per-cron-tick manual check to PR-blocking signal
+
+### Headline
+
+Iter-149 codified the AGENTS.md `§ Doc-Quality Audit Checklist` grep blocks into a single runnable TypeScript runner (`scripts/audit-docs.ts`, 635 LOC, exposed as `pnpm audit:docs`). On the iter-149 commit `3e9d59b` the script reports 7/7 PASS in ~5s, and a future drift in any of the 6 codified classes + the cross-file-consistency parity check produces a structured FAIL with line numbers and a non-zero exit code.
+
+Iter-149's "Next Steps #2" called out the natural next step: **wire the script into CI** so doc drift becomes a PR-blocking signal alongside lint / typecheck — instead of relying on autonomous cron ticks to catch drift before it accumulates.
+
+Iter 150 executes that wire-up. One-step addition to the existing `ci` job in `.github/workflows/ci.yml`, positioned between the existing `Security audit` and `Lint` steps. The new step:
+
+```yaml
+- name: Doc-quality audit
+  run: pnpm audit:docs
+```
+
+(plus a 16-line comment block explaining the 7 drift classes the script enforces — so a reviewer reading the workflow cold understands what "doc-quality audit" covers without chasing through the script).
+
+### Why position it in the `ci` job (not a parallel dedicated job)
+
+Three reasons:
+
+1. **Shared prerequisites**: the existing `ci` job already runs `actions/checkout@v4` + `pnpm/action-setup@v4` + `actions/setup-node@v4` + `pnpm install --frozen-lockfile`. Adding `audit:docs` as a step reuses all four — net incremental cost is just the ~5s the script itself takes.
+2. **Same-failure-signal property**: a doc drift now fails the same `ci` job as a lint/typecheck/test/build failure. Reviewers see a single red `Lint, Typecheck, Test, Build` job (or its current new variant) instead of a separate red doc-audit job — one fewer surface to chase. The job name doesn't change for this PR; if iter 151+ adds enough audit classes to warrant the rename, the rename is a 1-line workflow edit.
+3. **No CI matrix change**: the existing 4 jobs (`ci`, `test-ct`, `coverage-gate`, `e2e`) and their `needs:` chain stay verbatim. Iter-150 is a purely additive change.
+
+The alternative — a parallel `audit-docs` job that runs in lockstep with `ci` — would have given marginally faster CI red-light timing (audit failures surface in <30s of CI start, rather than after lint/typecheck/test which take 1-2 min combined) but doubled the `pnpm install` cost. Not worth it for a check that takes 5s on a warm tree.
+
+### What landed
+
+#### `.github/workflows/ci.yml` — new "Doc-quality audit" step in the `ci` job
+
+```diff
+       - name: Security audit
+         run: pnpm audit --audit-level=high
+
++      - name: Doc-quality audit
++        # [16-line comment block explaining the 7 drift classes the script enforces;
++        # see commit diff for the full text]
++        run: pnpm audit:docs
++
+       - name: Lint
+         run: pnpm lint
+```
+
+The comment block enumerates the 7 audit classes (Status drift × 2 / Value drift / Toolchain version drift / ISR wording drift / Structural-link drift / Cross-file consistency) and cross-references both the spec at `.specify/features/audit-docs-script.md` and the plan at `docs/plans/audit-docs-script.md`.
+
+### Verification
+
+- **Local `pnpm audit:docs`**: 7/7 PASS in ~5s (re-verified iter 150 against the iter-149 commit `3e9d59b` baseline; no drift since iter-149 landed). Output:
+  ```
+  [1/6] Status drift (line-anchored, iter-145)                     PASS — 0 hits
+  [2/6] Status drift (blockquote-tolerant, iter-147)               PASS — 0 hits
+  [3/6] Value drift (count parity)                                 PASS — 0 hits
+           spec count: All N .specify/ feature specs: 32 ✓
+           package count: **N packages**: 18 ✓
+           app count: **N apps**: 8 ✓
+  [4/6] Toolchain version drift                                    PASS — 0 hits
+  [5/6] ISR wording drift                                          PASS — 0 hits
+  [6/6] Structural / link drift                                    PASS — 0 hits
+  [ * ] Cross-file consistency (AGENTS R-rules vs CLAUDE Critical Rules) PASS — 0 hits
+           AGENTS.md R-rules: 15 (expected 15)
+           CLAUDE.md numbered Critical Rules: 17 (expected 17)
+
+  7/7 PASS — no documentation drift detected.
+  ```
+- `pnpm typecheck` — pending verification at commit time (expected: 23/23 FULL TURBO; the workflow YAML edit doesn't affect any TypeScript task input).
+- `pnpm lint` — pending verification at commit time (expected: 18/18 FULL TURBO + 0 warnings + 0 errors; YAML files are not under lint scope).
+
+The next CI run on the develop branch (whenever a PR or push lands) will execute the new step. If the audit fails, the existing `ci` job goes red and the PR is blocked from merge — same behavior as a lint/typecheck/test/build failure today.
+
+### What was NOT touched (intentional)
+
+- **`test-ct`, `coverage-gate`, `e2e` jobs** — none of them run lint/typecheck/test, so adding `audit:docs` there would be redundant. Each of these jobs has its own narrow responsibility (Playwright CT / merged coverage / E2E test suite).
+- **`.github/workflows/deploy.yml` and `lighthouse.yml`** — both have purpose-specific tasks (Vercel deploy, Lighthouse CI). Doc-audit doesn't belong in either.
+- **Audit script itself** (`scripts/audit-docs.ts`) — no behavior change. The CI integration is purely about *invocation*, not *implementation*.
+- **`AGENTS.md § Doc-Quality Audit Checklist`** — the canonical reference. Iter-150's wire-up follows the existing reference; doesn't change it.
+
+### Routine dep audit (deferred this iteration)
+
+Iter-147 + iter-148 + iter-149 all ran clean dep checks. No new churn expected at this interval. The CI's existing `Security audit` step (`pnpm audit --audit-level=high`) handles security-relevant dep audits separately.
+
+### Pattern progression — now confirmed for the 13th iteration in a row
+
+| # | Iteration | Surface | Drift kind / Action |
+|---|-----------|---------|--------------------|
+| 1 | iter 132 | `CLAUDE.md` Common Commands | `43 cases` → `48 cases` + walltime/Chromium/flake-signal |
+| 2 | iter 135 | `docs/guides/deployment.md` | Missing ISR env vars + 4 narrative claims (predates iter-17/Q17) |
+| 3 | iter 136 | `docs/guides/quickstart.md` + `getting-started.md` | Missing 5-6 Common Commands rows |
+| 4 | iter 137 | `.specify/project.md` package matrix | `22-package` → `26-package` |
+| 5 | iter 138 | `.specify/project.md` spec count | `All 28` → `All 31` |
+| 6 | iter 139 | `README.md` Commands table | Conflated `pnpm test` row + missing CT/coverage rows |
+| 7 | iter 140 | `.specify/features/q28-*.md` AC #5 + `docs/plans/q28-*.md` Step 4 | Same conflated-`pnpm test=1170` drift |
+| 8 | iter 141 | `apps/docs/blog/2026-04-11-welcome.md` + `apps/docs/sidebarsTemplate.ts` | Pre-iter-17/Q17 ISR wording + sidebar topology missing 8 navigable docs |
+| 9 | iter 142 | 5 `docs/plans/q*.md` line-8 spec pointers | Broken `../../.specify/features/*.md` markdown links under Docusaurus |
+| 10 | iter 143 | `AGENTS.md` line 105 bullet | Bullet placement under wrong rule heading (R14 vs R15) |
+| 11 | iter 144 | 6 spec/plan front-matter Status: lines | `PLANNED`/`SPECIFIED` → `COMPLETE`/`RESOLVED`/`DONE` flips |
+| 12 | iter 145 | `AGENTS.md § Doc-Quality Audit Checklist` (NEW SECTION) | Meta: institutionalize the playbook |
+| 13 | iter 146 | 2 plan front-matter Status: lines | iter-145 codified regex missed `>`-blockquote + `**bold**`-wrapped lines |
+| 14 | iter 147 | `AGENTS.md` regex tightening + `q22-playwright-coverage.md` AC #10 | Codify-then-tighten meta-pattern |
+| 15 | iter 148 | `CLAUDE.md` Critical Rules + `AGENTS.md` cross-file consistency block | 7 rules R9-R15 missing from CLAUDE.md; new drift class codified |
+| 16 | iter 149 | `scripts/audit-docs.ts` (NEW FILE, 635 LOC) + `pnpm audit:docs` | Meta: convert checklist to runnable script |
+| 17 | iter 150 | `.github/workflows/ci.yml` `ci` job — new "Doc-quality audit" step | Meta: convert script to CI-blocking signal |
+
+**Pattern progression**: iters 132-144 (single-file value/structural drift) → iter 145 (institutionalize the playbook as in-tree text) → iter 149 (institutionalize as runnable script) → iter 150 (institutionalize as CI gate). Each maturation step costs one iteration but compounds: the iter-145 checklist made future drift hunts grep-and-fix instead of reasoning-from-scratch; iter-149 made it one-command instead of grep-by-grep; iter-150 makes drift PR-blocking instead of "must-remember-to-run". After iter-150, doc-quality drift cannot accumulate undetected — every PR has the audit run as a hard prerequisite.
+
+### Files touched
+
+- `.github/workflows/ci.yml` — new "Doc-quality audit" step + 16-line comment block (~22 lines added net).
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 149 → 150.
+- `.specify/project.md` — Current State header bumped 149 → 150.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)**. `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127. Project enters its **21st consecutive "no carried open work" steady-state iteration** (iter 130-150).
+
+### Next Steps (for next scheduled run)
+
+1. **Add the iter-149 Next Step #1 audit class** — "AGENTS.md checklist text vs `audit-docs.ts` implementation parity" (audit class #7 in the script). Currently the parity is enforced by convention; codifying it would mean the script self-validates against its own canonical reference text.
+2. **Routine dep audit** — re-check the 26-package matrix; iter-147 + iter-148 found zero deltas, full re-verification deferred until next material dep-touching iteration.
+3. **Continue running `pnpm audit:docs`** on each cron tick (now also runs in CI on every PR) — bounded ~5s cost.
+4. **Optional `pnpm test:e2e` re-run** — defer per iter-134's policy.
+5. **Optional `pnpm coverage` re-run** — defer until material dep churn lands.
+
 ## 2026-04-27 — Iteration 149: codify the iter-145 audit checklist into a runnable script — `scripts/audit-docs.ts` + `pnpm audit:docs`
 
 ### Headline

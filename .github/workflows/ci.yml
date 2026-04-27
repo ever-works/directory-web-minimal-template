@@ -34,6 +34,26 @@ jobs:
       - name: Security audit
         run: pnpm audit --audit-level=high
 
+      - name: Doc-quality audit
+        # Iter-149 codified the AGENTS.md § Doc-Quality Audit Checklist as
+        # `scripts/audit-docs.ts` exposed via `pnpm audit:docs`. The script
+        # exits non-zero on any of 7 drift classes:
+        # 1) Status drift (line-anchored, iter-145)
+        # 2) Status drift (blockquote-tolerant, iter-147)
+        # 3) Value drift (count parity for spec/package/app counts)
+        # 4) Toolchain version drift (Astro/Preact/Tailwind/TS pin parity)
+        # 5) ISR wording drift (pre-iter-17/Q17 "fully static" claims)
+        # 6) Structural / link drift (broken relative links, missing sidebar entries)
+        # 7) Cross-file consistency (AGENTS.md R-rules vs CLAUDE.md Critical Rules
+        #    parity — iter-148)
+        # See `.specify/features/audit-docs-script.md` and
+        # `docs/plans/audit-docs-script.md` for the spec/plan; iter-150 wires
+        # this step into CI per iter-149's Next Step #2 — converting the
+        # audit from a per-cron-tick manual check into a PR-blocking signal.
+        # Walltime ~5s (no network, no test runs); positioned alongside lint
+        # and typecheck so doc drift fails the same `ci` job as code drift.
+        run: pnpm audit:docs
+
       - name: Lint
         run: pnpm lint
 
