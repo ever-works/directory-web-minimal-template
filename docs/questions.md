@@ -773,6 +773,25 @@ The iteration-105 statement under Q22 ("Recommended next-iteration action: open 
 
 ## Q24: `layout-switcher.ct.test.tsx` localStorage / ctPort flake (post-iteration 107)
 
+> **Status: ✅ RESOLVED in iteration 109 (2026-04-27).** Option A (audit
+> `LayoutSwitcher.tsx` for an `EMPTY_TAGS`-style allocation bug) hit
+> directly: `modes = ['grid', 'list']` allocated a fresh `[]` per render,
+> firing `useEffect([persistKey, modes])` every render and racing the
+> post-click `localStorage.setItem(...)`. Fix mirrors iteration 105's
+> `EMPTY_TAGS` sentinel — a frozen module-scope
+> `EMPTY_MODES: readonly LayoutMode[]` constant. Verified across **3
+> isolated runs** (12/12 each in 40-46s) and **2 full-suite runs**
+> (43/43 each in 1m12-18s) on Windows + Node 24.14.0 + Chromium 147.
+> The `net::ERR_CONNECTION_REFUSED` observation (hypothesis B) did not
+> reproduce after the source fix — it was a downstream effect of the
+> race producing extra mounts/retries, not an independent dev-server
+> bug. Hypotheses B and C are now **not applicable**. Spec at
+> `.specify/features/q24-layoutswitcher-empty-modes.md`; plan at
+> `docs/plans/q24-layoutswitcher-empty-modes.md`; log entry at
+> `docs/log.md` iteration 109. The iteration-107 "12/12 pass in ~1 min"
+> claim is **now reproducible** with the fix in place — five
+> consecutive verification runs confirm determinism.
+
 **Context**: Discovered while running the full `pnpm test:ct` suite in iteration 108 (`mobile-menu.ct.test.tsx` migration). The Q23-resolution claim from iteration 107 was "12/12 LayoutSwitcher CT tests pass in ~1 min on Windows + Node 24.14.0". On re-verification in iteration 108, that result is not reproducible — the suite consistently shows 1-3 failures depending on which other files run alongside.
 
 **Symptoms** (Windows 10 + Node 24.14.0 + Vitest 4.1.5 + Playwright 1.59.1 + Chromium 147.0.7727.15):
@@ -795,4 +814,25 @@ The iteration-105 statement under Q22 ("Recommended next-iteration action: open 
 
 **Default choice**: **A** — start with the source-bug hypothesis since it has the cleanest fix surface and would explain the persist-key value mismatch. Run B in parallel if time permits; defer C unless A+B do not stabilize the suite.
 
-**Status**: OPEN — diagnosed in iteration 108. The iteration-107 "12/12 pass" claim should be amended to "11-12/12 pass depending on environment" once Q24 is investigated. Q22 follow-up #1 is unaffected; mobile-menu CT is 15/15 in isolation. Q22 / Q23 RESOLVED status holds.
+**Status**: ✅ RESOLVED in iteration 109 — see resolution note at the top of this section. The fix landed in `packages/ui/src/preact/LayoutSwitcher.tsx` (1 line of source change + a 6-line comment block + 1 line for the `EMPTY_MODES` sentinel declaration). All Q22 / Q23 / Q24 CT-related questions are now closed; the codebase pattern (frozen sentinels for non-primitive default props that flow into `useEffect` dep arrays) is documented in `docs/log.md` iteration 109 for future reference.
+
+### Iteration 109 verification commands (reproducible)
+
+```bash
+# Three isolated runs (each ~45s, 12/12 expected)
+cd packages/ui
+pnpm exec playwright test --config=playwright.ct.config.ts layout-switcher.ct.test.tsx
+pnpm exec playwright test --config=playwright.ct.config.ts layout-switcher.ct.test.tsx
+pnpm exec playwright test --config=playwright.ct.config.ts layout-switcher.ct.test.tsx
+
+# Two full-suite runs (each ~1m15s, 43/43 expected)
+pnpm test:ct
+pnpm test:ct
+
+# Full-monorepo gates
+cd ../..
+pnpm typecheck   # 23/23, 0 err
+pnpm lint        # 18/18, 0 err
+```
+
+If any of the above fails after the fix, capture the failure shape and re-open Q24 with a section labelled "Iteration 109 fix did not stabilize". The dev-server hypothesis (B) and combined hypothesis (C) would then need direct investigation. As of 2026-04-27 02:36 local, all five verification runs landed green.

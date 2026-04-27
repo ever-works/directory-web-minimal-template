@@ -3,6 +3,93 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 109: Q24 ✅ RESOLVED — `LayoutSwitcher` `EMPTY_MODES` allocation fix; full `pnpm test:ct` is 43/43 deterministic across 2 of 2 consecutive runs
+
+### Headline
+
+`packages/ui/src/preact/LayoutSwitcher.tsx` had the same per-render array allocation bug that `FilterBar.tsx` had pre-iteration-105: the default `modes = ['grid', 'list']` allocated a fresh `[]` per render, and `useEffect([persistKey, modes])` fired every render — racing the post-click `localStorage.setItem(persistKey, active)` and intermittently reverting the click. The fix mirrors the iteration-105 `EMPTY_TAGS` sentinel: a frozen module-scope `EMPTY_MODES: readonly LayoutMode[]` constant keeps the default reference stable across renders. Verification:
+
+- **3 consecutive isolated runs** of `pnpm exec playwright test --config=playwright.ct.config.ts layout-switcher.ct.test.tsx` — **12/12 each** (44.7s, 40.8s, 45.8s).
+- **2 consecutive full-suite runs** of `pnpm --filter @ever-works/ui test:ct` — **43/43 each** (1m12s, 1m18s). Iteration 108's flake fingerprint (1-3 LayoutSwitcher failures + intermittent `net::ERR_CONNECTION_REFUSED`) is gone.
+- `pnpm typecheck` — 23/23 successful (16 cached + 7 fresh) in 1m16s, 0 errors.
+- `pnpm lint` — 18/18 successful (16 cached + 2 fresh) in 15.0s, 0 errors.
+
+The `EMPTY_TAGS` (Q22, iteration 105) and `EMPTY_MODES` (Q24, iteration 109) fixes form a consistent codebase pattern: any non-primitive default prop that flows into a `useEffect` dep array must be reference-stable across renders. The new spec at `.specify/features/q24-layoutswitcher-empty-modes.md` documents this pattern explicitly so future Preact components avoid the same trap.
+
+### What was done this iteration
+
+#### Step 1 — Source-side audit and fix
+
+`packages/ui/src/preact/LayoutSwitcher.tsx`:
+
+```diff
++ // Module-scope frozen sentinel. The default `modes` prop must be a STABLE
++ // reference across renders — `useEffect([persistKey, modes])` below uses
++ // reference equality. Fresh `['grid', 'list']` per render would fire that
++ // effect every render and race the post-click `localStorage.setItem(...)`.
++ // Same pattern as `EMPTY_TAGS` in `FilterBar.tsx` (iteration 105 / Q22 fix).
++ // See `docs/questions.md` Q24 for the full diagnostic chain.
++ const EMPTY_MODES: readonly LayoutMode[] = Object.freeze(['grid', 'list']);
+
+  export default function LayoutSwitcher({
+-     modes = ['grid', 'list'],
++     modes = EMPTY_MODES as LayoutMode[],
+      selected: initialSelected = 'grid',
+      ...
+  }: LayoutSwitcherProps) {
+```
+
+The cast `as LayoutMode[]` is necessary because `LayoutSwitcherProps['modes']` is typed `LayoutMode[]` (mutable). The frozen array is reference-stable but typed as readonly; the cast preserves the public API while `Object.freeze` enforces immutability at runtime. No caller mutates the default (verified: grep'd `apps/web` and `apps/sample-*` for `<LayoutSwitcher` usages — all read-only consumers).
+
+#### Step 2 — Verification matrix
+
+| Command                                                                                                  | Result               |
+|----------------------------------------------------------------------------------------------------------|----------------------|
+| `pnpm exec playwright test layout-switcher.ct.test.tsx` (run 1/3)                                        | 12/12 in 44.7s       |
+| `pnpm exec playwright test layout-switcher.ct.test.tsx` (run 2/3)                                        | 12/12 in 40.8s       |
+| `pnpm exec playwright test layout-switcher.ct.test.tsx` (run 3/3)                                        | 12/12 in 45.8s       |
+| `pnpm --filter @ever-works/ui test:ct` (full suite, run 1/2)                                             | 43/43 in 1m12s       |
+| `pnpm --filter @ever-works/ui test:ct` (full suite, run 2/2)                                             | 43/43 in 1m18s       |
+| `pnpm typecheck`                                                                                         | 23/23 in 1m16s, 0 err|
+| `pnpm lint`                                                                                              | 18/18 in 15.0s, 0 err|
+
+The Q24 hypothesis B (`ctPort: 3100` exhaustion / dev-server connection-pool overflow) and hypothesis C (combined A + B) are both **not applicable** with the source fix landed — `net::ERR_CONNECTION_REFUSED` did not reproduce in either of the two full-suite runs. Iteration 108's observation of intermittent connection failures was a downstream effect of the `EMPTY_MODES` race producing extra retries; with retries gone, the dev server stays well within its connection-pool limit.
+
+#### Step 3 — Documentation updates
+
+| File                                                          | Action |
+|---------------------------------------------------------------|--------|
+| `packages/ui/src/preact/LayoutSwitcher.tsx`                   | EDIT — `EMPTY_MODES` sentinel + JSDoc-style comment block |
+| `.specify/features/q24-layoutswitcher-empty-modes.md`          | CREATE — Q24 spec (~210 lines) |
+| `docs/plans/q24-layoutswitcher-empty-modes.md`                 | CREATE — Q24 execution plan (~125 lines) |
+| `docs/questions.md`                                            | EDIT — Q24 status: `OPEN` → ✅ RESOLVED + iteration 109 verification |
+| `docs/log.md`                                                  | EDIT — this entry |
+| `docs/index.md`                                                | EDIT — iteration 109 descriptor + new spec/plan rows |
+
+### Status flips
+
+- **Q24**: OPEN → ✅ RESOLVED.
+- **Iteration 107's "12/12 pass in ~1 min" claim** for `LayoutSwitcher` CT is now reproducible — iteration 108 had observed 11-12/12 pass depending on environment; with the `EMPTY_MODES` fix landed, all 12 are deterministic across 5 verification runs (3 isolated + 2 full-suite).
+
+### Remaining Q22 / Q23 / Q24 follow-ups
+
+- **Q22 follow-up #2** (`pnpm test:ui:safe` removal) — still on the backlog. With Q24 resolved, the per-file Vitest workaround has even less reason to stay. Removal can be sequenced into a future iteration after a final health-audit pass confirms no remaining caller of the script.
+- **Q22 follow-up #3** (`playwright-coverage` integration) — still on the backlog. Three components are now excluded from V8 coverage (`FilterBar`, `LayoutSwitcher`, `MobileMenu`) — the ROI of merging CT coverage back into the V8 report is now strictly higher than at any prior iteration.
+- **CI matrix verification** — Step 6 of the original Q22 plan (Linux-side observation) is still observation-only on the next CI run. No code change required.
+
+### Codebase pattern (now documented)
+
+> **Any non-primitive default prop that flows into a `useEffect` dep array MUST be reference-stable across renders.**
+>
+> Use a module-scope frozen sentinel (`Object.freeze([...])`) and cast to the public mutable type at the destructure site. Two examples in production code:
+>
+> - `packages/ui/src/preact/FilterBar.tsx` — `EMPTY_TAGS: readonly string[]` (iteration 105 / Q22).
+> - `packages/ui/src/preact/LayoutSwitcher.tsx` — `EMPTY_MODES: readonly LayoutMode[]` (iteration 109 / Q24).
+>
+> Future Preact components in `@ever-works/ui` should follow this convention. `MobileMenu.tsx`'s `items = []` default is **not** a hazard because `items` does not appear in any `useEffect` dep array — it only renders. Audit any new `useEffect` for non-primitive deps before merging.
+
+---
+
 ## 2026-04-27 — Iteration 108: Q22 follow-up #1 ✅ COMPLETE — `MobileMenu` migrated to Playwright CT (15/15); Q24 opened for `LayoutSwitcher` flake
 
 ### Headline

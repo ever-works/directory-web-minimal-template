@@ -16,6 +16,14 @@ import { cn } from '../lib/utils';
 
 const STORAGE_KEY = 'ew-layout-mode';
 
+// Module-scope frozen sentinel. The default `modes` prop must be a STABLE
+// reference across renders — `useEffect([persistKey, modes])` below uses
+// reference equality. Fresh `['grid', 'list']` per render would fire that
+// effect every render and race the post-click `localStorage.setItem(...)`.
+// Same pattern as `EMPTY_TAGS` in `FilterBar.tsx` (iteration 105 / Q22 fix).
+// See `docs/questions.md` Q24 for the full diagnostic chain.
+const EMPTY_MODES: readonly LayoutMode[] = Object.freeze(['grid', 'list']);
+
 const LAYOUT_ICONS: Record<LayoutMode, { label: string; path: string }> = {
 	grid: {
 		label: 'Grid view',
@@ -32,7 +40,7 @@ const LAYOUT_ICONS: Record<LayoutMode, { label: string; path: string }> = {
 };
 
 export default function LayoutSwitcher({
-	modes = ['grid', 'list'],
+	modes = EMPTY_MODES as LayoutMode[],
 	selected: initialSelected = 'grid',
 	onChange,
 	persistKey = STORAGE_KEY,

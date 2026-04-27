@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-27 (Iteration 108: **Q22 follow-up #1 ✅ COMPLETE — preemptive `MobileMenu` Playwright CT migration landed.** All 15 `MobileMenu` cases ported to `packages/ui/src/__tests__/ct/mobile-menu.ct.test.tsx`; verified in isolation as **15/15 passing in 45.7s** on Windows + Node 24.14.0. The original `packages/ui/src/__tests__/preact/mobile-menu.test.tsx` (132 lines) is deleted; `MobileMenu.tsx` joins `FilterBar.tsx` and `LayoutSwitcher.tsx` in `packages/ui/vitest.config.ts` `coverage.exclude`. New spec at `.specify/features/q22-mobilemenu-ct.md` and plan at `docs/plans/q22-mobilemenu-ct.md`. `.specify/features/testing.md` AC #10 updated to **"1122 Vitest unit tests + 43 Playwright Component Tests = 1165 total"**. `docs/architecture/testing-runners.md` "Future work" item for follow-up #1 marked ✅ COMPLETE. **Q24 opened** to track a `LayoutSwitcher` CT flake discovered during full-suite verification: 3 of 12 layout-switcher tests fail intermittently (1 persist-key value mismatch + 2 `net::ERR_CONNECTION_REFUSED` on `ctPort: 3100`); pre-existing Q23 regression unrelated to the MobileMenu migration. Q22 / Q23 RESOLVED status holds; mobile-menu.ct is unaffected. Remaining follow-ups: #2 (`pnpm test:ui:safe` removal), #3 (`playwright-coverage` integration), Q24, CI matrix observation.)
+> Updated: 2026-04-27 (Iteration 109: **Q24 ✅ RESOLVED — `LayoutSwitcher` `EMPTY_MODES` allocation fix landed.** Source-side audit identified the same per-render array allocation bug that `FilterBar.tsx` had pre-iteration-105: the default `modes = ['grid', 'list']` allocated a fresh `[]` per render and `useEffect([persistKey, modes])` fired every render — racing the post-click `localStorage.setItem(...)`. Fix is a 1-line source change + 6-line comment block + 1-line frozen `EMPTY_MODES: readonly LayoutMode[]` sentinel in `packages/ui/src/preact/LayoutSwitcher.tsx`, mirroring `EMPTY_TAGS` in `FilterBar.tsx`. Verified across **3 isolated runs of `layout-switcher.ct.test.tsx`** (12/12 each in 40-46s) and **2 full-suite runs of `pnpm test:ct`** (43/43 each in 1m12-18s) on Windows + Node 24.14.0 + Chromium 147. The `net::ERR_CONNECTION_REFUSED` observation from iteration 108 (Q24 hypothesis B) did not reproduce — it was a downstream effect of the race producing extra mounts/retries, not an independent dev-server bug. New spec at `.specify/features/q24-layoutswitcher-empty-modes.md` and plan at `docs/plans/q24-layoutswitcher-empty-modes.md`. **Codebase pattern now documented**: any non-primitive default prop flowing into a `useEffect` dep array MUST be reference-stable across renders. `MobileMenu.tsx`'s `items = []` default is exempt because `items` does not appear in any `useEffect` dep array. Iteration-107 "12/12 pass in ~1 min" claim is now reproducible. Remaining follow-ups: Q22 #2 (`pnpm test:ui:safe` removal), Q22 #3 (`playwright-coverage` integration), CI matrix observation. Q22 / Q23 / Q24 are all CLOSED.)
 
 ## Root Documents
 
@@ -48,6 +48,7 @@ slug: /
 - [plans/q22-playwright-ct.md](plans/q22-playwright-ct.md) — Q22: Migrate `FilterBar` tests to Playwright Component Testing (Option D)
 - [plans/q22-upstream-repro.md](plans/q22-upstream-repro.md) — Q22: Minimal upstream repro template for `vitest-dev/vitest`
 - [plans/q22-mobilemenu-ct.md](plans/q22-mobilemenu-ct.md) — Q22 follow-up #1: Preemptive `MobileMenu` Playwright CT migration
+- [plans/q24-layoutswitcher-empty-modes.md](plans/q24-layoutswitcher-empty-modes.md) — Q24: `LayoutSwitcher` `EMPTY_MODES` allocation fix (mirror of iteration-105 `EMPTY_TAGS`)
 
 ## Specifications
 
@@ -90,6 +91,7 @@ slug: /
 - **features/visual-regression.md** — Visual regression testing spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/visual-regression.md))
 - **features/q22-playwright-ct.md** — Q22 resolution: Playwright Component Testing migration spec for `FilterBar` ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/q22-playwright-ct.md))
 - **features/q22-mobilemenu-ct.md** — Q22 follow-up #1: Preemptive `MobileMenu` Playwright CT migration spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/q22-mobilemenu-ct.md))
+- **features/q24-layoutswitcher-empty-modes.md** — Q24: `LayoutSwitcher` `EMPTY_MODES` allocation fix spec ([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/q24-layoutswitcher-empty-modes.md))
 
 ## Guides
 
