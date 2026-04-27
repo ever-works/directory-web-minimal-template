@@ -19,6 +19,7 @@ export function createPluginLogger(pluginId: string, verbose?: boolean): PluginL
 
     return {
         info(message: string): void {
+            // eslint-disable-next-line no-console -- info-level logger output is the entire purpose of this method
             console.log(`${prefix} ${message}`);
         },
 
@@ -32,6 +33,7 @@ export function createPluginLogger(pluginId: string, verbose?: boolean): PluginL
 
         debug(message: string): void {
             if (verbose) {
+                // eslint-disable-next-line no-console -- debug-level logger output is the entire purpose of this method
                 console.log(`${prefix} [debug] ${message}`);
             }
         },

@@ -3,6 +3,61 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 131: closed 4 lingering `no-console` lint warnings in logger.ts files via inline ESLint disable comments
+
+### Headline
+
+Iteration 130 (Q28 ESLint 10 upgrade) noted "only the 4 pre-existing `no-console` warnings in `packages/core/src/logger.ts:40,53` + `packages/plugins/src/logger.ts:22,35` carry forward unchanged from iter-128 baseline." With the project at "no carried open work" steady state for the first time in saga history, this iteration closes those four warnings — they are the long-standing tech-debt items that have lingered since at least iteration 92.
+
+The warnings flag `console.log(...)` calls inside the `info()` and `debug()` methods of two logger factory functions (`createCoreLogger` in `packages/core/src/logger.ts` and `createPluginLogger` in `packages/plugins/src/logger.ts`). The ESLint `no-console` rule is configured to allow only `console.warn` and `console.error` — but the entire purpose of these methods is to emit info / debug log lines, so `console.log` is the correct API choice. The right fix is **inline `eslint-disable-next-line no-console` comments with explicit justification**, not rewriting the loggers to use `console.warn` (which would mis-tag info/debug as warnings in the JS console).
+
+### What was done
+
+Doc + lint-comment iteration. **No runtime / behavioral / API changes.**
+
+1. **`packages/core/src/logger.ts`** (~3 LOC added):
+   - Line 40 (the `info()` method): added `// eslint-disable-next-line no-console -- info-level logger output is the entire purpose of this method` directly above the `console.log(...)` call.
+   - Line 53 (the `debug()` method, inside the `if (verbose)` guard): same pattern with `debug-level logger output is the entire purpose of this method`.
+2. **`packages/plugins/src/logger.ts`** (~3 LOC added):
+   - Line 22 (the `info()` method): same `info-level logger output...` justification.
+   - Line 35 (the `debug()` method, inside the `if (verbose)` guard): same `debug-level logger output...` justification.
+
+The justification text deliberately echoes the rationale from CLAUDE.md ("Only add a comment when the WHY is non-obvious") — a future reader sees the `console.log` and the disable directly together, with the reason inline. The ESLint 9 (and 10) `--` separator means the text after `--` is the rule's declared justification, parsed and surfaced by `eslint --format=stylish` if anyone re-checks the suppression.
+
+### Verification
+
+- `pnpm lint` — **18/18 successful, 0 errors, 0 warnings** (down from 18/18 + 4 warnings at iter-130 baseline). 2 cached + 16 fresh in 43.2s; the cache invalidation is from the 2 modified `.ts` files.
+- `pnpm typecheck` — 23/23 (2 cached + 21 fresh in 1m54s; same cache-invalidation reason).
+- `pnpm --filter @ever-works/core test` — 11 files / **213/213 tests** pass in 11.55s.
+- `pnpm --filter @ever-works/plugins test` — 5 files / **86/86 tests** pass in 5.10s.
+- The two logger source files preserve their exported API surface (`createCoreLogger`, `createPluginLogger`, `coreLogger`, `CoreLogger` interface, `PluginLogger` shape) byte-for-byte — only inline comments added; no rename / reorder / signature change.
+
+### Why this counts as a real improvement (not just busy-work)
+
+Pre-iter-131 state: `pnpm lint` printed 4 warnings on every fresh run. AI agents and developers reading lint output would see signal-vs-noise pollution; CI logs (where the 18-task lint runs every PR) would carry the same warnings. The ESLint warning system is meant to flag drift; chronic warnings that are *always* there desensitize readers to new ones. Closing the chronic 4 means the next time a `console.log` or other `no-console` violation lands, it stands out cleanly against a 0-warning baseline.
+
+The fix is also the smallest possible change: 4 added lines, 0 deleted, no logic change, no API surface change, no dependency change. The justifications are explicit and self-documenting.
+
+### Files touched
+
+- `packages/core/src/logger.ts` — 2 inline `eslint-disable-next-line` comments.
+- `packages/plugins/src/logger.ts` — 2 inline `eslint-disable-next-line` comments.
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 130 → 131.
+- `.specify/project.md` — Current State header bumped 130 → 131.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)** (iter-124 numbers stay authoritative; this iteration did not touch any source under `packages/ui/`). CT-flake watch ✅ CLOSED at iter 127 (3/3 clean).
+
+### Next Steps (for next scheduled run)
+
+The "no carried open work" steady state continues. Future iterations are bounded maintenance:
+
+1. **Routine dep audit** — re-check the 22-package matrix; expect zero deltas (most recent bumps: iter 128 `isomorphic-git@1.37.6`, iter 130 `eslint@10.2.1`).
+2. **Doc drift sweep** — verify the iter-130 ESLint matrix line in `.specify/project.md` reflects the post-bump state; check `CLAUDE.md` Common Commands for any stale `pnpm` references.
+3. **Health audit re-run** — eventually re-run `pnpm coverage` end-to-end to confirm the 100% aggregate is reproducible after recent dep churn (iter 128 + 130 + 131). Cheap signal, no expected delta.
+
 ## 2026-04-27 — Iteration 130: Q28 ✅ RESOLVED — ESLint 9 → 10 in-place upgrade executed (peer-range bump + lockfile refresh + 18/18 lint + 23/23 typecheck + 1122/1122 tests, all green; zero new violations)
 
 ### Headline

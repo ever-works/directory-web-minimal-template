@@ -37,6 +37,7 @@ const PREFIX = '[core]';
 export function createCoreLogger(verbose = false): CoreLogger {
     return {
         info(message: string, ...args: unknown[]): void {
+            // eslint-disable-next-line no-console -- info-level logger output is the entire purpose of this method
             console.log(`${PREFIX} ${message}`, ...args);
         },
 
@@ -50,6 +51,7 @@ export function createCoreLogger(verbose = false): CoreLogger {
 
         debug(message: string, ...args: unknown[]): void {
             if (verbose) {
+                // eslint-disable-next-line no-console -- debug-level logger output is the entire purpose of this method
                 console.log(`${PREFIX} [debug] ${message}`, ...args);
             }
         },
