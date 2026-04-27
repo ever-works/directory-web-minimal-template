@@ -3,6 +3,67 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 111: CLAUDE.md drift fix — `pnpm test:ct` / `pnpm test:ct:install` listed; CT flake observation logged
+
+### What was wrong
+
+`CLAUDE.md` Common Commands and Safe Operations sections still listed only the pre-Q22 test commands (`pnpm test`, `pnpm test:coverage`, `pnpm test:ui:safe`, `pnpm test:e2e`). The Playwright CT tooling added in iteration 105 (Q22) and continually extended (iterations 107 / 108 / 109 / 110) was missing from both lists. New contributors / AI agents reading CLAUDE.md cold would not learn that:
+
+- `pnpm test:ct` is the canonical signal for `FilterBar` / `LayoutSwitcher` / `MobileMenu` since their Vitest counterparts were deleted as part of the Q22 / Q23 / follow-up #1 migrations.
+- `pnpm test:ct:install` is a one-time-per-machine prerequisite (downloads Chromium).
+
+This is pure documentation drift — the scripts have existed in `package.json` since iteration 105.
+
+### What was done
+
+Doc-only iteration. **No code, dependency, or config changes.**
+
+1. **`CLAUDE.md` Common Commands** — added two new rows:
+   - `pnpm test:ct` — runs the Playwright Component Tests in `@ever-works/ui` (43 cases for FilterBar / LayoutSwitcher / MobileMenu, ~1.3 min on Windows + Node 24). Includes a one-line note about the jsdom bypass and the install prerequisite.
+   - `pnpm test:ct:install` — one-time per machine.
+2. **`CLAUDE.md` Safe Operations** — added `pnpm test:ct` and `pnpm test:ct:install` to the always-safe list.
+3. **`docs/log.md`** — this entry, including the test:ct flake observation captured below.
+4. **`docs/index.md`** — iteration descriptor bumped 110 → 111.
+5. **`.specify/project.md`** — Current State header bumped 110 → 111.
+
+### CT flake observation (this iteration's verification)
+
+Two consecutive `pnpm test:ct` runs on Windows + Node 24.14.0 + Playwright 1.59.1 + Chromium produced different outcomes:
+
+- **Run 1**: 42/43 passed — single failure on `filter-bar.ct.test.tsx › selects category on click` (the very first test using `fireEvent.click` after the `mount(<FilterBar />)`-only smoke tests). Wall time: 1.9 min.
+- **Run 2**: 43/43 passed in 1.3 min — including `selects category on click` (933 ms) and the full `LayoutSwitcher` 12/12 (Q24 fix verified holding). Wall time: 1.3 min.
+
+The Q24 `LayoutSwitcher` `EMPTY_MODES` fix from iteration 109 has stabilized the persist-key value mismatch. The new flake is now **`FilterBar` `selects category on click`** — fires intermittently, recovers on retry. Hypothesis: after a CT-tab cold start (Vite re-bundle, browser context init), the first `await locator.click()` against a freshly-mounted `<FilterBar />` may race the post-mount paint, causing the click to land on a not-yet-attached event handler.
+
+This is not Q24-shape (different file, different assertion), not Q22 IPC-shape (no `Worker exited unexpectedly`), and does not block any current acceptance criterion. Logging as an **observation only** in iteration 111 — *not* opening a new question yet, because:
+
+- The flake recovers cleanly on a single retry. Playwright CT's default `retries: process.env.CI ? 1 : 0` will absorb it under CI.
+- The CI matrix added in iteration 105 already enables `retries: 1`, so CI green/red signal is unaffected.
+- Two more consecutive failures in the next 3 iterations would justify opening **Q26** with a fingerprint pass; until then, single-occurrence flakes are within normal Playwright tolerance for cold starts on Windows.
+
+If this flake escalates to ≥3 failures across the next 3 iteration verifications, open Q26 = "FilterBar CT cold-start race on `selects category on click`" with the diagnostic plan: instrument the test with `await component.waitFor()` / `await page.waitForLoadState('networkidle')` before the click, or add a `mount.click({ force: true })` retry shim.
+
+### Verification
+
+- `pnpm typecheck` — 23/23 (FULL TURBO cache hit).
+- `pnpm lint` — 18/18 (FULL TURBO cache hit).
+- `pnpm test:ct` — flake on run 1 (42/43), green on run 2 (43/43). See observation above.
+
+### Files touched
+
+- `CLAUDE.md` — added 2 rows to Common Commands, added 2 entries to Safe Operations.
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor.
+- `.specify/project.md` — Current State header bumped 110 → 111.
+
+### Next Steps (for next scheduled run)
+
+Pick one of:
+
+1. **Q22 follow-up #3 Phase 0** (`monocart-coverage-reports` smoke test gate) — verified upstream packages exist this iteration: `monocart-coverage-reports@2.12.11` and `monocart-reporter@2.10.1` are both above the spec's `^2.11.0` / `^2.x.x` pins. Phase 0 is the cleanest single-iteration unit (~1 hour: install in scratch dir, write 5-line script, inspect JSON, decide Path A vs Path B at Q25).
+2. **Health audit / dep upkeep** — Vitest / Astro / Tailwind / Playwright patch versions; check for any non-blocking minor bumps. ~30 min.
+3. **CI matrix observation** — wait for the next push to `develop` and confirm the iteration-105 `test-ct` matrix passes on both `ubuntu-latest` and `windows-latest`. Observation only.
+
 ## 2026-04-27 — Iteration 110: Q22 follow-up #2 SUPERSEDED + Q22 follow-up #3 spec/plan/Q25 authored
 
 ### Headline
