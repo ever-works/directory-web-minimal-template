@@ -386,6 +386,31 @@ grep -rn "type:.*doc" apps/docs/sidebars*.ts apps/docs/sidebar*.ts
 grep -n "^- " AGENTS.md
 ```
 
+### Cross-file consistency (added iter 148)
+
+The `AGENTS.md` Mandatory Rules (R1-R15) and `CLAUDE.md` "Critical Rules" must stay in sync —
+both files are loaded into AI agent context, and a rule that exists in one but not the other
+creates an under-documented obligation. Iter-148 found **7 rules (R9-R15) missing from CLAUDE.md**
+even though the AGENTS.md "Documentation First / Specification First / Do Not Remove / Use Existing
+Libraries / Monorepo Structure / Exhaustive Documentation / Convention Over Configuration"
+rules had been live for the entire saga. The fix: items 11-17 in CLAUDE.md "Critical Rules"
+mirror R9-R15 with one-line summaries, plus an explicit "see AGENTS.md R1-R15" cross-reference.
+
+Future iterations that touch the rule set in either file should run:
+
+```bash
+# Count rules in each file (should match: 15 R-items in AGENTS.md, 17 numbered items in CLAUDE.md
+# because R3+R4 fan out into items 2-4 + 7 in CLAUDE.md for marketing clarity)
+grep -cE "^### R[0-9]+:" AGENTS.md
+grep -cE "^[0-9]+\.\s+\*\*" CLAUDE.md
+
+# Spot-check rule headings line up
+grep -E "^### R[0-9]+:" AGENTS.md
+grep -E "^[0-9]+\.\s+\*\*" CLAUDE.md
+```
+
+When an R-rule is added, removed, or reworded, update both files in the same commit.
+
 ### Rerun cadence
 
 | Pattern set | Trigger | Last verified |

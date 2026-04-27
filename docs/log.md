@@ -3,6 +3,151 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 148: cross-file consistency drift — close the AGENTS.md ↔ CLAUDE.md "Critical Rules" sync gap (R9-R15 missing from CLAUDE.md); codify the new drift class in `AGENTS.md § Doc-Quality Audit Checklist`
+
+### Headline
+
+Iter-147 ran the codified audit greps (Status/state drift, Value drift, Toolchain version drift, ISR wording drift, Structural/link drift) and surfaced one stale CT-count claim. Iter-147's "Next Steps #2" called out the next likely drift class: *"cross-file consistency checks (e.g., a bullet/heading/AC that appears in both AGENTS.md AND CLAUDE.md but only one was updated)."* Iter 148 executes that audit and finds **a real cross-file drift**: `CLAUDE.md` "Critical Rules" lists only **10 numbered items** while `AGENTS.md` "Mandatory Rules" defines **15 R-rules (R1-R15)**. The 7 rules **R9-R15** (Documentation First / Use Existing Libraries / Do Not Remove / Monorepo Structure / Exhaustive Documentation / Convention Over Configuration / Specification First) had no corresponding line in CLAUDE.md.
+
+The drift is structurally significant: both `CLAUDE.md` and `AGENTS.md` are loaded into AI-agent context every session. A rule that lives in one file but not the other creates an under-documented obligation — an AI agent reading CLAUDE.md cold (the typical first-touch path per the file's `1: # Ever Works — Minimal Directory Web Template` heading and its position in the conversation) would not know about the 7 missing rules unless it also reads AGENTS.md. Cross-referencing only does not solve it: AGENTS.md R8 line 62 explicitly says *"`AGENTS.md` and `CLAUDE.md` always up to date"* — so the two files are intended to be synchronized, not strict superset/subset.
+
+### What was fixed
+
+#### 1. `CLAUDE.md` "Critical Rules" — added 7 items (numbered 11-17) mirroring AGENTS.md R9-R15
+
+The existing 10 items were preserved verbatim (they map to AGENTS.md R1-R8 with R3+R4 fanned out into multiple CLAUDE.md items for marketing-clarity). The new 7 items are:
+
+```diff
+   10. **AI-optimized** — Clear naming, inline docs, explicit data contracts
++  11. **Documentation first** — No code without a spec/plan in `.specify/` or `docs/`. Update `docs/log.md` for every change. Open questions go to `docs/questions.md` with a `[DEFAULT]` choice.
++  12. **Use existing libraries** — Prefer popular, well-maintained packages over custom implementations. Build new only when no library fits the plugin/perf/static-first constraints.
++  13. **Do not remove, only improve** — Never delete existing code or docs without moving or improving. Refactor freely; if something seems wrong, fix it instead of dropping it.
++  14. **Monorepo structure** — pnpm workspaces + Turborepo. Apps under `apps/`, packages under `packages/`. Every potentially-shared concern is its own focused package.
++  15. **Exhaustive documentation** — Specs, plans, and architecture docs are thorough enough for AI agents to work autonomously. Public exports always JSDoc'd. Multiple-option decisions go to `docs/questions.md`.
++  16. **Convention over configuration** — Good defaults for everything; users override via config when needed; conventions reduce boilerplate.
++  17. **Specification first** — Write specs and docs BEFORE implementation. Every feature gets a `.specify/features/<name>.md` spec; every architectural decision gets a `docs/architecture/` doc; every guide ships alongside (or before) implementation.
++
++  > The 17 rules above mirror AGENTS.md R1-R15 ... (cross-reference paragraph)
+```
+
+The mapping table (preserved in the cross-reference paragraph below the rule list):
+
+| CLAUDE.md item | AGENTS.md R-rule | Notes |
+|----------------|------------------|-------|
+| 1 | R1 | TypeScript only |
+| 2-4 + 7 | R3 / R4 (split) | "No DB / auth / payments" + "Git-first data" — marketing-clarity expansion of AGENTS.md's R3 + R4 |
+| 5 | R5 | ISR by default |
+| 6 | R2 | Plugin everything |
+| 8 | R6 | Extreme performance |
+| 9 | R7 | Modular & replaceable |
+| 10 | R8 | AI-optimized |
+| 11 | R9 | Documentation first (NEW iter 148) |
+| 12 | R10 | Use existing libraries (NEW iter 148) |
+| 13 | R11 | Do not remove, only improve (NEW iter 148) |
+| 14 | R12 | Monorepo structure (NEW iter 148) |
+| 15 | R13 | Exhaustive documentation (NEW iter 148) |
+| 16 | R14 | Convention over configuration (NEW iter 148) |
+| 17 | R15 | Specification first (NEW iter 148) |
+
+The cross-reference paragraph below the list reads:
+
+> The 17 rules above mirror **AGENTS.md R1-R15** (R1-R8 map 1:1 to items 1, 6, 7, 4, 5, 8, 9, 10; R3 and R4 each fan out into multiple items here for marketing clarity; R9-R15 map 1:1 to items 11-17). When AGENTS.md changes, propagate the change here and vice versa — see `AGENTS.md § Doc-Quality Audit Checklist § Cross-file consistency` for the canonical grep technique to keep them in sync.
+
+#### 2. `AGENTS.md § Doc-Quality Audit Checklist` — new "Cross-file consistency" subsection
+
+Added below the existing "Structural / link drift" block. The new subsection codifies the iter-148 drift class so future audits see it inline rather than re-deriving from log archaeology. Includes:
+
+- A 7-line explanatory paragraph on why cross-file consistency matters (both files are AI-context-loaded; a rule in one but not the other is an under-documented obligation).
+- 5 lines of grep commands to verify rule-count parity:
+
+```bash
+# Count rules in each file (should match: 15 R-items in AGENTS.md, 17 numbered items in CLAUDE.md
+# because R3+R4 fan out into items 2-4 + 7 in CLAUDE.md for marketing clarity)
+grep -cE "^### R[0-9]+:" AGENTS.md
+grep -cE "^[0-9]+\.\s+\*\*" CLAUDE.md
+
+# Spot-check rule headings line up
+grep -E "^### R[0-9]+:" AGENTS.md
+grep -E "^[0-9]+\.\s+\*\*" CLAUDE.md
+```
+
+- An explicit policy line: *"When an R-rule is added, removed, or reworded, update both files in the same commit."*
+
+### What was NOT touched (intentional — verified clean)
+
+Codified-greps re-run with iter-145/iter-147 patterns:
+
+#### Status/state drift (tightened regex)
+
+```
+docs/plans/q22-playwright-ct.md:15:> Status: **✅ FULLY COMPLETE
+docs/plans/q22-upstream-repro.md:12:> Status: **🗄️ SUPERSEDED
+```
+
+Both correctly resolved. No flips needed.
+
+#### Value drift
+
+- `43 cases / 48 cases / 43/43 / 48/48` — all matches in `CLAUDE.md` (correctly current 48 cases), `docs/log.md` / `docs/index.md` (preserved iteration descriptors), `AGENTS.md` (the grep pattern itself). No drift.
+- `All 28 / All 31` — only `.specify/project.md:87` matches with `All 31` (current). No drift.
+- `22-package / 26-package` — only `.specify/project.md:94` matches with `26-package` (current). No drift.
+
+#### Toolchain version / ISR wording / Structural-link drift
+
+All grep blocks return zero outstanding hits per iter-147 baseline.
+
+### Routine dep audit (deferred this iteration)
+
+Iter-147 ran a 10-package quick-check; iter-143 + iter-146 also clean. Inheritance consistent. No reason to re-audit at this interval.
+
+### Pattern progression — now confirmed for the 12th iteration in a row (with iter-148's twist)
+
+| # | Iteration | Surface | Drift kind |
+|---|-----------|---------|------------|
+| 1 | iter 132 | `CLAUDE.md` Common Commands | `43 cases` → `48 cases` + walltime/Chromium/flake-signal |
+| 2 | iter 135 | `docs/guides/deployment.md` | Missing ISR env vars + 4 narrative claims (predates iter-17/Q17) |
+| 3 | iter 136 | `docs/guides/quickstart.md` + `getting-started.md` | Missing 5-6 Common Commands rows |
+| 4 | iter 137 | `.specify/project.md` package matrix | `22-package` → `26-package` |
+| 5 | iter 138 | `.specify/project.md` spec count | `All 28` → `All 31` |
+| 6 | iter 139 | `README.md` Commands table | Conflated `pnpm test` row + missing CT/coverage rows |
+| 7 | iter 140 | `.specify/features/q28-*.md` AC #5 + `docs/plans/q28-*.md` Step 4 | Same conflated-`pnpm test=1170` drift |
+| 8 | iter 141 | `apps/docs/blog/2026-04-11-welcome.md` + `apps/docs/sidebarsTemplate.ts` | Pre-iter-17/Q17 ISR wording + sidebar topology missing 8 navigable docs |
+| 9 | iter 142 | 5 `docs/plans/q*.md` line-8 spec pointers | Broken `../../.specify/features/*.md` markdown links under Docusaurus |
+| 10 | iter 143 | `AGENTS.md` line 105 bullet | Bullet placement under wrong rule heading (R14 vs R15) |
+| 11 | iter 144 | 6 spec/plan front-matter Status: lines | `PLANNED`/`SPECIFIED` → `COMPLETE`/`RESOLVED`/`DONE` flips |
+| 12 | iter 145 | `AGENTS.md § Doc-Quality Audit Checklist` (NEW SECTION) | Meta: institutionalize the playbook from iters 132 → 144 |
+| 13 | iter 146 | 2 plan front-matter Status: lines (q22-upstream-repro.md DRAFT + q22-playwright-ct.md PHASE 2 COMPLETE) | iter-145 codified regex missed `>`-blockquote + `**bold**`-wrapped lines |
+| 14 | iter 147 | `AGENTS.md § Doc-Quality Audit Checklist` (regex tightening) + `.specify/features/q22-playwright-coverage.md` AC #10 | Codify-then-tighten meta-pattern; AC value-drift fix surfaced by tightened pattern |
+| 15 | iter 148 | `CLAUDE.md` Critical Rules + `AGENTS.md § Doc-Quality Audit Checklist` | Cross-file consistency: 7 rules R9-R15 missing from CLAUDE.md; codify the new drift class |
+
+**Pattern (re-stated)**: cross-file consistency is the new drift class. Iters 132 → 147 covered single-surface drift (one file claims a stale value); iter 148 covers the case where two files should agree but one was updated and the other was not. Adding the iter-148 cross-file-consistency block to the audit checklist closes this gap institutionally.
+
+### Verification
+
+- `pnpm typecheck` — pending verification at commit time (expected: 23/23 FULL TURBO; CLAUDE.md and AGENTS.md are not under typecheck scope).
+- `pnpm lint` — pending verification at commit time (expected: 18/18 FULL TURBO + 0 warnings + 0 errors).
+
+### Files touched
+
+- `CLAUDE.md` — Critical Rules section: 7 new items (11-17) mirroring AGENTS.md R9-R15 + 1 cross-reference paragraph (~10 lines added net).
+- `AGENTS.md` — `## Doc-Quality Audit Checklist` gains a new "### Cross-file consistency (added iter 148)" subsection (~24 lines added net).
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 147 → 148.
+- `.specify/project.md` — Current State header bumped 147 → 148.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)**. `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127. Project remains in "no carried open work" steady state for the **19th consecutive iteration** (iter 130-148).
+
+### Next Steps (for next scheduled run)
+
+1. **Run the iter-148 cross-file-consistency grep** (`grep -cE "^### R[0-9]+:" AGENTS.md` vs `grep -cE "^[0-9]+\.\s+\*\*" CLAUDE.md` — should match 15 vs 17). Becomes part of the standard audit cadence.
+2. **Continue running the codified audit greps** — iter-148 confirmed the cadence. Each future doc-quality iteration starts by running the full `AGENTS.md § Doc-Quality Audit Checklist` greps including the new Cross-file consistency block.
+3. **Watch for new drift classes** — when iter-N closes a structural drift not represented in the checklist, add the corresponding grep pattern there per the iter-145 policy line.
+4. **Routine dep audit** — re-check the 26-package matrix; iter-147's 10-package quick-check found zero deltas, full re-verification deferred until next material dep-touching iteration.
+5. **Optional `pnpm test:e2e` re-run** — defer per iter-134's policy.
+6. **Optional `pnpm coverage` re-run** — defer until material dep churn lands.
+
 ## 2026-04-27 — Iteration 147: execute iter-146 Next Step #1 — tighten the iter-145 codified audit checklist Status-drift regex to tolerate `>` blockquote prefix + `**bold**` markdown wrapping; routine codified-greps re-run surfaces 1 stale CT-count claim in `.specify/features/q22-playwright-coverage.md` AC #10 (43/43 → 48/48); routine 10-package dep quick-check zero deltas
 
 ### Headline

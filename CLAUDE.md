@@ -57,6 +57,15 @@ This is a **minimal, static-rendered Astro template** for AI-generated directory
 8. **Extreme performance** — Every decision optimizes for speed
 9. **Modular & replaceable** — Every component, adapter, and plugin can be swapped
 10. **AI-optimized** — Clear naming, inline docs, explicit data contracts
+11. **Documentation first** — No code without a spec/plan in `.specify/` or `docs/`. Update `docs/log.md` for every change. Open questions go to `docs/questions.md` with a `[DEFAULT]` choice.
+12. **Use existing libraries** — Prefer popular, well-maintained packages over custom implementations. Build new only when no library fits the plugin/perf/static-first constraints.
+13. **Do not remove, only improve** — Never delete existing code or docs without moving or improving. Refactor freely; if something seems wrong, fix it instead of dropping it.
+14. **Monorepo structure** — pnpm workspaces + Turborepo. Apps under `apps/`, packages under `packages/`. Every potentially-shared concern is its own focused package.
+15. **Exhaustive documentation** — Specs, plans, and architecture docs are thorough enough for AI agents to work autonomously. Public exports always JSDoc'd. Multiple-option decisions go to `docs/questions.md`.
+16. **Convention over configuration** — Good defaults for everything; users override via config when needed; conventions reduce boilerplate.
+17. **Specification first** — Write specs and docs BEFORE implementation. Every feature gets a `.specify/features/<name>.md` spec; every architectural decision gets a `docs/architecture/` doc; every guide ships alongside (or before) implementation.
+
+> The 17 rules above mirror **AGENTS.md R1-R15** (R1-R8 map 1:1 to items 1, 6, 7, 4, 5, 8, 9, 10; R3 and R4 each fan out into multiple items here for marketing clarity; R9-R15 map 1:1 to items 11-17). When AGENTS.md changes, propagate the change here and vice versa — see `AGENTS.md § Doc-Quality Audit Checklist § Cross-file consistency` for the canonical grep technique to keep them in sync.
 
 ## Data Source
 
