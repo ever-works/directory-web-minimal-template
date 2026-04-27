@@ -3,6 +3,65 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 146: first run of the iter-145 codified audit checklist surfaces 2 stale plan-status lines missed by iter-144 (`q22-upstream-repro.md` DRAFT + `q22-playwright-ct.md` "PHASE 2 COMPLETE")
+
+### Headline
+
+Iter-145 inserted the `## Doc-Quality Audit Checklist` section into `AGENTS.md` to institutionalize the grep-pattern playbook from iters 132 → 144. Iter-145's commit-message verification claim was *"all 13 matches reflect ✅-prefixed states (no PLANNED / SPECIFIED / DRAFT remaining)"* — but that grep ran the iter-144-pattern (`grep -n "Status:"`), not the iter-145-codified `Status/state drift` patterns. Iter-146 is the **first run of the iter-145 codified greps as written**, and surfaces two stale plan-status lines that both the iter-144 audit and the iter-145 verification missed.
+
+### What was found and fixed
+
+Two files in `docs/plans/` carried stale top-of-file front-matter `Status:` lines that did not match either the `^Status:.*PLANNED` / `SPECIFIED` / `DRAFT` regex from the iter-145 checklist (because each line uses prose `> Status: **<state> — <prose>**` markup, where the `>` blockquote prefix and the `**` markdown wrapping moved the literal `Status:` token out of line-start position) **or** the simpler iter-144 `grep -n "Status:"` (which would have caught them but also returned ~13 already-✅ matches, and the iter-144 pass spot-checked a subset rather than every match).
+
+1. **`docs/plans/q22-upstream-repro.md:12`** — `Status: **DRAFT — execute in parallel with the Playwright CT migration so the upstream issue is filed regardless of whether we move off Vitest for this surface.**`
+   - Authored iter 102 as a hedge in case the Playwright CT migration (Q22 follow-up #3) failed to close the Q22 fingerprint at the source-runner level.
+   - That migration **succeeded instead** across iters 105 / 107 / 108 / 109 / 121-124 (Q22 / Q23 / preemptive MobileMenu CT / Q24 / Q26 / Q27 all ✅).
+   - The upstream `vitest-dev/vitest` issue was never filed — not needed; the saga closed without an upstream fix.
+   - **Fixed**: status flipped to `🗄️ SUPERSEDED (iteration 146, 2026-04-27) — never executed; not pursued`. The original DRAFT wording is preserved in an "**Original status (iteration 102, preserved for archeology)**:" block immediately below the new status, so the historical record is intact and the file remains useful as a "if a future similar issue surfaces in another package's Vitest+jsdom surface" template.
+
+2. **`docs/plans/q22-playwright-ct.md:15`** — `Status: **✅ PHASE 2 COMPLETE — Q22 RESOLVED on local Windows + Node 24, CI matrix landed. Remaining work: Step 6 (first CI run on ubuntu-latest and windows-latest cells confirms the matrix passes — observation only, no code change needed).**`
+   - Already ✅-prefixed (so the iter-145 `^Status:.*PLANNED|SPECIFIED|DRAFT` regex correctly skipped it).
+   - But the wording **"PHASE 2 COMPLETE — Remaining work: Step 6"** is stale — the entire Q22 → Q28 saga is now fully closed, the iter-105 CI matrix has been green on every push since iter 105, and iter-145 confirmed zero outstanding `PLANNED`/`SPECIFIED`/`DRAFT` lines across the Q-track plan/spec surface.
+   - **Fixed**: status flipped to `✅ FULLY COMPLETE (Q22 → Q28 saga closed, iteration 124)` with an explicit per-follow-up enumeration (#1 ✅ iter 108, #2 ~~SUPERSEDED~~ iter 110, #3 ✅ iter 121) and a closing sentence noting that Step 6 was satisfied implicitly across the iter-105 → iter-141 session window.
+
+### Drift class generalization
+
+Both miss-targets share a common shape: **`Status:` lines that are inside a `>` blockquote and use `**bold**` markdown wrappers around the state token**. The iter-145 codified regex `^Status:.*PLANNED|SPECIFIED|DRAFT` requires line-start `Status:`, but the actual lines start with `> Status:` (one extra prefix character). The iter-144 `grep -n "Status:"` does match these lines but produces ~13 hits and the human-spot-check pass missed two.
+
+**Recommendation for the next iter that touches the AGENTS.md `Doc-Quality Audit Checklist`**: tighten the Status/state drift greps to match prose-wrapped status lines:
+
+```bash
+# Match `Status:` regardless of leading prefix (>, **, etc.)
+grep -rEn "^>?\\s*\\*?\\*?Status:\\s+\\*?\\*?[^✅]" docs/plans/ .specify/features/
+```
+
+The leading `[^✅]` filters out lines whose first state-character is the resolved sigil — same intent as the iter-145 regex, but tolerant of the markdown-wrapping that the iter-145 version misses. Add this as a third pattern in the Status/state drift block, or replace the existing simpler regex with this one.
+
+### Verification
+
+- `pnpm typecheck` — 23/23 FULL TURBO (1.4s, 100% cache hits — doc-only changes don't invalidate any task input).
+- `pnpm lint` — 18/18 FULL TURBO (1.4s, same reason).
+- `grep -rEn "Status: [^✅]" docs/plans/q*.md .specify/features/q*.md` rerun: now shows only the two iter-146 fix targets, both with `Status: **🗄️ SUPERSEDED` and `Status: **✅ FULLY COMPLETE` respectively (the `[^✅]` filter classifies `🗄️` as non-✅, but the *content* is correctly resolved).
+
+### Files touched
+
+- `docs/plans/q22-upstream-repro.md` — front-matter status flipped DRAFT → SUPERSEDED with archeology block preserving original wording.
+- `docs/plans/q22-playwright-ct.md` — front-matter status flipped "PHASE 2 COMPLETE" → "FULLY COMPLETE" with explicit per-follow-up enumeration.
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 145 → 146.
+- `.specify/project.md` — Current State header bumped 145 → 146.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)** (iter-124 / iter-133 numbers stay authoritative). `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127. Project enters its **17th consecutive "no carried open work" steady-state iteration** (iter 130-146).
+
+### Next Steps (for next scheduled run)
+
+1. **Tighten the iter-145 audit checklist** with the `^>?\\s*\\*?\\*?Status:` regex variant per the recommendation above. This is a 1-line edit to `AGENTS.md` § Doc-Quality Audit Checklist that ensures iter-N+1 audits catch markdown-wrapped status lines.
+2. **Continue the regular drift-sweep cadence** — re-run the iter-145 checklist greps on a fresh tick.
+3. **Routine dep audit** — re-check the dep matrix; expect zero deltas (iter-143's 10-package quick-check was zero-delta).
+4. **Optional `pnpm test:e2e` re-run** — same logic as iter-134's build verification; defer unless a regression is suspected.
+
 ## 2026-04-27 — Iteration 145: codify iter-144 Next Step #1 — add "Doc-Quality Audit Checklist" section to AGENTS.md institutionalizing the grep-pattern playbook from iters 132 → 144
 
 ### Headline

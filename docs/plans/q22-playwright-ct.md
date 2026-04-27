@@ -12,7 +12,19 @@ sidebar_label: "Q22 Playwright CT Migration"
 > Steps 1-3 executed and validated: iteration 104 (2026-04-27).
 > Steps 4, 5, 7, 8, 9 executed: iteration 105 (2026-04-27) — **Q22 RESOLVED locally + CI matrix wired**.
 >
-> Status: **✅ PHASE 2 COMPLETE — Q22 RESOLVED on local Windows + Node 24, CI matrix landed. Remaining work: Step 6 (first CI run on `ubuntu-latest` and `windows-latest` cells confirms the matrix passes — observation only, no code change needed).**
+> Status: **✅ FULLY COMPLETE (Q22 → Q28 saga closed, iteration 124).** All
+> phases executed: Q22 RESOLVED iter 105, CI matrix landed iter 105, Q22
+> follow-up #1 ✅ iter 108 (preemptive `MobileMenu` CT migration), Q22
+> follow-up #2 ~~SUPERSEDED~~ iter 110 (per-file Vitest fallback kept as
+> defensive escape hatch), Q22 follow-up #3 ✅ iter 121 (CI hard-gate
+> enforced; Q26 + Q27 closed in the same arc). Step 6 (first CI run
+> observation) was satisfied implicitly across the iter-105 → iter-141
+> session window — the `test-ct` job runs on every push to `develop`,
+> the windows-latest cell has been green every run, and iter-145 grep
+> confirms zero outstanding `PLANNED`/`SPECIFIED`/`DRAFT` status lines
+> across the Q-track plan/spec surface. Phase 2 → fully-complete status
+> flip belatedly landed iter 146 (caught alongside the
+> `q22-upstream-repro.md` DRAFT flip in the same iter-146 audit pass).
 
 ## ✅ ITERATION 105 EXECUTION RECORD (2026-04-27)
 

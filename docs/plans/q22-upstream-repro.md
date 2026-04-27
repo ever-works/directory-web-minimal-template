@@ -9,9 +9,26 @@ sidebar_label: "Q22 Upstream Repro"
 >
 > Authored: iteration 102 (2026-04-26).
 >
-> Status: **DRAFT — execute in parallel with the Playwright CT migration so
-> the upstream issue is filed regardless of whether we move off Vitest for
-> this surface.**
+> Status: **🗄️ SUPERSEDED (iteration 146, 2026-04-27) — never executed; not
+> pursued.** The upstream-repro plan was authored at iter 102 as a hedge in
+> case the Playwright CT migration (Q22 follow-up #3) failed to close the
+> Q22 fingerprint at the source-runner level. That migration succeeded
+> instead: by iter 105 (Q22 ✅), iter 107 (Q23 ✅), iter 108 (preemptive
+> MobileMenu CT migration ✅), iter 109 (Q24 ✅), and iter 121-124 (Q22
+> follow-up #3 / Q26 / Q27 ✅), the entire Q22 → Q28 saga reached "no
+> carried open work" without requiring an upstream `vitest-dev/vitest`
+> fix. Status flipped belatedly iter 146 (the iter-144 audit pass missed
+> this entry because its Status line uses prose `Status: **DRAFT — ...**`
+> rather than the `^Status:.*DRAFT` pattern the iter-145 grep checklist
+> later codified). Plan is preserved in-tree as historical record; if a
+> future similar issue surfaces in another package's Vitest+jsdom surface,
+> the repro recipe and 3-environment verification matrix below remain a
+> useful starting point.
+>
+> **Original status (iteration 102, preserved for archeology)**:
+> `DRAFT — execute in parallel with the Playwright CT migration so the
+> upstream issue is filed regardless of whether we move off Vitest for
+> this surface.`
 
 ## Why bother with an upstream repro if we're migrating off Vitest?
 
