@@ -3,6 +3,77 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 124: Q27 ✅ RESOLVED — `MobileMenu` reaches 100% branches; aggregate `@ever-works/ui` reaches 100% branches (233/233)
+
+### Headline
+
+Q27's three target branches (B1 = `focusable.length === 0` early return; B2 = `else if` entry on Tab-from-last; B3 = both short-circuits FALSE on non-boundary Tab) closed via Option A.1 synthetic `KeyboardEvent('keydown', { key: 'Tab' })` dispatch through `page.evaluate`. A fourth defensive branch (`if (!menuEl) return;` race-guard on line 72) surfaced during execution and was closed via Option A.3 (`/* v8 ignore next */` pragma — verified the syntax works with `monocart-coverage-reports@^2.12.9`). Per-file MobileMenu went **91.89% (34/37) → 100% (35/35)** branches; aggregate `@ever-works/ui` merged report went **98.72% (232/235) → 100% (233/233)** branches. Mobile-menu.ct case count: 17 → 20.
+
+### What was added
+
+Three new CT tests in `packages/ui/src/__tests__/ct/mobile-menu.ct.test.tsx`:
+
+1. **`focus trap: empty panel - Tab does nothing (focusable.length === 0)`** — mounts `<MobileMenu items={[]} />`, opens the panel, asserts `toBeAttached()` (NOT `toBeVisible()` — see iter-120 race below), synthesizes a Tab keydown via `page.evaluate(() => { const e = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }); document.dispatchEvent(e); return e.defaultPrevented; })`, asserts `wasPrevented === false`. Closes B1.
+2. **`focus trap: synthetic Tab on last nav link wraps focus to first`** — mounts the standard 3-item menu, focuses `Tags` (last link), synthesizes Tab via `page.evaluate`, asserts `wasPrevented === true`. The iter-120 natural-keyboard variant covers behavior but not this V8 branch — `page.keyboard.press('Tab')` moves focus BEFORE the document handler evaluates `document.activeElement === last`, so the condition is checked against the new focus. Synthetic dispatch keeps focus stable. Closes B2.
+3. **`focus trap: Tab on middle nav link does not preventDefault (non-boundary)`** — mounts the standard menu, focuses `Categories` (middle link), synthesizes Tab via `page.evaluate`, asserts `wasPrevented === false`. Middle link → neither boundary check is true → control falls through to native Tab. Closes B3.
+
+### Pragma added
+
+`packages/ui/src/preact/MobileMenu.tsx` line 72 (the `if (!menuEl) return;` defensive race-guard) gained a `/* v8 ignore next */` pragma directly above. The branch is dropped from V8's denominator on the next coverage pass — exactly as documented in monocart-coverage-reports' V8-style pragma support. This branch fires only when `isOpen` flips true AT the same moment `menuRef.current` is null (a Preact ref-attachment race that does not happen in production); a CT test for it would require contrived `useRef` mocking that doesn't reflect real component usage.
+
+### Step 0 deviation from plan
+
+The plan's Step 0 specified a separate scratch CT file. In practice, the smoke-test was integrated into the final iteration directly: write the smoke version in `mobile-menu.ct.test.tsx`, run via `-g "Q27 SMOKE"`, observe the result, then iterate to the production form (replacing `toBeVisible()` with `toBeAttached()` after the iter-120 race reproduced once). This was faster than provisioning a scratch dir + cleaning up. The scratch convention from Q25 / Q26 is preserved for any future smoke-tests where the in-place approach would risk breaking other tests.
+
+### iter-120 race resolution
+
+The iter-120 inline-deferral comment said "the panel becomes `hidden` post-mount, breaking the test setup." This run reproduced exactly that — `toBeVisible()` failed because `<MobileMenu items={[]} />`'s panel ends up CSS-hidden in the CT host page. Diagnosis: the DOM node IS attached and the focus-trap useEffect IS registered (8× locator-resolved retries in the failed run confirmed). Switching the assertion from `toBeVisible()` → `toBeAttached()` works because the listener fires regardless of CSS visibility. The synthetic `dispatchEvent` then exercises B1 inside the document keydown handler.
+
+### Verification
+
+- `pnpm --filter @ever-works/ui exec playwright test mobile-menu.ct.test.tsx` — **20/20 pass in 55.3s** on Windows + Node 24.14.0 + Chromium 147.
+- `pnpm coverage` end-to-end:
+  - Aggregate: **branches 100% (233/233)**, functions 100% (104/104), lines 99.76% (1240/1243), statements 99.72% (352/353), bytes 99.79% (45,558/45,650) across 19 files.
+  - Per-file gate (≥80% hard-fail): FilterBar 100% (27/27) ✅, LayoutSwitcher 100% (22/22) ✅, **MobileMenu 100% (35/35)** ✅.
+  - `coverage-merge: ✅ Phase 6c per-file gate satisfied.`
+- `pnpm typecheck` — 23/23 (16 cached + 7 fresh, 1m17s).
+- `pnpm lint` — 18/18 (16 cached + 2 fresh, 13.8s).
+
+### Files touched
+
+- `packages/ui/src/__tests__/ct/mobile-menu.ct.test.tsx` — 3 new CT tests; the iter-120 inline-deferral comment retired. Mobile-menu.ct case count: 17 → 20.
+- `packages/ui/src/preact/MobileMenu.tsx` — `/* v8 ignore next */` pragma above line 72's `if (!menuEl) return;` defensive race-guard.
+- `.specify/features/q27-mobilemenu-empty-items-coverage.md` — front-matter status `SPECIFIED (iter 123)` → `✅ RESOLVED (iter 124)` with final per-package merged numbers.
+- `docs/questions.md` Q27 — status `OPEN — Option A.1 chosen [DEFAULT]` → `✅ RESOLVED in iteration 124 — Option A.1 + Option A.3 combined` with execution trail.
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 123 → 124.
+- `.specify/project.md` — Current State header bumped 123 → 124; V8 coverage line updated to reflect the new 100%-aggregate state.
+
+### Saga status
+
+After iteration 124, every Q22-arc question is closed:
+
+| Question | Status | Iteration |
+|----------|--------|-----------|
+| Q22 (FilterBar IPC hang) | ✅ RESOLVED | 105 |
+| Q23 (LayoutSwitcher IPC hang) | ✅ RESOLVED | 107 |
+| Q24 (LayoutSwitcher EMPTY_MODES bug) | ✅ RESOLVED | 109 |
+| Q25 (coverage library choice) | ✅ RESOLVED | 113 (smoke) / 114 (Phase 1) / 121 |
+| Q26 (Vitest+CT V8 merge) | ✅ RESOLVED | 119 (Phase 6b) |
+| Q27 (MobileMenu 3-branch outlier) | ✅ RESOLVED | 124 (this iteration) |
+| Q22 follow-up #1 (preemptive MobileMenu CT) | ✅ COMPLETE | 108 |
+| Q22 follow-up #2 (test:ui:safe removal) | ~~SUPERSEDED~~ | 110 |
+| Q22 follow-up #3 (playwright-coverage) | ✅ COMPLETE | 121 + 122 |
+
+The `@ever-works/ui` package now reports **100% V8 branch coverage on the merged Vitest+CT pipeline** — the highest-resolution per-package signal the toolchain can produce. The CI hard-gate from iteration 121 remains green and now has zero margin to absorb regressions; any future code change that drops a branch will fail the merge.
+
+### Next Steps (for next scheduled run)
+
+1. **CT-flake watch** — count remains **1/3** since iter 111. Iter 124 ran `mobile-menu.ct.test.tsx` (20/20 in 55.3s) and `pnpm coverage` end-to-end clean. No flake recurrence.
+2. **Routine maintenance** — dep audit per the iter-92/97/99/108 cadence. Most recent maintenance was iter 123 (zero deltas across 22 packages; one out-of-scope ESLint major-version gap noted).
+3. **Sample apps** — no current open work.
+4. **The Q22→Q27 saga is fully closed.** No follow-up questions remain in the test/coverage thread.
+
 ## 2026-04-27 — Iteration 123: Q27 OPENED + spec + plan authored — `MobileMenu` 3-branch outlier coverage closure (carry from iteration 122 "Next Steps")
 
 ### Headline

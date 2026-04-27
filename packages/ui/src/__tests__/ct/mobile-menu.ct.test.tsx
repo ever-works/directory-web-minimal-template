@@ -251,15 +251,104 @@ test.describe('MobileMenu (Playwright CT)', () => {
         await expect(component.getByText('Tags')).toBeFocused();
     });
 
-    // NOTE: a third test for "Tab when panel has no focusable elements"
-    // (which would exercise `if (focusable.length === 0) return;` on line
-    // 79 of MobileMenu.tsx) is intentionally omitted. Mounting
-    // `<MobileMenu items={[]} />` and clicking the toggle reproduces a
-    // click-outside / focus-attribution edge case in the CT host page
-    // where the panel becomes `hidden` post-mount, breaking the test
-    // setup (verified iteration 120). The focus-trap forward/backward
-    // wrap tests above already exercise the main 12-branch shortfall;
-    // the early-return path is a 1-branch outlier deferred to a future
-    // iteration that adds an `aria-hidden` panel-visibility guard or
-    // dedicated empty-items rendering.
+    // ─── Q27 SMOKE: Step 0 of `docs/plans/q27-mobilemenu-empty-items-coverage.md`.
+    // Synthetic Tab dispatch via `page.evaluate` to bypass the iter-120
+    // CT-host-page focus-attribution race that blocked
+    // `page.keyboard.press('Tab')` against `<MobileMenu items={[]} />`.
+    // If this passes, Step 1 lands the real B1 test; the iteration-120
+    // inline-deferral comment retires.
+    // ─── Q27 (iteration 124 — closes the iteration-120 inline-deferral
+    // 3-branch outlier in the focus-trap useEffect on lines 69-95 of
+    // MobileMenu.tsx). All three tests below use `dispatchEvent(new
+    // KeyboardEvent('keydown', { key: 'Tab' }))` via `page.evaluate`
+    // instead of `page.keyboard.press('Tab')` because the natural keypress
+    // moves focus BEFORE the document handler runs, so the
+    // `document.activeElement === last` check never sees the original
+    // focus state. Synthetic dispatch keeps focus stable while still
+    // routing the keydown through the captured listener.
+
+    test('focus trap: empty panel - Tab does nothing (focusable.length === 0)', async ({
+        mount,
+        page,
+    }) => {
+        const component = await mount(<MobileMenu items={[]} />);
+        await component.getByLabel('Open menu').click();
+        // Note: with `items={[]}` the panel is CSS-hidden in the CT host
+        // page (iter-120 race), but the DOM node IS attached and the
+        // focus-trap useEffect IS registered — `toBeAttached()` is the
+        // correct assertion. Closes the line-79 `if (focusable.length === 0)
+        // return;` early-return branch (B1).
+        await expect(component.locator('[data-part="panel"]')).toBeAttached();
+        const wasPrevented = await page.evaluate(() => {
+            const event = new KeyboardEvent('keydown', {
+                key: 'Tab',
+                bubbles: true,
+                cancelable: true,
+            });
+            document.dispatchEvent(event);
+            return event.defaultPrevented;
+        });
+        // Empty panel → handleTab early-returns at `focusable.length === 0`
+        // → defaultPrevented stays false.
+        expect(wasPrevented).toBe(false);
+    });
+
+    test('focus trap: synthetic Tab on last nav link wraps focus to first', async ({
+        mount,
+        page,
+    }) => {
+        // Closes the entry side of `else if (!e.shiftKey &&
+        // document.activeElement === last)` on line 85 (B2) by
+        // synthetically dispatching the keydown while focus is held on
+        // the LAST link. The iteration-120 natural-keyboard variant
+        // covers behavior but not this V8 branch — `page.keyboard.press`
+        // moves focus before the document listener evaluates the
+        // condition.
+        const component = await mount(<MobileMenu items={items} />);
+        await component.getByLabel('Open menu').click();
+        await expect(component.locator('[data-part="panel"]')).toBeVisible();
+        const lastLink = component.getByText('Tags');
+        await lastLink.focus();
+        await expect(lastLink).toBeFocused();
+        const wasPrevented = await page.evaluate(() => {
+            const event = new KeyboardEvent('keydown', {
+                key: 'Tab',
+                bubbles: true,
+                cancelable: true,
+            });
+            document.dispatchEvent(event);
+            return event.defaultPrevented;
+        });
+        // Forward Tab from LAST link → handleTab calls preventDefault +
+        // first.focus().
+        expect(wasPrevented).toBe(true);
+    });
+
+    test('focus trap: Tab on middle nav link does not preventDefault (non-boundary)', async ({
+        mount,
+        page,
+    }) => {
+        // Closes the FALSE arm of both short-circuits (B3): focus on the
+        // MIDDLE link means `document.activeElement === first` is false
+        // AND `document.activeElement === last` is false, so neither
+        // wrap branch fires and control falls through to the browser's
+        // native Tab handling.
+        const component = await mount(<MobileMenu items={items} />);
+        await component.getByLabel('Open menu').click();
+        await expect(component.locator('[data-part="panel"]')).toBeVisible();
+        const middleLink = component.getByText('Categories');
+        await middleLink.focus();
+        await expect(middleLink).toBeFocused();
+        const wasPrevented = await page.evaluate(() => {
+            const event = new KeyboardEvent('keydown', {
+                key: 'Tab',
+                bubbles: true,
+                cancelable: true,
+            });
+            document.dispatchEvent(event);
+            return event.defaultPrevented;
+        });
+        // Middle link → neither boundary check is true → no preventDefault.
+        expect(wasPrevented).toBe(false);
+    });
 });

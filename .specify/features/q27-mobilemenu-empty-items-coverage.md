@@ -1,9 +1,16 @@
 # Feature: Q27 — `MobileMenu` 3-branch outlier coverage closure
 
-> **Status: SPECIFIED (iteration 123, 2026-04-27).** Last open coverage
-> follow-up after Q22 / Q23 / Q24 / Q25 / Q26 all closed and Q22
-> follow-up #3 fully resolved at iteration 121. Pending implementation
-> in a future iteration; spec/plan-only this iteration.
+> **Status: ✅ RESOLVED (iteration 124, 2026-04-27).** Three CT tests
+> + one v8-ignore pragma closed the entire 3-branch outlier plus the
+> defensive race-guard. Final per-file MobileMenu: **100% branches
+> (35/35)**. Final per-package aggregate: **100% branches (233/233)**,
+> functions 100%, lines 99.76%, statements 99.72% across 19 files.
+> Default Option A.1 (synthetic Tab dispatch via `page.evaluate`)
+> worked for B1 / B2 / B3; Option A.3 (`/* v8 ignore next */` pragma)
+> closed an additional defensive race-guard branch that was not in
+> the original 3-branch list but surfaced during execution. See the
+> Q27 entry in `docs/questions.md` for the full execution trail and
+> `docs/log.md` iteration 124 for verification numbers.
 
 ## Description
 

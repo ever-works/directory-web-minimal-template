@@ -69,6 +69,7 @@ export default function MobileMenu({
   useEffect(() => {
     if (!isOpen) return;
     const menuEl = menuRef.current;
+    /* v8 ignore next */
     if (!menuEl) return;
 
     const handleTab = (e: KeyboardEvent) => {

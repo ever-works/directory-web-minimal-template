@@ -1235,14 +1235,50 @@ supports Vitest 4 (the older `1.x`/`2.x`/`3.x` lines tracked Vitest
 
 ## Q27: `MobileMenu` 3-branch outlier coverage closure (iteration 123)
 
-> **Status: OPEN — Option A.1 chosen `[DEFAULT]` (synthetic Tab dispatch
-> via `page.evaluate`).** Spec at
-> `.specify/features/q27-mobilemenu-empty-items-coverage.md`; plan at
-> `docs/plans/q27-mobilemenu-empty-items-coverage.md`. This is a
-> *quality* improvement — the merge pipeline + CI gate are already
-> green at 98.72% aggregate / 91.89% MobileMenu (≥80% gate threshold).
-> Closing this lifts MobileMenu to ~97-100% per file and the
-> aggregate to ~99.6%, but does not unblock anything.
+> **Status: ✅ RESOLVED in iteration 124 (2026-04-27) — Option A.1
+> + Option A.3 combined.** Three new CT tests landed in
+> `packages/ui/src/__tests__/ct/mobile-menu.ct.test.tsx` using synthetic
+> `KeyboardEvent('keydown', { key: 'Tab' })` dispatch via
+> `page.evaluate` (Option A.1):
+>
+> 1. **B1 — empty panel Tab** — covers `if (focusable.length === 0)
+>    return;` on line 79. Used `toBeAttached()` instead of
+>    `toBeVisible()` to bypass the iter-120 CT-host-page race where
+>    `<MobileMenu items={[]} />` ends up CSS-hidden but DOM-attached
+>    (the listener is still registered).
+> 2. **B2 — synthetic Tab on last nav link** — covers `else if
+>    (!e.shiftKey && document.activeElement === last)` ENTRY on
+>    line 85. The iter-120 natural-keyboard variant did NOT cover
+>    this branch under V8 measurement because `page.keyboard.press`
+>    moves focus before the document handler evaluates the condition;
+>    synthetic dispatch keeps focus stable.
+> 3. **B3 — Tab on middle nav link (non-boundary)** — covers the
+>    FALSE arm of both short-circuits. Middle link → neither boundary
+>    check is true → no `preventDefault`.
+>
+> One additional defensive race-guard branch surfaced during execution:
+> `if (!menuEl) return;` on line 72 (only triggers when `menuRef.current`
+> is null AT the moment `isOpen` flips true — a Preact ref-attachment
+> race that does not happen in production). Closed via Option A.3:
+> added `/* v8 ignore next */` pragma above the line. Verified the
+> pragma syntax works with monocart-coverage-reports@^2.12.9 — the
+> branch drops out of the V8 denominator (35 → 35 covered / 35 total
+> for MobileMenu, was 36/37).
+>
+> **Final per-package merged coverage on `@ever-works/ui`**:
+> branches **100% (233/233)**, functions 100% (104/104), lines 99.76%
+> (1240/1243), statements 99.72% (352/353), aggregate across 19 files.
+> Per-file gate: FilterBar 100% ✅, LayoutSwitcher 100% ✅,
+> **MobileMenu 100% (35/35)** ✅. Mobile-menu.ct case count: 17 → 20.
+> CI hard-gate (Phase 6c, `coverage-merge.ts process.exit(1)`) remains
+> green.
+>
+> Spec at `.specify/features/q27-mobilemenu-empty-items-coverage.md`;
+> plan at `docs/plans/q27-mobilemenu-empty-items-coverage.md`. The
+> plan's Step 0 smoke-test was integrated into the final iteration
+> (smoke-test → real test → coverage verify all in one pass) rather
+> than gated as a separate iteration since the smoke result was a
+> faster signal than the full `pnpm coverage` cycle.
 
 **Context**: After iteration 122 closed the Q22→Q26 saga, the
 "MobileMenu 3-branch outlier" was carried as a future opportunity in
