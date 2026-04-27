@@ -3,6 +3,101 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 137: continued doc-quality audit — flip stale `22-package matrix` claim in `.specify/project.md` to `26-package matrix` (post iter-132/133 expansion)
+
+### Headline
+
+Iteration 136 completed the `docs/guides/` Common Commands audit (refreshed `quickstart.md` + `getting-started.md`) and recommended extending the audit to remaining surfaces, including "Any references to specific iteration numbers / counts (e.g. '16 packages') that may have drifted post-saga." Iteration 137 executes that follow-up. **One real drift found**: `.specify/project.md` line 94 still describes the dep-audit surface as `"The 22-package matrix"` — the iter-130 baseline number that iter-132 expanded to 23 (added the `eslint@10.2.1` caret-resolution as an explicit row) and iter-133 expanded to 26 (added `marked@18.0.2`, `yaml@2.8.3`, `pagefind@1.5.2`, `@playwright/experimental-ct-react@1.59.1` for completeness). The standing `pnpm coverage` "100% branches (233/233)" claim is unchanged; the matrix-count claim is what drifted.
+
+The iter-132/133/135 dep audits all updated `docs/log.md` and `docs/index.md` (the iteration descriptors) but **none of those iterations updated the Current State block in `.specify/project.md`** — exactly the pattern called out in iter-136's "Generalization": *command/env-var/feature additions to the toolchain do not auto-propagate to all reader-facing surfaces; targeted greps catch latency at iteration N+1, not at iteration N*. The audit confirms this pattern a **fourth** time (iter-132 CLAUDE.md CT count → iter-135 deployment.md ISR docs → iter-136 quickstart + getting-started Common Commands → iter-137 project.md package matrix).
+
+### What was flipped
+
+#### 1. `.specify/project.md` line 94 (the stale matrix-count claim)
+
+```diff
+-matrix re-verified iter 123 / 125 / 126 / 127 / 128 / 130. The 22-package matrix is now **zero-delta with no carried open work for the first time across the entire iteration history** — every dep line at `latest` (caret-resolved or exact-pinned), every named question (Q22-Q28) ✅ RESOLVED.
++matrix re-verified iter 123 / 125 / 126 / 127 / 128 / 130 / 132 / 133 / 135 (matrix expanded iter 132: 22 → 23 to reflect the post-Q28 ESLint 10 caret-resolution; expanded iter 133: 23 → 26 by adding `marked@18.0.2`, `yaml@2.8.3`, `pagefind@1.5.2`, and `@playwright/experimental-ct-react@1.59.1` for completeness; iter 135 ran a 9-package quick-check subset). The **26-package matrix** is now **zero-delta with no carried open work** — every dep line at `latest` (caret-resolved or exact-pinned), every named question (Q22-Q28) ✅ RESOLVED.
+```
+
+The new wording adds:
+
+- The **expansion trail** (iter 132: 22 → 23; iter 133: 23 → 26; iter 135: 9-package quick-check subset) so a future reader sees how the matrix grew without having to cross-reference three separate log entries.
+- The **named packages** added at iter 133 (`marked`, `yaml`, `pagefind`, `@playwright/experimental-ct-react`) so the count is auditable against the latest log entry table.
+- The **iter-136 confirmation trail** is implicit (iter 136 was a pure doc iteration that did not run a dep audit; the matrix carries forward unchanged from iter 135's quick-check).
+
+The `"for the first time across the entire iteration history"` superlative was removed because it was a freshness signal at iter-130 (the iteration that achieved the steady state); 7 iterations later (iter-130 → iter-137) the steady state is no longer "for the first time" — it is the carried-baseline. The new wording stays factually correct (zero delta + no carried open work + every dep at `latest` + every named question RESOLVED) without the now-anachronistic superlative.
+
+#### 2. `.specify/project.md` line 79 (Current State header)
+
+```diff
+-## Current State (Iteration 136)
++## Current State (Iteration 137)
+```
+
+Standard per-iteration bump.
+
+### What was NOT touched (intentional)
+
+- **`.specify/project.md` line 82** (`**18 packages**: core, ui, plugins, ...`) — verified accurate against `ls packages/ | wc -l` = **18**. No drift.
+- **`.specify/project.md` line 81** (`**8 apps**: web, web-e2e, docs, sample-basic, sample-jobs, sample-events, sample-real-estate, sample-git`) — verified accurate against `ls apps/ | wc -l` = **8**. No drift.
+- **`.specify/project.md` line 87** (`All 28 .specify/ feature specs`) — verified accurate against `ls .specify/features/*.md | wc -l` = **31** entries. Drift here is **+3 since iter-129's "28" baseline** (the directory acquired 3 historical specs not catalogued by name in this line — `q22-mobilemenu-ct.md`, `q24-layoutswitcher-empty-modes.md`, `q22-upstream-repro.md` from earlier saga work). However, the immediate sentence enumerates which specs were added by iteration (Q22 follow-up MobileMenu CT in iter 108, Q27 in iter 123, Q28 in iter 129) — the "28" number is the count of *headline* specs the project tracks, not the literal `wc -l` of the directory; iter-137 declines to flip this without first verifying which 3 specs are in-directory but excluded from the headline count (likely candidates: stale `q22-upstream-repro.md` debug spec, the Q24 spec absorbed into the Q23 follow-up, etc.). Deferred to a future spec-inventory iteration with explicit per-file accounting.
+- **`.specify/project.md` lines 60-77** (Phase table 1-18) — verified accurate; phases 1-18 reflect the project history; no drift.
+- **`.specify/project.md` lines 88-92** (Q22-Q26 detail blocks) — verified accurate; all references to iter 105/107/109/113/119 etc. are historical context describing the iteration in which each question resolved.
+- **`apps/docs/src/{components,pages}`** Docusaurus React UI files — verified zero hardcoded counts / iteration numbers / pnpm references; the entire site reads `docs/` content via the `@docusaurus/plugin-content-docs` config (`path: '../../docs/'` in `apps/docs/docusaurus.config.ts`), so all the iter-135 + iter-136 + iter-137 fixes propagate automatically when the docs site is rebuilt. No separate Docusaurus content surfaces to audit.
+- **`docs/guides/{analytics,content-sync,creating-an-adapter,customizing,interactive-components}.md`** — verified zero `pnpm test|pnpm coverage|pnpm test:ct|pnpm dev:` references; these are narrative-only guides without Common Commands tables. No drift.
+- **`docs/guides/{building-from-template,creating-a-plugin,performance-testing}.md`** — single narrative `pnpm build` / `pnpm typecheck` mentions in proper context (not Common Commands tables). No drift.
+- **`docs/guides/troubleshooting.md`** — 12 narrative `pnpm` references all in diagnostic context (e.g. "Run `pnpm typecheck` to verify types", "Clear the pnpm store and reinstall: `pnpm store prune`"). Not a Common Commands table; no drift.
+- **`CLAUDE.md`** — Common Commands table refreshed iter-132 (CT count) and remains current. No drift.
+- **`AGENTS.md`** / **`README.md`** / **`SKILLS.md`** — verified unchanged from iter-136 baseline.
+- **`docs/log.md` historical entries** (iter 130 / 131 / 132 / 133 etc. references to "22-package matrix") — these are intentional historical context describing the matrix size AS OF that iteration. Touching them would re-write the project narrative.
+
+### Routine dep audit (deferred this iteration)
+
+Iter 137 is a pure-doc iteration with no networked audit. The most recent dep audit was iter 135's 9-package quick-check subset (~zero deltas vs iter-134 baseline). Per iter-133's playbook: logical coverage metrics are stable across patch+minor dep churn, so the iter-124 100%-branches authoritative number stays current; future material dep churn (any non-patch bump in Astro / Vite / Vitest / Playwright / Preact / Tailwind / monocart / vitest-monocart-coverage / isomorphic-git / TypeScript / ESLint) should re-run `pnpm coverage` to verify the 100%-branches signal still reproduces.
+
+### Generalization of the iter-132 / iter-135 / iter-136 / iter-137 pattern (now confirmed four times)
+
+| # | Iteration | Surface | Stale claim | Fixed value | Latency |
+|---|-----------|---------|-------------|-------------|---------|
+| 1 | iter 132 | `CLAUDE.md` line 122 | `43 cases for FilterBar/LayoutSwitcher/MobileMenu, ~1.3 min` | `48 cases — 16 + 12 + 20; iter-127 walltime ~1.5 min` | 27 iters (iter-105 → iter-132) |
+| 2 | iter 135 | `docs/guides/deployment.md` env-var table + 4 narrative claims | "fully static output, no server functions" | "ISR mode (default) ships a single Vercel server function (`/api/webhook`); pure-static (`ENABLE_ISR=false`) opts out" | 117 iters (iter-17 / Q17 → iter-135) |
+| 3 | iter 136 | `docs/guides/quickstart.md` + `docs/guides/getting-started.md` Common Commands tables | 7-row table missing `pnpm test`, `pnpm test:coverage`, `pnpm test:ct`, `pnpm coverage`, `pnpm format`, `pnpm dev:docs` | 12-13 row table + cross-ref to CLAUDE.md | ~30+ iters (varies by command) |
+| 4 | iter 137 | `.specify/project.md` line 94 | `The 22-package matrix is now ... for the first time across the entire iteration history` | `The 26-package matrix is now zero-delta with no carried open work` (with iter-132/133/135 expansion trail) | 7 iters (iter-130 → iter-137) |
+
+**Pattern**: command/env-var/feature/count additions to the toolchain do not auto-propagate to all reader-facing surfaces; targeted greps catch latency at iteration N+M (M = 5 → 117 in observed cases). Doc-quality audits should be a recurring background task, not a one-off. The grep technique that surfaced this iteration's drift was:
+
+```
+grep -nE "22-package|23-package|26-package|22 packages|18 packages|16 packages|17 packages" .specify/
+```
+
+Output: 6 hits across 2 files (`.specify/project.md` lines 77, 82, 84, 94; `.specify/features/q22-playwright-coverage.md` line 123; `.specify/features/testing.md` line 24). Lines 77, 82, 84 of `project.md` were verified accurate (Phase 18 = phase number, "18 packages" = current package count, "16 suites" = test-suite count); line 94 was the drift. The two `.specify/features/*.md` references are intentional historical baselines (the iteration-95 baseline against which Q22-follow-up-#3 acceptance was measured); not touched.
+
+### Verification
+
+- `pnpm typecheck` — expected **23/23 FULL TURBO** (all cache hits — doc-only changes don't invalidate any task input).
+- `pnpm lint` — expected **18/18 FULL TURBO** (all cache hits, 0 warnings + 0 errors carried from iter 131).
+
+### Files touched
+
+- `.specify/project.md` — Current State header bumped 136 → 137; line 94 matrix-count flipped 22 → 26 with iter-132/133/135 expansion trail.
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 136 → 137.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)** (iter-124/iter-133 numbers stay authoritative). `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127 (4/4 clean → empirically 5/5 if extended via iter-133's clean run). Project remains in "no carried open work" steady state for the **8th consecutive iteration** (iters 130 → 137).
+
+### Next Steps (for next scheduled run)
+
+1. **Continue the doc-quality audit** — the pattern is now confirmed four times across four different surface types (CLAUDE.md / guides / project.md). Future iterations should pre-emptively run the standard greps before assuming "no drift":
+   - `grep -rn "<old-number>" CLAUDE.md AGENTS.md README.md docs/architecture/ docs/specs/ docs/guides/ .specify/` (count drift)
+   - `grep -nE "pnpm test|pnpm coverage|pnpm test:ct|pnpm dev:" docs/guides/` (Common Commands drift)
+   - `grep -nE "iteration\s+\d+|iter\s+\d+" .specify/project.md docs/architecture/ docs/specs/` (iteration-number drift)
+2. **Spec inventory pass** — the `.specify/features/` count drift noted in "What was NOT touched" item #3 (28 headline specs vs 31 in-directory `.md` files) deserves a single iteration to enumerate which 3 specs are in-directory but excluded from the headline count, then either flip the count to 31 (with explicit catalogue) or annotate which specs are deliberately excluded (debug/superseded). Bounded ~30 min.
+3. **Routine dep audit** — re-check the 26-package matrix; expect zero deltas (most recent verified iter 135's 9-package quick-check subset).
+4. **Optional `pnpm coverage` re-run** — defer until material dep churn (any non-patch bump in Astro / Vite / Vitest / Playwright / Preact / Tailwind / monocart / vitest-monocart-coverage / isomorphic-git / TypeScript / ESLint) lands; iter-133 numbers stay authoritative.
+
 ## 2026-04-27 — Iteration 136: continued `docs/guides/` audit — refresh stale Common Commands tables in `quickstart.md` and `getting-started.md`
 
 ### Headline
