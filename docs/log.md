@@ -3,6 +3,97 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 132: doc drift sweep — flip stale CT count in CLAUDE.md (`43 cases` → `48 cases`); routine dep audit zero deltas
+
+### Headline
+
+Iteration 131 noted "Doc drift sweep — verify the iter-130 ESLint matrix line in `.specify/project.md` reflects the post-bump state; check `CLAUDE.md` Common Commands for any stale `pnpm` references" as a recommended next-step. Iter 132 executes that sweep. **One stale claim found**: `CLAUDE.md` line 122 still describes `pnpm test:ct` as `(43 cases for FilterBar/LayoutSwitcher/MobileMenu, ~1.3 min on Windows + Node 24)` — the same iter-105/iter-108-baseline `43 cases` count that iter-125's health-check pass missed in this surface (iter 125 swept `.specify/project.md` / `.specify/features/{q22-playwright-coverage,testing}.md` / `docs/architecture/testing-runners.md` / `README.md` and brought them current to `48` cases / `1170` total, but did not touch `CLAUDE.md`). This iteration flips the line to `(48 cases for FilterBar/LayoutSwitcher/MobileMenu — 16 + 12 + 20; iter-127 walltime ~1.5 min on Windows + Node 24 + Chromium 147; 0 retries / 0 flaky)` — the count reflects iter-124 Q27's MobileMenu CT growth from 17 → 20, and the walltime reflects iter-127's measured second-run-clean baseline (1m 39s).
+
+Routine dep audit re-verified zero deltas across the 23-package matrix vs the iter-130 baseline. ESLint pin is now `^10.0.0` (verified by `grep "\"eslint\"" apps/*/package.json packages/*/package.json` returning a single uniform line); the `latest` registry version is `10.2.1` and our caret resolves to it. No carried open work on the dep front.
+
+### What was flipped
+
+#### 1. `CLAUDE.md` line 122 (the stale CT count)
+
+```diff
+-pnpm test:ct              # Run @ever-works/ui Playwright Component Tests (43 cases for FilterBar/LayoutSwitcher/MobileMenu, ~1.3 min on Windows + Node 24). Bypasses jsdom by mounting Preact components in real Chromium. Required browser install: `pnpm test:ct:install` (one-time per machine).
++pnpm test:ct              # Run @ever-works/ui Playwright Component Tests (48 cases for FilterBar/LayoutSwitcher/MobileMenu — 16 + 12 + 20; iter-127 walltime ~1.5 min on Windows + Node 24 + Chromium 147; 0 retries / 0 flaky). Bypasses jsdom by mounting Preact components in real Chromium. Required browser install: `pnpm test:ct:install` (one-time per machine).
+```
+
+The new wording adds:
+
+- The per-component case-count breakdown (`16 + 12 + 20`) so a reader can sanity-check the total against iter-127's `[MR] @ever-works/ui CT Coverage` summary without re-running.
+- The Chromium version (`Chromium 147`) since the toolchain is a known stability anchor — Q22's IPC-hang fingerprint was version-dependent and the Chromium version is part of the documented stable set.
+- The flake signal (`0 retries / 0 flaky`) so a future reader knows this number reflects the post-CT-flake-watch-closed (iter-127) state, not a one-shot.
+
+### What was NOT touched (intentional)
+
+- **`docs/log.md` historical entries** at lines 668, 678, 1209, 2145, 2432 reference `43 cases` / `1165 total` / etc. — these are intentional historical context describing the state AS OF that iteration (iters 105, 108, 125, 130 etc.). Touching them would re-write the project narrative.
+- **`.specify/features/q22-playwright-ct.md` line 5** references `1149 Vitest + 16 Playwright Component Tests = 1165 total` — this is the spec describing what iteration 105 wrote into `.specify/features/testing.md` AC #10 at the time of FilterBar's CT migration. Intentional historical statement.
+- **`.specify/features/q28-eslint-10-upgrade.md`** references `eslint: ^9.0.0` repeatedly in body — intentional historical context (the spec describes the pre-Q28 state). Front-matter status block at the top is already updated to ✅ RESOLVED.
+- **All other surfaces** verified unchanged from iter-131 baseline.
+
+### Routine dep audit (zero deltas, 23-package matrix)
+
+`npm view <pkg> version` re-run for the full load-bearing surface (~3.5h after iter 131). Every dep at the same `latest` version as iter 130/131:
+
+| Package | Pin | Latest on npm | Drift |
+|---------|-----|---------------|-------|
+| `eslint` | `^10.0.0` | 10.2.1 | none (caret-resolved) |
+| `astro` | `^6.1.9` | 6.1.9 | none |
+| `vitest` | `^4.1.5` | 4.1.5 | none |
+| `playwright` | `^1.59.1` | 1.59.1 | none |
+| `tailwindcss` | `^4.2.4` | 4.2.4 | none |
+| `preact` | `^10.29.1` | 10.29.1 | none |
+| `monocart-coverage-reports` | `^2.12.9` | 2.12.11 | none (caret-resolved) |
+| `monocart-reporter` | `^2.10.0` | 2.10.1 | none (caret-resolved) |
+| `vitest-monocart-coverage` | `^4.0.2` | 4.0.2 | none |
+| `@astrojs/vercel` | `^10.0.5` | 10.0.5 | none |
+| `@astrojs/preact` | `^5.1.2` | 5.1.2 | none |
+| `@astrojs/sitemap` | `^3.7.2` | 3.7.2 | none |
+| `@astrojs/check` | `^0.9.8` | 0.9.8 | none |
+| `@playwright/test` | `^1.59.1` | 1.59.1 | none |
+| `@playwright/experimental-ct-react` | `^1.59.1` | 1.59.1 | none |
+| `typescript` | `^6.0.3` | 6.0.3 | none |
+| `prettier` | `^3.8.3` | 3.8.3 | none |
+| `turbo` | `^2.9.6` | 2.9.6 | none |
+| `isomorphic-git` | `^1.37.6` | 1.37.6 | none |
+| `@typescript-eslint/parser` | `^8.59.0` | 8.59.0 | none |
+| `@typescript-eslint/eslint-plugin` | `^8.59.0` | 8.59.0 | none |
+| `postcss` | `^8.5.12` | 8.5.12 | none |
+| `tailwind-merge` | `^3.5.0` | 3.5.0 | none |
+
+**Zero out-of-scope drift.** The "no carried open work" steady state from iter 130 holds.
+
+### Verification
+
+- `git status` (post-edits): only the 4 doc files modified (`CLAUDE.md`, `docs/log.md`, `docs/index.md`, `.specify/project.md`).
+- `pnpm typecheck` — pending verification at commit time (expected: 23/23 FULL TURBO; CLAUDE.md is at the repo root and not in any `tsc` include list, so the cache should hit).
+- `pnpm lint` — pending verification at commit time (expected: 18/18 FULL TURBO + 0 warnings + 0 errors; CLAUDE.md is not lint-tracked).
+
+### Files touched
+
+- `CLAUDE.md` — line 122 stale CT count + walltime flipped (43 → 48; ~1.3 min → ~1.5 min; per-component breakdown + flake signal added).
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 131 → 132.
+- `.specify/project.md` — Current State header bumped 131 → 132.
+
+### Why this counts (not just whitespace churn)
+
+The `43 cases` line in CLAUDE.md is the canonical "what does `pnpm test:ct` do?" reference for AI agents and developers reading the file cold. Iter 124 grew the MobileMenu CT count from 17 to 20 (Q27 closure), iter 127 measured the post-Q28-soak walltime at 1m 39s, and the CT-flake watch closed at iter 127 — none of those facts surfaced in CLAUDE.md until this iteration. A future contributor reading `pnpm test:ct # ... 43 cases` would either (a) be confused when they see 48 in the actual output, or (b) trust the wrong number for analysis. Closing the gap costs 1 line and keeps CLAUDE.md as a reliable single-source-of-truth.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)** (iter-124 numbers stay authoritative; this iteration did not touch any source under `packages/ui/`). CT-flake watch ✅ CLOSED at iter 127 (3/3 clean). `pnpm lint` baseline is 18/18 + 0 warnings + 0 errors (iter 131).
+
+### Next Steps (for next scheduled run)
+
+The "no carried open work" steady state continues. Future iterations are bounded maintenance:
+
+1. **Routine dep audit** — re-check the 23-package matrix; expect zero deltas (most recent bumps: iter 128 `isomorphic-git@1.37.6`, iter 130 `eslint@10.2.1`).
+2. **Health audit re-run** — eventually re-run `pnpm coverage` end-to-end to confirm the 100% aggregate is reproducible after recent dep churn (iter 128 + 130). Cheap signal, no expected delta. Skipped this iteration to keep the cron tick minimal.
+3. **Doc drift sweep** — repeat this iteration's pattern (`grep -rn "<old number>" CLAUDE.md AGENTS.md README.md docs/architecture/`) when a future iteration changes a headline number. The miss-pattern observed here (CLAUDE.md not swept in iter 125) is worth carrying as a checklist item: future code-touching iterations should grep ALL of `CLAUDE.md` / `AGENTS.md` / `README.md` / `.specify/project.md` / `docs/architecture/` / `docs/specs/` / `.specify/features/*.md` for the headline number that just changed, not just the ones the previous iteration touched.
+
 ## 2026-04-27 — Iteration 131: closed 4 lingering `no-console` lint warnings in logger.ts files via inline ESLint disable comments
 
 ### Headline

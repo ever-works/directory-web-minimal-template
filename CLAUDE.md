@@ -119,7 +119,7 @@ pnpm typecheck            # Type-check all packages
 pnpm test                 # Run all unit tests (Vitest)
 pnpm test:coverage        # Run unit tests with V8 coverage reports
 pnpm test:ui:safe         # DEFENSIVE FALLBACK — runs @ever-works/ui Vitest tests one file at a time. As of iteration 110 plain `pnpm test` runs all 11 UI test files in ~98s; this script is kept as an escape hatch if a future Vitest/jsdom/Node bump re-introduces the Q22 IPC hang.
-pnpm test:ct              # Run @ever-works/ui Playwright Component Tests (43 cases for FilterBar/LayoutSwitcher/MobileMenu, ~1.3 min on Windows + Node 24). Bypasses jsdom by mounting Preact components in real Chromium. Required browser install: `pnpm test:ct:install` (one-time per machine).
+pnpm test:ct              # Run @ever-works/ui Playwright Component Tests (48 cases for FilterBar/LayoutSwitcher/MobileMenu — 16 + 12 + 20; iter-127 walltime ~1.5 min on Windows + Node 24 + Chromium 147; 0 retries / 0 flaky). Bypasses jsdom by mounting Preact components in real Chromium. Required browser install: `pnpm test:ct:install` (one-time per machine).
 pnpm test:ct:install      # Install Chromium for Playwright CT (one-time per machine; safe to re-run).
 pnpm coverage             # Q22 follow-up #3 Phase 3: run Vitest coverage + CT coverage, then merge both via `packages/ui/scripts/coverage-merge.ts` into `packages/ui/coverage/merged/`. Per-runner outputs (`coverage/`, `coverage/ct/`) are preserved so CI can upload them as separate signals. Walltime ~3m on Windows + Node 24.
 pnpm test:e2e             # Run E2E tests (Playwright)
