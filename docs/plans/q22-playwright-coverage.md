@@ -202,6 +202,33 @@ of `FilterBar.tsx`, `LayoutSwitcher.tsx`, and `MobileMenu.tsx`.
 merge, removing the exclusions hurts the report. This is the
 intended pre-merge state.
 
+### Outcome (iteration 115, 2026-04-27)
+
+✅ **DONE.** Exit criterion satisfied.
+
+**Before/after comparison** (Vitest-only, `pnpm --filter @ever-works/ui test:coverage`, ~100s walltime, 11/11 files / 174/174 tests passing on both runs):
+
+| Metric      | With exclusions (baseline) | Without exclusions (Phase 2) | Delta              |
+|-------------|----------------------------|------------------------------|--------------------|
+| Statements  | 99.45% (184/185)           | 68.81% (203/295)             | -30.64 pp; +110 stmts in include set |
+| **Branches**| **100% (145/145)**         | **70.53% (158/224)**         | **-29.47 pp**; +79 branches in include set |
+| Functions   | 100% (69/69)               | 72.11% (75/104)              | -27.89 pp; +35 fns in include set |
+| Lines       | 99.41% (170/171)           | 68.97% (189/274)             | -30.44 pp; +103 lines in include set |
+
+The drop is exactly within the plan's predicted "roughly 70-72%" branch envelope. Per-file detail confirms the cause: `FilterBar.tsx` and `MobileMenu.tsx` now report **0% / 0% / 0% / 0%** (Vitest never executes them — only CT does, and the CT V8 stream is not yet merged into the Vitest report); `LayoutSwitcher.tsx` reports **100% / 86.66% / 100% / 100%** (apparently a render-import side path runs under Vitest, but full coverage requires CT mounts); other files unchanged.
+
+This is the intended pre-merge state. Phase 3 (the merge command) restores the per-package number to ≥ baseline by combining the Vitest run's `coverage-final.json` with the CT run's `raw-v8.json` from iteration 114.
+
+**No regressions outside coverage:**
+- `pnpm typecheck` — 23/23 successful (16 cached + 7 fresh, 1m17s).
+- `pnpm lint` — 18/18 successful (16 cached + 2 fresh, 14.2s).
+- `pnpm --filter @ever-works/ui test:coverage` — 11/11 files / 174/174 tests still passing.
+- `packages/ui/coverage/coverage-summary.json` regenerated with the new lower numbers — present on disk under `packages/ui/coverage/`.
+
+**AC #5 (Vitest exclusions drop) is now satisfied at the source-file level.** AC #5 verification of "≥80% branch coverage for each of those three files" requires Phase 3's merge — that's the natural place for the per-file ≥80% gate.
+
+**Phase 3 unblocked.**
+
 ---
 
 ## Phase 3 — Merge command

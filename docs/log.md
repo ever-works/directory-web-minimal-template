@@ -3,6 +3,59 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 115: Q22 follow-up #3 Phase 2 ✅ DONE — Vitest exclusions for `FilterBar`/`LayoutSwitcher`/`MobileMenu` dropped (intended pre-merge state captured)
+
+### Headline
+
+Phase 2 of the `playwright-coverage` integration plan executed end-to-end. The three explicit `coverage.exclude` lines for `FilterBar.tsx`, `LayoutSwitcher.tsx`, and `MobileMenu.tsx` have been removed from `packages/ui/vitest.config.ts` and replaced with a comment block pointing at this iteration's plan/spec. Vitest now treats those files as part of the include set; because Vitest never executes them (the original `*.test.tsx` files were deleted in iterations 105/107/108), they appear in the report as 0% coverage — exactly the intended pre-merge state described in the plan's exit criterion.
+
+**Branch number drop:** **100% → 70.53%** (was 145/145 covered; now 158/224 covered, +79 branches in include set, -29.47pp). Per-file: `FilterBar.tsx` 0/0/0/0%, `MobileMenu.tsx` 0/0/0/0%, `LayoutSwitcher.tsx` 100/86.66/100/100% (one render-import side path runs under Vitest, but full coverage requires CT mounts).
+
+This is the AC #5 satisfied at the source-file level; AC #5's "≥80% per-file branch coverage" verification requires Phase 3's merge command (which combines the Vitest run's `coverage-final.json` with the CT run's `raw-v8.json` from iteration 114) — that's the natural place for the per-file ≥80% gate.
+
+### What was done
+
+1. **`packages/ui/vitest.config.ts`** — removed three exclusion lines (`'src/preact/FilterBar.tsx'`, `'src/preact/LayoutSwitcher.tsx'`, `'src/preact/MobileMenu.tsx'`); kept `'src/**/__tests__/**'` and `'src/**/*.test.{ts,tsx}'`. Replaced the iteration-105/107/108 comment block with a longer iteration-115 block that explains the new pre-merge state and points at the plan + spec for the Phase 3 merge story. The comment also explicitly names the expected number drop (70-72% per the plan, 70.53% measured) so future readers can spot regressions or unexpected drift.
+2. **`docs/plans/q22-playwright-coverage.md`** — Phase 2 marked ✅ DONE with a full before/after comparison table (statements / branches / functions / lines, plus per-file detail) and the two-line note "Phase 3 unblocked".
+
+### Verification
+
+- **Baseline (with exclusions, captured before edit)**: Statements 99.45% (184/185), Branches **100% (145/145)**, Functions 100% (69/69), Lines 99.41% (170/171). 11/11 files / 174/174 tests passing in 100.7s.
+- **Post-Phase-2 (without exclusions)**: Statements 68.81% (203/295), Branches **70.53% (158/224)**, Functions 72.11% (75/104), Lines 68.97% (189/274). 11/11 files / 174/174 tests passing in 101.0s.
+- **Per-file (post-Phase-2)**: `FilterBar.tsx` 0/0/0/0%, `MobileMenu.tsx` 0/0/0/0%, `LayoutSwitcher.tsx` 100/86.66/100/100%, `ThemeToggle.tsx` 96.96/100/100/96.87%, all other files unchanged.
+- `pnpm typecheck` — 23/23 successful (16 cached + 7 fresh, 1m17s), 0 errors.
+- `pnpm lint` — 18/18 successful (16 cached + 2 fresh, 14.2s), 0 warnings.
+- **No CT regression check this iteration** — Phase 2 only changes the Vitest config's coverage exclusions, which has no runtime effect on the CT runner. The CT V8 emission from Phase 1 (iteration 114, `packages/ui/coverage/ct/raw-v8.json` with 9 entries) is unaffected.
+
+### Files touched
+
+- `packages/ui/vitest.config.ts` — removed 3 exclusion lines, expanded comment block.
+- `docs/plans/q22-playwright-coverage.md` — Phase 2 outcome block.
+- `docs/log.md` — this entry.
+- `docs/index.md` — iteration descriptor bumped 114 → 115.
+- `.specify/project.md` — Current State header bumped 114 → 115.
+
+### Next Steps (for next scheduled run)
+
+Execute **Phase 3** of the plan:
+
+1. Create `packages/ui/scripts/coverage-merge.ts` that:
+   - Imports MCR.
+   - Reads `./coverage/ct/raw-v8.json` (CT pass) and `./coverage/coverage-final.json` (Vitest pass).
+   - Calls `mcr.add(...).generate()` with `outputDir: './coverage'` and `reports: ['v8', 'lcov', 'codecov']`.
+2. Add `packages/ui/package.json` script `"coverage": "pnpm test:coverage && pnpm test:ct && tsx scripts/coverage-merge.ts"`.
+3. Add root `package.json` script `"coverage": "pnpm --filter @ever-works/ui coverage"`.
+4. Add `pnpm coverage` to CLAUDE.md "Common Commands" and "Safe Operations" lists.
+5. Run `pnpm coverage` once locally; confirm the merged `coverage-summary.json` shows ≥ baseline branch number (target: ≥99% from iteration 95) AND each of `FilterBar.tsx` / `LayoutSwitcher.tsx` / `MobileMenu.tsx` shows ≥80% branches in `coverage-final.json`.
+
+If Phase 3's merge produces the expected aggregated number, AC #5 fully satisfies and AC #4 + AC #6 also flip green. Phase 4 (CI integration) and Phase 5 (status flips) become the closing iterations.
+
+If Phase 3's merge does NOT restore the per-package number to ≥ baseline, the most likely cause is a `sourceFilter` mismatch between the CT raw V8 (which has source-mapped paths under `packages/ui/src/`) and the Vitest V8 (which has paths under the workspace root). The fix is a single `sourceFilter` adjustment in `coverage-merge.ts`.
+
+### CT-flake watch (carried)
+
+Iteration 111 noted `filter-bar.ct › selects category on click` failed once and passed on retry. Iterations 112/113 ran no CT. Iteration 114 ran `pnpm test:ct` once with 43/43 passing. Iteration 115 ran no CT (only Vitest twice, both clean). Watch count stays at **1/3**.
+
 ## 2026-04-27 — Iteration 114: Q22 follow-up #3 Phase 1 ✅ DONE — Playwright CT now emits source-mapped V8 coverage on every `pnpm test:ct` run
 
 ### Headline

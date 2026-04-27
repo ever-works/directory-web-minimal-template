@@ -40,16 +40,27 @@ export default defineConfig({
             // of the Q22 / Q23 Worker-IPC crash on Windows + Node 24
             // (FilterBar, LayoutSwitcher) or preemptively to defuse the
             // same fingerprint risk (MobileMenu).
-            // Once `playwright-coverage` is integrated (Q22 follow-up #3
-            // in `docs/plans/q22-playwright-ct.md`) these exclusions can
-            // drop and CT runs will contribute back to the V8 branch
-            // report.
+            //
+            // Iteration 115 (Q22 follow-up #3 Phase 2): the three explicit
+            // exclusions for FilterBar/LayoutSwitcher/MobileMenu were
+            // dropped. They are now part of the Vitest `include` set and
+            // will report 0% Vitest coverage (Vitest never executes them).
+            // The CT runner already captures their V8 coverage via
+            // `monocart-reporter` (Phase 1, iteration 114) and writes
+            // `coverage/ct/raw-v8.json`. Phase 3 (next iteration) will
+            // introduce a `pnpm coverage` script that merges the Vitest
+            // and CT V8 reports into a single per-package number — at
+            // that point the per-file branch coverage for the three CT
+            // components is restored to the rolled-up report.
+            //
+            // Until Phase 3 lands, plain `pnpm --filter @ever-works/ui
+            // test:coverage` reports a LOWER branch number than before
+            // (that's the intended pre-merge state, exit criterion of
+            // Phase 2). See `docs/plans/q22-playwright-coverage.md` and
+            // `.specify/features/q22-playwright-coverage.md` AC #5/#6.
             exclude: [
                 'src/**/__tests__/**',
                 'src/**/*.test.{ts,tsx}',
-                'src/preact/FilterBar.tsx',
-                'src/preact/LayoutSwitcher.tsx',
-                'src/preact/MobileMenu.tsx',
             ],
         },
     },
