@@ -134,7 +134,7 @@ pnpm coverage             # Q22 follow-up #3 Phase 3: run Vitest coverage + CT c
 pnpm test:e2e             # Run E2E tests (Playwright)
 pnpm format               # Format code with Prettier
 pnpm clean                # Clean all build artifacts
-pnpm audit:docs           # Run the doc-quality audit checklist (iter-149 codification of `AGENTS.md § Doc-Quality Audit Checklist` grep blocks via `scripts/audit-docs.ts`). 6 drift classes (Status drift line-anchored / Status drift blockquote-tolerant / Value drift / Toolchain version drift / ISR wording drift / Structural-link drift) + 1 cross-file consistency parity check (AGENTS R-rules vs CLAUDE Critical Rules: 15 vs 17). Exits non-zero on real drift; CI-gating-ready.
+pnpm audit:docs           # Run the doc-quality audit checklist (iter-149 codification of `AGENTS.md § Doc-Quality Audit Checklist` grep blocks via `scripts/audit-docs.ts`; iter-150 wired into CI as PR-blocking step; iter-151 added 7th audit class for AGENTS.md ↔ runner self-parity). 7 drift classes (Status drift line-anchored / Status drift blockquote-tolerant / Value drift / Toolchain version drift / ISR wording drift / Structural-link drift / Checklist ↔ runner parity) + 1 cross-file consistency parity check (AGENTS R-rules vs CLAUDE Critical Rules: 15 vs 17). Exits non-zero on real drift; CI-gated since iter 150.
 ```
 
 ## Code Style

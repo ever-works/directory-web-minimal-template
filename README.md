@@ -101,7 +101,7 @@ packages/
 | `pnpm test:e2e` | Run E2E tests — 367 tests, 57 specs, 11 projects (Playwright) |
 | `pnpm format` | Format code with Prettier |
 | `pnpm clean` | Clean all build artifacts |
-| `pnpm audit:docs` | Run the doc-quality audit checklist (iter-149 codification of `AGENTS.md § Doc-Quality Audit Checklist` grep blocks via `scripts/audit-docs.ts`; 6 drift classes + 1 cross-file parity check; exits non-zero on real drift). |
+| `pnpm audit:docs` | Run the doc-quality audit checklist (iter-149 codification of `AGENTS.md § Doc-Quality Audit Checklist` grep blocks via `scripts/audit-docs.ts`; iter-150 wired into CI; iter-151 added 7th class for AGENTS.md ↔ runner self-parity; 7 drift classes + 1 cross-file parity check; exits non-zero on real drift; CI-gated since iter 150). |
 
 The defensive `pnpm test:ui:safe` per-file Vitest fallback is kept for diagnostic use only — see `CLAUDE.md` "Common Commands" for the canonical and exhaustive list.
 

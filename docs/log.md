@@ -3,6 +3,170 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-27 — Iteration 151: add 7th audit class — `auditChecklistRunnerParity()` self-validates the script against `AGENTS.md § Doc-Quality Audit Checklist` on every run
+
+### Headline
+
+Iter-149 codified `AGENTS.md § Doc-Quality Audit Checklist` into a runnable script (`scripts/audit-docs.ts`, exposed as `pnpm audit:docs`); iter-150 wired it into CI as a PR-blocking step. Iter-149's "Next Steps #1" called out the natural next maturation step: codify the **AGENTS.md ↔ runner parity** check itself, so the runner self-validates against its own canonical reference text on every invocation. Currently that parity is enforced *by convention only* — if a future iteration adds a new drift class to the AGENTS.md checklist but forgets to add the corresponding `auditClassN()` function in `scripts/audit-docs.ts` (or vice versa), no signal surfaces and the runner silently keeps reporting the old PASS count.
+
+Iter 151 closes this loop. New 7th audit class `auditChecklistRunnerParity()` reads `AGENTS.md` directly with `node:fs`, locates the `## Doc-Quality Audit Checklist` section bounds, extracts every `### ` sub-section heading inside (with code-fence skipping so the in-section canonical-mapping documentation block doesn't self-trigger), and asserts a 1:1 parity against an in-script `EXPECTED_MAPPING` table. Both directions of drift are caught:
+
+- `+ "<heading>"` — heading in AGENTS.md but no `EXPECTED_MAPPING` entry (someone added a new sub-section without registering it in the runner).
+- `- "<heading>"` — `EXPECTED_MAPPING` entry but no AGENTS.md heading (someone removed a sub-section from AGENTS.md without removing the runner mapping).
+
+Plus a class-count parity check: the number of numbered runner classes (`classes[]` ids matching `N/M`) must match the number of distinct numbered ids referenced by `EXPECTED_MAPPING` entries. Catches a forgotten `classes[]` entry vs mapping table mismatch.
+
+### Why this matters
+
+Across iters 132 → 150 the doc-quality audit pattern matured through six progressive maturation steps:
+
+| # | Iter | Step | Net effect |
+|---|------|------|-----------|
+| 1 | 145 | Codify the playbook as in-tree text in `AGENTS.md` | Audit becomes grep-and-fix instead of reason-from-scratch |
+| 2 | 146 | Surface miss-target (`>`-blockquote prefix) | First retry-and-tighten cycle |
+| 3 | 147 | Tighten checklist regex to handle blockquote+bold | Codified miss-target permanently |
+| 4 | 148 | Add 6th drift class (cross-file rule-count parity) | Surface a new structural drift class |
+| 5 | 149 | Codify checklist into runnable script `pnpm audit:docs` | Audit becomes one-command instead of grep-by-grep |
+| 6 | 150 | Wire `pnpm audit:docs` into CI as PR-blocking step | Audit drift becomes PR-blocking instead of cron-tick-dependent |
+| 7 | 151 | Self-parity audit — script verifies AGENTS.md heading set | Forgotten add/remove drift caught on every run |
+
+The seventh maturation step compounds the prior six: the audit script is now its own first reviewer. Before iter-151, an asymmetric edit (heading added without runner class, or vice versa) would land silently and remain undiscovered until a future autonomous iteration noticed the drift via log archaeology. After iter-151, the asymmetric edit fails `[7/7] FAIL` on the first PR or cron tick, and the structured FAIL output names exactly which side the drift is on (`+` for AGENTS.md-only, `-` for runner-only).
+
+### What landed
+
+#### `scripts/audit-docs.ts` — new audit class + `EXPECTED_MAPPING` table
+
+The new function `auditChecklistRunnerParity()` is added between the existing `auditStructuralLinkDrift()` (class 6) and `auditCrossFileConsistency()` (the `[ * ]` parity check). It encapsulates:
+
+1. **Parsing**: read `AGENTS.md`, slice on `## Doc-Quality Audit Checklist` and the next `## ` heading, walk lines, extract `### <text>` headings while skipping fenced code blocks (` ```bash ` / ` ```ts ` etc.).
+2. **Heading parity**: build two `Set<string>` instances (expected from the `EXPECTED_MAPPING` table; actual from the parsed AGENTS.md), produce diff hits in both directions.
+3. **Class-count parity**: count numbered runner ids in `classes[]` (regex `^\d+\/\d+$`); recompute expected count from `EXPECTED_MAPPING` (split each entry's `runnerClassId` on `+` and union all `N/M` parts). Raise a hit if counts diverge.
+
+The `EXPECTED_MAPPING` table is hand-maintained with iter-citation comments. Initial entries (7 total):
+
+```
+{ heading: 'Runner (added iter 149)',                              runnerClassId: 'meta',          establishedIter: 149 }
+{ heading: 'Value drift (stale numbers / counts / versions)',      runnerClassId: '3/7+4/7',       establishedIter: 145 }
+{ heading: 'Status / state drift (claims that have moved on)',     runnerClassId: '1/7+2/7+5/7',   establishedIter: 145 }
+{ heading: 'Structural / link drift',                              runnerClassId: '6/7',           establishedIter: 145 }
+{ heading: 'Cross-file consistency (added iter 148)',              runnerClassId: 'cross-file',    establishedIter: 148 }
+{ heading: 'Checklist ↔ runner parity (added iter 151)',           runnerClassId: '7/7',           establishedIter: 151 }
+{ heading: 'Rerun cadence',                                        runnerClassId: 'meta',          establishedIter: 145 }
+```
+
+The `classes: AuditClass[]` array is updated to:
+- Renumber existing 6 classes from `N/6` → `N/7`.
+- Add new entry `{ id: '7/7', name: 'Checklist ↔ runner parity (iter-151)', run: auditChecklistRunnerParity }` between the 6th numbered class and the `[ * ]` cross-file parity class.
+
+Total final count printed by `main()` becomes `8/8 PASS` (7 numbered classes + the `[ * ]` cross-file parity check).
+
+#### `AGENTS.md` — new `### Checklist ↔ runner parity (added iter 151)` sub-section
+
+Inserted under `## Doc-Quality Audit Checklist`, immediately above `### Rerun cadence`. Contents:
+
+1. 1-paragraph explanation of how the runner self-validates against this section's text on every invocation.
+2. Code-fence listing the canonical heading-to-class mapping (mirrored in `scripts/audit-docs.ts § EXPECTED_MAPPING`).
+3. 2-line summary noting that adding a new drift class requires updating both the AGENTS.md heading and the `EXPECTED_MAPPING` entry in the same commit.
+4. Spec / Plan cross-references.
+
+Also updated the existing `### Runner (added iter 149)` sub-section to reference 7 numbered classes (was 6) and to mention the iter-151 self-parity class.
+
+#### `.specify/features/audit-docs-self-parity.md` — NEW spec (15 ACs, ~280 lines)
+
+Full feature spec following the iter-149 spec convention: Why / Acceptance Criteria / Out of Scope / Notes on naming / Pattern progression confirmation. Status flipped to ✅ RESOLVED in the same commit.
+
+#### `docs/plans/audit-docs-self-parity.md` — NEW plan (~330 lines)
+
+Full plan following the iter-149 plan convention: Why / Steps (0-7) / Acceptance Criteria checklist / Risk Analysis / Pattern progression confirmation. Status flipped to ✅ RESOLVED in the same commit.
+
+#### `.specify/project.md` — Current State header bump 150 → 151
+
+Plus spec count flipped 32 → 33 (`audit-docs-self-parity.md` is the new spec file added this iteration; `ls .specify/features/*.md | wc -l` = 33). The "Zero documentation drift" line annotated with the iter-151 audit class addition.
+
+#### `CLAUDE.md` Common Commands `pnpm audit:docs` row
+
+Updated 6 → 7 drift classes; added "Checklist ↔ runner parity" to the enumerated list; added "iter-151 added 7th audit class for AGENTS.md ↔ runner self-parity" provenance phrase.
+
+#### `README.md` Commands table `pnpm audit:docs` row
+
+Same content update as `CLAUDE.md`.
+
+#### `docs/index.md`
+
+- Updated header descriptor 150 → 151 with full iter-151 narrative.
+- Added `plans/audit-docs-self-parity.md` entry to the Plans section (and the previously-missing `plans/audit-docs-script.md` entry from iter-149).
+- Added `features/audit-docs-self-parity.md` entry to the Spec Kit section (and the previously-missing `features/audit-docs-script.md` entry from iter-149).
+
+#### `docs/log.md` — this entry
+
+### Verification
+
+- `pnpm audit:docs` on iter-151 final state:
+  ```
+  [1/7] Status drift (line-anchored, iter-145)                     PASS — 0 hits
+  [2/7] Status drift (blockquote-tolerant, iter-147)               PASS — 0 hits
+  [3/7] Value drift (count parity)                                 PASS — 0 hits
+           spec count: All N .specify/ feature specs: 33 ✓
+           package count: **N packages**: 18 ✓
+           app count: **N apps**: 8 ✓
+  [4/7] Toolchain version drift                                    PASS — 0 hits
+           astro: pinned 6.1.9 (major 6)
+           preact: pinned 10.29.1 (major 10)
+           tailwindcss: pinned 4.2.4 (major 4)
+           typescript: pinned 6.0.3 (major 6)
+  [5/7] ISR wording drift                                          PASS — 0 hits
+  [6/7] Structural / link drift                                    PASS — 0 hits
+  [7/7] Checklist ↔ runner parity (iter-151)                       PASS — 0 hits
+           AGENTS.md checklist headings discovered: 7
+           EXPECTED_MAPPING entries: 7
+           numbered runner classes: 7 (expected 7)
+  [ * ] Cross-file consistency (AGENTS R-rules vs CLAUDE Critical Rules) PASS — 0 hits
+           AGENTS.md R-rules: 15 (expected 15)
+           CLAUDE.md numbered Critical Rules: 17 (expected 17)
+
+  8/8 PASS — no documentation drift detected.
+  ```
+- `pnpm typecheck` — 23/23 FULL TURBO (1.529s; the script edit at `scripts/audit-docs.ts` is at repo root, not under any tsconfig include scope; runtime executes via `tsx`).
+- `pnpm lint` — 18/18 FULL TURBO (1.643s; same scope-exclusion reasoning as typecheck).
+
+#### Caught real drift this iteration
+
+The new audit class also surfaced a real value-drift hit during the `pnpm audit:docs` first run (before fixes): adding the new spec file `audit-docs-self-parity.md` bumped `ls .specify/features/*.md | wc -l` from 32 → 33; `.specify/project.md` "All N .specify/ feature specs" line still claimed 32. Audit class 3 (count parity) auto-flagged the drift; flipped 32 → 33 in the same commit. **This is exactly the codify-and-execute pattern working as intended**: a new file was added, a derived count claim went stale, the audit caught it before the commit landed.
+
+The first run also surfaced a **circularity bug** in the new audit class itself: my initial heading-extraction parser didn't skip fenced code blocks, so the canonical-mapping table inside `### Checklist ↔ runner parity (added iter 151)` (which contains lines starting with `### ` for documentation purposes) self-triggered as 7 phantom headings. Fixed in the same iteration with a `inFence` toggle flag that flips on any line matching `/^```/`. The fix is documented inline in the parser comment; future iterations adding fenced ` ```bash ` / ` ```ts ` blocks under the checklist will not re-trigger.
+
+### What was NOT touched (intentional)
+
+- **Existing 6 audit classes** — no behavior change. Class id strings flipped from `N/6` → `N/7` but each class's `run()` function is untouched.
+- **`.github/workflows/ci.yml`** — the iter-150 wire-up already runs `pnpm audit:docs` as a PR-blocking step. The new audit class joins the existing pass automatically; no CI YAML edit needed.
+- **`packages/ui/`, `apps/web/`, etc.** — no source-tree changes. The iter-151 work is bounded to `scripts/audit-docs.ts` + `AGENTS.md` + spec/plan/CLAUDE/README/index/project/log doc surfaces.
+- **`pnpm-lock.yaml`** — zero-delta. No new dependencies; the new audit class only uses `node:fs` (already imported) + standard regex/Set primitives.
+- **Routine dep audit** — deferred this iteration. Iter-147/148/149/150 all ran clean; no churn expected at this interval.
+
+### Files touched
+
+- `scripts/audit-docs.ts` — new function `auditChecklistRunnerParity()` + `EXPECTED_MAPPING` interface and table + classes[] reordering (~150 lines added).
+- `AGENTS.md` — new `### Checklist ↔ runner parity (added iter 151)` sub-section + Runner sub-section reference bumped 6 → 7 (~25 lines added).
+- `.specify/features/audit-docs-self-parity.md` — new file (~280 lines).
+- `docs/plans/audit-docs-self-parity.md` — new file (~330 lines).
+- `.specify/project.md` — Current State header 150 → 151 + spec count 32 → 33 + "Zero documentation drift" line annotation.
+- `CLAUDE.md` — Common Commands `pnpm audit:docs` row 6 → 7 drift classes.
+- `README.md` — Commands table `pnpm audit:docs` row 6 → 7 drift classes.
+- `docs/index.md` — iteration descriptor 150 → 151 + Plans section entries (audit-docs-script + audit-docs-self-parity) + Spec Kit section entries (audit-docs-script + audit-docs-self-parity).
+- `docs/log.md` — this entry.
+
+### Saga status (carried)
+
+Q22 → Q28 saga remains fully closed. Per-package merged coverage on `@ever-works/ui` continues to read **branches 100% (233/233)**. `pnpm lint` reports 0 warnings + 0 errors (iter 131). CT-flake watch ✅ CLOSED at iter 127. Project enters its **22nd consecutive "no carried open work" steady-state iteration** (iter 130-151).
+
+### Next Steps (for next scheduled run)
+
+1. **Regex-equivalence checking (iter-152 candidate)** — verify that the regex literal in each AGENTS.md fenced code block is *behaviorally equivalent* to the regex object compiled in the runner. Spec out-of-scope flag from iter-151: deferred until a real regex-divergence drift surfaces. Would close the last unverified parity dimension between checklist and runner.
+2. **Routine dep audit** — re-check the 26-package matrix; iters 147-150 zero deltas, full re-verification deferred until next material dep-touching iteration.
+3. **Continue running `pnpm audit:docs`** on each cron tick (now also runs in CI on every PR; now also self-validates via class 7/7) — bounded ~5s cost.
+4. **Optional `pnpm test:e2e` re-run** — defer per iter-134's policy.
+5. **Optional `pnpm coverage` re-run** — defer until material dep churn lands.
+
 ## 2026-04-27 — Iteration 150: wire `pnpm audit:docs` into CI — convert the iter-149 doc-quality audit script from per-cron-tick manual check to PR-blocking signal
 
 ### Headline

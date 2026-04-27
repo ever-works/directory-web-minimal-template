@@ -20,6 +20,8 @@
  *   - iter 147: tightened blockquote-tolerant Status regex
  *   - iter 148: added 6th class (cross-file rule-count parity)
  *   - iter 149: codified all 6 classes in this script
+ *   - iter 150: wired `pnpm audit:docs` into CI as PR-blocking step
+ *   - iter 151: added 7th class — Checklist ↔ runner self-parity
  */
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
@@ -499,6 +501,164 @@ function auditStructuralLinkDrift(): AuditResult {
 }
 
 /* ------------------------------------------------------------------ */
+/* AUDIT CLASS 7 — Checklist ↔ runner self-parity (added iter 151)    */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Canonical mapping table — every `### ` sub-section heading under
+ * `## Doc-Quality Audit Checklist` in AGENTS.md must appear here.
+ *
+ * Each entry carries the iteration that established the heading, so
+ * the audit history is greppable from the table itself. The runner
+ * class id is one of:
+ *   - `'meta'`            — heading is informational (Runner / Rerun cadence)
+ *   - `'cross-file'`      — heading maps to the `[ * ]` parity class
+ *   - `'N/M'` (numbered)  — heading maps to numbered audit class N/M
+ *   - `'N/M+P/Q'` (combo) — heading fans out to multiple numbered classes
+ */
+interface MappingEntry {
+    /** Exact AGENTS.md heading text (without the leading `### `). */
+    heading: string;
+    /** Matching `classes[].id` or `'meta'` / `'cross-file'`. */
+    runnerClassId: string;
+    /** Iter that added this heading to the checklist. */
+    establishedIter: number;
+}
+
+const EXPECTED_MAPPING: MappingEntry[] = [
+    // 'Runner' is meta — describes the script itself, not a drift class.
+    { heading: 'Runner (added iter 149)', runnerClassId: 'meta', establishedIter: 149 },
+    // 'Value drift' fans out into class 3 (count parity) + class 4 (toolchain).
+    {
+        heading: 'Value drift (stale numbers / counts / versions)',
+        runnerClassId: '3/7+4/7',
+        establishedIter: 145
+    },
+    // 'Status / state drift' fans out into class 1 (line-anchored) + class 2
+    // (blockquote-tolerant); the ISR-wording sub-grep partitions out as class 5.
+    {
+        heading: 'Status / state drift (claims that have moved on)',
+        runnerClassId: '1/7+2/7+5/7',
+        establishedIter: 145
+    },
+    // 'Structural / link drift' → class 6.
+    { heading: 'Structural / link drift', runnerClassId: '6/7', establishedIter: 145 },
+    // 'Cross-file consistency' → cross-file parity class (the [ * ] entry).
+    {
+        heading: 'Cross-file consistency (added iter 148)',
+        runnerClassId: 'cross-file',
+        establishedIter: 148
+    },
+    // iter-151: this audit class itself (heading must land in same commit
+    // as the audit-docs.ts edit per spec AC #6 — self-exclusion safety).
+    {
+        heading: 'Checklist ↔ runner parity (added iter 151)',
+        runnerClassId: '7/7',
+        establishedIter: 151
+    },
+    // 'Rerun cadence' is meta — informational reference table.
+    { heading: 'Rerun cadence', runnerClassId: 'meta', establishedIter: 145 }
+];
+
+function auditChecklistRunnerParity(): AuditResult {
+    // Read canonical reference text.
+    const agents = readFileSync(join(REPO_ROOT, 'AGENTS.md'), 'utf8');
+
+    // Locate the `## Doc-Quality Audit Checklist` section bounds.
+    const checklistStart = agents.indexOf('## Doc-Quality Audit Checklist');
+    if (checklistStart === -1) {
+        return {
+            pass: false,
+            hits: [
+                {
+                    file: 'AGENTS.md',
+                    line: 0,
+                    text: '`## Doc-Quality Audit Checklist` section not found — checklist removed?'
+                }
+            ],
+            notes: []
+        };
+    }
+    const nextH2 = agents.indexOf('\n## ', checklistStart + 1);
+    const checklistText = agents.slice(
+        checklistStart,
+        nextH2 === -1 ? agents.length : nextH2
+    );
+
+    // Extract all `### ` sub-section headings within the checklist.
+    // Skip lines inside fenced code blocks (they may contain `### ` literals
+    // as documentation of the canonical mapping table itself — those are
+    // not actual sub-section headings).
+    const headings: string[] = [];
+    let inFence = false;
+    for (const line of checklistText.split(/\r?\n/)) {
+        // Toggle fence state on any line that starts with triple backticks
+        // (allows ```bash / ``` / ```ts etc.).
+        if (/^```/.test(line)) {
+            inFence = !inFence;
+            continue;
+        }
+        if (inFence) continue;
+        const m = line.match(/^### (.+)$/);
+        if (m) headings.push(m[1].trim());
+    }
+
+    // Compute heading-set diffs.
+    const expectedHeadings = new Set(EXPECTED_MAPPING.map((e) => e.heading));
+    const actualHeadings = new Set(headings);
+
+    const hits: Hit[] = [];
+    const notes: string[] = [
+        `AGENTS.md checklist headings discovered: ${headings.length}`,
+        `EXPECTED_MAPPING entries: ${EXPECTED_MAPPING.length}`
+    ];
+
+    for (const h of actualHeadings) {
+        if (!expectedHeadings.has(h)) {
+            hits.push({
+                file: 'AGENTS.md',
+                line: 0,
+                text: `+ "${h}" — heading in AGENTS.md but no EXPECTED_MAPPING entry (add to scripts/audit-docs.ts EXPECTED_MAPPING)`
+            });
+        }
+    }
+    for (const h of expectedHeadings) {
+        if (!actualHeadings.has(h)) {
+            hits.push({
+                file: 'scripts/audit-docs.ts',
+                line: 0,
+                text: `- "${h}" — EXPECTED_MAPPING entry but no AGENTS.md heading (add ### heading or remove EXPECTED_MAPPING entry)`
+            });
+        }
+    }
+
+    // Class-count parity: numbered runner classes (id like `N/M`) must match
+    // the number of distinct numbered ids referenced by EXPECTED_MAPPING entries.
+    // EXPECTED_RUNNER_COUNT is recomputed from the mapping table so it stays
+    // in sync without a duplicate constant.
+    const numberedRunnerIds = new Set<string>();
+    for (const entry of EXPECTED_MAPPING) {
+        for (const part of entry.runnerClassId.split('+')) {
+            if (/^\d+\/\d+$/.test(part)) numberedRunnerIds.add(part);
+        }
+    }
+    const expectedNumberedCount = numberedRunnerIds.size;
+    const actualNumberedCount = classes.filter((c) => /^\d+\/\d+$/.test(c.id)).length;
+    if (actualNumberedCount !== expectedNumberedCount) {
+        hits.push({
+            file: 'scripts/audit-docs.ts',
+            line: 0,
+            text: `numbered-class count drift: classes[] has ${actualNumberedCount} numbered classes, EXPECTED_MAPPING covers ${expectedNumberedCount}`
+        });
+    }
+    notes.push(
+        `numbered runner classes: ${actualNumberedCount} (expected ${expectedNumberedCount})`
+    );
+
+    return { pass: hits.length === 0, hits, notes };
+}
+
+/* ------------------------------------------------------------------ */
 /* AUDIT CLASS * — Cross-file consistency (parity check)              */
 /* ------------------------------------------------------------------ */
 
@@ -536,40 +696,47 @@ function auditCrossFileConsistency(): AuditResult {
 
 const classes: AuditClass[] = [
     {
-        id: '1/6',
+        id: '1/7',
         name: 'Status drift (line-anchored, iter-145)',
         description: '^Status:.*PLANNED|SPECIFIED|DRAFT in docs/plans/ + .specify/features/',
         run: auditStatusDriftLineAnchored
     },
     {
-        id: '2/6',
+        id: '2/7',
         name: 'Status drift (blockquote-tolerant, iter-147)',
         description: '^>?\\s*\\*?\\*?Status:\\s+\\*?\\*?[^✅🗄] (skips resolved sigils)',
         run: auditStatusDriftBlockquoteTolerant
     },
     {
-        id: '3/6',
+        id: '3/7',
         name: 'Value drift (count parity)',
         description: 'spec/package/app counts in project.md vs filesystem; CT-count claim 43→48',
         run: auditValueDrift
     },
     {
-        id: '4/6',
+        id: '4/7',
         name: 'Toolchain version drift',
         description: 'Astro/Preact/Tailwind/TypeScript major-version mentions vs apps/web/package.json',
         run: auditToolchainVersionDrift
     },
     {
-        id: '5/6',
+        id: '5/7',
         name: 'ISR wording drift',
         description: '"fully static" / "no SSR" claims that contradict R5 (post iter-17)',
         run: auditISRWordingDrift
     },
     {
-        id: '6/6',
+        id: '6/7',
         name: 'Structural / link drift',
         description: '](../ relative links from docs/ that escape the Docusaurus content scope',
         run: auditStructuralLinkDrift
+    },
+    {
+        id: '7/7',
+        name: 'Checklist ↔ runner parity (iter-151)',
+        description:
+            'AGENTS.md § Doc-Quality Audit Checklist ### headings ↔ EXPECTED_MAPPING parity',
+        run: auditChecklistRunnerParity
     },
     {
         id: ' * ',

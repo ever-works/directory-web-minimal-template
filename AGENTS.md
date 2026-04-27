@@ -332,12 +332,15 @@ Always run from the repo root.
 
 ### Runner (added iter 149)
 
-The 6 grep blocks below are codified into an executable runner at
+The 7 grep blocks below are codified into an executable runner at
 [`scripts/audit-docs.ts`](../scripts/audit-docs.ts), wired as the root-level npm script
 `pnpm audit:docs`. Each audit class wraps the exact regex from this checklist and reports
 `PASS` / `FAIL <N hits>` with line-anchored output for any hits; the runner exits non-zero on
-any class flagging real (non-whitelisted) drift, so it is CI-gating-ready. **The script is the
-canonical *runner*; this checklist remains the canonical *reference*.**
+any class flagging real (non-whitelisted) drift, so it is CI-gating-ready (wired into
+`.github/workflows/ci.yml` as a PR-blocking step at iter 150). **The script is the
+canonical *runner*; this checklist remains the canonical *reference*.** The script
+self-validates against this section's text on every invocation via the
+`### Checklist ↔ runner parity (added iter 151)` sub-section below.
 
 Run it as:
 
@@ -350,7 +353,8 @@ Plan: [`docs/plans/audit-docs-script.md`](../docs/plans/audit-docs-script.md).
 
 When a new drift class surfaces in a future iteration, add the grep pattern below AND a
 matching `auditClassN()` function in `scripts/audit-docs.ts` so the codification stays in
-sync between the reference and the runner.
+sync between the reference and the runner. The iter-151 self-parity audit class
+catches forgotten add/remove drift in either direction on every `pnpm audit:docs` run.
 
 ### Value drift (stale numbers / counts / versions)
 
@@ -432,6 +436,35 @@ grep -E "^[0-9]+\.\s+\*\*" CLAUDE.md
 ```
 
 When an R-rule is added, removed, or reworded, update both files in the same commit.
+
+### Checklist ↔ runner parity (added iter 151)
+
+The runner at `scripts/audit-docs.ts` self-validates against this section's text on every
+invocation. The 7th audit class (`auditChecklistRunnerParity()`) reads `AGENTS.md` directly
+with `node:fs`, locates the `## Doc-Quality Audit Checklist` section bounds, extracts every
+`### ` sub-section heading inside, and asserts a 1:1 parity against an in-script
+`EXPECTED_MAPPING` table. Adding a new drift class requires updating **both** the AGENTS.md
+heading **and** the `EXPECTED_MAPPING` entry in the same commit; either-side drift produces
+a structured FAIL with the exact heading-set diff surfaced in the output.
+
+Canonical heading-to-class mapping (mirrored in `scripts/audit-docs.ts § EXPECTED_MAPPING`):
+
+```
+### Runner (added iter 149)                                  → meta (describes the script itself)
+### Value drift (stale numbers / counts / versions)          → audit class 3/7 (count parity) + 4/7 (toolchain)
+### Status / state drift (claims that have moved on)         → audit class 1/7 (line-anchored) + 2/7 (blockquote) + 5/7 (ISR)
+### Structural / link drift                                  → audit class 6/7
+### Cross-file consistency (added iter 148)                  → cross-file parity class ([ * ])
+### Checklist ↔ runner parity (added iter 151)               → audit class 7/7 (this section)
+### Rerun cadence                                            → meta (informational table)
+```
+
+Total: 7 `### ` headings under `## Doc-Quality Audit Checklist` — 5 drift-class headings
+(some fan out into multiple runner classes) + 2 meta sub-sections (`Runner`, `Rerun cadence`).
+The runner asserts this count and the heading-set parity on every invocation.
+
+Spec: [`.specify/features/audit-docs-self-parity.md`](../.specify/features/audit-docs-self-parity.md).
+Plan: [`docs/plans/audit-docs-self-parity.md`](../docs/plans/audit-docs-self-parity.md).
 
 ### Rerun cadence
 
