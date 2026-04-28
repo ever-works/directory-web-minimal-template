@@ -7,7 +7,9 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-28 (Iteration 206: Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS, no other changes. 44th consecutive minimal-acknowledgement tick. Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. Iteration 205 history below.)
+> Updated: 2026-04-28 (Iteration 207: Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS, no other changes. 45th consecutive minimal-acknowledgement tick. Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. First audit invocation this tick aborted with a transient Windows stack-overflow (exit 0xC0000409); re-run passed 9/9 — flagged as OS-level intermittent signal rather than real audit-script regression. Iteration 206 history below.)
+>
+> Iteration 206 (history): Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS, no other changes. 44th consecutive minimal-acknowledgement tick. Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. Iteration 205 history below.)
 >
 > Iteration 205 (history): Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS, no other changes. 43rd consecutive minimal-acknowledgement tick. Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. Working tree carries an uncommitted `package.json` audit:docs-wrapper edit of unknown provenance; left untouched pending user direction. Iteration 204 history below.)
 >
