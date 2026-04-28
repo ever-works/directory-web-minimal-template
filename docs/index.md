@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-28 (Iteration 207: Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS after legitimate maintenance fix. 45th consecutive minimal-acknowledgement tick. Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. First audit invocation aborted with a deterministic V8 heap-OOM (`MemoryChunk allocation failed during deserialization`, native exit 0xC0000409) caused by `docs/log.md` crossing ~857 KB / 11 202 lines. Fixed `package.json#scripts.audit:docs` to invoke node directly with `--max-old-space-size=8192`, restoring the canonical PR-blocking verification step. Not characterised as intermittent OS signal — root cause is heap exhaustion, partial workaround attempted at iter-205 (`--stack-size=16384`) mis-targeted stack vs. heap. See iter-207 log entry for full RCA. Iteration 206 history below.)
+> Updated: 2026-04-28 (Iteration 208: Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS (with iter-207 heap-fix wrapper in effect). 46th consecutive minimal-acknowledgement tick. Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. First post-fix verification tick — confirms the `--max-old-space-size=8192` wrapper change is stable across cron-tick re-runs and the audit invocation no longer regresses on Windows. Iteration 207 history below.)
 >
 > Iteration 206 (history): Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS, no other changes. 44th consecutive minimal-acknowledgement tick. Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. Iteration 205 history below.)
 >
