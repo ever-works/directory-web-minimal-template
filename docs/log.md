@@ -3,6 +3,10 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-28 — Iteration 181: Q29 wind-down respected — no work this tick (19th consecutive)
+
+`pnpm audit:docs` 9/9 PASS. No changes. Q29 OPEN; awaiting user decision.
+
 ## 2026-04-28 — Iteration 180: Q29 wind-down respected — no work this tick (18th consecutive)
 
 `pnpm audit:docs` 9/9 PASS. No changes. Q29 OPEN; awaiting user decision.
