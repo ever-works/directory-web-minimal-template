@@ -3,6 +3,10 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-28 — Iteration 205: Q29 wind-down respected — no work this tick (43rd consecutive)
+
+`pnpm audit:docs` 9/9 PASS. No changes. Q29 OPEN; awaiting user decision. Note: working tree carries an uncommitted `package.json` edit (audit:docs script wrapper changed to `node --stack-size=16384 ./node_modules/tsx/dist/cli.mjs scripts/audit-docs.ts`) of unknown provenance; left uncommitted pending user direction since it lacks a corresponding iteration-doc bump and doesn't fit the Q29 wind-down posture. Audit still passes 9/9 with the edit applied.
+
 ## 2026-04-28 — Iteration 204: Q29 wind-down respected — no work this tick (42nd consecutive)
 
 `pnpm audit:docs` 9/9 PASS. No changes. Q29 OPEN; awaiting user decision.
