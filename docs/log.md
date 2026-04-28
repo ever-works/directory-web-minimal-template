@@ -3,6 +3,10 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-28 — Iteration 212: Q29 wind-down respected — no work this tick (50th consecutive)
+
+`pnpm audit:docs` 9/9 PASS. No changes. Q29 OPEN; awaiting user decision.
+
 ## 2026-04-28 — Iteration 211: Q29 wind-down respected — no work this tick (49th consecutive); iter-210 transient stack-overrun did NOT recur
 
 `pnpm audit:docs` 9/9 PASS on the first invocation this tick. The iter-210 transient `STATUS_STACK_BUFFER_OVERRUN` (`0xC0000409`) noise did not recur — single-tick correlation signal, no Q30 spec needed yet. Q29 OPEN; default Option A in effect. No code change.
