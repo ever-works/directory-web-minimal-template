@@ -7,7 +7,9 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-28 (Iteration 208: Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS (with iter-207 heap-fix wrapper in effect). 46th consecutive minimal-acknowledgement tick. Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. First post-fix verification tick — confirms the `--max-old-space-size=8192` wrapper change is stable across cron-tick re-runs and the audit invocation no longer regresses on Windows. Iteration 207 history below.)
+> Updated: 2026-04-28 (Iteration 209: Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS, no other changes. 47th consecutive minimal-acknowledgement tick. Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. Iteration 208 history below.)
+>
+> Iteration 208 (history): Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS (with iter-207 heap-fix wrapper in effect). 46th consecutive minimal-acknowledgement tick. Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. First post-fix verification tick — confirms the `--max-old-space-size=8192` wrapper change is stable across cron-tick re-runs and the audit invocation no longer regresses on Windows. Iteration 207 history below.)
 >
 > Iteration 206 (history): Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS, no other changes. 44th consecutive minimal-acknowledgement tick. Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. Iteration 205 history below.)
 >

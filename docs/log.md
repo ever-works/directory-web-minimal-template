@@ -3,6 +3,10 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-28 — Iteration 209: Q29 wind-down respected — no work this tick (47th consecutive)
+
+`pnpm audit:docs` 9/9 PASS. No changes. Q29 OPEN; awaiting user decision.
+
 ## 2026-04-28 — Iteration 208: Q29 wind-down respected — no work this tick (46th consecutive)
 
 `pnpm audit:docs` 9/9 PASS (with iter-207's `--max-old-space-size=8192` wrapper fix in effect). No changes. Q29 OPEN; awaiting user decision. Default Option A in effect. The iter-207 heap-OOM regression-fix supersedes the iter-205 uncommitted-`--stack-size` workaround (different target: heap vs stack); my iter-205 doc note is now historically correct as a partial-misdiagnosis record.
