@@ -3,6 +3,10 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-28 — Iteration 171: Q29 wind-down respected — no work this tick (9th consecutive)
+
+`pnpm audit:docs` 9/9 PASS. No changes. Q29 OPEN; awaiting user decision.
+
 ## 2026-04-28 — Iteration 170: Q29 wind-down respected — no work this tick (8th consecutive, same shape as iter 163-169)
 
 `pnpm audit:docs` 9/9 PASS. No source / test / config / dep / spec / plan changes. Q29 still OPEN; default Option A (wind down to weekly cadence until real new scope arrives) remains in effect. 8th consecutive minimal-acknowledgement cron tick. Touched files: this `docs/log.md` line, `docs/index.md` Updated-line, `.specify/project.md` Current State header (169 → 170). No audit-class additions, no cohort-table re-derivations, no deferral re-numbering, no spec/plan churn.
