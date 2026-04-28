@@ -3,6 +3,36 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-28 — Iteration 213: Q29 wind-down respected; `audit:docs` STATUS_STACK_BUFFER_OVERRUN bisection completed and wrapper re-tuned
+
+`pnpm audit:docs` 9/9 PASS after wrapper re-tune. Q29 OPEN; awaiting user decision. Default Option A (wind down to weekly cadence until real new scope arrives) remains in effect.
+
+**Recap of the iter-210 → iter-213 trail.** Iter-210 saw the first occurrence of `STATUS_STACK_BUFFER_OVERRUN` (Windows native `0xC0000409` / pnpm-surfaced `3221226505`) — two `audit:docs` invocations crashed before printing any stdout, third-retry passed. Iter-211 came back clean first-try, so the fingerprint was logged as a single-tick correlation signal and iter-210 explicitly flagged: "if iter-211+ sees the same pattern, the right response is a Q30 spec with bisection (run with `--max-old-space-size=8192` removed, run with `--stack-size=8192` added, etc.) and *then* a targeted fix; not a single-tick guess." Iter-211 + iter-212 ran clean, so no spec was opened. Iter-213 (this tick) reproduced the fingerprint deterministically: 4 consecutive crashes, no stdout, identical exit code. That converts iter-210's "if pattern recurs" precondition from hypothetical to met, so this iteration runs the bisection iter-210 prescribed.
+
+**Bisection (iter-213, this tick).**
+
+| Variant                                                            | Result    | Sample size | Notes |
+| ------------------------------------------------------------------ | --------- | ----------- | ----- |
+| `node --max-old-space-size=8192 ./node_modules/tsx/dist/cli.mjs …` (iter-207 wrapper, current state at start of tick) | 4 ❌  / 0 ✅  | 4 invocations | 100% fail. Same fingerprint each time. No stdout before crash. |
+| `node ./node_modules/tsx/dist/cli.mjs …` (drop heap flag, keep tsx-shim bypass) | 5 ✅  / 0 ❌ | 2 in bisection + 3 in stress-test | 100% pass. Full audit output, 9/9 PASS each run. |
+| `tsx scripts/audit-docs.ts` (drop heap flag *and* tsx-shim bypass — the iter-206 form) | 1 ✅  / 2 ❌ | 3 invocations | Same flake pattern as iter-210, third-retry pass. Confirms `tsx` shim itself contributes to flakiness on this host. |
+
+**Verdict.** The destabilizer is the `--max-old-space-size=8192` flag, not the `tsx`-shim-bypass that iter-207 also introduced. Iter-207's `node ./node_modules/tsx/dist/cli.mjs` bypass remains valuable (the `tsx` shim is independently flaky 1/3 → 2/3 in bisection). What is *not* valuable, on this Windows host with this Node 24.14.x build, is the 8 GB old-heap pre-allocation: requesting an 8 GB old-space at V8 startup appears to interact with Windows VM allocation in a way that triggers the kernel `/GS` STATUS_STACK_BUFFER_OVERRUN fastfail before Node ever begins script execution. (Iter-207's heap-OOM was a real *deserialization* failure during V8 startup; the 8 GB headroom fixed it. But headroom this large now itself fails to map, on the same OS, against a different Node patch + a larger `docs/log.md`. The fix has migrated from a successful mitigation to an active fault.)
+
+**Fix applied (legitimate maintenance, not invented audit work).** Changed `package.json#scripts.audit:docs` from
+`node --max-old-space-size=8192 ./node_modules/tsx/dist/cli.mjs scripts/audit-docs.ts` to
+`node ./node_modules/tsx/dist/cli.mjs scripts/audit-docs.ts`. One-line edit. Heap flag dropped; tsx-shim bypass retained. Default Node 24.x x64 old-space ceiling (~4 GB) is more than sufficient for the audit script's actual working-set (≈ 890 KB of `docs/log.md` plus 8 regex passes; peak heap empirically far under 200 MB). No new audit class, no docs-surface change, no cohort-table re-derivation, no deferral re-numbering, no spec/plan churn beyond this log entry, no source/test/dep additions.
+
+**Stress-test of new wrapper.** 3 consecutive `pnpm audit:docs` invocations after the edit, all 9/9 PASS first-try with full audit banner + class output. Combined with the 2 bisection passes, that's 5/5 success on the new wrapper this tick.
+
+**Why this does not violate the wind-down posture.** Q29 § "Status" says "the agent will favor light-touch verification ticks (no new audit-class inventions)." Restoring the verification step that audits the wind-down itself is necessary to keep the wind-down honest; without it, every subsequent iteration would commit unverified state. This is the same justification iter-207 applied for the original (now-superseded) wrapper. The fix adds zero new audit logic, zero new files, and zero scope expansion — it is the minimum repair to the iter-207 mitigation that has migrated into a regression on the same host.
+
+**No Q30 spec opened.** Iter-210 framed Q30 as "if pattern recurs". The bisection iter-210 outlined has now been performed inline as a single-tick targeted fix (one line in `package.json`), so opening a Q30 spec for an investigation that has already concluded would be ceremony for ceremony's sake. If a *different* fingerprint surfaces in iter-214+ (e.g., the heap-OOM iter-207 originally fixed re-emerges, indicating the audit script's working-set has actually grown past 4 GB), that would warrant a real spec at that point — and the right fix would be memory optimization in `scripts/audit-docs.ts` itself (stream-read `docs/log.md`, skip `.toString()` on the file buffer for regex passes that don't need full text), not another speculative heap-flag bump. Documenting that here so a future iteration does not regress to the over-allocate-then-fault cycle.
+
+**Cross-platform note.** `node ./node_modules/tsx/dist/cli.mjs scripts/audit-docs.ts` works on Windows, Linux, macOS — forward slashes are valid path separators in Node.js on all three. No `cross-env` dependency. CI (Linux) is unaffected by this Windows-specific flake; the new wrapper continues to use the tsx-shim-bypass that iter-207 introduced, only without the destabilizing heap flag.
+
+**Touched files**: this `docs/log.md` line, `docs/index.md` Updated-line + Iteration 211/212 history rotation, `.specify/project.md` Current State header (212 → 213), `package.json` (one-line `audit:docs` wrapper).
+
 ## 2026-04-28 — Iteration 212: Q29 wind-down respected — no work this tick (50th consecutive)
 
 `pnpm audit:docs` 9/9 PASS. No changes. Q29 OPEN; awaiting user decision.
