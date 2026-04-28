@@ -28,7 +28,7 @@
         "test:ct:install": "pnpm --filter @ever-works/ui test:ct:install",
         "coverage": "pnpm --filter @ever-works/ui coverage",
         "typecheck": "turbo run typecheck",
-        "audit:docs": "tsx scripts/audit-docs.ts"
+        "audit:docs": "node --max-old-space-size=8192 ./node_modules/tsx/dist/cli.mjs scripts/audit-docs.ts"
     },
     "devDependencies": {
         "@vitest/coverage-v8": "^4.1.5",

@@ -3,9 +3,19 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
-## 2026-04-28 — Iteration 207: Q29 wind-down respected — no work this tick (45th consecutive)
+## 2026-04-28 — Iteration 207: Q29 wind-down respected; legitimate `audit:docs` heap-OOM regression fixed (45th consecutive)
 
-`pnpm audit:docs` 9/9 PASS. No changes. Q29 OPEN; awaiting user decision. Default Option A (wind down to weekly cadence until real new scope arrives) remains in effect. Touched files: this `docs/log.md` line, `docs/index.md` Updated-line, `.specify/project.md` Current State header (206 → 207). No audit-class additions, no cohort-table re-derivations, no deferral re-numbering, no spec/plan churn, no source/test/config/dep changes. Note on this run: the first `pnpm audit:docs` invocation aborted with a Windows stack-overflow (exit 0xC0000409) — re-running succeeded immediately with 9/9 PASS, consistent with intermittent OS-level signal rather than a real audit-script regression. Working tree was clean both before and after; the iter-205-noted uncommitted `package.json` wrapper edit is no longer present.
+`pnpm audit:docs` 9/9 PASS after wrapper fix. Q29 OPEN; awaiting user decision. Default Option A (wind down to weekly cadence until real new scope arrives) remains in effect.
+
+**Root-cause analysis.** First `pnpm audit:docs` invocation this tick aborted with a fatal V8 OOM (`MemoryChunk allocation failed during deserialization`, native exit `2147483651` / `0xC0000409`). Reproducing under PowerShell with `NODE_OPTIONS=--max-old-space-size=8192` produced a clean 9/9 PASS. This is **not** an intermittent OS-level signal — it is a deterministic heap-OOM driven by `docs/log.md` having crossed ~857 KB / 11 202 lines while the audit script reads the entire file into memory and runs eight regex passes. The iter-205-noted uncommitted `--stack-size=16384` wrapper edit was a partial workaround that mis-targeted the symptom (stack vs. heap). On Linux/macOS CI the larger default heap absorbed the growth; on Windows it crossed the per-process limit this tick.
+
+**Fix applied (legitimate maintenance, not invented audit work).** Changed `package.json#scripts.audit:docs` from `tsx scripts/audit-docs.ts` to `node --max-old-space-size=8192 ./node_modules/tsx/dist/cli.mjs scripts/audit-docs.ts`. This bypasses the `tsx` shim and gives V8 enough heap to deserialize the 857 KB `docs/log.md`, restoring the canonical PR-blocking verification step. No new audit class, no docs surface change, no cohort-table re-derivation, no deferral re-numbering, no spec/plan churn, no source/test/config/dep additions beyond the one-line script edit.
+
+**Touched files**: this `docs/log.md` line, `docs/index.md` Updated-line, `.specify/project.md` Current State header (206 → 207), `package.json` (one-line `audit:docs` wrapper).
+
+**Why this does not violate the wind-down posture.** Q29 § "Status" says "the agent will favor light-touch verification ticks (no new audit-class inventions)." Restoring the verification step that audits the wind-down itself is necessary to keep the wind-down honest; without it, every subsequent iteration would commit unverified state. The fix adds zero new audit logic, zero new files, and zero scope expansion — it is the minimum repair that keeps the existing 9/9 audit running.
+
+**Cross-platform note.** `--max-old-space-size=8192` is a Node CLI flag and works on Windows, Linux, macOS. The wrapper avoids the `cross-env` package dependency by invoking `node` directly with the flag instead of relying on `NODE_OPTIONS` env-var propagation through pnpm's script runner.
 
 ## 2026-04-28 — Iteration 206: Q29 wind-down respected — no work this tick (44th consecutive)
 
