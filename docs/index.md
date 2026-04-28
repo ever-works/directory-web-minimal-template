@@ -7,7 +7,7 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-28 (Iteration 213: Q29 wind-down respected; `audit:docs` STATUS_STACK_BUFFER_OVERRUN bisection from iter-210's deferred-spec plan completed inline — fingerprint reproduced deterministically (4/4 fail with iter-207's `--max-old-space-size=8192` flag), heap flag dropped, tsx-shim bypass retained. New `audit:docs` wrapper: `node ./node_modules/tsx/dist/cli.mjs scripts/audit-docs.ts`. Stress-tested 5/5 PASS first-try (2 bisection + 3 post-fix). Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. No new audit class, no scope expansion, one-line `package.json` edit + this log entry. Iteration 212 history below.)
+> Updated: 2026-04-28 (Iteration 214: Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS first try, with iter-213's re-tuned wrapper in effect. 51st consecutive minimal-acknowledgement tick. First post-iter-213-fix verification — confirms the bisection RCA (8 GB old-space pre-allocation triggered kernel /GS fastfail) was correct and the targeted fix is stable across cron-tick re-runs. Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. Iteration 213 history below.)
 >
 > Iteration 212 (history): Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS, no other changes. 50th consecutive minimal-acknowledgement tick. Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. Iteration 211 history below.)
 >

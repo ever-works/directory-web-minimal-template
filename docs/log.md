@@ -3,6 +3,10 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-28 — Iteration 214: Q29 wind-down respected — no work this tick (51st consecutive); first post-iter-213-fix verification
+
+`pnpm audit:docs` 9/9 PASS first try, with iter-213's re-tuned wrapper (tsx-shim bypass retained, `--max-old-space-size=8192` flag dropped). Q29 OPEN; default Option A in effect. The audit-runner is now back to first-try clean — confirms iter-213's bisection RCA (the 8 GB old-space pre-allocation triggered the kernel /GS fastfail) was correct and the targeted fix is stable. Iter-211's earlier "single-tick transient" assessment is now historically correct as a *partial* read — the recurrence at iter-213 escalated from transient to deterministic, which is why iter-210's pre-specified bisection plan executed at iter-213 and not at iter-211. No code change this tick.
+
 ## 2026-04-28 — Iteration 213: Q29 wind-down respected; `audit:docs` STATUS_STACK_BUFFER_OVERRUN bisection completed and wrapper re-tuned
 
 `pnpm audit:docs` 9/9 PASS after wrapper re-tune. Q29 OPEN; awaiting user decision. Default Option A (wind down to weekly cadence until real new scope arrives) remains in effect.
