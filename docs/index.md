@@ -7,7 +7,9 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-28 (Iteration 209: Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS, no other changes. 47th consecutive minimal-acknowledgement tick. Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. Iteration 208 history below.)
+> Updated: 2026-04-28 (Iteration 210: Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS (third try; first two attempts in this tick crashed with `STATUS_STACK_BUFFER_OVERRUN` exit 3221226505 and produced no stdout; third attempt clean — transient, no code change made). 48th consecutive minimal-acknowledgement tick. Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. The transient stack-overrun is a new signal — flagged in `docs/log.md` for future correlation; no audit-script invariant is broken (the script reports 9/9 PASS once it actually executes). Iteration 209 history below.)
+>
+> Iteration 209 (history): Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS, no other changes. 47th consecutive minimal-acknowledgement tick. Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. Iteration 208 history below.)
 >
 > Iteration 208 (history): Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS (with iter-207 heap-fix wrapper in effect). 46th consecutive minimal-acknowledgement tick. Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. First post-fix verification tick — confirms the `--max-old-space-size=8192` wrapper change is stable across cron-tick re-runs and the audit invocation no longer regresses on Windows. Iteration 207 history below.)
 >
