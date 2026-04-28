@@ -7,7 +7,9 @@ slug: /
 # Documentation Index
 
 > Complete index of all documentation in this repository.
-> Updated: 2026-04-28 (Iteration 185: Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS, no other changes. 23rd consecutive minimal-acknowledgement tick. Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. Iteration 184 history below.)
+> Updated: 2026-04-28 (Iteration 186: Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS, no other changes. 24th consecutive minimal-acknowledgement tick. Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. Iteration 185 history below.)
+>
+> Iteration 185 (history): Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS, no other changes. 23rd consecutive minimal-acknowledgement tick. Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. Iteration 184 history below.)
 >
 > Iteration 182 (history): Q29 wind-down respected — `pnpm audit:docs` 9/9 PASS, no other changes. 20th consecutive minimal-acknowledgement tick. Q29 OPEN; default Option A (wind down to weekly cadence until real new scope arrives) in effect. Iteration 181 history below.)
 >
