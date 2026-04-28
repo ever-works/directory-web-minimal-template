@@ -3,6 +3,10 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-28 — Iteration 173: Q29 wind-down respected — no work this tick (11th consecutive)
+
+`pnpm audit:docs` 9/9 PASS. No changes. Q29 OPEN; awaiting user decision. Default Option A (wind down to weekly cadence until real new scope arrives) remains in effect. Touched files: this `docs/log.md` line, `docs/index.md` Updated-line, `.specify/project.md` Current State header (172 → 173). No audit-class additions, no cohort-table re-derivations, no deferral re-numbering, no spec/plan churn, no source/test/config/dep changes.
+
 ## 2026-04-28 — Iteration 172: Q29 wind-down respected — no work this tick (10th consecutive)
 
 `pnpm audit:docs` 9/9 PASS. No changes. Q29 OPEN; awaiting user decision. Default Option A (wind down to weekly cadence until real new scope arrives) remains in effect. Touched files: this `docs/log.md` line, `docs/index.md` Updated-line, `.specify/project.md` Current State header (171 → 172). No audit-class additions, no cohort-table re-derivations, no deferral re-numbering, no spec/plan churn, no source/test/config/dep changes. The minimal-acknowledgement streak (iter 163 → 172) now spans 10 consecutive autonomous cron ticks — a full ten-iteration confirmation that the Q29-flagged saturation is real and the wind-down posture is stable.
