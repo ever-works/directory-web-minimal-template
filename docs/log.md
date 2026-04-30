@@ -3,6 +3,107 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-04-30 — Iteration 218: User pivot — Q29 partially answered; multi-option-support cohort opened
+
+### Owner direction (in-conversation, not via cron tick)
+
+The owner instructed the agent to:
+
+1. Go over every question in `docs/questions.md` and, where multiple options
+   are architecturally viable, **support the alternates alongside the default**
+   via opt-in configuration. Defaults stay; alternates ship as opt-in.
+2. **Triage** the file into two sections:
+   - **Active Questions** at the top: questions where the agent is **not
+     100% sure** about the right answer (owner review needed).
+   - **Other Questions** below: questions where the agent has a confident
+     default choice (no review required).
+3. Create new tasks (specs/plans) for the multi-option work.
+
+This is effectively **Option B-prime of Q29** — pivot to feature additions —
+with concrete user direction. Q29's "Option A: wind down to weekly" is now
+superseded by "Option B-prime: execute the multi-option-support cohort"; the
+54-tick wind-down acknowledgement loop (iters 163-217) ends at iteration 217.
+
+### What landed in iter 218
+
+- **New spec**: `.specify/features/multi-option-support.md` — umbrella spec
+  for Q1 (UI framework), Q2 (CSS strategy), Q4 (plugin auto-discovery),
+  Q5 (search backends), Q9 (image services), Q10 (Starlight docs),
+  Q18 (git adapters), Q20 (analytics events + consent banner). 8
+  independent phases; each phase preserves the existing default and adds
+  alternate(s) via config or new packages. Spec count bumped 34 → 35;
+  `.specify/project.md` "All N .specify/ feature specs" claim flipped to
+  match.
+- **New plan**: `docs/plans/multi-option-support.md` — paired execution
+  plan with per-phase steps, risks, AC, and a recommended sequencing
+  table (Phase 6 → 5 → 2 → 1 → 7 → 3 → 4 → 8, ordered by ease/value).
+- **Restructured `docs/questions.md`**:
+  - Added intro explaining the Active vs Other Questions triage rule
+    (added iter 218).
+  - New **Active Questions** section (top) — currently lists only Q29,
+    which remains partially open (vertical-samples sub-question:
+    sample-saas / sample-podcasts / sample-books — owner direction
+    needed; default is "do not add" until the user requests). Q21
+    explicitly noted as moved to Other (the "wait for upstream Vite
+    fix" answer is unambiguous).
+  - New **Other Questions** section (below) wraps all 29 existing
+    questions verbatim per R13. Q1, Q2, Q4, Q5, Q9, Q10, Q18, Q20 each
+    received a `### Multi-option follow-up (iter 218)` block describing
+    what alternates are planned, the configuration mechanism, and the
+    tracking pointer to `.specify/features/multi-option-support.md`.
+  - Q29's status flipped from `OPEN — awaiting user decision` to
+    `OPEN (partial answer)` with an in-line iter-218 user-pivot
+    annotation explaining the multi-option pivot and the
+    vertical-samples sub-question that remains.
+- **`.specify/project.md`** Current State header bumped 217 → 218; spec
+  count claim updated 34 → 35; cohort breakdown extended with the
+  `multi-option-support.md` entry and its OPEN state.
+- **`docs/index.md`** header updated to describe iter 218 as a
+  user-pivot iteration (not a wind-down tick); added catalogue entries
+  for the new spec and plan; iter-217 wind-down moved to history line.
+
+### Verification
+
+- `pnpm audit:docs` — 9/9 PASS first-try post-edit. Confirms:
+  - `[3/8] Value drift` re-baseline: spec count 34 → 35 matches
+    `ls .specify/features/*.md | wc -l`.
+  - All other 8 audit classes (status drift, toolchain drift,
+    ISR-wording, structural-link, checklist↔runner parity,
+    matrix-prose count parity, cross-file consistency) green.
+- No source code touched this iteration. `pnpm typecheck` / `pnpm lint`
+  / `pnpm test` / `pnpm test:ct` not re-run — the changes are
+  doc-only at this iteration boundary; the new spec and plan are
+  Markdown deliverables that the existing audit gates fully cover.
+  Future per-phase iterations will land code with their own gates.
+
+### What's NOT in this iteration
+
+- **No code changes**. The 8 phases each land their own code in
+  future iterations per the plan. Phase 6 (Q10 Starlight docs alt)
+  is queued first; it is pure documentation and will be the smallest
+  per-phase commit.
+- **No new packages installed**. The multi-option work adds two new
+  packages (`@ever-works/plugin-search-fuse` in Phase 4 and
+  `@ever-works/plugin-consent` in Phase 8); both land in their own
+  iterations and bump `**N packages**` count claims accordingly.
+- **No changes to existing samples**. All 5 sample apps continue to
+  use the existing defaults; alternate verifications (Phase 1 React,
+  Phase 2 UnoCSS, etc.) happen on scratch clones that are not
+  committed.
+
+### Next iteration
+
+Per the plan's "Iteration mapping (suggested)" table, **iteration 219
+should execute Phase 6** — Q10 Starlight docs alternate (pure
+documentation; deliverable is `docs/guides/multi-option/docs-framework.md`
+with a tradeoff matrix and end-to-end Starlight verification on a
+scratch dir). Estimated walltime: ~2 hours.
+
+If the cron cadence stays hourly, the multi-option-support cohort
+fully lands across ~iter 219-226. After Phase 8 lands, the agent
+returns to the Active-Questions queue (Q29 vertical-samples
+sub-question; otherwise re-evaluates wind-down).
+
 ## 2026-04-30 — Iteration 217: Q29 wind-down respected — no work this tick (54th consecutive)
 
 `pnpm audit:docs` 9/9 PASS first-try. No code or doc-substance changes. Q29 OPEN; default Option A (wind-down to weekly) still in effect — original brief deliverables remain complete (18-package monorepo, 8 apps, 34 specs, 1122 unit + 48 CT + 27 E2E test cases all green, 9-class doc audit clean). Audit runner stable since iter-213 RCA/fix; no recurrences observed across iters 214-217 (4 consecutive clean runs post-fix). Awaiting user direction on Q29 (A wind-down / B feature pivot / C continue audit-loop / D archive maintenance overhead) before scope expands.

@@ -8,6 +8,67 @@ sidebar_label: "Questions"
 > Questions that need answers. Each has a `[DEFAULT]` choice that we proceed with unless overridden.
 > Owner reviews these and provides final decisions.
 
+## Triage (iter 218 — 2026-04-30)
+
+The questions in this file are split into two sections:
+
+1. **Active Questions** — questions where the agent is **not 100% sure** about
+   the right answer. Owner review is the resolution step. These come first so
+   they are easy to find.
+2. **Other Questions** — questions where the agent has made a confident
+   default choice (some `[DEFAULT]`-still-active, some ✅ RESOLVED). Owner
+   review is *optional*; the default is in effect and the codebase ships
+   accordingly. These are kept in the file as a historical record (per AGENTS.md
+   R13: improve, do not remove) and so future readers can trace decisions.
+
+**Multi-option follow-up annotation (added iter 218)**: many questions chose
+a single default option even though the architecture (plugin/adapter pattern,
+Astro integrations, headless UI) supports multiple options. Per the iter-218
+user direction, those questions are now annotated with a
+`### Multi-option follow-up (iter 218)` block listing **what alternates the
+template will support** alongside the default, and pointing at the umbrella
+spec at `.specify/features/multi-option-support.md`
+([view on GitHub](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/multi-option-support.md))
+and plan [`docs/plans/multi-option-support.md`](plans/multi-option-support.md)
+that schedule the work. Each phase ships independently; the existing default
+stays in effect for users who do not opt in.
+
+---
+
+## Active Questions
+
+Owner review needed. The agent is not confident enough to proceed unilaterally
+on these, so the default-in-effect is documented but flagged for explicit
+direction.
+
+- **[Q29: Cron-cadence saturation](#q29-cron-cadence-saturation--should-the-hourly-schedule-wind-down-or-pivot-iteration-162)** —
+  user **partially** answered in iter 218 by pivoting to feature work
+  (multi-option-support cohort, Option B-prime). The remaining open
+  sub-question is which **vertical-specific samples** (sample-saas,
+  sample-podcasts, sample-books) to scaffold next, if any. Default: keep
+  the existing 5 samples; do not add new verticals until the user
+  requests one explicitly. See the question body below for the original
+  Option A/B/C/D framing and the iter-218 user-pivot annotation.
+
+(Q21 was previously a candidate for this section but is moved to *Other
+Questions* — the answer "wait for upstream Vite fix; use `tsc --noEmit`
+locally" is unambiguous and the agent is confident in it. The question
+remains OPEN as a tracking record but does not need owner review.)
+
+> If you are reading this section and see only Q29 (or none at all),
+> that is by design — most questions in this file have confident
+> defaults. Active Questions is the surface area where owner review
+> moves the project forward.
+
+---
+
+## Other Questions
+
+The remainder of this file. All questions are kept verbatim per R13;
+status flags (`✅ RESOLVED`, `OPEN — default in effect`, `SUPERSEDED`)
+indicate the current state. Multi-option follow-up blocks (added iter
+217) appear directly after the original resolution where applicable.
+
 ---
 
 ## Q1: UI Framework for Interactive Islands
@@ -23,6 +84,36 @@ sidebar_label: "Questions"
 
 **Default choice**: **Preact** — smallest bundle size while maintaining React-compatible API. AI agents familiar with React can write Preact components immediately. Aligns with R6 (Extreme Performance).
 
+### Multi-option follow-up (iter 218)
+
+**Status**: OPEN — phase queued (Phase 1 of multi-option-support).
+
+**Answer**: Default stays Preact (already shipping). The template will additionally
+**document** how to swap in or co-mount each alternate UI framework — Astro
+supports multiple frameworks in the same project, so adopting React/Solid/Svelte/Vue
+is a config change, not a fork:
+
+- **React** — `pnpm add @astrojs/react react react-dom`; add `react()` to
+  `astro.config.ts` `integrations: []`.
+- **Solid.js** — `pnpm add @astrojs/solid-js solid-js`; add `solidJs()`.
+- **Svelte** — `pnpm add @astrojs/svelte svelte`; add `svelte()`.
+- **Vue** — `pnpm add @astrojs/vue vue`; add `vue()`.
+
+**Configuration mechanism**: Astro's `integrations` array in `astro.config.ts`.
+The default Preact integration stays; users append (or replace with) any of
+the four alternates. No core change required — `@ever-works/ui/preact/*` exports
+remain Preact; users co-mount React/Solid/Svelte/Vue islands alongside, or
+migrate per-component if they prefer.
+
+**Why we don't pre-install all four**: pre-installing every Astro integration
+would 5x the install size for users who want Preact only. Alternates ship as
+**recipes** under `docs/guides/multi-option/ui-framework.md` (queued); users
+`pnpm add` the integration when they switch.
+
+**Tracking**: `.specify/features/multi-option-support.md` § Phase 1; deliverable
+is `docs/guides/multi-option/ui-framework.md` plus end-to-end React verification
+on a scratch sample-basic clone.
+
 ---
 
 ## Q2: CSS Strategy
@@ -36,6 +127,31 @@ sidebar_label: "Questions"
 - D) No CSS framework — pure CSS variables + custom properties
 
 **Default choice**: **Tailwind CSS** — most AI agents are trained on Tailwind. It's the most common choice for AI-generated UIs. Ship Tailwind as default, but the component architecture allows any CSS approach.
+
+### Multi-option follow-up (iter 218)
+
+**Status**: OPEN — phase queued (Phase 2 of multi-option-support).
+
+**Answer**: Default stays Tailwind CSS v4 via `@tailwindcss/vite` (already
+shipping). The headless-UI architecture means components carry no CSS, so
+swapping the CSS strategy is a downstream choice that does not touch
+`packages/ui/`. The template will **document** four alternates:
+
+- **UnoCSS** — `unocss/vite` with `presetWind()` for Tailwind class-name parity.
+- **CSS Modules** — Astro built-in support; per-component `*.module.css` with
+  `cn()` helper retained.
+- **Vanilla CSS + custom properties** — design tokens in `:root`, no
+  utility framework.
+- **Pure shadcn-ui style** — CSS variables in `:root`, component-level
+  `cn()` retained.
+
+**Configuration mechanism**: Vite plugin in `astro.config.ts` (`@tailwindcss/vite`
+vs `unocss/vite`) plus `src/styles/global.css` content. No core code change.
+
+**Tracking**: `.specify/features/multi-option-support.md` § Phase 2; deliverable
+is `docs/guides/multi-option/css-strategy.md` with a tradeoff matrix
+(bundle size, build speed, AI familiarity) and end-to-end UnoCSS
+verification on a scratch sample-basic clone.
 
 ---
 
@@ -67,6 +183,39 @@ sidebar_label: "Questions"
 
 **Default choice**: **Configuration file** — Explicit, predictable, AI-friendly. A single `plugins.config.ts` makes it clear what's active. Aligns with R8 (AI-Optimized).
 
+### Multi-option follow-up (iter 218)
+
+**Status**: OPEN — phase queued (Phase 3 of multi-option-support).
+
+**Answer**: Default stays the explicit `plugins.config.ts` with `definePlugins([...])`
+(already shipping in every sample app). The template will **add** an opt-in
+`discoverPlugins(workspaceRoot?: string)` helper that auto-discovers any package
+declaring itself as an Ever Works plugin via:
+
+- `keywords: ['ever-works-plugin']` in its `package.json`, **and**
+- `"ever-works-plugin": "./dist/index.js"` field pointing at the entry.
+
+**Configuration mechanism**: users opt in by replacing
+`definePlugins([...explicitArray])` with
+`definePlugins(await discoverPlugins())` (or spreading both: `definePlugins([
+  ...await discoverPlugins(), userPlugin() ])`).
+
+**Why we keep the explicit config as default**: order sensitivity. Some plugins
+depend on hook order (e.g. `plugin-sitemap` runs after `plugin-search` Pagefind
+indexing); auto-discovery returns plugins in filesystem order, which is not
+guaranteed. The recipe documents this tradeoff.
+
+**What's NOT being added**:
+- **Option C (package.json keywords without explicit marker)** — would catch
+  unrelated plugins in workspaces that mix Ever Works with other ecosystems.
+  Marker keyword scopes the discovery.
+- **Option D (runtime registry via import side effects)** — opaque; AI
+  agents cannot tell from `plugins.config.ts` alone what's registered.
+
+**Tracking**: `.specify/features/multi-option-support.md` § Phase 3;
+deliverables are `packages/plugins/src/discover.ts`, the `keywords` marker
+on all 10 built-in plugins, unit tests, and `docs/guides/multi-option/plugin-discovery.md`.
+
 ---
 
 ## Q5: Search Implementation
@@ -80,6 +229,36 @@ sidebar_label: "Questions"
 - D) Algolia/Meilisearch — External service (requires API key)
 
 **Default choice**: **Pagefind** — Purpose-built for static sites. Generates search index at build time. Tiny JS payload. No external services needed. Perfect fit for R5 (Static Output) and R6 (Extreme Performance).
+
+### Multi-option follow-up (iter 218)
+
+**Status**: OPEN — phase queued (Phase 4 of multi-option-support).
+
+**Answer**: Default stays Pagefind via `@ever-works/plugin-search` (already
+shipping). The plugin architecture already supports swapping search backends —
+users replace `searchPlugin()` in `plugins.config.ts` with any drop-in
+plugin that exposes the same hook contract. The template will **scaffold one
+reference alternate package and document two more**:
+
+- **`@ever-works/plugin-search-fuse`** (new package, scaffold) — runtime
+  fuzzy search via Fuse.js. Build-time index extraction; runtime queries
+  in a Preact island. Suitable for ≤500-item directories (multi-MB index
+  for larger sets).
+- **Algolia** (documented only) — recipe showing how to write a custom
+  plugin that uploads the index at build via the Algolia ingest API and
+  queries via `algoliasearch` at runtime.
+- **Meilisearch** (documented only) — same shape as Algolia; self-hosted
+  backend.
+
+**Configuration mechanism**: `plugins.config.ts` — replace `searchPlugin()` with
+`searchFusePlugin()` (or your custom plugin). The accompanying `<SearchInput />`
+island in `packages/ui/preact/` stays Pagefind-specific; alternate plugins
+ship their own `<SearchFuse />` / `<SearchAlgolia />` island components.
+
+**Tracking**: `.specify/features/multi-option-support.md` § Phase 4;
+deliverables are `packages/plugin-search-fuse/` (full package + tests) plus
+`docs/guides/multi-option/search-backends.md` with a tradeoff matrix
+(index size, query latency, external service, cost).
 
 ---
 
@@ -133,6 +312,28 @@ sidebar_label: "Questions"
 
 **Default choice**: **Astro built-in Image** — Ships with Astro, zero config, optimizes at build time. Aligns with R6 and R10 (Use Existing Libraries).
 
+### Multi-option follow-up (iter 218)
+
+**Status**: OPEN — phase queued (Phase 5 of multi-option-support).
+
+**Answer**: Default stays Astro's built-in `<Image>` from `astro:assets`
+(already supported across components). The template will **document** how
+to swap in a CDN-backed image service via Astro's documented
+`image.service: { entrypoint: '...' }` config:
+
+- **Cloudinary** — custom image service that builds CDN URLs at build time.
+- **Imgix** — URL-transform-based service.
+- **Bunny.net / DigitalOcean Spaces** — generic CDN with URL prefix.
+
+**Configuration mechanism**: `astro.config.ts` — `image: { service:
+{ entrypoint: './src/image-services/cloudinary.ts' } }`. Default behavior
+is preserved when this option is not set.
+
+**Tracking**: `.specify/features/multi-option-support.md` § Phase 5;
+deliverable is `docs/guides/multi-option/image-services.md` with one
+working `image-service.ts` snippet per CDN and a tradeoff matrix
+(build-time cost, runtime cost, vendor lock-in).
+
 ---
 
 ## Q10: Docs Site Framework
@@ -146,6 +347,29 @@ sidebar_label: "Questions"
 - D) Plain Astro — Build custom docs pages
 
 **Implemented choice**: **Docusaurus** — Matches the full template's docs framework, providing consistency across the Ever Works ecosystem. Proven ecosystem with search, versioning, and blog support. Already implemented and working.
+
+### Multi-option follow-up (iter 218)
+
+**Status**: OPEN — phase queued (Phase 6 of multi-option-support).
+
+**Answer**: Default stays Docusaurus 3.x in `apps/docs/` (already shipping).
+The template will **document** the swap to Starlight (Astro-native) for
+users who prefer a single-stack project:
+
+- **Docusaurus** (default) — best for versioning, blog, mature plugin
+  ecosystem, React-based.
+- **Starlight** (alternate) — best for stack consistency with the rest of
+  the Astro template, smaller bundle, native Astro integration. Tradeoff:
+  versioning requires more manual setup.
+
+**Configuration mechanism**: this is a docs-app-level swap, not a runtime
+config. Users replace `apps/docs/` with a Starlight-scaffolded app; the
+recipe documents the per-file content migration (Docusaurus
+`_category_.json` → Starlight frontmatter `sidebar`).
+
+**Tracking**: `.specify/features/multi-option-support.md` § Phase 6;
+deliverable is `docs/guides/multi-option/docs-framework.md` with a
+tradeoff matrix and end-to-end Starlight verification on a scratch dir.
 
 ---
 
@@ -268,6 +492,33 @@ sidebar_label: "Questions"
 
 **Status**: DONE — GitAdapter rewritten to use isomorphic-git. Pure JS clone, fetch, pull operations. No system `git` binary required.
 
+### Multi-option follow-up (iter 218)
+
+**Status**: OPEN — phase queued (Phase 7 of multi-option-support).
+
+**Answer**: Default stays `isomorphic-git` `GitAdapter` in
+`packages/adapters/src/git.ts` (already shipping). The adapter pattern
+already supports swapping; the template will **scaffold two reference
+alternate adapters** alongside the default:
+
+- **Shell-git adapter** (`packages/adapters/src/git-shell.ts`) — re-uses
+  `execFileSync('git', [...])`. For users in CI environments where git
+  is always available and `isomorphic-git`'s memory profile is too high.
+- **GitHub-API adapter** (`packages/adapters/src/git-api.ts`) — fetches
+  files via REST API (`octokit`). Useful when the data repo is small
+  and avoiding any git operation simplifies serverless deployment.
+  Subject to GitHub-API rate limits (5000/hr authenticated).
+
+**Configuration mechanism**: import the alternate adapter in
+`apps/<app>/src/lib/content.ts` instead of the default. The barrel export
+of `@ever-works/adapters` exposes all three (`GitAdapter`, `GitShellAdapter`,
+`GitApiAdapter`); users pick at app config time.
+
+**Tracking**: `.specify/features/multi-option-support.md` § Phase 7;
+deliverables are `git-shell.ts`, `git-api.ts`, their tests, and
+`docs/guides/multi-option/git-adapters.md` with a tradeoff matrix
+(binary dep, memory, speed, repo size limit, auth).
+
 ---
 
 ## Q19: Code Quality Improvements — Iteration 44 Audit
@@ -321,6 +572,62 @@ Default choice: **`@ever-works/ui`**. All Astro components live in one place; pl
 Default choice: **The 5 listed**. Users needing others use the `custom` provider with raw HTML. Additional providers can be added as individual PRs once there's demand.
 
 **Status**: OPEN — defaults in effect. Decisions will be re-evaluated during implementation phase (see `docs/plans/phase-4b-plugin-analytics.md`).
+
+### Multi-option follow-up (iter 218)
+
+**Status**: OPEN — phase queued (Phase 8 of multi-option-support).
+
+**Answer per sub-question**:
+
+- **Q-A1 (event tracking)**: default stays pageview-only (already shipping).
+  The template will **add** an opt-in `trackEvent(name, props)` helper to
+  `@ever-works/plugin-analytics`, gated by an `enableEventTracking: true`
+  plugin option (default `false`). When enabled, the helper dispatches the
+  provider-specific call (Plausible's `plausible('event')`, Umami's
+  `umami.track()`, Fathom's `fathom.trackEvent()`, GA4's `gtag('event', ...)`,
+  or the custom escape hatch). When not enabled, the export is a no-op.
+
+- **Q-A2 (consent banner)**: default stays "no consent banner bundled with
+  analytics" (already shipping). The template will **scaffold a separate
+  `@ever-works/plugin-consent` package** as a reference implementation:
+  a Preact-based cookie banner, persisted state in `localStorage`, and a
+  documented contract that `plugin-analytics` reads (when both are
+  installed) to gate provider initialization on consent. If
+  `plugin-consent` is not installed, analytics initializes
+  unconditionally — preserving the default.
+
+- **Q-A3 (AnalyticsScript location)**: no change — stays in
+  `@ever-works/ui/astro/AnalyticsScript.astro` (already shipping).
+
+- **Q-A4 (provider list)**: no change — Plausible + Umami + Fathom + GA4 +
+  custom escape hatch is sufficient. Adding more providers is a
+  per-PR decision driven by user demand, not part of this multi-option
+  cohort.
+
+**Configuration mechanism**:
+
+```ts
+// plugins.config.ts — opt in to events
+analyticsPlugin({
+  provider: 'plausible',
+  domain: 'example.com',
+  enableEventTracking: true, // <-- new option, default false
+});
+
+// plugins.config.ts — opt in to consent gate
+import { consentPlugin } from '@ever-works/plugin-consent';
+import { analyticsPlugin } from '@ever-works/plugin-analytics';
+
+definePlugins([
+  consentPlugin(),     // must be ordered before analytics
+  analyticsPlugin({ provider: 'plausible', domain: 'example.com' }),
+]);
+```
+
+**Tracking**: `.specify/features/multi-option-support.md` § Phase 8;
+deliverables are `packages/plugin-analytics/src/track-event.ts`, the new
+`packages/plugin-consent/` package, and
+`docs/guides/multi-option/analytics-enhancements.md`.
 
 ---
 
@@ -1642,7 +1949,45 @@ actually changing. Flagging this explicitly so the user can decide
 between A, B, C, D rather than letting the agent invent a 9th, 10th,
 … audit class autonomously.
 
-**Status**: OPEN — awaiting user decision. Until decided, the agent
-will favor light-touch verification ticks (no new audit-class
-inventions) and avoid bloating `docs/log.md` further.
+**Status**: OPEN — partially answered iter 218 (see annotation below).
+
+### Iter-217 user-pivot annotation
+
+The user instructed the agent in iter 218 (2026-04-30) to:
+
+> "go over [questions.md] and make sure that for all questions where there
+> is a benefit to implement few options instead of one, we implement few
+> with some configuration for option that user will select (optional) and
+> some reasonable / best default … create more tasks to work on that …
+> triage … 'Active Questions' [vs] 'Other Questions'."
+
+This is effectively **Option B-prime** of Q29's options A/B/C/D —
+"Pivot focus to feature additions" with concrete user direction:
+the next ~8 iterations of feature work go to the **multi-option-support
+cohort** (umbrella spec `.specify/features/multi-option-support.md`,
+plan `docs/plans/multi-option-support.md`). This pre-empts Option A
+(wind down to weekly) and Option C (continue audit-loop) — the
+agent will not invent new audit classes nor wind down further; it
+will execute the multi-option phases on the next runs.
+
+**What remains OPEN under Q29 after this pivot**: the *vertical-specific
+samples* sub-question. The original brief mentions "future
+vertical-specific templates (real estate, SaaS, etc.)" — the existing
+5 samples (basic / jobs / events / real-estate / git) cover real-estate;
+SaaS, podcasts, books, and other verticals were never explicitly
+scoped. The agent's default until told otherwise is **do not add new
+verticals**. Owner direction would unlock another ~5-10 iterations of
+sample-app scaffolding work; without it, the agent stays inside the
+8-phase multi-option cohort and then re-evaluates.
+
+**Q29 status update**: from `OPEN — awaiting user decision` to
+**OPEN (partial answer)** — Option B-prime in effect for the
+multi-option cohort; vertical-samples sub-question still needs owner
+direction. Until Q29 fully closes, this question stays in the
+**Active Questions** section of this file.
+
+The audit-script behavior described in the original Status note still
+applies between multi-option-cohort phases (no new audit-class inventions;
+light-touch verification ticks during pure-cron-tick runs; per-phase
+landing comes with its own `docs/log.md` entry per the plan).
 
