@@ -40,3 +40,6 @@ coverage/
 
 # Cache
 .cache/
+
+# Multi-option-support scratch verification dirs (per docs/plans/multi-option-support.md)
+tmp/

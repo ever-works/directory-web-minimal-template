@@ -350,7 +350,13 @@ working `image-service.ts` snippet per CDN and a tradeoff matrix
 
 ### Multi-option follow-up (iter 218)
 
-**Status**: OPEN — phase queued (Phase 6 of multi-option-support).
+**Status**: ✅ DELIVERED — Phase 6 complete (iter 219, 2026-04-30). Recipe
+shipped at `docs/guides/multi-option/docs-framework.md`; end-to-end
+scratch verification (npx create-astro@latest --template starlight + pnpm
+install --ignore-workspace + npx astro check + npx astro build) ran green
+on the cron host (Windows 10 + Node 24.14.x + pnpm 10.33.0; `@astrojs/starlight ^0.38.4`,
+`astro 6.2.0`; 0 errors / 0 warnings / 0 hints from `astro check`; 4 pages
+built in 6.96s with Pagefind search index).
 
 **Answer**: Default stays Docusaurus 3.x in `apps/docs/` (already shipping).
 The template will **document** the swap to Starlight (Astro-native) for
@@ -368,8 +374,17 @@ recipe documents the per-file content migration (Docusaurus
 `_category_.json` → Starlight frontmatter `sidebar`).
 
 **Tracking**: `.specify/features/multi-option-support.md` § Phase 6;
-deliverable is `docs/guides/multi-option/docs-framework.md` with a
-tradeoff matrix and end-to-end Starlight verification on a scratch dir.
+deliverable shipped at `docs/guides/multi-option/docs-framework.md` with
+tradeoff matrix and verified-on output. Recipe documents the create-astro
+scaffold (with a note on the `pnpm dlx` `ERR_PNPM_NO_IMPORTER_MANIFEST_FOUND`
+fingerprint and `npx --yes create-astro@latest` fallback observed during
+verification), workspace wire-up at `@ever-works/docs-starlight`, three
+content-migration strategies (symlink / build-hook copy / move), sidebar
+metadata conversion (`_category_.json` → frontmatter `sidebar.order` or
+`autogenerate.directory`), Vercel deployment plumbing, and audit-script
+hooks (the `pnpm audit:docs` runner ignores `apps/docs/` and
+`apps/docs-starlight/` content; adopters add per-app `lint`/`typecheck`
+Turbo tasks).
 
 ---
 
