@@ -18,7 +18,8 @@ export const GET: APIRoute = async () => {
     const siteUrl = (config.app_url ?? '').replace(/\/$/, '');
     const name = config.company_name ?? 'Ever Works Directory';
     const description =
-        (config as { company_description?: string }).company_description ??
+        (config as { description?: string; tagline?: string }).description ??
+        (config as { tagline?: string }).tagline ??
         `A curated directory of ${items.length} ${items.length === 1 ? 'item' : 'items'}.`;
 
     const lines: string[] = [

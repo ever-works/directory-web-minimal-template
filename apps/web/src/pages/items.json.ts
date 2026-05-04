@@ -12,15 +12,36 @@ export const GET: APIRoute = async () => {
     const { items, config } = await getContent();
 
     const siteUrl = (config.app_url ?? '').replace(/\/$/, '');
+    interface ItemShape {
+        slug?: string;
+        id?: string;
+        name?: string;
+        title?: string;
+        url?: string;
+        description?: string;
+        categories?: ReadonlyArray<string>;
+        tags?: ReadonlyArray<string>;
+        meta?: {
+            source_url?: string;
+            url?: string;
+            name?: string;
+            description?: string;
+            category?: ReadonlyArray<string>;
+            tags?: ReadonlyArray<string>;
+        };
+    }
+
     const payload = {
         site: {
             name: config.company_name ?? 'Ever Works Directory',
             url: siteUrl,
-            description: (config as { company_description?: string }).company_description ?? ''
+            description: (config as { description?: string; tagline?: string }).description
+                ?? (config as { tagline?: string }).tagline
+                ?? ''
         },
         generatedAt: new Date().toISOString(),
         count: items.length,
-        items: items.map((item: any) => ({
+        items: (items as ReadonlyArray<ItemShape>).map((item) => ({
             slug: item.slug ?? item.id,
             name: item.name ?? item.meta?.name ?? item.title,
             url:
