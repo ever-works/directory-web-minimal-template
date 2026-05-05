@@ -68,11 +68,32 @@ describe('FilesystemAdapter', () => {
             );
         });
 
-        it('throws if path does not exist', async () => {
+        it('tolerates a missing directory and treats it as empty content', async () => {
+            // Regression test: in CI, sample apps build without a DATA_REPOSITORY
+            // env var, so the prebuild content clone is skipped and `.content/`
+            // never gets created. The adapter must not throw on init — instead
+            // it logs a warning and behaves like an empty content tree so the
+            // core loaders' graceful fallbacks kick in.
+            const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
             const adapter = new FilesystemAdapter();
+            const missingPath = join(tempDir, 'nonexistent');
+
             await expect(
-                adapter.init({ localPath: join(tempDir, 'nonexistent') }),
-            ).rejects.toThrow('path does not exist');
+                adapter.init({ localPath: missingPath }),
+            ).resolves.toBeUndefined();
+
+            expect(warnSpy).toHaveBeenCalledWith(
+                expect.stringContaining('path does not exist'),
+            );
+            // `getContentPath()` should return the resolved path even though
+            // it does not exist on disk — callers (e.g. plugins) may use this
+            // for logging or fall through to `exists()` checks.
+            expect(adapter.getContentPath()).toBe(missingPath);
+            // `exists()` for any sub-path should return false (no throw),
+            // which is what the core loaders depend on for empty fallbacks.
+            await expect(adapter.exists('config.yml')).resolves.toBe(false);
+
+            warnSpy.mockRestore();
         });
 
         it('throws if path is a file not a directory', async () => {
