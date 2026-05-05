@@ -1,0 +1,37 @@
+# Build artefacts and caches
+**/.next
+**/.turbo
+**/dist
+**/.astro
+**/build
+**/coverage
+**/.cache
+
+# Dependency directories (we install fresh inside the image)
+**/node_modules
+
+# VCS, IDE
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+
+# Environment files
+**/.env
+**/.env.*
+!**/.env.example
+
+# Test fixtures and reports
+**/playwright-report
+**/test-results
+
+# Local content cache (cloned at runtime/build time)
+apps/web/.content
+
+# Local logs
+**/*.log
+npm-debug.log*
+
+# OS metadata
+Thumbs.db
