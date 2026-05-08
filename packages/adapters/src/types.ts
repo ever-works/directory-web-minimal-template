@@ -20,7 +20,11 @@ export interface DataAdapter {
     /**
      * Initialize the data source.
      * For GitAdapter: clones the repository.
-     * For FilesystemAdapter: validates the path exists.
+     * For FilesystemAdapter: validates the path. A missing directory is
+     * tolerated and treated as empty content (with a warning) — callers
+     * that need to distinguish "no content yet" from a hard error should
+     * rely on the loaders' graceful fallbacks rather than expecting
+     * `init()` to throw.
      * Called once before any read operations.
      */
     init(config: AdapterConfig): Promise<void>;

@@ -9,7 +9,11 @@ import type { DataAdapter, AdapterConfig } from './types';
 
 /**
  * Data adapter that reads content from the local filesystem.
- * Expects `config.localPath` to point to an existing directory.
+ * Expects `config.localPath` to point to a directory. If the directory
+ * does not exist (e.g., the data repository was never cloned in CI),
+ * the adapter initializes successfully with an empty content tree —
+ * downstream loaders will see no files and gracefully fall back to
+ * defaults / empty collections.
  */
 export class FilesystemAdapter implements DataAdapter {
     /** @inheritdoc */
@@ -26,8 +30,16 @@ export class FilesystemAdapter implements DataAdapter {
 
     /**
      * Initialize the adapter by validating the local path.
-     * @param config - Must include `localPath` pointing to an existing directory.
-     * @throws If `localPath` is missing, does not exist, or is not a directory.
+     *
+     * Tolerates a missing directory: if `localPath` does not exist on disk,
+     * a warning is logged and the adapter initializes as if the directory
+     * were empty. This unblocks CI builds that run without a `DATA_REPOSITORY`
+     * env var (so the prebuild content clone is skipped) — the core loaders
+     * all degrade gracefully to defaults when files cannot be read.
+     *
+     * @param config - Must include `localPath`.
+     * @throws If `localPath` is missing from config, or the path exists
+     *   but is not a directory.
      */
     async init(config: AdapterConfig): Promise<void> {
         const localPath = config.localPath;
@@ -39,23 +51,33 @@ export class FilesystemAdapter implements DataAdapter {
 
         const resolved = resolve(localPath);
 
+        let pathExists = true;
         try {
             await access(resolved);
         } catch {
-            throw new Error(
-                `FilesystemAdapter: path does not exist: ${resolved}`,
-            );
+            pathExists = false;
         }
 
-        const info = await stat(resolved);
-        if (!info.isDirectory()) {
-            throw new Error(
-                `FilesystemAdapter: path is not a directory: ${resolved}`,
+        if (pathExists) {
+            const info = await stat(resolved);
+            if (!info.isDirectory()) {
+                throw new Error(
+                    `FilesystemAdapter: path is not a directory: ${resolved}`,
+                );
+            }
+        } else {
+            // Treat a missing directory as empty content — common in CI
+            // when `DATA_REPOSITORY` is not configured and the prebuild
+            // content clone is skipped. Loaders fall back to defaults.
+            console.warn(
+                `[FilesystemAdapter] path does not exist: ${resolved} — treating as empty content.`,
             );
         }
 
         this.contentPath = resolved;
-        this.mtimeSnapshot = await this.captureSnapshot();
+        this.mtimeSnapshot = pathExists
+            ? await this.captureSnapshot()
+            : new Map();
     }
 
     /**
