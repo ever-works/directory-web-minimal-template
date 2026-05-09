@@ -1,0 +1,23 @@
+- id: "form-components"
+  name: "Form Components"
+
+- id: "data-display"
+  name: "Data Display"
+
+- id: "navigation"
+  name: "Navigation"
+
+- id: "layout"
+  name: "Layout"
+
+- id: "feedback"
+  name: "Feedback"
+
+- id: "animation"
+  name: "Animation"
+
+- id: "headless"
+  name: "Headless"
+
+- id: "full-suite"
+  name: "Full Suite"

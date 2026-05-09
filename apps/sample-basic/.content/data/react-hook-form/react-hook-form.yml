@@ -1,0 +1,9 @@
+name: "React Hook Form"
+description: "Performant, flexible and extensible forms with easy-to-use validation. Minimizes re-renders and improves form performance."
+source_url: "https://react-hook-form.com"
+category: "form-components"
+tags: ["typescript", "open-source", "small-bundle", "react-19"]
+updated_at: "2026-02-28 15:00"
+status: "approved"
+featured: false
+icon_url: "https://react-hook-form.com/images/logo/react-hook-form-logo-only.png"
