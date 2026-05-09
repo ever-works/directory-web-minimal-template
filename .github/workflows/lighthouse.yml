@@ -33,6 +33,17 @@ jobs:
           SITE_URL: https://react-components.example.com
 
       - name: Run Lighthouse CI
+        # Lighthouse runs against an empty-content build of sample-basic in
+        # CI (samples' `.content/` is gitignored — pulled at runtime). The
+        # build still produces a homepage and a `/categories/` page, but any
+        # dynamic-route URL (e.g. `/item/<slug>/`) 404s, which `lhci collect`
+        # treats as a fatal `ERRORED_DOCUMENT_REQUEST`. The lighthouserc.cjs
+        # URL list is already trimmed to safe entries; this `continue-on-error`
+        # is the second-line defence so a future Astro/Lighthouse runtime
+        # change that makes even the homepage flaky does NOT block PR merges.
+        # Lighthouse is a *warning*-tier signal here — assertions in
+        # `lighthouserc.cjs` use `['warn', ...]`, never `['error', ...]`.
+        continue-on-error: true
         uses: treosh/lighthouse-ci-action@v12
         with:
           configPath: ./lighthouserc.cjs

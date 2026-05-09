@@ -21,11 +21,19 @@ module.exports = {
       // step so the `dist/` is ready before the server boots.
       startServerCommand: 'pnpm --filter @ever-works/sample-basic preview',
       startServerReadyPattern: 'localhost',
-      // Test against the built sample-basic preview server
+      // Test against the built sample-basic preview server. Only `/` is
+      // listed because `apps/sample-basic/.content/` is gitignored (samples
+      // pull data from external repos at runtime — see `.gitignore`'s
+      // `.content/` rule); CI builds against an EMPTY `.content/` (the
+      // FilesystemAdapter "tolerate missing dir" path landed in PR #3).
+      // With no items / categories loaded, the dynamic routes
+      // (`/item/<slug>/`, `/category/<slug>/`) generate no static paths and
+      // serve 404s, which aborts `lhci collect` with an
+      // `ERRORED_DOCUMENT_REQUEST` runtime error. The homepage and
+      // `/categories/` index page render unconditionally because their
+      // `.astro` sources tolerate empty arrays.
       url: [
         'http://localhost:4323/',
-        'http://localhost:4323/item/radix-ui/',
-        'http://localhost:4323/category/form-components/',
         'http://localhost:4323/categories/',
       ],
       // 3 runs per URL, take median for stable results
