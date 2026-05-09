@@ -30,14 +30,23 @@ concurrency:
 
 env:
     NODE_OPTIONS: "--max-old-space-size=4096"
-    # K8S_REGISTRY_KIND drives every per-registry conditional below.
-    # Defaults to 'github' when the platform pushed nothing — that's the
-    # zero-config GHCR flow.
-    K8S_REGISTRY_KIND: ${{ secrets.K8S_REGISTRY_KIND || 'github' }}
+    # NOTE: `K8S_REGISTRY_KIND` lives at the JOB level below — NOT here. The
+    # `secrets` context is not available at workflow-level `env:` (it resolves
+    # only at job-startup time), and using it here triggers a startup_failure
+    # on every push that materialises in the Actions UI as a 0-second failed
+    # run with no jobs. That's exactly what was happening for runs
+    # 25398187806 / 25541913136 / 25599075331 — see the run-list note in the
+    # commit message.
 
 jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
+        env:
+            # K8S_REGISTRY_KIND drives every per-registry conditional below.
+            # Defaults to 'github' when the platform pushed nothing — that's
+            # the zero-config GHCR flow. Lives at the job level because the
+            # `secrets` context is only accessible from job-level scopes.
+            K8S_REGISTRY_KIND: ${{ secrets.K8S_REGISTRY_KIND || 'github' }}
         steps:
             - name: Echo target environment
               run: echo "Deploying to ${{ inputs.environment }}"

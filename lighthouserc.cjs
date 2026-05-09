@@ -9,6 +9,18 @@
 module.exports = {
   ci: {
     collect: {
+      // Start the preview server before running Lighthouse. The
+      // `treosh/lighthouse-ci-action` (≥v10) does NOT accept `serverCommand` /
+      // `serverReadyPattern` as action inputs (they emit `Unexpected input(s)`
+      // warnings and are silently dropped). The supported entry point is the
+      // `startServerCommand` / `startServerReadyPattern` config inside
+      // `lighthouserc.cjs`, consumed by `lhci collect`. Without these, the
+      // preview server never starts and Chrome hits a chrome-error://chromewebdata/
+      // interstitial on every URL — exactly the failure mode observed in run
+      // 25599075547. Keep this paired with the workflow's `Build sample-basic`
+      // step so the `dist/` is ready before the server boots.
+      startServerCommand: 'pnpm --filter @ever-works/sample-basic preview',
+      startServerReadyPattern: 'localhost',
       // Test against the built sample-basic preview server
       url: [
         'http://localhost:4323/',

@@ -38,6 +38,11 @@ jobs:
           configPath: ./lighthouserc.cjs
           uploadArtifacts: true
           runs: 3
-          # Start the preview server for Lighthouse to test against
-          serverCommand: pnpm --filter @ever-works/sample-basic preview
-          serverReadyPattern: 'localhost'
+          # NOTE: The preview server is started by `lhci collect` itself via
+          # the `startServerCommand` / `startServerReadyPattern` keys in
+          # `lighthouserc.cjs`. The action's previous `serverCommand` /
+          # `serverReadyPattern` inputs are NOT supported by v12 and were
+          # silently dropped (run 25599075547 emitted
+          # `##[warning]Unexpected input(s) 'serverCommand', 'serverReadyPattern'`).
+          # Without a started server Chrome rendered the
+          # chrome-error://chromewebdata/ interstitial on every URL.
