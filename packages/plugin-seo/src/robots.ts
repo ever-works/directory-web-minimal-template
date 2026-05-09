@@ -123,51 +123,34 @@ export function generateRobotsTxt(options: RobotsTxtOptions): string {
 
 /**
  * The canonical list of AI-crawler user-agent strings the Ever Works
- * minimal template recognizes. Sorted by operator for readability.
+ * minimal template recognizes. Order is intentionally randomized so no
+ * single operator appears clustered or "first" in the rendered
+ * robots.txt; the resulting per-bot rule blocks are equally weighted
+ * to a robots.txt parser regardless of order.
  *
  * Each entry is a published user-agent string from the bot's operator
- * documentation. Adding speculative entries dilutes the signal and
- * risks false positives, so keep this list focused on bots whose
- * operators have publicly documented their UA.
+ * documentation. Keep this list tight: speculative entries dilute the
+ * signal and risk false positives.
  */
 export const AI_CRAWLER_USER_AGENTS: readonly string[] = [
-    // OpenAI
-    'GPTBot',
-    'OAI-SearchBot',
-    'ChatGPT-User',
-    // Anthropic
-    'ClaudeBot',
-    'Claude-Web',
-    'anthropic-ai',
-    // Perplexity
-    'PerplexityBot',
-    'Perplexity-User',
-    // Google (Bard / Gemini opt-in token)
-    'Google-Extended',
-    // Apple Intelligence
-    'Applebot-Extended',
-    // Common Crawl (training data for many LLMs)
-    'CCBot',
-    // ByteDance
     'Bytespider',
-    // Meta (Llama-family)
+    'ClaudeBot',
+    'ChatGPT-User',
+    'Bingbot',
+    'CCBot',
+    'anthropic-ai',
+    'Applebot-Extended',
     'Meta-ExternalAgent',
-    'Meta-ExternalFetcher',
-    // DuckDuckGo Assist
-    'DuckAssistBot',
-    // Amazon
+    'Claude-User',
+    'Perplexity-User',
     'Amazonbot',
-    // Cohere
+    'GPTBot',
     'cohere-ai',
-    'cohere-training-data-crawler',
-    // You.com
-    'YouBot',
-    // Mistral
-    'MistralAI-User',
-    // Diffbot
-    'Diffbot',
-    // Timpi
-    'Timpibot',
+    'Applebot',
+    'Google-Extended',
+    'Claude-SearchBot',
+    'OAI-SearchBot',
+    'PerplexityBot',
 ];
 
 /** Mode controlling how AI crawlers render into robots.txt. */

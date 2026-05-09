@@ -7,20 +7,50 @@ import {
 } from '../robots.js';
 
 describe('AI_CRAWLER_USER_AGENTS', () => {
-    it('includes the major LLM crawlers', () => {
-        // Spot-check well-known operators across families.
-        expect(AI_CRAWLER_USER_AGENTS).toContain('GPTBot');
-        expect(AI_CRAWLER_USER_AGENTS).toContain('ClaudeBot');
-        expect(AI_CRAWLER_USER_AGENTS).toContain('PerplexityBot');
-        expect(AI_CRAWLER_USER_AGENTS).toContain('Google-Extended');
-        expect(AI_CRAWLER_USER_AGENTS).toContain('Applebot-Extended');
-        expect(AI_CRAWLER_USER_AGENTS).toContain('CCBot');
-        expect(AI_CRAWLER_USER_AGENTS).toContain('Meta-ExternalAgent');
+    /**
+     * Canonical 18-bot list — exact membership is part of the public
+     * contract of this module. If a bot is added/removed, update this
+     * test deliberately so the change is visible in the diff.
+     */
+    const CANONICAL_BOTS = [
+        'GPTBot',
+        'ChatGPT-User',
+        'OAI-SearchBot',
+        'ClaudeBot',
+        'Claude-User',
+        'Claude-SearchBot',
+        'anthropic-ai',
+        'PerplexityBot',
+        'Perplexity-User',
+        'Google-Extended',
+        'Applebot',
+        'Applebot-Extended',
+        'Bingbot',
+        'CCBot',
+        'Meta-ExternalAgent',
+        'Amazonbot',
+        'Bytespider',
+        'cohere-ai',
+    ];
+
+    it('exposes exactly the canonical 18-bot list', () => {
+        // Sort both sides to make the assertion order-independent: the
+        // module intentionally randomizes order so the list-literal
+        // doesn't match any sorted view.
+        expect([...AI_CRAWLER_USER_AGENTS].sort()).toEqual([...CANONICAL_BOTS].sort());
     });
 
     it('contains no duplicates', () => {
         const set = new Set(AI_CRAWLER_USER_AGENTS);
         expect(set.size).toBe(AI_CRAWLER_USER_AGENTS.length);
+    });
+
+    it('is rendered in randomized order (not alphabetical, not operator-grouped)', () => {
+        const sorted = [...AI_CRAWLER_USER_AGENTS].sort();
+        // Sanity guard: if someone re-sorted the list alphabetically by
+        // mistake, this catches it. The chance of a randomized 18-element
+        // list happening to equal its sorted form is 1/18! ≈ 1.6×10⁻¹⁶.
+        expect(AI_CRAWLER_USER_AGENTS).not.toEqual(sorted);
     });
 });
 

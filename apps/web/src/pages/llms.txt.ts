@@ -4,9 +4,11 @@
  * machine-readable manifest of the directory and pointers to:
  *
  *  - /items.json        — JSON dump of every item.
+ *  - /feed.json         — JSON Feed 1.1 of recent items.
  *  - /llms-full.txt     — concatenated long-form Markdown of the entire site.
  *  - /sitemap-index.xml — full URL list.
  *  - /atom.xml          — atom feed of recent items.
+ *  - /rss.xml           — RSS 2.0 feed.
  *  - /<page>.md         — per-page Markdown mirror of every public page
  *                         (items / categories / tags / collections /
  *                         comparisons / pages).
@@ -38,8 +40,10 @@ export const GET: APIRoute = async () => {
         '',
         `- [Full long-form Markdown dump](${siteUrl}/llms-full.txt) — every category, tag, item, and comparison concatenated as Markdown for one-shot ingestion.`,
         `- [Items JSON index](${siteUrl}/items.json) — JSON dump of every item with its category, tags, and link.`,
+        `- [JSON Feed 1.1](${siteUrl}/feed.json) — recent items as JSON Feed.`,
         `- [Sitemap](${siteUrl}/sitemap-index.xml)`,
         `- [Atom feed](${siteUrl}/atom.xml)`,
+        `- [RSS feed](${siteUrl}/rss.xml)`,
         '',
         '## Per-page Markdown mirrors',
         '',

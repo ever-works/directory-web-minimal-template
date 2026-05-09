@@ -22,11 +22,17 @@ export interface RssPluginOptions {
     /** Whether to generate Atom 1.0 feed alongside RSS (default: true). */
     atom?: boolean;
 
+    /** Whether to generate JSON Feed 1.1 alongside RSS (default: true). */
+    jsonFeed?: boolean;
+
     /** RSS feed filename (default: 'rss.xml'). */
     rssFilename?: string;
 
     /** Atom feed filename (default: 'atom.xml'). */
     atomFilename?: string;
+
+    /** JSON Feed filename (default: 'feed.json'). */
+    jsonFeedFilename?: string;
 
     /** Sort order for feed items (default: 'date-desc'). */
     sortBy?: 'date-desc' | 'date-asc' | 'name-asc' | 'name-desc';
@@ -39,8 +45,10 @@ export interface ResolvedRssConfig {
     siteUrl: string;
     limit: number;
     atom: boolean;
+    jsonFeed: boolean;
     rssFilename: string;
     atomFilename: string;
+    jsonFeedFilename: string;
     sortBy: 'date-desc' | 'date-asc' | 'name-asc' | 'name-desc';
 }
 

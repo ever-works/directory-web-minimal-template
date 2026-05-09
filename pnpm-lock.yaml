@@ -848,6 +848,9 @@ importers:
       '@ever-works/plugins':
         specifier: workspace:*
         version: link:../plugins
+      feed:
+        specifier: ^5.2.1
+        version: 5.2.1
     devDependencies:
       '@ever-works/eslint-config':
         specifier: workspace:*
@@ -6438,6 +6441,10 @@ packages:
   feed@4.2.2:
     resolution: {integrity: sha512-u5/sxGfiMfZNtJ3OvQpXcvotFpYkL0n9u9mM2vkui2nGo8b4wvDkJ8gAkYqbA8QpGyFCv3RK0Z+Iv+9veCS9bQ==}
     engines: {node: '>=0.4.0'}
+
+  feed@5.2.1:
+    resolution: {integrity: sha512-jTynzYPWs9ALjro0GW8j7sv9y7cJBeOdD4Y88kVqYy/eyusIX3g+499JiTDIlD9Ge/unebx57T4Uzo6vpYvMtA==}
+    engines: {node: '>=20', pnpm: '>=10'}
 
   figures@3.2.0:
     resolution: {integrity: sha512-yaduQFRKLXYOGgEn6AZau90j3ggSOyiqXU0F9JZfeXYhNa+Jk4X+s45A2zg5jns87GAFa34BBm2kXw4XpNcbdg==}
@@ -16970,6 +16977,10 @@ snapshots:
       picomatch: 4.0.4
 
   feed@4.2.2:
+    dependencies:
+      xml-js: 1.6.11
+
+  feed@5.2.1:
     dependencies:
       xml-js: 1.6.11
 

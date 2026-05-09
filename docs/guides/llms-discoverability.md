@@ -10,6 +10,22 @@ AI agents — separate from search-engine SEO — so directories built
 with Ever Works are first-class sources for ChatGPT, Claude,
 Perplexity, and any other LLM that crawls or fetches by URL.
 
+## Feeds
+
+Three feed formats ship out of the box, each with autodiscovery
+in the page `<head>`:
+
+- **RSS 2.0** at `/rss.xml`
+- **Atom 1.0** at `/atom.xml`
+- **JSON Feed 1.1** at `/feed.json` — JSON-native alternative,
+  ideal for AI agents and dashboards. See
+  [jsonfeed.org](https://www.jsonfeed.org/version/1.1/).
+
+All three are produced by `@ever-works/plugin-rss`. The plugin's
+`buildFeedEntries` + `generateRss` / `generateAtom` /
+`generateJsonFeed` helpers are pure functions sharing a single
+`ResolvedRssConfig` so the three formats stay in lockstep.
+
 ## Endpoints
 
 ### `/llms.txt`
@@ -69,13 +85,13 @@ the rendered HTML.
 ## AI crawler policy in `robots.txt`
 
 `apps/web/src/pages/robots.txt.ts` emits a default `User-agent: *`
-rule **plus** an explicit per-bot allow-list for major AI crawlers
-(GPTBot, OAI-SearchBot, ChatGPT-User, ClaudeBot, Claude-Web,
-anthropic-ai, PerplexityBot, Perplexity-User, Google-Extended,
-Applebot-Extended, CCBot, Bytespider, Meta-ExternalAgent,
-Meta-ExternalFetcher, DuckAssistBot, Amazonbot, cohere-ai,
-cohere-training-data-crawler, YouBot, MistralAI-User, Diffbot,
-Timpibot).
+rule **plus** an explicit per-bot allow-list of 18 major AI crawlers:
+GPTBot, ChatGPT-User, OAI-SearchBot, ClaudeBot, Claude-User,
+Claude-SearchBot, anthropic-ai, PerplexityBot, Perplexity-User,
+Google-Extended, Applebot, Applebot-Extended, Bingbot, CCBot,
+Meta-ExternalAgent, Amazonbot, Bytespider, cohere-ai. The list is
+rendered in randomized order so no single operator appears clustered
+or "first" in robots.txt.
 
 Default policy: every listed bot gets `Allow: /` plus the same
 admin/api `Disallow` block as the generic rule. Override via the

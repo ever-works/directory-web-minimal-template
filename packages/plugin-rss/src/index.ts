@@ -21,4 +21,5 @@
 export { rssPlugin, buildFeedEntries, resolveRssConfig } from './plugin';
 export { generateRss, escapeXml, toRfc2822 } from './rss-generator';
 export { generateAtom, toAtomDate } from './atom-generator';
+export { generateJsonFeed, toRfc3339 } from './json-feed-generator';
 export type { RssPluginOptions, ResolvedRssConfig, FeedEntry } from './types';

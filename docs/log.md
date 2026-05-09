@@ -3,6 +3,80 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-05-09 — Iteration 223: swap hand-rolled feed XML/JSON for the `feed` library
+
+User feedback after iter 222: the package was emitting XML and JSON
+feed bodies via hand-rolled string templating when a single mature
+library covers all three formats. Switched the three generators in
+`@ever-works/plugin-rss` to delegate to the npm `feed` library
+([npmjs.com/package/feed](https://www.npmjs.com/package/feed), ~5M
+weekly downloads, supports RSS 2.0 + Atom 1.0 + JSON Feed 1.0/1.1
+from one in-memory `Feed` instance). Per AGENTS.md R12 ("Use existing
+libraries — Prefer popular, well-maintained packages over custom
+implementations").
+
+What changed:
+
+- New `packages/plugin-rss/src/feed-builder.ts` exposing `buildFeed()`
+  that constructs a populated `Feed` from `FeedEntry[]` plus
+  `ResolvedRssConfig`. Sets both `date` (→ JSON Feed `date_modified`)
+  and `published` (→ JSON Feed `date_published`) from the same
+  `pubDate` so consumers can read either field.
+- `rss-generator.ts`, `atom-generator.ts`, `json-feed-generator.ts`
+  collapsed from ~80-line string templating each to thin one-liners
+  that call `.rss2()`, `.atom1()`, `.json1()` on the shared `Feed`.
+  Legacy public exports (`escapeXml`, `toRfc2822`, `toAtomDate`,
+  `toRfc3339`) retained as backward-compatible utilities.
+- `generateJsonFeed` post-processes the library's JSON Feed 1.0
+  output to bump the `version` URL to `https://jsonfeed.org/version/1.1`
+  and add the 1.1-only `language` field. The two spec versions are
+  byte-compatible for the fields we emit.
+- New dep: `feed ^5.2.1` in `packages/plugin-rss/package.json`. No
+  longer carrying ~250 LOC of hand-rolled XML/JSON templating.
+- Tests updated to assert on parsed/structural properties (substring
+  matches inside CDATA-wrapped XML, JSON.parse'd field shapes) rather
+  than exact whitespace/escaping that varied between our hand-roll
+  and `feed`'s output.
+- Same swap applied symmetrically to the full Next.js
+  `directory-web-template` (`apps/web/lib/seo/feeds.ts`).
+
+## 2026-05-09 — Iteration 222: feeds + AI-crawler list refinement
+
+Follow-up iteration on top of iter 221, addressing user-direction
+adjustments to the discoverability work:
+
+- **AI-crawler list trimmed to exactly 18 bots, rendered in
+  randomized order**: GPTBot, ChatGPT-User, OAI-SearchBot, ClaudeBot,
+  Claude-User, Claude-SearchBot, anthropic-ai, PerplexityBot,
+  Perplexity-User, Google-Extended, Applebot, Applebot-Extended,
+  Bingbot, CCBot, Meta-ExternalAgent, Amazonbot, Bytespider,
+  cohere-ai. Removed speculative extras (Diffbot, MistralAI-User,
+  YouBot, Timpibot, Meta-ExternalFetcher, DuckAssistBot, Claude-Web,
+  cohere-training-data-crawler). The list literal in
+  `packages/plugin-seo/src/robots.ts` is intentionally not sorted so
+  no operator appears clustered or "first" in the rendered
+  robots.txt.
+- **JSON Feed 1.1 added** to `@ever-works/plugin-rss`:
+    - New `packages/plugin-rss/src/json-feed-generator.ts` with
+      `generateJsonFeed` and `toRfc3339`.
+    - Barrel updated; `RssPluginOptions` / `ResolvedRssConfig` gained
+      `jsonFeed` (boolean, default `true`) and `jsonFeedFilename`
+      (default `'feed.json'`).
+    - New endpoint `apps/web/src/pages/feed.json.ts`.
+    - `BaseLayout.astro` now emits the `application/feed+json`
+      autodiscovery `<link>` alongside the existing RSS and Atom
+      links.
+- **`llms.txt.ts`** advertises `/feed.json` and `/rss.xml` alongside
+  the previously listed `/atom.xml` and `/sitemap-index.xml`.
+- **Tests**: new `json-feed-generator.test.ts` (11 tests),
+  `barrel-exports.test.ts` extended to assert the new exports,
+  `plugin.test.ts` extended to cover the `jsonFeed` config field, and
+  `ai-crawlers.test.ts` rewritten to assert the canonical 18-bot
+  membership and the randomized-order invariant.
+- **Decision recorded — no `sitemap-llms.xml`**: not a widely-adopted
+  industry convention. The standard pattern is to point AI agents at
+  the regular `/sitemap.xml` from `/llms.txt`, which we already do.
+
 ## 2026-05-09 — Iteration 221: LLM / AI agent discoverability pass
 
 User-direction iteration on top of iter 220. Adds the four

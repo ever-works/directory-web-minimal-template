@@ -15,7 +15,8 @@
     },
     "dependencies": {
         "@ever-works/core": "workspace:*",
-        "@ever-works/plugins": "workspace:*"
+        "@ever-works/plugins": "workspace:*",
+        "feed": "^5.2.1"
     },
     "devDependencies": {
         "@ever-works/eslint-config": "workspace:*",

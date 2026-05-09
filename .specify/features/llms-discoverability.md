@@ -16,9 +16,15 @@ from search-engine SEO:
    static page).
 4. `BreadcrumbList` JSON-LD on every page that has a navigational
    trail.
-5. Explicit AI-crawler allow-list in `robots.txt` (GPTBot, ClaudeBot,
-   PerplexityBot, Google-Extended, etc.) overridable via the
-   `AI_CRAWLERS` env var.
+5. Explicit AI-crawler allow-list in `robots.txt` — exactly 18 bots
+   (GPTBot, ChatGPT-User, OAI-SearchBot, ClaudeBot, Claude-User,
+   Claude-SearchBot, anthropic-ai, PerplexityBot, Perplexity-User,
+   Google-Extended, Applebot, Applebot-Extended, Bingbot, CCBot,
+   Meta-ExternalAgent, Amazonbot, Bytespider, cohere-ai) rendered in
+   randomized order, overridable via the `AI_CRAWLERS` env var.
+6. `/feed.json` — JSON Feed 1.1 alongside the existing `/rss.xml` and
+   `/atom.xml` so JSON-native consumers (AI agents, dashboards) don't
+   have to parse XML.
 
 ## Goals
 
