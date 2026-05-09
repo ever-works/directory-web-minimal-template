@@ -23,7 +23,7 @@ Your job: **apply styling, customize layouts, and configure plugins** to create 
 
 Read the content repository to understand what you're working with:
 
-1. Check `.content/config.yml` for site name, item naming, etc.
+1. Check `.content/.works/works.yml` for site name, item naming, etc.
 2. Check `.content/categories.yml` for available categories
 3. Check `.content/tags.yml` for available tags
 4. Browse `.content/data/` to understand item structure

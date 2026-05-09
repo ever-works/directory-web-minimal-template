@@ -10,6 +10,10 @@ build/
 
 # Content (cloned at build/dev time)
 .content/
+!apps/sample-events/.content/
+apps/sample-events/.content/*
+!apps/sample-events/.content/.works/
+!apps/sample-events/.content/.works/works.yml
 
 # Environment
 .env

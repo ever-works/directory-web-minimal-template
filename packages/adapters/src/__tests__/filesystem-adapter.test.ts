@@ -91,7 +91,7 @@ describe('FilesystemAdapter', () => {
             expect(adapter.getContentPath()).toBe(missingPath);
             // `exists()` for any sub-path should return false (no throw),
             // which is what the core loaders depend on for empty fallbacks.
-            await expect(adapter.exists('config.yml')).resolves.toBe(false);
+            await expect(adapter.exists('.works/works.yml')).resolves.toBe(false);
 
             warnSpy.mockRestore();
         });

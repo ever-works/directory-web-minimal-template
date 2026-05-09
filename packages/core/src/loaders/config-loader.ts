@@ -1,5 +1,5 @@
 /**
- * Config loader — reads and parses `.content/config.yml`.
+ * Config loader — reads and parses `.works/works.yml` from the content root.
  * Provides sensible defaults for missing fields.
  */
 
@@ -16,20 +16,23 @@ const DEFAULT_CONFIG: SiteConfig = {
     copyright_year: new Date().getFullYear(),
 };
 
+/** Site configuration path, relative to the content root. */
+export const SITE_CONFIG_PATH = '.works/works.yml';
+
 /**
  * Load site configuration from the data adapter.
- * Reads `config.yml` from the content root and merges with defaults.
+ * Reads `.works/works.yml` from the content root and merges with defaults.
  *
  * @param adapter - Data adapter to read files from
  * @returns Parsed site configuration with defaults applied
  */
 export async function loadConfig(adapter: DataAdapter): Promise<SiteConfig> {
     try {
-        const raw = await adapter.readFile('config.yml');
+        const raw = await adapter.readFile(SITE_CONFIG_PATH);
         const parsed: unknown = parseYaml(raw);
 
         if (parsed === null || typeof parsed !== 'object') {
-            coreLogger.warn('config.yml is empty or invalid, using defaults');
+            coreLogger.warn(`${SITE_CONFIG_PATH} is empty or invalid, using defaults`);
             return { ...DEFAULT_CONFIG };
         }
 
@@ -52,7 +55,7 @@ export async function loadConfig(adapter: DataAdapter): Promise<SiteConfig> {
                 : DEFAULT_CONFIG.copyright_year,
         };
     } catch (error) {
-        coreLogger.warn('Failed to load config.yml, using defaults:', error);
+        coreLogger.warn(`Failed to load ${SITE_CONFIG_PATH}, using defaults:`, error);
         return { ...DEFAULT_CONFIG };
     }
 }

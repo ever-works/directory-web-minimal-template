@@ -24,7 +24,8 @@ Create a `.content/` directory in `apps/web/` with your data:
 
 ```
 apps/web/.content/
-├── config.yml          # Site name, URL, branding
+├── .works/
+│   └── works.yml       # Site name, URL, branding
 ├── categories.yml      # Category definitions
 ├── tags.yml            # Tag definitions
 ├── collections.yml     # Optional item collections
@@ -36,7 +37,7 @@ apps/web/.content/
 └── comparisons/        # Optional item comparisons
 ```
 
-### Minimal config.yml
+### Minimal .works/works.yml
 
 ```yaml
 company_name: "My Directory"

@@ -133,7 +133,8 @@ Basic structure (from `apps/sample-basic/.content/`):
 
 ```
 .content/
-  config.yml          -- company_name, item_name, items_name, pagination, etc.
+  .works/
+    works.yml         -- company_name, item_name, items_name, pagination, etc.
   categories.yml      -- [{id, name, icon_url?}]
   tags.yml            -- [{id, name, isActive?}]
   collections.yml     -- [{id, slug, name, description, items?}]
@@ -977,7 +978,7 @@ interface PluginHooks {
 
 ```typescript
 interface PluginContext {
-    config: SiteConfig;                        // Site configuration from config.yml
+    config: SiteConfig;                        // Site configuration from .works/works.yml
     contentPath: string;                       // Absolute path to .content/ directory
     outDir: string;                            // Absolute path to dist/ directory
     plugins: ReadonlyMap<string, Plugin>;       // All registered plugins
@@ -1405,7 +1406,7 @@ interface ComparisonDimension {
 ### SiteConfig
 
 Source: `packages/core/src/types/config.ts`
-Parsed from: `.content/config.yml`
+Parsed from: `.content/.works/works.yml`
 
 ```typescript
 interface NavLinkItem {
@@ -1495,7 +1496,8 @@ The `.content/` directory is the data source. It can be a local directory or a s
 
 ```
 .content/
-  config.yml                          -- Site configuration (SiteConfig)
+  .works/
+    works.yml                         -- Site configuration (SiteConfig)
   categories.yml                      -- Category definitions (CategoryData[])
   tags.yml                            -- Tag definitions (TagData[])
   collections.yml                     -- Collection definitions (CollectionData[])
@@ -1510,7 +1512,7 @@ The `.content/` directory is the data source. It can be a local directory or a s
   pages/                              -- Static pages (Markdown)
 ```
 
-### Example config.yml
+### Example .works/works.yml
 
 ```yaml
 company_name: "React UI Components"

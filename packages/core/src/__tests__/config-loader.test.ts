@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { loadConfig } from '../loaders/config-loader.js';
+import { loadConfig, SITE_CONFIG_PATH } from '../loaders/config-loader.js';
 import type { DataAdapter } from '@ever-works/adapters';
 
 /** Helper to create a mock DataAdapter */
@@ -38,6 +38,7 @@ app_url: https://acme.com
 
         const config = await loadConfig(adapter);
 
+        expect(adapter.readFile).toHaveBeenCalledWith(SITE_CONFIG_PATH);
         expect(config.company_name).toBe('Acme Directory');
         expect(config.item_name).toBe('Widget');
         expect(config.items_name).toBe('Widgets');
@@ -45,7 +46,7 @@ app_url: https://acme.com
         expect(config.app_url).toBe('https://acme.com');
     });
 
-    it('should use defaults when config.yml is empty', async () => {
+    it('should use defaults when .works/works.yml is empty', async () => {
         const adapter = createMockAdapter({
             readFile: vi.fn().mockResolvedValue(''),
         });
@@ -65,6 +66,8 @@ app_url: https://acme.com
 
         const config = await loadConfig(adapter);
 
+        expect(adapter.readFile).toHaveBeenCalledWith(SITE_CONFIG_PATH);
+        expect(adapter.readFile).toHaveBeenCalledTimes(1);
         expect(config.company_name).toBe('My Directory');
         expect(config.item_name).toBe('Item');
         expect(config.items_name).toBe('Items');

@@ -32,7 +32,7 @@ interface DataAdapter {
 
     /**
      * Read a file's raw contents as a string.
-     * @param relativePath - Path relative to content root (e.g., 'config.yml')
+     * @param relativePath - Path relative to content root (e.g., '.works/works.yml')
      */
     readFile(relativePath: string): Promise<string>;
 

@@ -86,7 +86,7 @@ async function getAdapter() {
 			`  1. DATA_REPOSITORY points to a valid Git repo\n` +
 			`  2. GH_TOKEN is set for private repositories\n` +
 			`  3. GITHUB_BRANCH (default: "main") exists in the repo\n` +
-			`  4. The repo contains a config.yml at its root\n` +
+			`  4. The repo contains .works/works.yml at its root\n` +
 			`Original error: ${err instanceof Error ? err.message : String(err)}`
 		);
 	}
@@ -138,7 +138,7 @@ export async function getContent(): Promise<ContentData> {
 			throw new Error(
 				`[content] Failed to load content from the data repository. ` +
 				`This usually means YAML files are malformed or required files are missing. Check that:\n` +
-				`  1. config.yml exists and is valid YAML\n` +
+				`  1. .works/works.yml exists and is valid YAML\n` +
 				`  2. categories.yml, tags.yml are valid YAML arrays\n` +
 				`  3. Item files in data/<slug>/<slug>.yml are valid YAML\n` +
 				`  4. No syntax errors (tabs vs spaces, unclosed quotes, etc.)\n` +

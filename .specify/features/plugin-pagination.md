@@ -66,7 +66,7 @@ packages/plugin-pagination/
 The resolved `itemsPerPage` is determined by a three-tier cascade:
 
 1. **Plugin options** — `paginationPlugin({ itemsPerPage: 24 })` — highest priority
-2. **Site config** — `config.pagination.itemsPerPage` from `config.yml` — used when plugin options omit the value
+2. **Site config** — `config.pagination.itemsPerPage` from `.works/works.yml` — used when plugin options omit the value
 3. **Built-in default** — `12` — used when neither of the above is set
 
 `maxPages` is only sourced from plugin options; there is no site config or default fallback.

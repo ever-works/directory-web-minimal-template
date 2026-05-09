@@ -3,6 +3,31 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-05-09 — Iteration 220: `.works/works.yml` canonical config path
+
+User direction changed the site configuration path: the config file is now
+`.works/works.yml` inside the content root.
+
+What changed:
+
+- Added `.specify/features/works-config-path.md` and `docs/plans/works-config-path.md`.
+- Updated `packages/core/src/loaders/config-loader.ts` to read only `.works/works.yml`.
+- Updated `packages/core` tests to assert the new path and no secondary read.
+- Moved the committed sample-events config to `apps/sample-events/.content/.works/works.yml`.
+- Updated app diagnostics, current docs, specs, and package comments that described the
+  old config path.
+- Updated `.gitignore` so `apps/sample-events/.content/.works/works.yml` is visible to
+  Git while cloned bulk `.content/` remains ignored.
+
+Verification:
+
+- `pnpm --filter @ever-works/core test` — 11 files / 213 tests passed.
+- `pnpm --filter @ever-works/adapters test` — 4 files / 104 tests passed.
+- `pnpm audit:docs` — 9/9 PASS.
+- `pnpm typecheck` — 23/23 tasks passed.
+- `pnpm test` — 16/16 tasks passed.
+- `pnpm lint` — 18/18 tasks passed.
+
 ## 2026-04-30 — Iteration 219: multi-option-support Phase 6 of 8 ✅ DELIVERED — Q10 Starlight docs alternate
 
 ### Cron-tick context
@@ -11256,7 +11281,7 @@ Replaced 14 hand-built headless Astro components with fulldev/ui primitives per 
 ## 2026-04-11 — Phase 1-3 Implementation
 
 ### @ever-works/core — Data Loaders (Phase 1)
-- Implemented `packages/core/src/loaders/config-loader.ts` — loads `config.yml` with sensible defaults
+- Implemented `packages/core/src/loaders/config-loader.ts` — loads `.works/works.yml` with sensible defaults
 - Implemented `packages/core/src/loaders/category-loader.ts` — loads from `categories.yml` or `categories/categories.yml`
 - Implemented `packages/core/src/loaders/tag-loader.ts` — loads `tags.yml`, filters inactive
 - Implemented `packages/core/src/loaders/collection-loader.ts` — loads `collections.yml`, filters inactive

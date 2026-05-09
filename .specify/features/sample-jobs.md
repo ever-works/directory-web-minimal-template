@@ -15,7 +15,7 @@ It follows the same architecture as `apps/sample-basic/` but with job-listing co
 
 ## Content Structure
 
-### config.yml
+### .works/works.yml
 - `company_name`: "Remote Tech Jobs"
 - `item_name`: "Job"
 - `items_name`: "Jobs"
