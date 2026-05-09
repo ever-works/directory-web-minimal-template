@@ -3,6 +3,52 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-05-09 — Iteration 221: LLM / AI agent discoverability pass
+
+User-direction iteration on top of iter 220. Adds the four
+agent-discoverability pillars across the template plus the shared
+`@ever-works/plugin-seo` package, with the same shape as the parallel
+change in the full Next.js `directory-web-template`.
+
+What changed:
+
+- `packages/plugin-seo/src/robots.ts` — added
+  `AI_CRAWLER_USER_AGENTS`, `resolveAiCrawlerPolicy`, and
+  `buildAiCrawlerRules` to convert a high-level policy
+  (`allow` | `disallow` | `none` | comma-list) into per-bot
+  `RobotsTxtRule` entries. Default behavior is `allow`; overridable
+  via the `AI_CRAWLERS` env var.
+- `packages/plugin-seo/src/markdown-mirror.ts` — new file with six
+  pure renderers (`renderItemMarkdown`, `renderCategoryMarkdown`,
+  `renderTagMarkdown`, `renderCollectionMarkdown`,
+  `renderComparisonMarkdown`, `renderStaticPageMarkdown`) plus
+  `generateLlmsFullTxt` which composes them into the long-form dump.
+- `packages/plugin-seo/src/index.ts` — barrel updated to export the
+  new helpers and types.
+- `apps/web/src/pages/robots.txt.ts` — wired the `*` rule and AI
+  per-bot rules together; reads `process.env.AI_CRAWLERS`.
+- `apps/web/src/pages/llms-full.txt.ts` — new endpoint backed by
+  `generateLlmsFullTxt`.
+- `apps/web/src/pages/llms.txt.ts` — copy refreshed to advertise
+  `/llms-full.txt` and the `<page>.md` mirror convention.
+- `apps/web/src/pages/<type>/[slug].md.ts` — new mirror routes for
+  items / categories / tags / collections / comparisons /
+  pages.
+- `apps/web/src/layouts/BaseLayout.astro` — accepts an optional
+  `markdownMirrorUrl` prop and emits
+  `<link rel="alternate" type="text/markdown">` when set.
+- `BreadcrumbList` JSON-LD added to every public listing/detail page
+  that previously lacked it: `index.astro`, `categories.astro`,
+  `tags.astro`, `collections.astro`, `comparisons.astro`,
+  `page/[page].astro`, `category/[slug].astro`, `tag/[slug].astro`,
+  `collection/[slug].astro`, `comparison/[slug].astro`.
+- New spec at `.specify/features/llms-discoverability.md` and new
+  guide at `docs/guides/llms-discoverability.md`.
+- New tests:
+  `packages/plugin-seo/src/__tests__/ai-crawlers.test.ts`,
+  `packages/plugin-seo/src/__tests__/markdown-mirror.test.ts`, plus
+  extension of `barrel-exports.test.ts` to assert all new exports.
+
 ## 2026-05-09 — Iteration 220: `.works/works.yml` canonical config path
 
 User direction changed the site configuration path: the config file is now

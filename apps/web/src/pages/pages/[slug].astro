@@ -58,6 +58,7 @@ const breadcrumbItems = [
     description={page.description}
     config={config}
     pageType="article"
+    markdownMirrorUrl={`/pages/${page.slug}.md`}
 >
     <Fragment slot="head">
         <script is:inline type="application/ld+json" set:html={articleLd} />

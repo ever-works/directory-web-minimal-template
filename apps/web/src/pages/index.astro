@@ -31,16 +31,22 @@ const pagination = paginate(items, { page: 1, perPage });
 const totalPages = Math.ceil(items.length / perPage);
 
 // JSON-LD for the homepage
+const siteUrl = (config.app_url ?? '').replace(/\/$/, '');
 const jsonLd = generateJsonLd('WebSite', {
     type: 'WebSite',
     name: config.company_name,
     url: config.app_url ?? '',
+});
+const breadcrumbLd = generateJsonLd('BreadcrumbList', {
+    type: 'BreadcrumbList',
+    items: [{ name: 'Home', url: `${siteUrl}/` }],
 });
 ---
 
 <BaseLayout title="Home" config={config}>
     <Fragment slot="head">
         <script is:inline type="application/ld+json" set:html={jsonLd} />
+        <script is:inline type="application/ld+json" set:html={breadcrumbLd} />
     </Fragment>
 
     <Hero

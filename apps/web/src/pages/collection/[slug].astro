@@ -7,6 +7,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getContent } from '../../lib/content';
 import type { CollectionData } from '@ever-works/core';
+import { generateJsonLd } from '@ever-works/plugin-seo';
 import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
 import ItemGrid from '@ever-works/ui/astro/ItemGrid.astro';
 import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
@@ -38,13 +39,27 @@ const breadcrumbItems = [
     { label: 'Collections', href: '/collections' },
     { label: collection.name },
 ];
+
+const siteUrl = (config.app_url ?? '').replace(/\/$/, '');
+const breadcrumbLd = generateJsonLd('BreadcrumbList', {
+    type: 'BreadcrumbList',
+    items: [
+        { name: 'Home', url: `${siteUrl}/` },
+        { name: 'Collections', url: `${siteUrl}/collections` },
+        { name: collection.name, url: `${siteUrl}/collection/${collection.slug}` },
+    ],
+});
 ---
 
 <BaseLayout
     title={collection.name}
     description={collection.description || `Browse items in the ${collection.name} collection`}
     config={config}
+    markdownMirrorUrl={`/collection/${collection.slug}.md`}
 >
+    <Fragment slot="head">
+        <script is:inline type="application/ld+json" set:html={breadcrumbLd} />
+    </Fragment>
     <Breadcrumbs items={breadcrumbItems} />
 
     <section data-component="collection-page">
