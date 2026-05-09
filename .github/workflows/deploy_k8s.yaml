@@ -47,6 +47,13 @@ jobs:
             # the zero-config GHCR flow. Lives at the job level because the
             # `secrets` context is only accessible from job-level scopes.
             K8S_REGISTRY_KIND: ${{ secrets.K8S_REGISTRY_KIND || 'github' }}
+            # The `secrets` context is FORBIDDEN inside step-level `if:`
+            # expressions — GitHub validates this at workflow startup and
+            # surfaces violations as a 0-second startup_failure run with no
+            # jobs (every push since #2 produced one — runs 25398187806 /
+            # 25541913136 / 25599075331). Map secrets used in `if:` checks to
+            # job-level env vars first so the conditional reads `env.X`.
+            K8S_REGISTRY_VISIBILITY: ${{ secrets.K8S_REGISTRY_VISIBILITY }}
         steps:
             - name: Echo target environment
               run: echo "Deploying to ${{ inputs.environment }}"
@@ -181,7 +188,10 @@ jobs:
                   kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
 
             - name: Provision image-pull secret (private registries)
-              if: env.K8S_REGISTRY_KIND != 'github' || secrets.K8S_REGISTRY_VISIBILITY == 'private'
+              # Both branches reference `env.X` (NOT `secrets.X`) — secrets are
+              # forbidden in step `if:` expressions; the job-level env: above
+              # mirrors the secret values so the condition can read them.
+              if: env.K8S_REGISTRY_KIND != 'github' || env.K8S_REGISTRY_VISIBILITY == 'private'
               env:
                   NAMESPACE: ${{ secrets.K8S_NAMESPACE || 'ever-works' }}
                   WORK_SLUG: ${{ github.event.repository.name }}
