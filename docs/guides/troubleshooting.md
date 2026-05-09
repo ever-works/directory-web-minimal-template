@@ -88,7 +88,7 @@ Items, categories, or pages are missing or empty at runtime.
 3. Validate your YAML files:
    ```bash
    # Install a YAML linter
-   npx yaml-lint apps/web/.content/config.yml
+   npx yaml-lint apps/web/.content/.works/works.yml
    ```
 
 4. Check that required fields exist in each item file:

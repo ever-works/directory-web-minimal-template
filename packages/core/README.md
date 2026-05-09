@@ -28,7 +28,7 @@ src/
 │   ├── page.ts                 — PageData (static pages)
 │   └── content-data.ts         — ContentData (aggregate of everything)
 └── loaders/
-    ├── config-loader.ts        — Loads config.yml with defaults
+    ├── config-loader.ts        — Loads .works/works.yml with defaults
     ├── category-loader.ts      — Loads categories.yml (tries 2 paths)
     ├── tag-loader.ts           — Loads tags.yml, filters inactive
     ├── item-loader.ts          — Loads data/<slug>/<slug>.yml, filters to approved only
@@ -73,7 +73,8 @@ This package reads from a `.content/` directory with this layout:
 
 ```
 .content/
-├── config.yml                    — Site configuration
+├── .works/
+│   └── works.yml                 — Site configuration
 ├── categories.yml                — Category definitions
 ├── tags.yml                      — Tag definitions
 ├── collections.yml               — Collection definitions

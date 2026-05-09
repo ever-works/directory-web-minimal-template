@@ -31,7 +31,7 @@ export interface DataAdapter {
 
     /**
      * Read a file's raw contents as a UTF-8 string.
-     * @param relativePath - Path relative to content root (e.g., 'config.yml')
+     * @param relativePath - Path relative to content root (e.g., '.works/works.yml')
      * @throws If file does not exist or path is invalid
      */
     readFile(relativePath: string): Promise<string>;

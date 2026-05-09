@@ -158,9 +158,9 @@ pnpm install
 ### Goal
 Populate `.content/` with the React UI Components directory data — config, categories, tags, and 10 item YAML files.
 
-### 5.2.1 Create `.content/config.yml`
+### 5.2.1 Create `.content/.works/works.yml`
 
-**File**: `apps/sample-basic/.content/config.yml`
+**File**: `apps/sample-basic/.content/.works/works.yml`
 
 ```yaml
 company_name: "React UI Components"
@@ -405,7 +405,7 @@ ls apps/sample-basic/.content/data/ | wc -l
 
 # Validate YAML syntax (quick check)
 cd apps/sample-basic
-node -e "const yaml = require('yaml'); const fs = require('fs'); console.log(yaml.parse(fs.readFileSync('.content/config.yml','utf8')))"
+node -e "const yaml = require('yaml'); const fs = require('fs'); console.log(yaml.parse(fs.readFileSync('.content/.works/works.yml','utf8')))"
 ```
 
 ---
@@ -1025,7 +1025,7 @@ pnpm build
 | Task | Files | Status |
 |------|-------|--------|
 | 5.1 Directory structure | `package.json`, `astro.config.ts`, `tsconfig.json`, `clone-content.ts`, `env.d.ts` | [ ] |
-| 5.2 Content data | `config.yml`, `categories.yml`, `tags.yml`, `collections.yml`, 10x item YAML files | [ ] |
+| 5.2 Content data | `.works/works.yml`, `categories.yml`, `tags.yml`, `collections.yml`, 10x item YAML files | [ ] |
 | 5.3 Plugin config | `plugins.config.ts`, `content.ts` | [ ] |
 | 5.4 Styled layouts | `global.css`, `ThemeToggle.tsx`, `BaseLayout.astro` | [ ] |
 | 5.5 Styled pages | `index.astro`, `[slug].astro` (item, category, tag), `categories.astro`, `tags.astro`, `[page].astro`, `404.astro` | [ ] |

@@ -1,6 +1,6 @@
-/**
+ /**
  * Site configuration types.
- * Parsed from `.content/config.yml`.
+ * Parsed from `.works/works.yml` inside the content root.
  *
  * This is a subset of the full template's config. Fields related to
  * auth, payments, mail, and advanced features are excluded since

@@ -73,7 +73,8 @@ The template connects to the same git-backed data repositories as the full Next.
 
 ```
 .content/
-├── config.yml            — Site configuration
+├── .works/
+│   └── works.yml         — Site configuration
 ├── categories.yml        — Category definitions
 ├── tags.yml              — Tag definitions
 ├── collections.yml       — Collection definitions

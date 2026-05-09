@@ -32,7 +32,7 @@ const config = resolveAdapterConfig(); // reads env vars
 const adapter = createAdapter(config);
 await adapter.init(config);
 
-const content = await adapter.readFile('config.yml');
+const content = await adapter.readFile('.works/works.yml');
 const items = await adapter.listDirectories('data');
 ```
 

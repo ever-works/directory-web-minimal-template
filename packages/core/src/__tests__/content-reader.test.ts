@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { loadContent } from '../content-reader.js';
+import { SITE_CONFIG_PATH } from '../loaders/config-loader.js';
 import type { DataAdapter } from '@ever-works/adapters';
 
 /** Helper to create a mock DataAdapter */
@@ -93,7 +94,7 @@ describe('loadContent', () => {
                 return Promise.resolve(false);
             }),
             readFile: vi.fn().mockImplementation((path: string) => {
-                if (path === 'config.yml') return Promise.resolve(configYaml);
+                if (path === SITE_CONFIG_PATH) return Promise.resolve(configYaml);
                 if (path === 'categories.yml') return Promise.resolve(categoriesYaml);
                 if (path === 'tags.yml') return Promise.resolve(tagsYaml);
                 if (path === 'collections.yml') return Promise.resolve(collectionsYaml);
@@ -176,7 +177,7 @@ status: approved
                 return Promise.resolve(false);
             }),
             readFile: vi.fn().mockImplementation((path: string) => {
-                if (path === 'config.yml') return Promise.resolve(configYaml);
+                if (path === SITE_CONFIG_PATH) return Promise.resolve(configYaml);
                 if (path === 'categories.yml') return Promise.resolve(categoriesYaml);
                 if (path.includes('falsy/falsy.yml')) return Promise.resolve(falsyCatItemYaml);
                 return Promise.reject(new Error('Not found'));
@@ -212,7 +213,7 @@ status: approved
                 return Promise.resolve(false);
             }),
             readFile: vi.fn().mockImplementation((path: string) => {
-                if (path === 'config.yml') return Promise.resolve(configYaml);
+                if (path === SITE_CONFIG_PATH) return Promise.resolve(configYaml);
                 if (path === 'categories.yml') return Promise.resolve(categoriesYaml);
                 if (path === 'tags.yml') return Promise.resolve(tagsYaml);
                 if (path.includes('falsy/falsy.yml')) return Promise.resolve(falsyTagItemYaml);
@@ -248,7 +249,7 @@ status: approved
                 return Promise.resolve(false);
             }),
             readFile: vi.fn().mockImplementation((path: string) => {
-                if (path === 'config.yml') return Promise.reject(new Error('Not found'));
+                if (path === SITE_CONFIG_PATH) return Promise.reject(new Error('Not found'));
                 if (path === 'categories.yml') return Promise.resolve(categoriesYaml);
                 if (path.includes('multi/multi.yml')) return Promise.resolve(multiCatItemYaml);
                 return Promise.reject(new Error('Not found'));
