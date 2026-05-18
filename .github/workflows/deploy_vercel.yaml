@@ -1,0 +1,256 @@
+name: Vercel Deployment
+
+# Dispatched by the Ever Works platform (apps/api/src/plugins-capabilities/deploy
+# in the ever-works/ever-works repo). The platform pushes the secrets this
+# workflow reads — VERCEL_TOKEN, DATA_REPOSITORY, GH_TOKEN, CRON_SECRET,
+# optionally VERCEL_TEAM_SCOPE — before triggering the dispatch.
+#
+# Mirrors directory-web-template's deploy_vercel.yaml, adjusted for the Astro
+# stack: `framework: astro`, `pnpm --filter @ever-works/web-minimal build`,
+# and the @astrojs/vercel adapter (which writes .vercel/output/ on its own
+# when `output: 'static'`).
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Vercel environment to deploy to (e.g., production, staging, preview)"
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: vercel-deployment-${{ github.ref }}-${{ inputs.environment }}
+  cancel-in-progress: true
+
+env:
+  DATA_REPOSITORY: "https://github.com/${{ github.repository_owner }}/${{ secrets.DATA_REPOSITORY }}"
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  NODE_OPTIONS: "--max-old-space-size=4096"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Target environment
+        run: echo "Deploying to ${{ inputs.environment }}"
+
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Vercel CLI
+        run: pnpm add --global vercel@latest
+
+      - name: Sync Vercel project settings for remote build
+        run: |
+          API_URL="https://api.vercel.com/v9/projects/${{ github.event.repository.name }}"
+          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && API_URL="${API_URL}?slug=${{ secrets.VERCEL_TEAM_SCOPE }}"
+
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X PATCH "$API_URL" \
+            -H "Authorization: Bearer $VERCEL_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "framework": "astro",
+              "rootDirectory": "apps/web",
+              "sourceFilesOutsideRootDirectory": true,
+              "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+              "buildCommand": "cd ../.. && pnpm --filter @ever-works/web-minimal build",
+              "outputDirectory": null
+            }')
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          echo "HTTP Status: $HTTP_CODE"
+          echo "Response: $BODY"
+
+          if [ "$HTTP_CODE" = "404" ]; then
+            echo "Project '${{ github.event.repository.name }}' was not found; creating it with remote build settings."
+            CREATE_API_URL="https://api.vercel.com/v9/projects"
+            [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && CREATE_API_URL="${CREATE_API_URL}?slug=${{ secrets.VERCEL_TEAM_SCOPE }}"
+
+            CREATE_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$CREATE_API_URL" \
+              -H "Authorization: Bearer $VERCEL_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "name": "${{ github.event.repository.name }}",
+                "framework": "astro",
+                "rootDirectory": "apps/web",
+                "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+                "buildCommand": "cd ../.. && pnpm --filter @ever-works/web-minimal build",
+                "outputDirectory": null
+              }')
+
+            CREATE_HTTP_CODE=$(echo "$CREATE_RESPONSE" | tail -n1)
+            CREATE_BODY=$(echo "$CREATE_RESPONSE" | sed '$d')
+            echo "Create HTTP Status: $CREATE_HTTP_CODE"
+            echo "Create Response: $CREATE_BODY"
+
+            if [ "$CREATE_HTTP_CODE" -lt 200 ] || [ "$CREATE_HTTP_CODE" -ge 300 ]; then
+              echo "Failed to create Vercel project"
+              echo "Error: $(echo "$CREATE_BODY" | jq -r '.error.message // "Unknown error"')"
+              exit 1
+            fi
+
+            RESPONSE=$(curl -s -w "\n%{http_code}" -X PATCH "$API_URL" \
+              -H "Authorization: Bearer $VERCEL_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "framework": "astro",
+                "rootDirectory": "apps/web",
+                "sourceFilesOutsideRootDirectory": true,
+                "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+                "buildCommand": "cd ../.. && pnpm --filter @ever-works/web-minimal build",
+                "outputDirectory": null
+              }')
+
+            HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+            BODY=$(echo "$RESPONSE" | sed '$d')
+            echo "Post-create sync HTTP Status: $HTTP_CODE"
+            echo "Post-create sync Response: $BODY"
+
+            if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+              echo "Failed to sync Vercel project settings after creation"
+              echo "Error: $(echo "$BODY" | jq -r '.error.message // "Unknown error"')"
+              exit 1
+            fi
+
+            exit 0
+          fi
+
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+            echo "Failed to sync Vercel project settings"
+            echo "Error: $(echo "$BODY" | jq -r '.error.message // "Unknown error"')"
+            exit 1
+          fi
+
+      - name: Link Vercel project
+        run: |
+          SCOPE_FLAG=""
+          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          vercel link --yes $SCOPE_FLAG --project ${{ github.event.repository.name }} --token="$VERCEL_TOKEN"
+
+      - name: Set DATA_REPOSITORY env variable
+        continue-on-error: true
+        run: |
+          SCOPE_FLAG=""
+          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          echo -n "$DATA_REPOSITORY" | vercel env add DATA_REPOSITORY ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
+
+      - name: Set GH_TOKEN env variable
+        continue-on-error: true
+        run: |
+          SCOPE_FLAG=""
+          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          echo -n "${{ secrets.GH_TOKEN }}" | vercel env add GH_TOKEN ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
+
+      - name: Set CRON_SECRET env variable
+        continue-on-error: true
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -n "$CRON_SECRET" ]; then
+            SCOPE_FLAG=""
+            [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+            echo -n "$CRON_SECRET" | vercel env add CRON_SECRET ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
+          fi
+
+      - name: Set WEBHOOK_SECRET env variable
+        # Optional — only present when the operator has provisioned a GitHub
+        # webhook secret for content-sync; otherwise the Astro integration
+        # leaves the /api/webhook endpoint disabled (see astro.config.ts).
+        continue-on-error: true
+        env:
+          WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+        run: |
+          if [ -n "$WEBHOOK_SECRET" ]; then
+            SCOPE_FLAG=""
+            [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+            echo -n "$WEBHOOK_SECRET" | vercel env add WEBHOOK_SECRET ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
+          fi
+
+      - name: Pull Vercel settings
+        run: |
+          SCOPE_FLAG=""
+          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          vercel pull --yes $SCOPE_FLAG --environment=${{ inputs.environment }} --token="$VERCEL_TOKEN"
+
+      - name: Deploy with remote Vercel build
+        id: deploy_remote
+        continue-on-error: true
+        run: |
+          SCOPE_FLAG=""
+          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          PROD_FLAG=""
+          [ "${{ inputs.environment }}" = "production" ] && PROD_FLAG="--prod"
+          vercel deploy --archive=tgz $SCOPE_FLAG $PROD_FLAG --token="$VERCEL_TOKEN"
+
+      - name: Pull Vercel settings for prebuilt fallback
+        if: steps.deploy_remote.outcome == 'failure'
+        run: |
+          SCOPE_FLAG=""
+          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          vercel pull --yes $SCOPE_FLAG --environment=${{ inputs.environment }} --token="$VERCEL_TOKEN"
+          cat .vercel/project.json
+
+      - name: Build project artifacts
+        if: steps.deploy_remote.outcome == 'failure'
+        run: |
+          SCOPE_FLAG=""
+          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          PROD_FLAG=""
+          [ "${{ inputs.environment }}" = "production" ] && PROD_FLAG="--prod"
+          vercel build $SCOPE_FLAG $PROD_FLAG --token="$VERCEL_TOKEN"
+
+      - name: Verify prebuilt output
+        if: steps.deploy_remote.outcome == 'failure'
+        run: |
+          if [ -f .vercel/output/config.json ]; then
+            du -sh .vercel/output
+          else
+            echo "Missing Vercel prebuilt output"
+            exit 1
+          fi
+          OUTPUT_SIZE_KB=$(du -sk .vercel/output | cut -f1)
+          # Astro static builds with minimal content are typically much
+          # smaller than the Next.js template's RSC payload; gate at 100KB
+          # instead of the classic template's 10MB so we still catch
+          # "empty output" without false-positives on a sparse directory.
+          if [ "$OUTPUT_SIZE_KB" -lt 100 ]; then
+            echo "Prebuilt output is suspiciously small: ${OUTPUT_SIZE_KB}KB"
+            find .vercel/output -maxdepth 3 -type f | sort | sed -n '1,200p'
+            exit 1
+          fi
+          cat .vercel/output/config.json
+          find .vercel/output -maxdepth 3 -type f | sort | sed -n '1,200p'
+
+      - name: Deploy prebuilt project artifacts
+        if: steps.deploy_remote.outcome == 'failure'
+        run: |
+          SCOPE_FLAG=""
+          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          PROD_FLAG=""
+          [ "${{ inputs.environment }}" = "production" ] && PROD_FLAG="--prod"
+          vercel deploy --prebuilt --archive=tgz $SCOPE_FLAG $PROD_FLAG --token="$VERCEL_TOKEN"
+
+      - name: Deployment summary
+        if: success()
+        run: echo "Deployment to ${{ inputs.environment }} completed successfully"

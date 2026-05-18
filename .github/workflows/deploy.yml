@@ -1,17 +1,28 @@
-name: Deploy to Vercel
+name: Pre-deploy Build Verification
+
+# Historically this file was a half-finished Vercel deploy workflow (Vercel
+# CLI steps commented out, no `workflow_dispatch`, no env wiring). Per the
+# "do not remove, only improve" rule (CLAUDE.md / AGENTS.md R13), it has
+# been repurposed into a pre-deploy build sanity check instead of deleted.
+#
+# The real Vercel deployment is now in `deploy_vercel.yaml` (dispatched by
+# the Ever Works platform) and `deploy_prod.yaml` (triggered on push to
+# main). This workflow stays as a fast-fail check: it verifies that
+# `pnpm build:web` succeeds with the public env vars before the real
+# deploy job spins up Vercel.
 
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
-# Cancel previous runs of this workflow on the same branch
 concurrency:
-  group: deploy-${{ github.ref }}
+  group: prebuild-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    name: Build & Deploy
+  build:
+    name: Verify build:web
     runs-on: ubuntu-latest
 
     steps:
@@ -34,23 +45,13 @@ jobs:
         run: pnpm typecheck
 
       - name: Build web app
-        run: pnpm --filter @ever-works/web-minimal build
+        run: pnpm build:web
         env:
+          # Build sanity check — data sync is best-effort. If DATA_REPOSITORY
+          # secret is unset the pages render empty but the build still
+          # succeeds, which is exactly what we want for "did this commit
+          # break the build?" signal.
           DATA_REPOSITORY: ${{ secrets.DATA_REPOSITORY }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GITHUB_BRANCH: ${{ secrets.GITHUB_BRANCH || 'main' }}
           SITE_URL: ${{ secrets.SITE_URL || 'https://example.com' }}
-
-      - name: Build sample-basic
-        run: pnpm --filter @ever-works/sample-basic build
-        env:
-          SITE_URL: https://react-components.example.com
-
-      # Vercel CLI deployment (when configured)
-      # - name: Install Vercel CLI
-      #   run: npm i -g vercel
-      # - name: Deploy to Vercel
-      #   run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
-      #   env:
-      #     VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      #     VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

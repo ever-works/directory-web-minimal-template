@@ -1,0 +1,28 @@
+name: Production deployment
+
+# Second-attempt safety net for the platform-driven deploy flow, and the
+# normal trigger for direct push-to-main deploys. The platform's
+# DeployService.dispatchWithRetry first tries `deploy_vercel.yaml`; when that
+# misses (e.g. brand-new repo, workflow not yet enabled), it dispatches
+# `deploy_prod.yaml` which re-uses `deploy_vercel.yaml` via `workflow_call`.
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  Vercel:
+    if: ${{ vars.DEPLOY_PROVIDER == 'vercel' }}
+    uses: ./.github/workflows/deploy_vercel.yaml
+    secrets: inherit
+    with:
+      environment: production
