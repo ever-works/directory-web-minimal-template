@@ -3,6 +3,49 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-05-18 — Vercel deploy parity with the classic template
+
+Added the two GitHub Actions workflows the Ever Works platform needs to
+deploy this template the same way it deploys `directory-web-template`:
+
+- **`.github/workflows/deploy_vercel.yaml`** — mirrors the classic
+  template's workflow of the same name, adjusted for Astro. Triggered by
+  `workflow_dispatch` + `workflow_call` (the platform's
+  `DeployService.dispatchWithRetry` looks up exactly this filename for
+  the `vercel` deployment plugin). Syncs Vercel project settings to
+  `framework: astro`, `rootDirectory: apps/web`, builds via
+  `pnpm --filter @ever-works/web-minimal build`, wires
+  `DATA_REPOSITORY` / `GH_TOKEN` / `CRON_SECRET` / `WEBHOOK_SECRET`
+  via `vercel env add`, then `vercel deploy --archive=tgz` with a
+  `vercel build` + `--prebuilt` fallback. Handles the 404-then-create
+  branch so a brand-new Vercel project is provisioned on first deploy.
+- **`.github/workflows/deploy_prod.yaml`** — also mirrors the classic
+  template: on push to `main`, gated by `vars.DEPLOY_PROVIDER == 'vercel'`,
+  re-uses `deploy_vercel.yaml` via `workflow_call`. Acts as the
+  second-attempt safety net when the platform's first dispatch misses
+  (e.g. workflows not yet enabled on a fresh repo).
+- **`package.json`** — added `"build:web": "pnpm --filter @ever-works/web-minimal build"`
+  at the monorepo root so the workflow's build command matches the
+  classic template's `pnpm run build:web` convention.
+- **`.github/workflows/deploy.yml`** — kept (per R13 "do not remove,
+  only improve") but repurposed from a half-finished deploy stub into a
+  pre-deploy build verification job. The real deploy logic now lives in
+  the two new files above; this one just fails fast if the build itself
+  breaks on push to `main`.
+
+Why now: the classic Next.js template could be deployed by the platform
+end-to-end, but a Work cloned from the minimal Astro template hit a
+dead-end at `dispatchWithRetry` because `deploy_vercel.yaml` and
+`deploy_prod.yaml` didn't exist here. Both the platform side
+(`VercelPlugin.getWorkflowFilenames()` already returns these exact
+filenames) and the template side (`@astrojs/vercel` adapter already
+wired in `astro.config.ts`) were ready — only the workflow files were
+missing.
+
+End-to-end verification against a real Vercel project happens once the
+platform's `WEBSITE_TEMPLATE_MINIMAL_REPO` env var is pointed at this
+repo and a test Work is deployed.
+
 ## 2026-05-09 — Iteration 223: swap hand-rolled feed XML/JSON for the `feed` library
 
 User feedback after iter 222: the package was emitting XML and JSON

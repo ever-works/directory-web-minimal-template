@@ -8,6 +8,7 @@
     },
     "scripts": {
         "build": "turbo run build",
+        "build:web": "pnpm --filter @ever-works/web-minimal build",
         "dev": "turbo run dev",
         "dev:web": "turbo run dev --filter=@ever-works/web-minimal",
         "dev:docs": "turbo run dev --filter=@ever-works/docs-minimal",
