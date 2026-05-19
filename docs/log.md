@@ -3,6 +3,30 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-05-19 — Make `deploy_prod.yaml` dispatch-only (intentional divergence from classic)
+
+Follow-up on the 2026-05-18 entry below. The initial port mirrored the
+classic template literally: `deploy_prod.yaml` auto-triggered on
+`push: main`. That's wrong for the minimal template because:
+
+- The Ever Works platform's AI customization service pushes commits to
+  the user's `tpl-<uuid>/main` branch on every restyle.
+- A push-on-main trigger would auto-deploy on every AI run → Vercel
+  cost / Actions cost / noisy deploy history / unintended live updates
+  before the user has approved the design.
+- Every minimal deploy should be platform-initiated (or explicit operator
+  click in the Actions UI), never side-effect of a push.
+
+Converted `deploy_prod.yaml` to `workflow_dispatch:` only.
+`deploy_vercel.yaml` was already dispatch-only (no change). `deploy.yml`
+(the pre-deploy build verifier) keeps its `push: main` trigger — it
+runs build sanity checks on every commit, not a deploy, so the auto-run
+is benign and aligned with `ci.yml`. The classic template's behaviour
+is unchanged — humans pushing to `directory-web-template/main` is a
+rare, deliberate action and the auto-deploy posture makes sense there.
+The minimal template's deploy posture is now explicitly different,
+documented in both the YAML header and the PR description.
+
 ## 2026-05-18 — Vercel deploy parity with the classic template
 
 Added the two GitHub Actions workflows the Ever Works platform needs to
