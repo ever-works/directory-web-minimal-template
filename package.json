@@ -8,6 +8,7 @@
     },
     "scripts": {
         "build": "turbo run build",
+        "build:web": "pnpm --filter @ever-works/web-minimal build",
         "dev": "turbo run dev",
         "dev:web": "turbo run dev --filter=@ever-works/web-minimal",
         "dev:docs": "turbo run dev --filter=@ever-works/docs-minimal",
@@ -62,7 +63,9 @@
             "serialize-javascript": ">=7.0.5",
             "follow-redirects": ">=1.16.0",
             "yaml": ">=2.8.3",
-            "dompurify": ">=3.4.0"
+            "dompurify": ">=3.4.0",
+            "fast-uri": ">=3.1.2",
+            "@babel/plugin-transform-modules-systemjs": ">=7.29.4"
         }
     }
 }

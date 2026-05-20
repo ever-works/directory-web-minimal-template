@@ -4,13 +4,26 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getContent } from '../lib/content';
+import { generateJsonLd } from '@ever-works/plugin-seo';
 import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
 import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
 
 const { comparisons, config } = await getContent();
+
+const siteUrl = (config.app_url ?? '').replace(/\/$/, '');
+const breadcrumbLd = generateJsonLd('BreadcrumbList', {
+    type: 'BreadcrumbList',
+    items: [
+        { name: 'Home', url: `${siteUrl}/` },
+        { name: 'Comparisons', url: `${siteUrl}/comparisons` },
+    ],
+});
 ---
 
 <BaseLayout title="Comparisons" config={config}>
+    <Fragment slot="head">
+        <script is:inline type="application/ld+json" set:html={breadcrumbLd} />
+    </Fragment>
     <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Comparisons' }]} />
 
     <section data-component="comparisons-page">

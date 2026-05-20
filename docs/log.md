@@ -3,6 +3,253 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-05-19 — Pin Vercel framework to "astro" via apps/web/vercel.json + workflow verification
+
+Live deploy failed on a custom-template Work with:
+
+> No Next.js version detected. Make sure your package.json has "next" in
+> either "dependencies" or "devDependencies".
+
+Root cause: the Vercel project for that Work was previously created with
+`framework: nextjs` (most likely from an earlier classic-template deploy
+under the same Work's repo, or a stale auto-import). The platform's
+`deploy_vercel.yaml` PATCHes `framework: astro` on every run, but a
+silent-no-op or a stale project setting left the framework at `nextjs`
+when Vercel actually ran the build.
+
+Two defenses, both in `apps/web/`:
+
+1. **`apps/web/vercel.json`** — pins `framework: "astro"` at the repo
+   level. Vercel's `vercel.json` overrides project-level settings, so any
+   stale "Next.js" preset on the project is ignored at build time. Also
+   pins `buildCommand` and `installCommand` so the right `pnpm --filter
+   @ever-works/web-minimal build` runs regardless of project-level overrides.
+2. **`deploy_vercel.yaml` verify step** — after the PATCH, GET the project
+   and read `.framework`. Accept `astro` (canonical) OR `null` (Vercel
+   "Other" preset; `vercel.json` wins at build time so this is fine).
+   Fail the workflow on any other value (`nextjs`, `vite`, `gatsby`, …)
+   with an actionable error pointing at the three most common offenders
+   (stale project preset / vercel.json drift / silent Vercel PATCH
+   no-op). This
+   converts a confusing build-time failure into a workflow-time failure
+   with a clear root-cause hint.
+
+Net: a Work cloned from a custom-template based on minimal will now
+deploy with `framework: astro` no matter what stale state the Vercel
+project has been left in.
+
+## 2026-05-19 — Make `deploy_prod.yaml` dispatch-only (intentional divergence from classic)
+
+Follow-up on the 2026-05-18 entry below. The initial port mirrored the
+classic template literally: `deploy_prod.yaml` auto-triggered on
+`push: main`. That's wrong for the minimal template because:
+
+- The Ever Works platform's AI customization service pushes commits to
+  the user's `tpl-<uuid>/main` branch on every restyle.
+- A push-on-main trigger would auto-deploy on every AI run → Vercel
+  cost / Actions cost / noisy deploy history / unintended live updates
+  before the user has approved the design.
+- Every minimal deploy should be platform-initiated (or explicit operator
+  click in the Actions UI), never side-effect of a push.
+
+Converted `deploy_prod.yaml` to `workflow_dispatch:` only.
+`deploy_vercel.yaml` was already dispatch-only (no change). `deploy.yml`
+(the pre-deploy build verifier) keeps its `push: main` trigger — it
+runs build sanity checks on every commit, not a deploy, so the auto-run
+is benign and aligned with `ci.yml`. The classic template's behaviour
+is unchanged — humans pushing to `directory-web-template/main` is a
+rare, deliberate action and the auto-deploy posture makes sense there.
+The minimal template's deploy posture is now explicitly different,
+documented in both the YAML header and the PR description.
+
+## 2026-05-18 — Vercel deploy parity with the classic template
+
+Added the two GitHub Actions workflows the Ever Works platform needs to
+deploy this template the same way it deploys `directory-web-template`:
+
+- **`.github/workflows/deploy_vercel.yaml`** — mirrors the classic
+  template's workflow of the same name, adjusted for Astro. Triggered by
+  `workflow_dispatch` + `workflow_call` (the platform's
+  `DeployService.dispatchWithRetry` looks up exactly this filename for
+  the `vercel` deployment plugin). Syncs Vercel project settings to
+  `framework: astro`, `rootDirectory: apps/web`, builds via
+  `pnpm --filter @ever-works/web-minimal build`, wires
+  `DATA_REPOSITORY` / `GH_TOKEN` / `CRON_SECRET` / `WEBHOOK_SECRET`
+  via `vercel env add`, then `vercel deploy --archive=tgz` with a
+  `vercel build` + `--prebuilt` fallback. Handles the 404-then-create
+  branch so a brand-new Vercel project is provisioned on first deploy.
+- **`.github/workflows/deploy_prod.yaml`** — also mirrors the classic
+  template: on push to `main`, gated by `vars.DEPLOY_PROVIDER == 'vercel'`,
+  re-uses `deploy_vercel.yaml` via `workflow_call`. Acts as the
+  second-attempt safety net when the platform's first dispatch misses
+  (e.g. workflows not yet enabled on a fresh repo).
+- **`package.json`** — added `"build:web": "pnpm --filter @ever-works/web-minimal build"`
+  at the monorepo root so the workflow's build command matches the
+  classic template's `pnpm run build:web` convention.
+- **`.github/workflows/deploy.yml`** — kept (per R13 "do not remove,
+  only improve") but repurposed from a half-finished deploy stub into a
+  pre-deploy build verification job. The real deploy logic now lives in
+  the two new files above; this one just fails fast if the build itself
+  breaks on push to `main`.
+
+Why now: the classic Next.js template could be deployed by the platform
+end-to-end, but a Work cloned from the minimal Astro template hit a
+dead-end at `dispatchWithRetry` because `deploy_vercel.yaml` and
+`deploy_prod.yaml` didn't exist here. Both the platform side
+(`VercelPlugin.getWorkflowFilenames()` already returns these exact
+filenames) and the template side (`@astrojs/vercel` adapter already
+wired in `astro.config.ts`) were ready — only the workflow files were
+missing.
+
+End-to-end verification against a real Vercel project happens once the
+platform's `WEBSITE_TEMPLATE_MINIMAL_REPO` env var is pointed at this
+repo and a test Work is deployed.
+
+## 2026-05-09 — Iteration 223: swap hand-rolled feed XML/JSON for the `feed` library
+
+User feedback after iter 222: the package was emitting XML and JSON
+feed bodies via hand-rolled string templating when a single mature
+library covers all three formats. Switched the three generators in
+`@ever-works/plugin-rss` to delegate to the npm `feed` library
+([npmjs.com/package/feed](https://www.npmjs.com/package/feed), ~5M
+weekly downloads, supports RSS 2.0 + Atom 1.0 + JSON Feed 1.0/1.1
+from one in-memory `Feed` instance). Per AGENTS.md R12 ("Use existing
+libraries — Prefer popular, well-maintained packages over custom
+implementations").
+
+What changed:
+
+- New `packages/plugin-rss/src/feed-builder.ts` exposing `buildFeed()`
+  that constructs a populated `Feed` from `FeedEntry[]` plus
+  `ResolvedRssConfig`. Sets both `date` (→ JSON Feed `date_modified`)
+  and `published` (→ JSON Feed `date_published`) from the same
+  `pubDate` so consumers can read either field.
+- `rss-generator.ts`, `atom-generator.ts`, `json-feed-generator.ts`
+  collapsed from ~80-line string templating each to thin one-liners
+  that call `.rss2()`, `.atom1()`, `.json1()` on the shared `Feed`.
+  Legacy public exports (`escapeXml`, `toRfc2822`, `toAtomDate`,
+  `toRfc3339`) retained as backward-compatible utilities.
+- `generateJsonFeed` post-processes the library's JSON Feed 1.0
+  output to bump the `version` URL to `https://jsonfeed.org/version/1.1`
+  and add the 1.1-only `language` field. The two spec versions are
+  byte-compatible for the fields we emit.
+- New dep: `feed ^5.2.1` in `packages/plugin-rss/package.json`. No
+  longer carrying ~250 LOC of hand-rolled XML/JSON templating.
+- Tests updated to assert on parsed/structural properties (substring
+  matches inside CDATA-wrapped XML, JSON.parse'd field shapes) rather
+  than exact whitespace/escaping that varied between our hand-roll
+  and `feed`'s output.
+- Same swap applied symmetrically to the full Next.js
+  `directory-web-template` (`apps/web/lib/seo/feeds.ts`).
+
+## 2026-05-09 — Iteration 222: feeds + AI-crawler list refinement
+
+Follow-up iteration on top of iter 221, addressing user-direction
+adjustments to the discoverability work:
+
+- **AI-crawler list trimmed to exactly 18 bots, rendered in
+  randomized order**: GPTBot, ChatGPT-User, OAI-SearchBot, ClaudeBot,
+  Claude-User, Claude-SearchBot, anthropic-ai, PerplexityBot,
+  Perplexity-User, Google-Extended, Applebot, Applebot-Extended,
+  Bingbot, CCBot, Meta-ExternalAgent, Amazonbot, Bytespider,
+  cohere-ai. Removed speculative extras (Diffbot, MistralAI-User,
+  YouBot, Timpibot, Meta-ExternalFetcher, DuckAssistBot, Claude-Web,
+  cohere-training-data-crawler). The list literal in
+  `packages/plugin-seo/src/robots.ts` is intentionally not sorted so
+  no operator appears clustered or "first" in the rendered
+  robots.txt.
+- **JSON Feed 1.1 added** to `@ever-works/plugin-rss`:
+    - New `packages/plugin-rss/src/json-feed-generator.ts` with
+      `generateJsonFeed` and `toRfc3339`.
+    - Barrel updated; `RssPluginOptions` / `ResolvedRssConfig` gained
+      `jsonFeed` (boolean, default `true`) and `jsonFeedFilename`
+      (default `'feed.json'`).
+    - New endpoint `apps/web/src/pages/feed.json.ts`.
+    - `BaseLayout.astro` now emits the `application/feed+json`
+      autodiscovery `<link>` alongside the existing RSS and Atom
+      links.
+- **`llms.txt.ts`** advertises `/feed.json` and `/rss.xml` alongside
+  the previously listed `/atom.xml` and `/sitemap-index.xml`.
+- **Tests**: new `json-feed-generator.test.ts` (11 tests),
+  `barrel-exports.test.ts` extended to assert the new exports,
+  `plugin.test.ts` extended to cover the `jsonFeed` config field, and
+  `ai-crawlers.test.ts` rewritten to assert the canonical 18-bot
+  membership and the randomized-order invariant.
+- **Decision recorded — no `sitemap-llms.xml`**: not a widely-adopted
+  industry convention. The standard pattern is to point AI agents at
+  the regular `/sitemap.xml` from `/llms.txt`, which we already do.
+
+## 2026-05-09 — Iteration 221: LLM / AI agent discoverability pass
+
+User-direction iteration on top of iter 220. Adds the four
+agent-discoverability pillars across the template plus the shared
+`@ever-works/plugin-seo` package, with the same shape as the parallel
+change in the full Next.js `directory-web-template`.
+
+What changed:
+
+- `packages/plugin-seo/src/robots.ts` — added
+  `AI_CRAWLER_USER_AGENTS`, `resolveAiCrawlerPolicy`, and
+  `buildAiCrawlerRules` to convert a high-level policy
+  (`allow` | `disallow` | `none` | comma-list) into per-bot
+  `RobotsTxtRule` entries. Default behavior is `allow`; overridable
+  via the `AI_CRAWLERS` env var.
+- `packages/plugin-seo/src/markdown-mirror.ts` — new file with six
+  pure renderers (`renderItemMarkdown`, `renderCategoryMarkdown`,
+  `renderTagMarkdown`, `renderCollectionMarkdown`,
+  `renderComparisonMarkdown`, `renderStaticPageMarkdown`) plus
+  `generateLlmsFullTxt` which composes them into the long-form dump.
+- `packages/plugin-seo/src/index.ts` — barrel updated to export the
+  new helpers and types.
+- `apps/web/src/pages/robots.txt.ts` — wired the `*` rule and AI
+  per-bot rules together; reads `process.env.AI_CRAWLERS`.
+- `apps/web/src/pages/llms-full.txt.ts` — new endpoint backed by
+  `generateLlmsFullTxt`.
+- `apps/web/src/pages/llms.txt.ts` — copy refreshed to advertise
+  `/llms-full.txt` and the `<page>.md` mirror convention.
+- `apps/web/src/pages/<type>/[slug].md.ts` — new mirror routes for
+  items / categories / tags / collections / comparisons /
+  pages.
+- `apps/web/src/layouts/BaseLayout.astro` — accepts an optional
+  `markdownMirrorUrl` prop and emits
+  `<link rel="alternate" type="text/markdown">` when set.
+- `BreadcrumbList` JSON-LD added to every public listing/detail page
+  that previously lacked it: `index.astro`, `categories.astro`,
+  `tags.astro`, `collections.astro`, `comparisons.astro`,
+  `page/[page].astro`, `category/[slug].astro`, `tag/[slug].astro`,
+  `collection/[slug].astro`, `comparison/[slug].astro`.
+- New spec at `.specify/features/llms-discoverability.md` and new
+  guide at `docs/guides/llms-discoverability.md`.
+- New tests:
+  `packages/plugin-seo/src/__tests__/ai-crawlers.test.ts`,
+  `packages/plugin-seo/src/__tests__/markdown-mirror.test.ts`, plus
+  extension of `barrel-exports.test.ts` to assert all new exports.
+
+## 2026-05-09 — Iteration 220: `.works/works.yml` canonical config path
+
+User direction changed the site configuration path: the config file is now
+`.works/works.yml` inside the content root.
+
+What changed:
+
+- Added `.specify/features/works-config-path.md` and `docs/plans/works-config-path.md`.
+- Updated `packages/core/src/loaders/config-loader.ts` to read only `.works/works.yml`.
+- Updated `packages/core` tests to assert the new path and no secondary read.
+- Moved the committed sample-events config to `apps/sample-events/.content/.works/works.yml`.
+- Updated app diagnostics, current docs, specs, and package comments that described the
+  old config path.
+- Updated `.gitignore` so `apps/sample-events/.content/.works/works.yml` is visible to
+  Git while cloned bulk `.content/` remains ignored.
+
+Verification:
+
+- `pnpm --filter @ever-works/core test` — 11 files / 213 tests passed.
+- `pnpm --filter @ever-works/adapters test` — 4 files / 104 tests passed.
+- `pnpm audit:docs` — 9/9 PASS.
+- `pnpm typecheck` — 23/23 tasks passed.
+- `pnpm test` — 16/16 tasks passed.
+- `pnpm lint` — 18/18 tasks passed.
+
 ## 2026-04-30 — Iteration 219: multi-option-support Phase 6 of 8 ✅ DELIVERED — Q10 Starlight docs alternate
 
 ### Cron-tick context
@@ -11256,7 +11503,7 @@ Replaced 14 hand-built headless Astro components with fulldev/ui primitives per 
 ## 2026-04-11 — Phase 1-3 Implementation
 
 ### @ever-works/core — Data Loaders (Phase 1)
-- Implemented `packages/core/src/loaders/config-loader.ts` — loads `config.yml` with sensible defaults
+- Implemented `packages/core/src/loaders/config-loader.ts` — loads `.works/works.yml` with sensible defaults
 - Implemented `packages/core/src/loaders/category-loader.ts` — loads from `categories.yml` or `categories/categories.yml`
 - Implemented `packages/core/src/loaders/tag-loader.ts` — loads `tags.yml`, filters inactive
 - Implemented `packages/core/src/loaders/collection-loader.ts` — loads `collections.yml`, filters inactive

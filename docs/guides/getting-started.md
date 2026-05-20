@@ -119,9 +119,9 @@ Content lives in `apps/web/.content/`. This directory holds all the YAML files t
 mkdir -p apps/web/.content/data
 ```
 
-### 3.1: Site Configuration (`config.yml`)
+### 3.1: Site Configuration (`.works/works.yml`)
 
-Create `apps/web/.content/config.yml` — this defines your site's identity:
+Create `apps/web/.content/.works/works.yml` — this defines your site's identity:
 
 ```yaml
 company_name: "Dev Tools Directory"
@@ -323,7 +323,8 @@ Your `.content/` directory should now look like this:
 
 ```
 apps/web/.content/
-├── config.yml
+├── .works/
+│   └── works.yml
 ├── categories.yml
 ├── tags.yml
 └── data/

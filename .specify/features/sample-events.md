@@ -41,7 +41,7 @@ It follows the same architecture as `apps/sample-basic/` and `apps/sample-jobs/`
 
 ## Content Data Structure
 
-### Site Configuration (`.content/config.yml`)
+### Site Configuration (`.content/.works/works.yml`)
 
 ```yaml
 company_name: "Tech Events"
@@ -615,7 +615,8 @@ export const plugins = definePlugins([
 ```
 apps/sample-events/
 ├── .content/
-│   ├── config.yml
+│   ├── .works/
+│   │   └── works.yml
 │   ├── categories.yml
 │   ├── tags.yml
 │   ├── collections.yml

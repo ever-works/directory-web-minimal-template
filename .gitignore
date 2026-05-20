@@ -10,6 +10,30 @@ build/
 
 # Content (cloned at build/dev time)
 .content/
+!apps/sample-events/.content/
+apps/sample-events/.content/*
+!apps/sample-events/.content/.works/
+!apps/sample-events/.content/.works/works.yml
+# sample-basic: track a minimal seed of `.content/` so the CI E2E suite
+# (apps/web-e2e/tests/category.spec.ts, etc.) and the Lighthouse audit have
+# something to render. The seed is the smallest set that satisfies the
+# existing tests: works config, the tags table they reference, the
+# `form-components` category they query, plus one item in that category
+# (react-hook-form). All other items, the `data/<slug>` subtree, and the
+# `pages/` / `comparisons/` / `collections.yml` sit-on-disk-only assets are
+# still ignored — devs cloning a real data repo into `.content/` continue
+# to mask the seed at runtime.
+!apps/sample-basic/.content/
+apps/sample-basic/.content/*
+!apps/sample-basic/.content/.works/
+!apps/sample-basic/.content/.works/works.yml
+!apps/sample-basic/.content/categories.yml
+!apps/sample-basic/.content/tags.yml
+!apps/sample-basic/.content/data/
+apps/sample-basic/.content/data/*
+!apps/sample-basic/.content/data/react-hook-form/
+apps/sample-basic/.content/data/react-hook-form/*
+!apps/sample-basic/.content/data/react-hook-form/react-hook-form.yml
 
 # Environment
 .env

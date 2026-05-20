@@ -24,6 +24,8 @@ const { items, config } = await getContent();
 const perPage = config.pagination?.itemsPerPage ?? 12;
 const pagination = paginate(items, { page: currentPage, perPage });
 
+const siteUrl = (config.app_url ?? '').replace(/\/$/, '');
+
 // JSON-LD for the listing page
 const jsonLd = generateJsonLd('ItemList', {
     type: 'ItemList',
@@ -31,6 +33,15 @@ const jsonLd = generateJsonLd('ItemList', {
         name: item.name,
         url: `/item/${item.slug}`,
     })),
+});
+
+// BreadcrumbList JSON-LD: Home → Page N
+const breadcrumbLd = generateJsonLd('BreadcrumbList', {
+    type: 'BreadcrumbList',
+    items: [
+        { name: 'Home', url: `${siteUrl}/` },
+        { name: `Page ${currentPage}`, url: `${siteUrl}/page/${currentPage}` },
+    ],
 });
 ---
 
@@ -41,6 +52,7 @@ const jsonLd = generateJsonLd('ItemList', {
 >
     <Fragment slot="head">
         <script is:inline type="application/ld+json" set:html={jsonLd} />
+        <script is:inline type="application/ld+json" set:html={breadcrumbLd} />
     </Fragment>
 
     <section data-component="item-listing">

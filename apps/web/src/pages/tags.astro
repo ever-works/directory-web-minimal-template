@@ -4,19 +4,31 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getContent } from '../lib/content';
+import { generateJsonLd } from '@ever-works/plugin-seo';
 import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
 import TagList from '@ever-works/ui/astro/TagList.astro';
 import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
 
 const { tags, config } = await getContent();
 
+const siteUrl = (config.app_url ?? '').replace(/\/$/, '');
 const breadcrumbItems = [
     { label: 'Home', href: '/' },
     { label: 'Tags' },
 ];
+const breadcrumbLd = generateJsonLd('BreadcrumbList', {
+    type: 'BreadcrumbList',
+    items: [
+        { name: 'Home', url: `${siteUrl}/` },
+        { name: 'Tags', url: `${siteUrl}/tags` },
+    ],
+});
 ---
 
 <BaseLayout title="Tags" config={config}>
+    <Fragment slot="head">
+        <script is:inline type="application/ld+json" set:html={breadcrumbLd} />
+    </Fragment>
     <Breadcrumbs items={breadcrumbItems} />
 
     <section data-component="tags-page">

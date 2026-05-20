@@ -34,6 +34,8 @@ const breadcrumbItems = [
     { label: category.name },
 ];
 
+const siteUrl = (config.app_url ?? '').replace(/\/$/, '');
+
 // JSON-LD ItemList for category listing
 const jsonLd = categoryItems.length > 0
     ? generateJsonLd('ItemList', {
@@ -44,18 +46,28 @@ const jsonLd = categoryItems.length > 0
         })),
     })
     : null;
+
+// BreadcrumbList JSON-LD: Home → Categories → <Category>
+const breadcrumbLd = generateJsonLd('BreadcrumbList', {
+    type: 'BreadcrumbList',
+    items: [
+        { name: 'Home', url: `${siteUrl}/` },
+        { name: 'Categories', url: `${siteUrl}/categories` },
+        { name: category.name, url: `${siteUrl}/category/${category.id}` },
+    ],
+});
 ---
 
 <BaseLayout
     title={category.name}
     description={`Browse ${categoryItems.length} ${config.items_name.toLowerCase()} in ${category.name}`}
     config={config}
+    markdownMirrorUrl={`/category/${category.id}.md`}
 >
-    {jsonLd && (
-        <Fragment slot="head">
-            <script is:inline type="application/ld+json" set:html={jsonLd} />
-        </Fragment>
-    )}
+    <Fragment slot="head">
+        {jsonLd && <script is:inline type="application/ld+json" set:html={jsonLd} />}
+        <script is:inline type="application/ld+json" set:html={breadcrumbLd} />
+    </Fragment>
     <Breadcrumbs items={breadcrumbItems} />
 
     <section data-component="category-page">

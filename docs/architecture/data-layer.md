@@ -26,7 +26,7 @@ The data layer is the foundation of the template. It reads structured data from 
 │  GitAdapter · FilesystemAdapter          │
 ├──────────────────────────────────────────┤
 │        .content/ (cloned repo)           │
-│  config.yml · data/ · categories.yml     │
+│  .works/works.yml · data/ · categories.yml │
 └──────────────────────────────────────────┘
 ```
 
@@ -36,7 +36,8 @@ The `.content/` directory follows the same structure as the full Next.js templat
 
 ```
 .content/
-├── config.yml                    # Site-wide configuration
+├── .works/
+│   └── works.yml                 # Site-wide configuration
 ├── categories.yml                # Category definitions (flat YAML array)
 │   OR categories/
 │       └── categories.yml
@@ -227,7 +228,7 @@ interface ComparisonDimension {
 ### SiteConfig
 
 ```typescript
-/** Site configuration from config.yml */
+/** Site configuration from .works/works.yml */
 interface SiteConfig {
     company_name: string;
     item_name: string;

@@ -404,10 +404,10 @@ describe('GitAdapter', () => {
             const adapter = await createInitializedAdapter();
             mockFsExists.mockResolvedValue(true);
 
-            const result = await adapter.exists('config.yml');
+            const result = await adapter.exists('.works/works.yml');
 
             expect(result).toBe(true);
-            expect(mockFsExists).toHaveBeenCalledWith('config.yml');
+            expect(mockFsExists).toHaveBeenCalledWith('.works/works.yml');
         });
     });
 

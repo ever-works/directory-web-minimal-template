@@ -42,7 +42,7 @@ It follows the same architecture as `apps/sample-basic/`, `apps/sample-jobs/`, a
 
 ## Content Data Structure
 
-### Site Configuration (`.content/config.yml`)
+### Site Configuration (`.content/.works/works.yml`)
 
 ```yaml
 company_name: "Dream Properties"

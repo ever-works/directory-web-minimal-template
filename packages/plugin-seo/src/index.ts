@@ -29,7 +29,21 @@ export { seoPlugin } from './plugin';
 // Utility functions
 export { generateMetaTags } from './meta';
 export { generateJsonLd, generateItemJsonLd } from './json-ld';
-export { generateRobotsTxt } from './robots';
+export {
+    generateRobotsTxt,
+    AI_CRAWLER_USER_AGENTS,
+    resolveAiCrawlerPolicy,
+    buildAiCrawlerRules,
+} from './robots';
+export {
+    renderItemMarkdown,
+    renderCategoryMarkdown,
+    renderTagMarkdown,
+    renderCollectionMarkdown,
+    renderComparisonMarkdown,
+    renderStaticPageMarkdown,
+    generateLlmsFullTxt,
+} from './markdown-mirror';
 
 // Types
 export type {
@@ -47,4 +61,13 @@ export type {
     SoftwareApplicationInput,
     DirectoryItemInput,
 } from './types';
-export type { RobotsTxtOptions, RobotsTxtRule } from './robots';
+export type { RobotsTxtOptions, RobotsTxtRule, AiCrawlerMode, AiCrawlerPolicy } from './robots';
+export type {
+    MirrorItem,
+    MirrorCategory,
+    MirrorTag,
+    MirrorCollection,
+    MirrorComparison,
+    MarkdownMirrorOptions,
+    LlmsFullTxtInput,
+} from './markdown-mirror';

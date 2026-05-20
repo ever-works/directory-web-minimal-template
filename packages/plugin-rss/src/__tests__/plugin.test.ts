@@ -24,9 +24,16 @@ describe('resolveRssConfig', () => {
         expect(config.description).toBe('Latest items from My Site');
         expect(config.limit).toBe(50);
         expect(config.atom).toBe(true);
+        expect(config.jsonFeed).toBe(true);
         expect(config.rssFilename).toBe('rss.xml');
         expect(config.atomFilename).toBe('atom.xml');
+        expect(config.jsonFeedFilename).toBe('feed.json');
         expect(config.sortBy).toBe('date-desc');
+    });
+
+    it('honors jsonFeed: false override', () => {
+        const config = resolveRssConfig({ jsonFeed: false }, 'Site');
+        expect(config.jsonFeed).toBe(false);
     });
 
     it('overrides with user options', () => {

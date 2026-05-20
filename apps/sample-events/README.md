@@ -28,7 +28,7 @@ A working directory website for **Tech Events**, showcasing 10 events across 4 c
 
 ```
 .content/
-├── config.yml          — Site config ("Tech Events", item_name: "Event")
+├── .works/works.yml    — Site config ("Tech Events", item_name: "Event")
 ├── categories.yml      — 4 event types (Conference, Meetup, Workshop, Hackathon)
 ├── tags.yml            — 10 tags (AI, Web, Cloud, Beginner Friendly, ...)
 ├── collections.yml     — 2 curated lists (Must-Attend 2026, Free Events)

@@ -27,7 +27,7 @@ A working directory website for **Remote Tech Jobs**, showcasing 8 job postings 
 
 ```
 .content/
-├── config.yml          — Site config ("Remote Tech Jobs", item_name: "Job")
+├── .works/works.yml    — Site config ("Remote Tech Jobs", item_name: "Job")
 ├── categories.yml      — 6 job categories (Engineering, Design, Product, ...)
 ├── tags.yml            — 10 tags (Remote, Full-Time, Senior, Contract, ...)
 ├── collections.yml     — 2 curated lists (Top Engineering Jobs, Design & Product)

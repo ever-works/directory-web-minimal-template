@@ -28,11 +28,17 @@ describe('@ever-works/plugin-rss barrel exports', () => {
         expect(rss.toAtomDate).toBeTypeOf('function');
     });
 
+    it('exports generateJsonFeed and toRfc3339', () => {
+        expect(rss.generateJsonFeed).toBeTypeOf('function');
+        expect(rss.toRfc3339).toBeTypeOf('function');
+    });
+
     it('does not export unexpected runtime values', () => {
         const expectedExports = [
             'rssPlugin', 'buildFeedEntries', 'resolveRssConfig',
             'generateRss', 'escapeXml', 'toRfc2822',
             'generateAtom', 'toAtomDate',
+            'generateJsonFeed', 'toRfc3339',
         ];
         const actualExports = Object.keys(rss);
         for (const key of actualExports) {

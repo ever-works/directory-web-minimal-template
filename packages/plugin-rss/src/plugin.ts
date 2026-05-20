@@ -20,8 +20,10 @@ const DEFAULTS: ResolvedRssConfig = {
     siteUrl: '',
     limit: 50,
     atom: true,
+    jsonFeed: true,
     rssFilename: 'rss.xml',
     atomFilename: 'atom.xml',
+    jsonFeedFilename: 'feed.json',
     sortBy: 'date-desc',
 };
 
@@ -127,8 +129,10 @@ export function resolveRssConfig(
         siteUrl: (options.siteUrl ?? '').replace(/\/$/, ''),
         limit: options.limit ?? DEFAULTS.limit,
         atom: options.atom !== false,
+        jsonFeed: options.jsonFeed !== false,
         rssFilename: options.rssFilename ?? DEFAULTS.rssFilename,
         atomFilename: options.atomFilename ?? DEFAULTS.atomFilename,
+        jsonFeedFilename: options.jsonFeedFilename ?? DEFAULTS.jsonFeedFilename,
         sortBy: options.sortBy ?? DEFAULTS.sortBy,
     };
 }
