@@ -142,6 +142,50 @@ jobs:
             exit 1
           fi
 
+      - name: Verify Vercel framework is compatible with apps/web/vercel.json
+        # Defensive: catch the case where the project's framework was left
+        # on a CONFLICTING value (most commonly `nextjs`, e.g. from an
+        # earlier classic-template deploy under the same Work's repo). That
+        # silently caused "No Next.js version detected" build failures
+        # before this check existed.
+        #
+        # Accepted values:
+        #   "astro" — matches apps/web/vercel.json (canonical)
+        #   "null"  — Vercel "Other" preset; vercel.json wins at build
+        #             time, so this is fine (Vercel's project model allows
+        #             framework to be null when the project was created
+        #             without a preset or had its preset cleared)
+        # Any other value (`nextjs`, `vite`, `gatsby`, …) is treated as
+        # misconfig — even though vercel.json should still win at build
+        # time, silent disagreement between vercel.json and the project
+        # setting tends to surprise on-call later, and the most common
+        # cause is a stale wrong-template setting that the operator
+        # actually wants to know about.
+        run: |
+          API_URL="https://api.vercel.com/v9/projects/${{ github.event.repository.name }}"
+          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && API_URL="${API_URL}?slug=${{ secrets.VERCEL_TEAM_SCOPE }}"
+
+          FRAMEWORK=$(curl -s "$API_URL" \
+            -H "Authorization: Bearer $VERCEL_TOKEN" \
+            | jq -r '.framework // "null"')
+
+          echo "Vercel project framework: $FRAMEWORK"
+
+          if [ "$FRAMEWORK" != "astro" ] && [ "$FRAMEWORK" != "null" ]; then
+            echo "::error::Vercel project framework is '$FRAMEWORK', expected 'astro' or null (Other)."
+            echo "apps/web/vercel.json pins 'framework: astro' and should normally win at build time,"
+            echo "but a project-level setting that disagrees is flagged here — it almost always means"
+            echo "something pinned the wrong framework deliberately and the build will surprise on-call later."
+            echo ""
+            echo "Common causes:"
+            echo "  1. A previous deploy under this Work's repo used a different template (e.g. Next.js classic) and the project's framework setting persisted."
+            echo "     → Fix in the Vercel dashboard: Settings → General → Framework Preset → Other (or Astro)."
+            echo "  2. A vercel.json elsewhere in the rootDirectory has set 'framework' to something other than 'astro'."
+            echo "     → Fix the vercel.json file (apps/web/vercel.json in this template ships 'framework': 'astro')."
+            echo "  3. The PATCH above succeeded with an HTTP 200 but Vercel ignored the new framework value (rare)."
+            exit 1
+          fi
+
       - name: Link Vercel project
         run: |
           SCOPE_FLAG=""
