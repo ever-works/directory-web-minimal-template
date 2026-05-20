@@ -3,6 +3,41 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-05-19 — Pin Vercel framework to "astro" via apps/web/vercel.json + workflow verification
+
+Live deploy failed on a custom-template Work with:
+
+> No Next.js version detected. Make sure your package.json has "next" in
+> either "dependencies" or "devDependencies".
+
+Root cause: the Vercel project for that Work was previously created with
+`framework: nextjs` (most likely from an earlier classic-template deploy
+under the same Work's repo, or a stale auto-import). The platform's
+`deploy_vercel.yaml` PATCHes `framework: astro` on every run, but a
+silent-no-op or a stale project setting left the framework at `nextjs`
+when Vercel actually ran the build.
+
+Two defenses, both in `apps/web/`:
+
+1. **`apps/web/vercel.json`** — pins `framework: "astro"` at the repo
+   level. Vercel's `vercel.json` overrides project-level settings, so any
+   stale "Next.js" preset on the project is ignored at build time. Also
+   pins `buildCommand` and `installCommand` so the right `pnpm --filter
+   @ever-works/web-minimal build` runs regardless of project-level overrides.
+2. **`deploy_vercel.yaml` verify step** — after the PATCH, GET the project
+   and read `.framework`. Accept `astro` (canonical) OR `null` (Vercel
+   "Other" preset; `vercel.json` wins at build time so this is fine).
+   Fail the workflow on any other value (`nextjs`, `vite`, `gatsby`, …)
+   with an actionable error pointing at the three most common offenders
+   (stale project preset / vercel.json drift / silent Vercel PATCH
+   no-op). This
+   converts a confusing build-time failure into a workflow-time failure
+   with a clear root-cause hint.
+
+Net: a Work cloned from a custom-template based on minimal will now
+deploy with `framework: astro` no matter what stale state the Vercel
+project has been left in.
+
 ## 2026-05-19 — Make `deploy_prod.yaml` dispatch-only (intentional divergence from classic)
 
 Follow-up on the 2026-05-18 entry below. The initial port mirrored the
