@@ -1,12 +1,21 @@
 /**
  * Public llms.txt endpoint per the public llms.txt convention
  * (https://llmstxt.org). Provides downstream LLM agents with a
- * machine-readable manifest of the directory and pointers to the canonical
- * data dump at /items.json.
+ * machine-readable manifest of the directory and pointers to:
  *
- * Pairs with the Ever Works zero-friction onboarding feature so that any
- * directory built by an agent through `POST /api/register-work` is
- * immediately discoverable by other agents.
+ *  - /items.json        — JSON dump of every item.
+ *  - /feed.json         — JSON Feed 1.1 of recent items.
+ *  - /llms-full.txt     — concatenated long-form Markdown of the entire site.
+ *  - /sitemap-index.xml — full URL list.
+ *  - /atom.xml          — atom feed of recent items.
+ *  - /rss.xml           — RSS 2.0 feed.
+ *  - /<page>.md         — per-page Markdown mirror of every public page
+ *                         (items / categories / tags / collections /
+ *                         comparisons / pages).
+ *
+ * Pairs with the Ever Works zero-friction onboarding feature so that
+ * any directory built by an agent through `POST /api/register-work`
+ * is immediately discoverable by other agents.
  */
 
 import type { APIRoute } from 'astro';
@@ -29,9 +38,25 @@ export const GET: APIRoute = async () => {
         '',
         '## Canonical data',
         '',
-        `- [Full items index](${siteUrl}/items.json) — JSON dump of every item with its category, tags, and link.`,
+        `- [Full long-form Markdown dump](${siteUrl}/llms-full.txt) — every category, tag, item, and comparison concatenated as Markdown for one-shot ingestion.`,
+        `- [Items JSON index](${siteUrl}/items.json) — JSON dump of every item with its category, tags, and link.`,
+        `- [JSON Feed 1.1](${siteUrl}/feed.json) — recent items as JSON Feed.`,
         `- [Sitemap](${siteUrl}/sitemap-index.xml)`,
         `- [Atom feed](${siteUrl}/atom.xml)`,
+        `- [RSS feed](${siteUrl}/rss.xml)`,
+        '',
+        '## Per-page Markdown mirrors',
+        '',
+        'Every public page also serves a clean Markdown twin at the same path with `.md` appended:',
+        '',
+        `- ${siteUrl}/item/<slug>.md`,
+        `- ${siteUrl}/category/<id>.md`,
+        `- ${siteUrl}/tag/<id>.md`,
+        `- ${siteUrl}/collection/<slug>.md`,
+        `- ${siteUrl}/comparison/<slug>.md`,
+        `- ${siteUrl}/pages/<slug>.md`,
+        '',
+        'Each HTML page advertises its mirror via `<link rel="alternate" type="text/markdown" href="…">`.',
         '',
         '## About',
         '',

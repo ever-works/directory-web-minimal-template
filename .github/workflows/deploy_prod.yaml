@@ -1,0 +1,46 @@
+name: Production deployment
+
+# Manual / platform-dispatched safety net that re-uses `deploy_vercel.yaml`
+# via `workflow_call`. The Ever Works platform's `DeployService.dispatchWithRetry`
+# tries `deploy_vercel.yaml` first; this file is the second name it tries when
+# the first dispatch misses (e.g. brand-new repo where Actions are not yet
+# enabled). It is also dispatchable from the GitHub Actions UI as a manual
+# production redeploy.
+#
+# **Intentional divergence from `directory-web-template`**: the classic
+# template auto-triggers this workflow on `push: main`. The minimal template
+# does NOT — the platform pushes commits to the user's `tpl-<uuid>/main`
+# branch on every AI customization run, and auto-deploying on those pushes
+# would create a feedback loop (every restyle → Vercel deploy → cost &
+# noise). The minimal template's deploys are platform-initiated only.
+# Users who want a manual production deploy can run this workflow from the
+# Actions tab.
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Vercel environment to deploy to (production, preview, staging)'
+        required: false
+        default: production
+        type: string
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  Vercel:
+    # Gate kept for parity with the classic template — only run when the
+    # platform has wired DEPLOY_PROVIDER=='vercel' onto the repo's Actions
+    # variables. A repo that hasn't been deployed by the platform yet
+    # (variable absent) will no-op safely.
+    if: ${{ vars.DEPLOY_PROVIDER == 'vercel' }}
+    uses: ./.github/workflows/deploy_vercel.yaml
+    secrets: inherit
+    with:
+      environment: ${{ inputs.environment || 'production' }}

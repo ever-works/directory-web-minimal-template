@@ -255,7 +255,7 @@ interface PageData {
 }
 ```
 
-### Config (from `.content/config.yml`)
+### Config (from `.works/works.yml`)
 ```typescript
 interface NavLinkItem {
     label: string;

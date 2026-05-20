@@ -10,7 +10,7 @@
  *
  * const adapter = createAdapter();
  * await adapter.init({ repository: 'https://github.com/...' });
- * const content = await adapter.readFile('config.yml');
+ * const content = await adapter.readFile('.works/works.yml');
  * ```
  */
 

@@ -1,0 +1,39 @@
+- id: "typescript"
+  name: "TypeScript"
+  isActive: true
+
+- id: "accessible"
+  name: "Accessible"
+  isActive: true
+
+- id: "headless"
+  name: "Headless"
+  isActive: true
+
+- id: "open-source"
+  name: "Open Source"
+  isActive: true
+
+- id: "tailwind"
+  name: "Tailwind CSS"
+  isActive: true
+
+- id: "styled-components"
+  name: "Styled Components"
+  isActive: true
+
+- id: "unstyled"
+  name: "Unstyled"
+  isActive: true
+
+- id: "ssr-ready"
+  name: "SSR Ready"
+  isActive: true
+
+- id: "react-19"
+  name: "React 19"
+  isActive: true
+
+- id: "small-bundle"
+  name: "Small Bundle"
+  isActive: true

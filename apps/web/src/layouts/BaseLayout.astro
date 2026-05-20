@@ -27,9 +27,15 @@ interface Props {
     ogImage?: string;
     /** Page type for structured data */
     pageType?: 'website' | 'article' | 'product';
+    /**
+     * Optional URL of a Markdown twin of this page. When set, advertised
+     * via `<link rel="alternate" type="text/markdown">` so AI agents can
+     * fetch the clean Markdown version of the page without parsing HTML.
+     */
+    markdownMirrorUrl?: string;
 }
 
-const { title, description, config, canonicalUrl, ogImage, pageType = 'website' } = Astro.props;
+const { title, description, config, canonicalUrl, ogImage, pageType = 'website', markdownMirrorUrl } = Astro.props;
 const siteTitle = `${title} | ${config.company_name}`;
 const metaDescription = description || `${config.company_name} — Browse ${config.items_name}`;
 
@@ -46,7 +52,7 @@ const metaTags = generateMetaTags(pageMeta, {});
 
 /**
  * Default nav items used when config.custom_header is not set.
- * Sites can override via config.custom_header in config.yml.
+ * Sites can override via config.custom_header in .works/works.yml.
  */
 const defaultNavItems = [
     { label: 'Home', href: '/' },
@@ -85,9 +91,15 @@ const footerLinks: NavLinkItem[] = config.custom_footer ?? [];
         {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
         {config.logo?.favicon && <link rel="icon" href={config.logo.favicon} />}
 
-        {/* RSS/Atom feed autodiscovery */}
+        {/* Feed autodiscovery — RSS 2.0, Atom 1.0, JSON Feed 1.1 */}
         <link rel="alternate" type="application/rss+xml" title={`${config.company_name} RSS Feed`} href="/rss.xml" />
         <link rel="alternate" type="application/atom+xml" title={`${config.company_name} Atom Feed`} href="/atom.xml" />
+        <link rel="alternate" type="application/feed+json" title={`${config.company_name} JSON Feed`} href="/feed.json" />
+
+        {/* Markdown twin for AI agents (per llmstxt.org per-page mirror convention) */}
+        {markdownMirrorUrl && (
+            <link rel="alternate" type="text/markdown" title="Markdown version" href={markdownMirrorUrl} />
+        )}
 
         <slot name="head" />
     </head>

@@ -68,7 +68,7 @@ export interface PluginHooks {
 
 /** Context object passed to all plugin hooks */
 export interface PluginContext {
-    /** Loaded site configuration from config.yml */
+    /** Loaded site configuration from .works/works.yml */
     config: SiteConfig;
 
     /** Absolute path to the content directory (.content/) */

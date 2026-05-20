@@ -150,9 +150,9 @@ pnpm install
 ### Goal
 Populate `.content/` with the Tech Events directory data — config, categories, tags, collections, comparisons, static pages, and 10 event YAML files.
 
-### 7.2.1 Create `.content/config.yml`
+### 7.2.1 Create `.content/.works/works.yml`
 
-**File**: `apps/sample-events/.content/config.yml`
+**File**: `apps/sample-events/.content/.works/works.yml`
 
 ```yaml
 company_name: "Tech Events"
@@ -360,7 +360,7 @@ ls apps/sample-events/.content/pages/ | wc -l
 
 # Validate YAML syntax
 cd apps/sample-events
-node -e "const yaml = require('yaml'); const fs = require('fs'); console.log(yaml.parse(fs.readFileSync('.content/config.yml','utf8')))"
+node -e "const yaml = require('yaml'); const fs = require('fs'); console.log(yaml.parse(fs.readFileSync('.content/.works/works.yml','utf8')))"
 ```
 
 ---

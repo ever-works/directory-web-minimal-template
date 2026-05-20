@@ -27,6 +27,8 @@ const breadcrumbItems = [
     { label: comparison.title },
 ];
 
+const siteUrl = (config.app_url ?? '').replace(/\/$/, '');
+
 // JSON-LD ItemList for comparison contestants
 const jsonLd = generateJsonLd('ItemList', {
     type: 'ItemList',
@@ -35,15 +37,27 @@ const jsonLd = generateJsonLd('ItemList', {
         { name: comparison.item_b_name, url: `/item/${comparison.item_b_slug}` },
     ],
 });
+
+// BreadcrumbList JSON-LD: Home → Comparisons → <title>
+const breadcrumbLd = generateJsonLd('BreadcrumbList', {
+    type: 'BreadcrumbList',
+    items: [
+        { name: 'Home', url: `${siteUrl}/` },
+        { name: 'Comparisons', url: `${siteUrl}/comparisons` },
+        { name: comparison.title, url: `${siteUrl}/comparison/${comparison.slug}` },
+    ],
+});
 ---
 
 <BaseLayout
     title={comparison.title}
     description={comparison.summary || `Compare ${comparison.item_a_name} vs ${comparison.item_b_name}`}
     config={config}
+    markdownMirrorUrl={`/comparison/${comparison.slug}.md`}
 >
     <Fragment slot="head">
         <script is:inline type="application/ld+json" set:html={jsonLd} />
+        <script is:inline type="application/ld+json" set:html={breadcrumbLd} />
     </Fragment>
     <Breadcrumbs items={breadcrumbItems} />
 

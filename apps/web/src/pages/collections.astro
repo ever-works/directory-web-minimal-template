@@ -4,15 +4,28 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getContent } from '../lib/content';
+import { generateJsonLd } from '@ever-works/plugin-seo';
 import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
 import CollectionCard from '@ever-works/ui/astro/CollectionCard.astro';
 import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
 
 const { collections, config } = await getContent();
 const activeCollections = collections.filter((c) => c.isActive !== false);
+
+const siteUrl = (config.app_url ?? '').replace(/\/$/, '');
+const breadcrumbLd = generateJsonLd('BreadcrumbList', {
+    type: 'BreadcrumbList',
+    items: [
+        { name: 'Home', url: `${siteUrl}/` },
+        { name: 'Collections', url: `${siteUrl}/collections` },
+    ],
+});
 ---
 
 <BaseLayout title="Collections" config={config}>
+    <Fragment slot="head">
+        <script is:inline type="application/ld+json" set:html={breadcrumbLd} />
+    </Fragment>
     <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Collections' }]} />
 
     <section data-component="collections-page">

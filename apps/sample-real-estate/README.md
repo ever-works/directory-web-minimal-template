@@ -28,7 +28,7 @@ A working directory website for **Dream Properties**, showcasing 10 property lis
 
 ```
 .content/
-├── config.yml          — Site config ("Dream Properties", item_name: "Property")
+├── .works/works.yml    — Site config ("Dream Properties", item_name: "Property")
 ├── categories.yml      — 4 property types (Apartment, House, Commercial, Land)
 ├── tags.yml            — 10 tags (Downtown, Waterfront, Luxury, Pet-Friendly, ...)
 ├── collections.yml     — 2 curated lists (Under $500K, Luxury Collection)

@@ -33,6 +33,8 @@ const breadcrumbItems = [
     { label: tag.name },
 ];
 
+const siteUrl = (config.app_url ?? '').replace(/\/$/, '');
+
 // JSON-LD ItemList for tag listing
 const jsonLd = tagItems.length > 0
     ? generateJsonLd('ItemList', {
@@ -43,18 +45,28 @@ const jsonLd = tagItems.length > 0
         })),
     })
     : null;
+
+// BreadcrumbList JSON-LD: Home → Tags → <Tag>
+const breadcrumbLd = generateJsonLd('BreadcrumbList', {
+    type: 'BreadcrumbList',
+    items: [
+        { name: 'Home', url: `${siteUrl}/` },
+        { name: 'Tags', url: `${siteUrl}/tags` },
+        { name: tag.name, url: `${siteUrl}/tag/${tag.id}` },
+    ],
+});
 ---
 
 <BaseLayout
     title={tag.name}
     description={`Browse ${tagItems.length} ${config.items_name.toLowerCase()} tagged with ${tag.name}`}
     config={config}
+    markdownMirrorUrl={`/tag/${tag.id}.md`}
 >
-    {jsonLd && (
-        <Fragment slot="head">
-            <script is:inline type="application/ld+json" set:html={jsonLd} />
-        </Fragment>
-    )}
+    <Fragment slot="head">
+        {jsonLd && <script is:inline type="application/ld+json" set:html={jsonLd} />}
+        <script is:inline type="application/ld+json" set:html={breadcrumbLd} />
+    </Fragment>
     <Breadcrumbs items={breadcrumbItems} />
 
     <section data-component="tag-page">

@@ -143,7 +143,7 @@ Both React Hook Form and Formik are popular...
 
 ## Site Config Schema
 
-**Source**: `.content/config.yml`
+**Source**: `.works/works.yml`
 
 ```yaml
 company_name: "React Components Directory"

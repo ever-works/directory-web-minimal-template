@@ -33,7 +33,7 @@ This sample serves two purposes:
 
 ## Content Data Structure
 
-### Site Configuration (`.content/config.yml`)
+### Site Configuration (`.content/.works/works.yml`)
 
 ```yaml
 company_name: "React UI Components"
@@ -455,7 +455,8 @@ export const plugins = definePlugins([
 ```
 apps/sample-basic/
 ├── .content/
-│   ├── config.yml
+│   ├── .works/
+│   │   └── works.yml
 │   ├── categories.yml
 │   ├── tags.yml
 │   ├── collections.yml
