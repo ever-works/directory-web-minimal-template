@@ -131,6 +131,26 @@ The template connects to Git repositories containing YAML data files. The data f
 
 Set `DATA_REPOSITORY` in your `.env` file to point to your data repo.
 
+### Data repository layout
+
+The template reads the following top-level folders from the data repo:
+
+| Folder / file | Purpose |
+| --- | --- |
+| `.works/works.yml` | Work configuration (canonical) |
+| `data/<slug>/` | Directory items (`<slug>.yml` + `<slug>.md` per item) |
+| `pages/` | Static pages (Markdown) |
+| `markdown/` | Inline header/footer Markdown blocks |
+| `comparisons/<a>--<b>/` | Item-vs-item comparison content |
+| `categories.yml` | Category definitions |
+| `collections.yml` | Collection metadata |
+| `tags.yml` | Tag definitions |
+| `references.yml` | Shared citations / sources |
+| `kb/` | Per-Work Knowledge Base — platform-internal context, **not rendered publicly by this template** |
+| `kb-originals/` | Original uploaded source files (only when storage = `github-storage`) — **not rendered publicly** |
+
+The `kb/` and `kb-originals/` folders are written by the Ever Works platform's Knowledge Base feature. They carry institutional context (brand voice, glossary, legal text, research, etc.) consumed by platform-side AI generation, **not** by the deployed site. The template intentionally ignores both folders — anything you want public must live under `pages/`, `markdown/`, or `data/`.
+
 ## Deployment
 
 Deploy to Vercel:
