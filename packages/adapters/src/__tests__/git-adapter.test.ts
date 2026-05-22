@@ -50,11 +50,12 @@ vi.mock('../filesystem-adapter.js', () => {
 // ---------------------------------------------------------------------------
 vi.mock('node:fs/promises', () => ({
     access: vi.fn(),
+    rm: vi.fn(),
     stat: vi.fn(),
 }));
 
 import * as git from 'isomorphic-git';
-import { access, stat } from 'node:fs/promises';
+import { access, rm, stat } from 'node:fs/promises';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -107,6 +108,7 @@ describe('GitAdapter', () => {
         vi.mocked(git.resolveRef).mockReset();
         vi.mocked(git.fastForward).mockReset();
         vi.mocked(access).mockReset();
+        vi.mocked(rm).mockReset().mockResolvedValue(undefined);
         vi.mocked(stat).mockReset();
         mockFsInit.mockReset().mockResolvedValue(undefined);
         mockFsReadFile.mockReset();
@@ -162,6 +164,24 @@ describe('GitAdapter', () => {
                 }),
             );
         });
+        it('removes non-git seed content before cloning', async () => {
+            const adapter = new GitAdapter();
+            vi.mocked(access)
+                .mockRejectedValueOnce(new Error('ENOENT'))
+                .mockResolvedValueOnce(undefined);
+            vi.mocked(stat).mockResolvedValue({ isDirectory: () => true } as any);
+            vi.mocked(git.clone).mockResolvedValue(undefined as any);
+
+            await adapter.init({
+                repository: 'https://github.com/test/repo',
+            });
+
+            expect(rm).toHaveBeenCalledWith(expect.stringContaining('.content'), {
+                recursive: true,
+                force: true,
+            });
+        });
+
         it('clones the remote default branch when branch is not provided', async () => {
             const adapter = new GitAdapter();
             setupNotCloned();

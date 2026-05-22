@@ -53,5 +53,4 @@ jobs:
           # break the build?" signal.
           DATA_REPOSITORY: ${{ secrets.DATA_REPOSITORY }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          GITHUB_BRANCH: ${{ secrets.GITHUB_BRANCH || 'main' }}
           SITE_URL: ${{ secrets.SITE_URL || 'https://example.com' }}

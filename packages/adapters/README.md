@@ -92,7 +92,7 @@ All methods operate on paths **relative to the content root**. The adapter handl
 | 4 | `DATA_REPOSITORY` env var | Git |
 | 5 | Fallback: `.content/` directory | Filesystem |
 
-When using `DATA_REPOSITORY`, the factory also reads `GH_TOKEN` and `GITHUB_BRANCH` (default: `main`) from environment.
+When using `DATA_REPOSITORY`, the factory also reads `GH_TOKEN` from environment for private repositories. Branch selection uses the repository default branch unless a branch is passed explicitly in adapter config.
 
 ## Security
 
