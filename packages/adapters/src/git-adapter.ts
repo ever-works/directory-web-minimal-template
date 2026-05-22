@@ -12,9 +12,6 @@ import http from 'isomorphic-git/http/node';
 import { FilesystemAdapter } from './filesystem-adapter';
 import type { DataAdapter, AdapterConfig } from './types';
 
-/** Default branch to clone when none is specified. */
-const DEFAULT_BRANCH = 'main';
-
 /** Directory name for the cloned content, relative to the working directory. */
 const CONTENT_DIR = '.content';
 
@@ -40,8 +37,8 @@ export class GitAdapter implements DataAdapter {
     /** Remote repository URL. */
     private repository = '';
 
-    /** Branch name to track. */
-    private branch = DEFAULT_BRANCH;
+    /** Branch name to track. Undefined means use the remote default branch. */
+    private branch: string | undefined;
 
     /** Optional authentication token for private repositories. */
     private token: string | undefined;
@@ -51,7 +48,7 @@ export class GitAdapter implements DataAdapter {
      *
      * - If `.content/.git` already exists, the clone is skipped (idempotent).
      * - Authentication is handled via the `onAuth` callback (no token in URL).
-     * - Uses `config.branch` (default: `'main'`).
+     * - Uses `config.branch` when provided; otherwise clones the remote default branch.
      *
      * @param config - Must include `repository`. Optionally `token` and `branch`.
      * @throws If `repository` is missing or the clone fails.
@@ -65,7 +62,7 @@ export class GitAdapter implements DataAdapter {
         this.repository = repository;
         this.branch = typeof config.branch === 'string' && config.branch
             ? config.branch
-            : DEFAULT_BRANCH;
+            : undefined;
         this.token = config.token;
         this.contentPath = resolve(CONTENT_DIR);
 
@@ -77,8 +74,7 @@ export class GitAdapter implements DataAdapter {
                     http,
                     dir: this.contentPath,
                     url: this.repository,
-                    ref: this.branch,
-                    singleBranch: true,
+                    ...(this.branch ? { ref: this.branch, singleBranch: true } : {}),
                     depth: config.cloneDepth ?? 1,
                     onAuth: () => this.getAuth(),
                 });
@@ -108,21 +104,30 @@ export class GitAdapter implements DataAdapter {
         const beforeRef = await this.getHeadRef();
 
         try {
+            const fetchOptions = this.branch
+                ? { ref: this.branch, singleBranch: true }
+                : {};
+
             await git.fetch({
                 fs,
                 http,
                 dir: this.contentPath,
-                ref: this.branch,
-                singleBranch: true,
+                ...fetchOptions,
                 onAuth: () => this.getAuth(),
             });
 
             // Check if remote has new commits
-            const remoteRef = await git.resolveRef({
-                fs,
-                dir: this.contentPath,
-                ref: `refs/remotes/origin/${this.branch}`,
-            });
+            const remoteRef = this.branch
+                ? await git.resolveRef({
+                    fs,
+                    dir: this.contentPath,
+                    ref: `refs/remotes/origin/${this.branch}`,
+                })
+                : await git.resolveRef({
+                    fs,
+                    dir: this.contentPath,
+                    ref: 'HEAD',
+                });
 
             if (beforeRef === remoteRef) {
                 return false; // No changes
@@ -133,7 +138,7 @@ export class GitAdapter implements DataAdapter {
                 fs,
                 http,
                 dir: this.contentPath,
-                ref: this.branch,
+                ...(this.branch ? { ref: this.branch } : {}),
                 onAuth: () => this.getAuth(),
             });
 
