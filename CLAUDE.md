@@ -88,7 +88,6 @@ The template connects to the same git-backed data repositories as the full Next.
 **Environment variables:**
 - `DATA_REPOSITORY` — GitHub URL of content repo (required)
 - `GH_TOKEN` — GitHub PAT for private repos (optional)
-- `GITHUB_BRANCH` — Branch to sync (default: `main`)
 - `CONTENT_PATH` — Local path to content directory, overrides `DATA_REPOSITORY` for dev (optional)
 - `SITE_URL` — Deployed site URL for sitemap and canonical links (default: `https://example.com`)
 - `ENABLE_ISR` — Set to `false` for pure static output (default: `true`)
