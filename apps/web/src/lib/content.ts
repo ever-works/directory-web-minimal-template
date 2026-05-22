@@ -85,7 +85,7 @@ async function getAdapter() {
 			`Could not clone or access the data repository. Check that:\n` +
 			`  1. DATA_REPOSITORY points to a valid Git repo\n` +
 			`  2. GH_TOKEN is set for private repositories\n` +
-			`  3. GITHUB_BRANCH (default: "main") exists in the repo\n` +
+			`  3. The repository default branch is accessible\n` +
 			`  4. The repo contains .works/works.yml at its root\n` +
 			`Original error: ${err instanceof Error ? err.message : String(err)}`
 		);
@@ -112,7 +112,6 @@ async function getAdapter() {
 		contentCache: cache,
 		webhookSecret: syncConfig.webhookSecret,
 		deployHookUrl: syncConfig.deployHookUrl,
-		targetBranch: process.env['GITHUB_BRANCH'] ?? 'main',
 	});
 
 	return _adapter;

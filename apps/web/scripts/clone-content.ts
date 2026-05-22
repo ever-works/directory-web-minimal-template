@@ -8,7 +8,6 @@
  * Environment variables:
  * - DATA_REPOSITORY: Git HTTPS URL (required unless CONTENT_PATH is set)
  * - GH_TOKEN: GitHub PAT for private repos (optional)
- * - GITHUB_BRANCH: Branch to clone (default: 'main')
  * - CONTENT_PATH: Skip clone, use local path instead
  */
 
@@ -38,7 +37,6 @@ function main(): void {
         return;
     }
 
-    const branch = process.env.GITHUB_BRANCH || 'main';
     const token = process.env.GH_TOKEN;
 
     // Build the clone URL with auth token if provided
@@ -47,11 +45,11 @@ function main(): void {
         cloneUrl = repo.replace('https://', `https://x-access-token:${token}@`);
     }
 
-    console.log(`[clone-content] Cloning ${repo} (branch: ${branch})...`);
+    console.log(`[clone-content] Cloning ${repo} (default branch)...`);
 
     try {
         execSync(
-            `git clone --depth 1 --single-branch --branch "${branch}" "${cloneUrl}" "${CONTENT_DIR}"`,
+            `git clone --depth 1 "${cloneUrl}" "${CONTENT_DIR}"`,
             { stdio: 'inherit' },
         );
         console.log('[clone-content] Clone complete.');
