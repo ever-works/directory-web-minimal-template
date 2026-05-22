@@ -6,7 +6,7 @@
 
 import * as fs from 'node:fs';
 import { resolve, join } from 'node:path';
-import { access, stat } from 'node:fs/promises';
+import { access, rm, stat } from 'node:fs/promises';
 import * as git from 'isomorphic-git';
 import http from 'isomorphic-git/http/node';
 import { FilesystemAdapter } from './filesystem-adapter';
@@ -68,6 +68,7 @@ export class GitAdapter implements DataAdapter {
 
         const alreadyCloned = await this.isAlreadyCloned();
         if (!alreadyCloned) {
+            await this.prepareCloneTarget();
             try {
                 await git.clone({
                     fs,
@@ -212,6 +213,27 @@ export class GitAdapter implements DataAdapter {
      */
     getContentPath(): string {
         return this.contentPath;
+    }
+
+    /**
+     * Remove a non-git content directory before cloning. Templates may ship
+     * seed `.content` files for sample builds, but a real DATA_REPOSITORY
+     * clone must replace them instead of checking out over them.
+     */
+    private async prepareCloneTarget(): Promise<void> {
+        try {
+            await access(this.contentPath);
+        } catch {
+            // Missing target is fine; isomorphic-git will create it.
+            return;
+        }
+
+        const info = await stat(this.contentPath);
+        if (!info.isDirectory()) {
+            throw new Error(`GitAdapter: clone target is not a directory: ${this.contentPath}`);
+        }
+
+        await rm(this.contentPath, { recursive: true, force: true });
     }
 
     /**
