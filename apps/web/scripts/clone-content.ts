@@ -12,8 +12,8 @@
  */
 
 import { execSync } from 'node:child_process';
-import { existsSync, mkdirSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { existsSync, mkdirSync, rmSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 
 const CONTENT_DIR = resolve(process.cwd(), '.content');
 
@@ -24,13 +24,19 @@ function main(): void {
         return;
     }
 
-    // Skip if content directory already exists (sample data or previous clone)
+    const repo = process.env.DATA_REPOSITORY;
+
+    // Keep existing sample content when no repo is configured. When a real
+    // data repo is configured, replace non-git seed content with the clone.
     if (existsSync(CONTENT_DIR)) {
-        console.log('[clone-content] .content/ already exists, skipping clone.');
-        return;
+        if (!repo || existsSync(join(CONTENT_DIR, '.git'))) {
+            console.log('[clone-content] .content/ already exists, skipping clone.');
+            return;
+        }
+        console.log('[clone-content] Removing non-git .content/ before cloning DATA_REPOSITORY.');
+        rmSync(CONTENT_DIR, { recursive: true, force: true });
     }
 
-    const repo = process.env.DATA_REPOSITORY;
     if (!repo) {
         console.warn('[clone-content] DATA_REPOSITORY not set. Creating empty .content/ directory.');
         mkdirSync(CONTENT_DIR, { recursive: true });
