@@ -162,6 +162,27 @@ describe('GitAdapter', () => {
                 }),
             );
         });
+        it('clones the remote default branch when branch is not provided', async () => {
+            const adapter = new GitAdapter();
+            setupNotCloned();
+            vi.mocked(git.clone).mockResolvedValue(undefined as any);
+
+            await adapter.init({
+                repository: 'https://github.com/test/repo',
+            });
+
+            expect(git.clone).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    url: 'https://github.com/test/repo',
+                    depth: 1,
+                }),
+            );
+            expect(git.clone).toHaveBeenCalledWith(
+                expect.not.objectContaining({
+                    ref: expect.any(String),
+                }),
+            );
+        });
 
         it('skips clone when .content/.git already exists', async () => {
             const adapter = new GitAdapter();
@@ -174,7 +195,7 @@ describe('GitAdapter', () => {
             expect(git.clone).not.toHaveBeenCalled();
         });
 
-        it('defaults to "main" branch when none specified', async () => {
+        it('does not force a branch when none is specified', async () => {
             const adapter = new GitAdapter();
             setupNotCloned();
             vi.mocked(git.clone).mockResolvedValue(undefined as any);
@@ -184,8 +205,8 @@ describe('GitAdapter', () => {
             });
 
             expect(git.clone).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    ref: 'main',
+                expect.not.objectContaining({
+                    ref: expect.any(String),
                 }),
             );
         });
@@ -300,7 +321,7 @@ describe('GitAdapter', () => {
             expect(auth).toBeUndefined();
         });
 
-        it('uses empty string branch fallback when branch is empty string', async () => {
+        it('omits ref when branch is empty string', async () => {
             const adapter = new GitAdapter();
             setupNotCloned();
             vi.mocked(git.clone).mockResolvedValue(undefined as any);
@@ -310,10 +331,9 @@ describe('GitAdapter', () => {
                 branch: '',
             });
 
-            // empty string should fall back to 'main'
             expect(git.clone).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    ref: 'main',
+                expect.not.objectContaining({
+                    ref: expect.any(String),
                 }),
             );
         });
