@@ -195,7 +195,7 @@ describe('GitAdapter', () => {
             expect(git.clone).not.toHaveBeenCalled();
         });
 
-        it('defaults to "main" branch when none specified', async () => {
+        it('does not force a branch when none is specified', async () => {
             const adapter = new GitAdapter();
             setupNotCloned();
             vi.mocked(git.clone).mockResolvedValue(undefined as any);
@@ -205,8 +205,8 @@ describe('GitAdapter', () => {
             });
 
             expect(git.clone).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    ref: 'main',
+                expect.not.objectContaining({
+                    ref: expect.any(String),
                 }),
             );
         });
