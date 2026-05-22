@@ -193,23 +193,20 @@ describe('webhook-endpoint', () => {
                 expect(mockIsRelevantPush).toHaveBeenCalledWith('feature/test', 'main');
             });
 
-            it('should default targetBranch to main when not configured', async () => {
+            it('should not filter by branch when targetBranch is not configured', async () => {
                 mockWebhookSecret = 'test-secret';
                 mockTargetBranch = undefined;
                 mockValidateSignature.mockReturnValue(true);
                 mockParseGitHubPush.mockReturnValue({ branch: 'develop', commits: 1 });
-                mockIsRelevantPush.mockReturnValue(false);
 
                 const request = makePostRequest(
                     JSON.stringify({ ref: 'refs/heads/develop' }),
                     'sha256=valid',
                 );
 
-                const response = await POST({ request } as unknown as APIContext);
-                const body = await parseResponse(response);
+                await POST({ request } as unknown as APIContext);
 
-                expect(body['message']).toContain('tracking main');
-                expect(mockIsRelevantPush).toHaveBeenCalledWith('develop', 'main');
+                expect(mockIsRelevantPush).not.toHaveBeenCalled();
             });
         });
 

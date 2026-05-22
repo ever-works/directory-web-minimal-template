@@ -11,9 +11,6 @@ interface ImportMetaEnv {
     /** GitHub Personal Access Token for private repos */
     readonly GH_TOKEN?: string;
 
-    /** Git branch to clone (default: 'main') */
-    readonly GITHUB_BRANCH?: string;
-
     /** Local path to content directory (dev override) */
     readonly CONTENT_PATH?: string;
 

@@ -12,7 +12,6 @@ describe('resolveAdapterConfig', () => {
         delete process.env['CONTENT_PATH'];
         delete process.env['DATA_REPOSITORY'];
         delete process.env['GH_TOKEN'];
-        delete process.env['GITHUB_BRANCH'];
     });
 
     afterEach(() => {
@@ -62,22 +61,12 @@ describe('resolveAdapterConfig', () => {
 
         expect(config.token).toBe('env-token');
     });
-
-    it('should read GITHUB_BRANCH from environment with main as default', () => {
+    it('should leave branch unset so git clones the remote default branch', () => {
         process.env['DATA_REPOSITORY'] = 'https://github.com/env/repo';
 
         const config = resolveAdapterConfig();
 
-        expect(config.branch).toBe('main');
-    });
-
-    it('should use GITHUB_BRANCH env var when set', () => {
-        process.env['DATA_REPOSITORY'] = 'https://github.com/env/repo';
-        process.env['GITHUB_BRANCH'] = 'develop';
-
-        const config = resolveAdapterConfig();
-
-        expect(config.branch).toBe('develop');
+        expect(config.branch).toBeUndefined();
     });
 
     it('should default to .content when no config or env vars', () => {
@@ -145,7 +134,6 @@ describe('createAdapter — env resolution', () => {
         delete process.env['CONTENT_PATH'];
         delete process.env['DATA_REPOSITORY'];
         delete process.env['GH_TOKEN'];
-        delete process.env['GITHUB_BRANCH'];
     });
 
     afterEach(() => {
@@ -177,7 +165,6 @@ describe('resolveAdapterConfig — branch edge cases', () => {
         delete process.env['CONTENT_PATH'];
         delete process.env['DATA_REPOSITORY'];
         delete process.env['GH_TOKEN'];
-        delete process.env['GITHUB_BRANCH'];
     });
 
     afterEach(() => {
@@ -201,20 +188,16 @@ describe('resolveAdapterConfig — branch edge cases', () => {
         expect(config.repository).toBe('https://github.com/explicit/repo');
         expect(config.localPath).toBeUndefined();
     });
-
-    it('should set branch from env when token is already provided', () => {
+    it('should leave branch unset when token is already provided', () => {
         process.env['DATA_REPOSITORY'] = 'https://github.com/env/repo';
-        process.env['GITHUB_BRANCH'] = 'staging';
 
         const config = resolveAdapterConfig({ token: 'already-set' });
 
         expect(config.token).toBe('already-set');
-        expect(config.branch).toBe('staging');
+        expect(config.branch).toBeUndefined();
     });
-
-    it('should not override explicit branch with env var', () => {
+    it('should preserve an explicit branch', () => {
         process.env['DATA_REPOSITORY'] = 'https://github.com/env/repo';
-        process.env['GITHUB_BRANCH'] = 'staging';
 
         const config = resolveAdapterConfig({ branch: 'my-branch' });
 

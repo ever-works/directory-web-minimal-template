@@ -50,9 +50,9 @@ export const POST: APIRoute = async ({ request }) => {
 			return jsonResponse(200, { message: 'Not a push event, ignoring' });
 		}
 
-		// Check if push targets our branch
-		const targetBranch = getTargetBranch() ?? 'main';
-		if (!WebhookHandler.isRelevantPush(pushData.branch, targetBranch)) {
+		// Check if push targets our branch only when a branch was explicitly configured.
+		const targetBranch = getTargetBranch();
+		if (targetBranch && !WebhookHandler.isRelevantPush(pushData.branch, targetBranch)) {
 			return jsonResponse(200, {
 				message: `Push to ${pushData.branch}, ignoring (tracking ${targetBranch})`,
 			});

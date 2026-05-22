@@ -68,9 +68,6 @@ export function resolveAdapterConfig(config?: AdapterConfig): AdapterConfig {
             if (!resolved.token) {
                 resolved.token = process.env['GH_TOKEN'];
             }
-            if (!resolved.branch) {
-                resolved.branch = process.env['GITHUB_BRANCH'] ?? 'main';
-            }
         } else {
             resolved.localPath = DEFAULT_CONTENT_DIR;
         }

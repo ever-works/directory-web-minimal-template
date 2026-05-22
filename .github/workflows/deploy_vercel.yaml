@@ -3,7 +3,9 @@ name: Vercel Deployment
 # Dispatched by the Ever Works platform (apps/api/src/plugins-capabilities/deploy
 # in the ever-works/ever-works repo). The platform pushes the secrets this
 # workflow reads — VERCEL_TOKEN, DATA_REPOSITORY, GH_TOKEN, CRON_SECRET,
-# optionally VERCEL_TEAM_SCOPE — before triggering the dispatch.
+# optionally VERCEL_TEAM_SCOPE — before triggering the dispatch. GH_TOKEN is
+# also exported to the GitHub Actions runner so the prebuilt fallback can
+# clone private content during `vercel build`.
 #
 # Mirrors directory-web-template's deploy_vercel.yaml, adjusted for the Astro
 # stack: `framework: astro`, `pnpm --filter @ever-works/web-minimal build`,
@@ -14,7 +16,7 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Vercel environment to deploy to (e.g., production, staging, preview)"
+        description: 'Vercel environment to deploy to (e.g., production, staging, preview)'
         required: true
         type: string
   workflow_call:
@@ -32,9 +34,12 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DATA_REPOSITORY: "https://github.com/${{ github.repository_owner }}/${{ secrets.DATA_REPOSITORY }}"
+  DATA_REPOSITORY: 'https://github.com/${{ github.repository_owner }}/${{ secrets.DATA_REPOSITORY }}'
   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-  NODE_OPTIONS: "--max-old-space-size=4096"
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+  VERCEL_TEAM_SCOPE: ${{ secrets.VERCEL_TEAM_SCOPE || secrets.DEPLOY_TEAM_SCOPE }}
+  NODE_OPTIONS: '--max-old-space-size=4096'
 
 jobs:
   deploy:
@@ -51,7 +56,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: '24'
           cache: pnpm
 
       - name: Install dependencies
@@ -63,7 +68,7 @@ jobs:
       - name: Sync Vercel project settings for remote build
         run: |
           API_URL="https://api.vercel.com/v9/projects/${{ github.event.repository.name }}"
-          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && API_URL="${API_URL}?slug=${{ secrets.VERCEL_TEAM_SCOPE }}"
+          [ -n "$VERCEL_TEAM_SCOPE" ] && API_URL="${API_URL}?slug=${VERCEL_TEAM_SCOPE}"
 
           RESPONSE=$(curl -s -w "\n%{http_code}" -X PATCH "$API_URL" \
             -H "Authorization: Bearer $VERCEL_TOKEN" \
@@ -85,7 +90,7 @@ jobs:
           if [ "$HTTP_CODE" = "404" ]; then
             echo "Project '${{ github.event.repository.name }}' was not found; creating it with remote build settings."
             CREATE_API_URL="https://api.vercel.com/v9/projects"
-            [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && CREATE_API_URL="${CREATE_API_URL}?slug=${{ secrets.VERCEL_TEAM_SCOPE }}"
+            [ -n "$VERCEL_TEAM_SCOPE" ] && CREATE_API_URL="${CREATE_API_URL}?slug=${VERCEL_TEAM_SCOPE}"
 
             CREATE_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$CREATE_API_URL" \
               -H "Authorization: Bearer $VERCEL_TOKEN" \
@@ -163,7 +168,7 @@ jobs:
         # actually wants to know about.
         run: |
           API_URL="https://api.vercel.com/v9/projects/${{ github.event.repository.name }}"
-          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && API_URL="${API_URL}?slug=${{ secrets.VERCEL_TEAM_SCOPE }}"
+          [ -n "$VERCEL_TEAM_SCOPE" ] && API_URL="${API_URL}?slug=${VERCEL_TEAM_SCOPE}"
 
           FRAMEWORK=$(curl -s "$API_URL" \
             -H "Authorization: Bearer $VERCEL_TOKEN" \
@@ -189,31 +194,35 @@ jobs:
       - name: Link Vercel project
         run: |
           SCOPE_FLAG=""
-          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
           vercel link --yes $SCOPE_FLAG --project ${{ github.event.repository.name }} --token="$VERCEL_TOKEN"
 
       - name: Set DATA_REPOSITORY env variable
-        continue-on-error: true
         run: |
           SCOPE_FLAG=""
-          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
+          vercel env rm DATA_REPOSITORY ${{ inputs.environment }} --yes $SCOPE_FLAG --token "$VERCEL_TOKEN" || true
           echo -n "$DATA_REPOSITORY" | vercel env add DATA_REPOSITORY ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
 
       - name: Set GH_TOKEN env variable
-        continue-on-error: true
         run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::GH_TOKEN GitHub Actions secret is missing; private DATA_REPOSITORY builds cannot clone content."
+            exit 1
+          fi
           SCOPE_FLAG=""
-          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
-          echo -n "${{ secrets.GH_TOKEN }}" | vercel env add GH_TOKEN ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
+          [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
+          vercel env rm GH_TOKEN ${{ inputs.environment }} --yes $SCOPE_FLAG --token "$VERCEL_TOKEN" || true
+          echo -n "$GH_TOKEN" | vercel env add GH_TOKEN ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
 
       - name: Set CRON_SECRET env variable
-        continue-on-error: true
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           if [ -n "$CRON_SECRET" ]; then
             SCOPE_FLAG=""
-            [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+            [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
+            vercel env rm CRON_SECRET ${{ inputs.environment }} --yes $SCOPE_FLAG --token "$VERCEL_TOKEN" || true
             echo -n "$CRON_SECRET" | vercel env add CRON_SECRET ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
           fi
 
@@ -221,20 +230,20 @@ jobs:
         # Optional — only present when the operator has provisioned a GitHub
         # webhook secret for content-sync; otherwise the Astro integration
         # leaves the /api/webhook endpoint disabled (see astro.config.ts).
-        continue-on-error: true
         env:
           WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
         run: |
           if [ -n "$WEBHOOK_SECRET" ]; then
             SCOPE_FLAG=""
-            [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+            [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
+            vercel env rm WEBHOOK_SECRET ${{ inputs.environment }} --yes $SCOPE_FLAG --token "$VERCEL_TOKEN" || true
             echo -n "$WEBHOOK_SECRET" | vercel env add WEBHOOK_SECRET ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
           fi
 
       - name: Pull Vercel settings
         run: |
           SCOPE_FLAG=""
-          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
           vercel pull --yes $SCOPE_FLAG --environment=${{ inputs.environment }} --token="$VERCEL_TOKEN"
 
       - name: Deploy with remote Vercel build
@@ -242,7 +251,7 @@ jobs:
         continue-on-error: true
         run: |
           SCOPE_FLAG=""
-          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
           PROD_FLAG=""
           [ "${{ inputs.environment }}" = "production" ] && PROD_FLAG="--prod"
           vercel deploy --archive=tgz $SCOPE_FLAG $PROD_FLAG --token="$VERCEL_TOKEN"
@@ -251,7 +260,7 @@ jobs:
         if: steps.deploy_remote.outcome == 'failure'
         run: |
           SCOPE_FLAG=""
-          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
           vercel pull --yes $SCOPE_FLAG --environment=${{ inputs.environment }} --token="$VERCEL_TOKEN"
           cat .vercel/project.json
 
@@ -259,7 +268,7 @@ jobs:
         if: steps.deploy_remote.outcome == 'failure'
         run: |
           SCOPE_FLAG=""
-          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
           PROD_FLAG=""
           [ "${{ inputs.environment }}" = "production" ] && PROD_FLAG="--prod"
           vercel build $SCOPE_FLAG $PROD_FLAG --token="$VERCEL_TOKEN"
@@ -290,7 +299,7 @@ jobs:
         if: steps.deploy_remote.outcome == 'failure'
         run: |
           SCOPE_FLAG=""
-          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
           PROD_FLAG=""
           [ "${{ inputs.environment }}" = "production" ] && PROD_FLAG="--prod"
           vercel deploy --prebuilt --archive=tgz $SCOPE_FLAG $PROD_FLAG --token="$VERCEL_TOKEN"
