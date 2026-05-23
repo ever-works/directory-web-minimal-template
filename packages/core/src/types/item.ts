@@ -26,7 +26,10 @@ export interface ItemData {
     /** Tag IDs associated with this item */
     tags: string[];
 
-    /** Collection IDs this item belongs to */
+    /** Collection ID this item belongs to (platform contract) */
+    collection?: string;
+
+    /** Collection IDs this item belongs to (legacy/import compatibility) */
     collections?: string[];
 
     /** Whether this item is featured/promoted */

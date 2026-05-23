@@ -8,24 +8,24 @@
 import type { APIRoute } from 'astro';
 import { getContent } from '../../lib/content';
 import { renderCategoryMarkdown } from '@ever-works/plugin-seo';
-import type { CategoryData } from '@ever-works/core';
+import type { CategoryWithCount } from '@ever-works/core';
+import { itemBelongsToCategory, uniquePathAliases } from '../../lib/taxonomy';
 
 export async function getStaticPaths() {
     const { categories } = await getContent();
-    return categories.map((cat) => ({
-        params: { slug: cat.id },
-        props: { category: cat },
-    }));
+    return categories.flatMap((cat) =>
+        uniquePathAliases(cat.id, cat.name).map((slug) => ({
+            params: { slug },
+            props: { category: cat }
+        }))
+    );
 }
 
 export const GET: APIRoute = async ({ props, params }) => {
-    const { category } = props as { category: CategoryData };
+    const { category } = props as { category: CategoryWithCount };
     const { items, config } = await getContent();
 
-    const categoryItems = items.filter((item) => {
-        const cats = Array.isArray(item.category) ? item.category : [item.category];
-        return cats.includes(category.id);
-    });
+    const categoryItems = items.filter((item) => itemBelongsToCategory(item, category));
 
     const baseUrl = (config.app_url ?? '').toString();
     const md = renderCategoryMarkdown(
@@ -33,7 +33,7 @@ export const GET: APIRoute = async ({ props, params }) => {
         categoryItems.map((item) => ({
             name: item.name,
             slug: item.slug,
-            description: item.description,
+            description: item.description
         })),
         { baseUrl, categoryRef: params.slug as string }
     );
@@ -44,7 +44,7 @@ export const GET: APIRoute = async ({ props, params }) => {
             'Content-Type': 'text/markdown; charset=utf-8',
             'Cache-Control': 'public, max-age=300, s-maxage=900',
             'Access-Control-Allow-Origin': '*',
-            'X-Robots-Tag': 'noindex',
-        },
+            'X-Robots-Tag': 'noindex'
+        }
     });
 };

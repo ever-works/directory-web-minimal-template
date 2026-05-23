@@ -32,26 +32,23 @@ export async function loadCollections(adapter: DataAdapter): Promise<CollectionD
         }
 
         return parsed
-            .filter((entry): entry is Record<string, unknown> =>
-                entry !== null && typeof entry === 'object'
-            )
-            .filter((entry) =>
-                typeof entry['id'] === 'string' &&
-                typeof entry['name'] === 'string'
-            )
+            .filter((entry): entry is Record<string, unknown> => entry !== null && typeof entry === 'object')
+            .filter((entry) => typeof entry['id'] === 'string' && typeof entry['name'] === 'string')
             .filter((entry) => entry['isActive'] !== false)
             .map((entry) => ({
                 id: entry['id'] as string,
-                slug: typeof entry['slug'] === 'string' ? entry['slug'] : entry['id'] as string,
+                slug: typeof entry['slug'] === 'string' ? entry['slug'] : (entry['id'] as string),
                 name: entry['name'] as string,
                 description: typeof entry['description'] === 'string' ? entry['description'] : '',
                 ...(typeof entry['icon_url'] === 'string' ? { icon_url: entry['icon_url'] } : {}),
+                ...(typeof entry['icon_svg'] === 'string' ? { icon_svg: entry['icon_svg'] } : {}),
+                ...(typeof entry['priority'] === 'number' ? { priority: entry['priority'] } : {}),
                 ...(Array.isArray(entry['items'])
                     ? { items: entry['items'].filter((s): s is string => typeof s === 'string') }
                     : {}),
                 ...(typeof entry['isActive'] === 'boolean' ? { isActive: entry['isActive'] } : {}),
                 ...(typeof entry['created_at'] === 'string' ? { created_at: entry['created_at'] } : {}),
-                ...(typeof entry['updated_at'] === 'string' ? { updated_at: entry['updated_at'] } : {}),
+                ...(typeof entry['updated_at'] === 'string' ? { updated_at: entry['updated_at'] } : {})
             }));
     } catch (error) {
         coreLogger.warn('Failed to load collections.yml:', error);

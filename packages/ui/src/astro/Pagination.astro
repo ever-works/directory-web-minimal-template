@@ -18,7 +18,8 @@ const { currentPage, totalPages, baseUrl, maxVisible = 5, class: className, ...a
 
 /** Build the URL for a given page number */
 function pageUrl(page: number): string {
-  return page === 1 ? baseUrl : `${baseUrl}/page/${page}`;
+  const normalizedBase = baseUrl === '/' ? '' : baseUrl.replace(/\/$/, '');
+  return page === 1 ? (normalizedBase || '/') : `${normalizedBase}/page/${page}`;
 }
 
 const pages = getVisiblePages(currentPage, totalPages, maxVisible);

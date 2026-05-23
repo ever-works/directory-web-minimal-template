@@ -11,15 +11,18 @@ import { generateJsonLd } from '@ever-works/plugin-seo';
 import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
 import ItemGrid from '@ever-works/ui/astro/ItemGrid.astro';
 import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
+import { itemBelongsToCollection, uniquePathAliases } from '../../lib/taxonomy';
 
 export async function getStaticPaths() {
     const { collections } = await getContent();
     return collections
         .filter((c) => c.isActive !== false)
-        .map((collection) => ({
-            params: { slug: collection.slug },
-            props: { collection },
-        }));
+        .flatMap((collection) =>
+            uniquePathAliases(collection.slug, collection.name).map((slug) => ({
+                params: { slug },
+                props: { collection }
+            }))
+        );
 }
 
 interface Props {
@@ -30,9 +33,7 @@ const { collection } = Astro.props;
 const { items, config } = await getContent();
 
 // Filter items that belong to this collection
-const collectionItems = collection.items
-    ? items.filter((item) => collection.items!.includes(item.slug))
-    : [];
+const collectionItems = items.filter((item) => itemBelongsToCollection(item, collection));
 
 const breadcrumbItems = [
     { label: 'Home', href: '/' },

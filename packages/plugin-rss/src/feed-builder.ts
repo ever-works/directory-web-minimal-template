@@ -35,13 +35,14 @@ export function buildFeed(entries: readonly FeedEntry[], config: ResolvedRssConf
         id: `${siteUrl}/`,
         link: siteUrl || undefined,
         language: 'en',
+        copyright: config.title,
         updated,
         generator: '@ever-works/plugin-rss',
         feedLinks: {
             rss: siteUrl ? `${siteUrl}/${config.rssFilename}` : undefined,
             atom: siteUrl ? `${siteUrl}/${config.atomFilename}` : undefined,
-            json: siteUrl ? `${siteUrl}/${config.jsonFeedFilename}` : undefined,
-        },
+            json: siteUrl ? `${siteUrl}/${config.jsonFeedFilename}` : undefined
+        }
     });
 
     for (const entry of entries) {
@@ -57,7 +58,7 @@ export function buildFeed(entries: readonly FeedEntry[], config: ResolvedRssConf
             // both fields.
             date,
             published: date,
-            ...(entry.category ? { category: [{ name: entry.category }] } : {}),
+            ...(entry.category ? { category: [{ name: entry.category }] } : {})
         });
     }
 
