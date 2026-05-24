@@ -10,22 +10,23 @@ import { generateJsonLd } from '@ever-works/plugin-seo';
 import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
 import ItemGrid from '@ever-works/ui/astro/ItemGrid.astro';
 import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
+import { itemHasTag, uniquePathAliases } from '../../lib/taxonomy';
 
 export async function getStaticPaths() {
     const { tags } = await getContent();
-    return tags.map((tag) => ({
-        params: { slug: tag.id },
-        props: { tag },
-    }));
+    return tags.flatMap((tag) =>
+        uniquePathAliases(tag.id, tag.name).map((slug) => ({
+            params: { slug },
+            props: { tag }
+        }))
+    );
 }
 
 const { tag } = Astro.props;
 const { items, config } = await getContent();
 
 // Filter items by this tag
-const tagItems = items.filter((item) =>
-    item.tags?.includes(tag.id)
-);
+const tagItems = items.filter((item) => itemHasTag(item, tag));
 
 const breadcrumbItems = [
     { label: 'Home', href: '/' },
