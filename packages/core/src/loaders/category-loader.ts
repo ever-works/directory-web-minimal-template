@@ -32,15 +32,16 @@ export async function loadCategories(adapter: DataAdapter): Promise<CategoryData
             }
 
             return parsed
-                .filter((entry): entry is Record<string, unknown> =>
-                    entry !== null && typeof entry === 'object'
-                )
+                .filter((entry): entry is Record<string, unknown> => entry !== null && typeof entry === 'object')
                 .filter((entry) => typeof entry['id'] === 'string' && typeof entry['name'] === 'string')
                 .map((entry) => ({
                     id: entry['id'] as string,
                     name: entry['name'] as string,
+                    ...(typeof entry['description'] === 'string' ? { description: entry['description'] } : {}),
                     ...(typeof entry['icon_url'] === 'string' ? { icon_url: entry['icon_url'] } : {}),
+                    ...(typeof entry['icon_svg'] === 'string' ? { icon_svg: entry['icon_svg'] } : {}),
                     ...(typeof entry['image_url'] === 'string' ? { image_url: entry['image_url'] } : {}),
+                    ...(typeof entry['priority'] === 'number' ? { priority: entry['priority'] } : {})
                 }));
         } catch (error) {
             coreLogger.warn(`Failed to load ${path}:`, error);

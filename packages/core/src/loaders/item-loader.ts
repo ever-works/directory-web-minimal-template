@@ -45,15 +45,27 @@ async function parseItem(adapter: DataAdapter, slug: string): Promise<ItemData |
             category: Array.isArray(data['category'])
                 ? data['category'].filter((c): c is string => typeof c === 'string')
                 : typeof data['category'] === 'string'
-                    ? data['category']
-                    : '',
+                  ? data['category']
+                  : '',
             tags: Array.isArray(data['tags'])
-                ? data['tags'].filter((t): t is string => typeof t === 'string')
+                ? data['tags']
+                      .map((tag) => {
+                          if (typeof tag === 'string') return tag;
+                          if (tag && typeof tag === 'object') {
+                              const entry = tag as Record<string, unknown>;
+                              return typeof entry['id'] === 'string' ? entry['id'] : null;
+                          }
+                          return null;
+                      })
+                      .filter((tag): tag is string => typeof tag === 'string' && tag.length > 0)
                 : [],
             updated_at: typeof data['updated_at'] === 'string' ? data['updated_at'] : '',
-            status: isValidStatus(data['status']) ? data['status'] : 'approved',
+            status: isValidStatus(data['status']) ? data['status'] : 'approved'
         };
 
+        if (typeof data['collection'] === 'string') {
+            item.collection = data['collection'];
+        }
         if (Array.isArray(data['collections'])) {
             item.collections = data['collections'].filter((c): c is string => typeof c === 'string');
         }
@@ -97,13 +109,9 @@ export async function loadItems(adapter: DataAdapter): Promise<ItemData[]> {
         }
 
         const slugs = await adapter.listDirectories('data');
-        const results = await Promise.all(
-            slugs.map((slug) => parseItem(adapter, slug))
-        );
+        const results = await Promise.all(slugs.map((slug) => parseItem(adapter, slug)));
 
-        return results.filter(
-            (item): item is ItemData => item !== null && item.status === 'approved'
-        );
+        return results.filter((item): item is ItemData => item !== null && item.status === 'approved');
     } catch (error) {
         coreLogger.warn('Failed to load items:', error);
         return [];

@@ -5,21 +5,24 @@
 import type { APIRoute } from 'astro';
 import { getContent } from '../../lib/content';
 import { renderTagMarkdown } from '@ever-works/plugin-seo';
-import type { TagData } from '@ever-works/core';
+import type { TagWithCount } from '@ever-works/core';
+import { itemHasTag, uniquePathAliases } from '../../lib/taxonomy';
 
 export async function getStaticPaths() {
     const { tags } = await getContent();
-    return tags.map((tag) => ({
-        params: { slug: tag.id },
-        props: { tag },
-    }));
+    return tags.flatMap((tag) =>
+        uniquePathAliases(tag.id, tag.name).map((slug) => ({
+            params: { slug },
+            props: { tag }
+        }))
+    );
 }
 
 export const GET: APIRoute = async ({ props, params }) => {
-    const { tag } = props as { tag: TagData };
+    const { tag } = props as { tag: TagWithCount };
     const { items, config } = await getContent();
 
-    const tagItems = items.filter((item) => item.tags?.includes(tag.id));
+    const tagItems = items.filter((item) => itemHasTag(item, tag));
 
     const baseUrl = (config.app_url ?? '').toString();
     const md = renderTagMarkdown(
@@ -27,7 +30,7 @@ export const GET: APIRoute = async ({ props, params }) => {
         tagItems.map((item) => ({
             name: item.name,
             slug: item.slug,
-            description: item.description,
+            description: item.description
         })),
         { baseUrl, tagRef: params.slug as string }
     );
@@ -38,7 +41,7 @@ export const GET: APIRoute = async ({ props, params }) => {
             'Content-Type': 'text/markdown; charset=utf-8',
             'Cache-Control': 'public, max-age=300, s-maxage=900',
             'Access-Control-Allow-Origin': '*',
-            'X-Robots-Tag': 'noindex',
-        },
+            'X-Robots-Tag': 'noindex'
+        }
     });
 };
