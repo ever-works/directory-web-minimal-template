@@ -8,8 +8,9 @@ import { generateJsonLd } from '@ever-works/plugin-seo';
 import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
 import CollectionCard from '@ever-works/ui/astro/CollectionCard.astro';
 import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
+import { itemBelongsToCollection } from '../lib/taxonomy';
 
-const { collections, config } = await getContent();
+const { collections, items, config } = await getContent();
 const activeCollections = collections.filter((c) => c.isActive !== false);
 
 const siteUrl = (config.app_url ?? '').replace(/\/$/, '');
@@ -39,7 +40,7 @@ const breadcrumbLd = generateJsonLd('BreadcrumbList', {
                     <div role="listitem">
                         <CollectionCard
                             collection={collection}
-                            itemCount={collection.items?.length}
+                            itemCount={items.filter((item) => itemBelongsToCollection(item, collection)).length}
                         />
                     </div>
                 ))}

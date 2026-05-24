@@ -16,7 +16,7 @@ import Pagination from '@ever-works/ui/astro/Pagination.astro';
 export async function getStaticPaths() {
     const { items, config } = await getContent();
     const perPage = config.pagination?.itemsPerPage ?? 12;
-    return generatePagePaths(items.length, perPage);
+    return generatePagePaths(items.length, perPage).filter((entry) => entry.params.page !== '1');
 }
 
 const { currentPage, totalPages } = Astro.props;

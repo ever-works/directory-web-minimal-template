@@ -19,6 +19,18 @@ import Separator from '../primitives/separator/Separator.astro';
 import Button from '../primitives/button/Button.astro';
 import ItemCard from './ItemCard.astro';
 
+function taxonomyPath(value: string): string {
+    return encodeURIComponent(
+        value
+            .trim()
+            .toLowerCase()
+            .normalize('NFKD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '')
+    );
+}
+
 type Props = ItemDetailProps;
 
 const { item, relatedItems = [], class: className, ...attrs } = Astro.props;
@@ -54,12 +66,12 @@ const categories = Array.isArray(item.category) ? item.category : [item.category
         <CardContent>
             <div data-part="meta" class="flex flex-wrap items-center gap-2">
                 {categories.length > 0 && categories.map((cat) => (
-                    <Badge as="a" href={`/category/${cat}`} variant="outline" data-part="category">
+                    <Badge as="a" href={`/category/${taxonomyPath(cat)}`} variant="outline" data-part="category">
                         {cat}
                     </Badge>
                 ))}
                 {item.tags?.length > 0 && item.tags.map((tag) => (
-                    <Badge as="a" href={`/tag/${tag}`} variant="secondary" data-part="tag">
+                    <Badge as="a" href={`/tag/${taxonomyPath(tag)}`} variant="secondary" data-part="tag">
                         {tag}
                     </Badge>
                 ))}
