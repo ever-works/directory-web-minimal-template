@@ -4,13 +4,15 @@ This app is the deployed directory website. When the Ever Works platform creates
 
 ## Styling Scope
 
-Edit these surfaces first:
+Do all styling in **`src/styles/theme.css`**. It is plain CSS loaded after `global.css`, so anything there wins, and plain CSS cannot break the build. Override the design tokens (`--primary`, `--background`, `--radius`, …) and style the `[data-component]`/`[data-part]` hooks documented inside that file.
 
-- `src/styles/global.css` for theme tokens, typography, spacing, page chrome, and shared component selectors.
-- `src/layouts/BaseLayout.astro` for header/footer/main layout wrappers only.
-- `src/pages/**/*.astro` for route-specific visible wrappers and classes.
+Do not edit any other file for styling. In particular, leave alone:
 
-Do not edit `src/lib/`, data loading, Astro config, package manifests, deployment files, or workspace packages under `../../packages/` for styling work. Shared UI components from `@ever-works/ui` are intentionally headless; style them with `[data-component]` and `[data-part]` selectors in `global.css`.
+- `src/styles/global.css` — framework wiring and neutral defaults (`@import`, `@source`, `@theme`, base resets). Editing it risks build failures.
+- `src/layouts/BaseLayout.astro`, `src/pages/**/*.astro` — markup/logic. Restyle via the `data-*` hooks in `theme.css` instead of touching these.
+- `src/lib/`, Astro config, package manifests, deployment files, and workspace packages under `../../packages/`.
+
+Shared `@ever-works/ui` components already carry neutral defaults and expose `[data-component]`/`[data-part]` attributes — re-skin them from `theme.css`, never by editing the package.
 
 ## Routes to Review
 

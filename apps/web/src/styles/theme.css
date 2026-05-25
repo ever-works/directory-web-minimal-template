@@ -1,0 +1,37 @@
+/*
+ * theme.css — the customization surface.
+ *
+ * This is the ONLY file the styling agent edits. It is plain CSS, loaded after
+ * global.css, so anything here wins. Plain CSS cannot fail the build — so keep
+ * it plain: override design tokens and style the [data-component]/[data-part]
+ * hooks below. Do NOT use @apply, @theme, @tailwind, or @import here, and do not
+ * edit global.css, .astro, or any package — those can break compilation.
+ *
+ * Token overrides (light): redefine any --background, --foreground, --primary,
+ * --secondary, --muted, --accent, --border, --radius, etc. from global.css.
+ */
+:root {
+}
+
+/* Token overrides (dark): the template toggles the .dark class on <html>. */
+.dark {
+}
+
+/*
+ * Component hooks. Shared @ever-works/ui components and the app pages expose
+ * stable [data-component] / [data-part] attributes. Target them here.
+ *
+ * Layout chrome:      [data-component="root"], [data-component="body"],
+ *                     [data-component="main"], [data-component="site-header"],
+ *                     [data-component="site-footer"]
+ * Homepage:           [data-component="hero"], [data-component="category-nav"],
+ *                     [data-component="item-listing"], [data-component="item-grid"]
+ * Cards:              [data-component="item-card"] with [data-part="icon"],
+ *                     [data-part="name"], [data-part="description"],
+ *                     [data-part="category"], [data-part="tag"]
+ * Taxonomy pages:     [data-component="categories-page"], [data-component="category-page"],
+ *                     [data-component="tags-page"], [data-component="tag-page"]
+ * Collections/compare:[data-component="collections-page"], [data-component="collection-page"],
+ *                     [data-component="comparisons-page"], [data-component="comparison-card"]
+ * System states:      [data-component="empty-state"], [data-component="not-found"]
+ */
