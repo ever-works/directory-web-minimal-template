@@ -7,6 +7,13 @@
  */
 @import "tailwindcss";
 
+/*
+ * Scan the shared @ever-works/ui package for utility classes. It resolves via a
+ * node_modules symlink, which Tailwind v4 ignores by default — without this the
+ * classes baked into shared components (padding, shadows, grids) are dropped.
+ */
+@source "../../../../packages/ui/src";
+
 @custom-variant dark (&:is(.dark *));
 
 /*
@@ -89,20 +96,9 @@
   --ring: oklch(0.439 0 0);
 }
 
-/* ── AI styling surface ──────────────────────────────────
- * Keep this template visually minimal by default. Customization agents should
- * add cohesive rules here for the deployed app surface:
- * - layout chrome: [data-component="root"], [data-component="body"], [data-component="main"]
- * - homepage: [data-component="category-nav"], [data-component="item-listing"]
- * - taxonomy pages: [data-component="categories-page"], [data-component="category-page"],
- *   [data-component="tags-page"], [data-component="tag-page"]
- * - collections/comparisons: [data-component="collections-page"],
- *   [data-component="collection-page"], [data-component="comparisons-page"],
- *   [data-component="comparison-card"]
- * - system states: [data-component="not-found"] and shared EmptyState output
- *
- * Shared @ever-works/ui components expose [data-component] and [data-part]
- * hooks. Prefer styling those hooks here over editing packages/ui.
+/*
+ * This file is framework wiring + neutral defaults. It is NOT the customization
+ * surface — all theming lives in ./theme.css (imported after this in BaseLayout).
  */
 
 /* ── Base resets (shadcn convention) ────────────────────── */
