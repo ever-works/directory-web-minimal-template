@@ -1,10 +1,15 @@
 name: CI
 
+# Lightweight CI: lint, typecheck, unit tests, build. Runs on pushes to
+# release branches (main / develop / stage) AND on PRs targeting any of
+# them. Heavy work (E2E, Lighthouse) is gated to stage/main only — see
+# Workspace/knowledge/runbooks/CI_RELEASE_GATES.md for the policy.
+
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, stage]
   pull_request:
-    branches: [main, develop]
+    branches: [main, develop, stage]
 
 concurrency:
   group: ci-${{ github.ref }}
