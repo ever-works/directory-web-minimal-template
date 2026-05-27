@@ -103,14 +103,22 @@ test.describe('MobileMenu (Playwright CT)', () => {
         await expect(component.locator('[data-part="panel"]')).toHaveCount(0);
     });
 
-    test('closes menu on Escape key', async ({ mount, page }) => {
-        // D1 — `page.keyboard.press('Escape')` dispatches a real keydown
-        // through the focused element to `document`, where MobileMenu's
-        // useEffect listener fires.
+    test('closes menu on Escape key', async ({ mount }) => {
+        // D1 — Escape must bubble to `document` where MobileMenu's useEffect
+        // listener fires. Use `locator.press()` on the toggle button rather
+        // than `page.keyboard.press()`: locator.press() explicitly focuses
+        // its target before dispatching, which is the difference between
+        // green and flaky on Linux Chromium. The pure-page-keyboard form
+        // relies on whatever element happens to hold focus after click —
+        // which on Linux can be the hamburger SVG that got replaced during
+        // the open transition (focus lands on a detached node, the keydown
+        // never reaches document). The label flips from "Open menu" to
+        // "Close menu" once the panel is open, so we re-query by the new
+        // label rather than caching the locator.
         const component = await mount(<MobileMenu items={items} />);
         await component.getByLabel('Open menu').click();
         await expect(component.locator('[data-part="panel"]')).toBeVisible();
-        await page.keyboard.press('Escape');
+        await component.getByLabel('Close menu').press('Escape');
         await expect(component.locator('[data-part="panel"]')).toHaveCount(0);
     });
 
