@@ -153,10 +153,17 @@ test.describe('MobileMenu (Playwright CT)', () => {
         // Wait for panel removal so the unmount-side scroll-unlock effect
         // has flushed before we read body style.
         await expect(component.locator('[data-part="panel"]')).toHaveCount(0);
-        const overflow = await page.evaluate(
-            () => document.body.style.overflow,
-        );
-        expect(overflow).toBe('');
+        // The scroll-lock useEffect cleanup runs AFTER the DOM commit that
+        // removed the panel — on Windows Chromium the inter-step gap is
+        // sometimes long enough that a single `page.evaluate` reads
+        // `'hidden'` before the effect has flushed. `expect.poll` re-reads
+        // until the assertion matches or the 5s timeout fires, which
+        // matches the semantics of `toHaveCount(0)` above.
+        await expect
+            .poll(async () =>
+                page.evaluate(() => document.body.style.overflow),
+            )
+            .toBe('');
     });
 
     test('sets aria-expanded on toggle button', async ({ mount }) => {
