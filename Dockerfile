@@ -43,16 +43,23 @@ COPY --from=deps /work/apps/web/node_modules ./apps/web/node_modules
 COPY . .
 
 ARG DATA_REPOSITORY=""
-ARG GH_TOKEN=""
 ENV DATA_REPOSITORY=${DATA_REPOSITORY}
-ENV GH_TOKEN=${GH_TOKEN}
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-RUN pnpm --filter @ever-works/web-minimal run build
+RUN --mount=type=secret,id=gh_token \
+    sh -c 'if [ -s /run/secrets/gh_token ]; then export GH_TOKEN=$(cat /run/secrets/gh_token); fi; \
+           pnpm --filter @ever-works/web-minimal run build'
 
 # ---- runner ----------------------------------------------------------------
 
 FROM nginx:${NGINX_VERSION} AS runner
+
+ARG GITHUB_REPOSITORY=""
+ARG GITHUB_SHA=""
+
+LABEL org.opencontainers.image.source="https://github.com/${GITHUB_REPOSITORY}"
+LABEL org.opencontainers.image.revision="${GITHUB_SHA}"
+LABEL org.opencontainers.image.title="${GITHUB_REPOSITORY}"
 
 # Listen on 3000 so the Service's targetPort: 3000 from the k8s plugin
 # matches the Astro static template without special-casing.
