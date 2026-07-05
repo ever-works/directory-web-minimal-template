@@ -1,0 +1,71 @@
+# syntax=docker/dockerfile:1.7
+# Multi-stage build for @ever-works/sample-git (Astro, Git data adapter).
+#
+# pnpm + turbo monorepo: build runs from the repo root with the full
+# workspace present (all `@ever-works/*` deps are workspace:*). Kaniko
+# context == REPO ROOT; referenced via
+# --dockerfile=apps/sample-git/Dockerfile.everk8s.
+#
+# The app normally builds in ISR mode (Vercel adapter, server runtime). We
+# force ENABLE_ISR=false so Astro emits a PURE STATIC site (dist/) with no
+# server runtime, suitable for nginx. Content is cloned at build time from
+# the public awesome-time-tracking-data repo via isomorphic-git (needs git +
+# network egress, which the Kaniko pod has).
+#
+# Output: apps/sample-git/dist  ->  served by nginx on :3000.
+
+ARG NODE_VERSION=22-alpine
+ARG NGINX_VERSION=1.27-alpine
+
+# ---- builder ---------------------------------------------------------------
+FROM node:${NODE_VERSION} AS builder
+WORKDIR /work
+
+RUN corepack enable
+RUN apk add --no-cache git libc6-compat
+
+# Copy the entire monorepo (Kaniko context == repo root).
+COPY . .
+
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+# Force pure-static output (no Vercel adapter / SSR runtime).
+ENV ENABLE_ISR="false"
+ENV SITE_URL="https://time-tracking.example.com"
+
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile
+
+RUN pnpm --filter @ever-works/sample-git build
+
+# ---- runner ----------------------------------------------------------------
+FROM nginx:${NGINX_VERSION} AS runner
+
+RUN cat > /etc/nginx/conf.d/default.conf <<'EOF'
+server {
+    listen 3000;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    location /_astro/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    location / {
+        try_files $uri $uri/ $uri.html /index.html;
+    }
+
+    location = /healthz {
+        access_log off;
+        return 200 "ok\n";
+        add_header Content-Type text/plain;
+    }
+}
+EOF
+
+COPY --from=builder /work/apps/sample-git/dist /usr/share/nginx/html
+
+EXPOSE 3000
+CMD ["nginx", "-g", "daemon off;"]

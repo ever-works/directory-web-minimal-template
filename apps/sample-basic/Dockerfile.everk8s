@@ -1,0 +1,67 @@
+# syntax=docker/dockerfile:1.7
+# Multi-stage build for @ever-works/sample-basic (Astro static, local content).
+#
+# This is a pnpm + turbo monorepo, so the build MUST run from the repo root
+# with the full workspace present (all `@ever-works/*` deps are workspace:*).
+# The build context passed to Kaniko is therefore the REPO ROOT, and this
+# Dockerfile is referenced via --dockerfile=apps/sample-basic/Dockerfile.everk8s.
+#
+# Output: apps/sample-basic/dist  ->  served by nginx on :3000.
+
+ARG NODE_VERSION=22-alpine
+ARG NGINX_VERSION=1.27-alpine
+
+# ---- builder ---------------------------------------------------------------
+FROM node:${NODE_VERSION} AS builder
+WORKDIR /work
+
+RUN corepack enable
+RUN apk add --no-cache git libc6-compat
+
+# Copy the entire monorepo (Kaniko context == repo root).
+COPY . .
+
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+# Pure static output; no SSR / Vercel adapter runtime for sample-basic.
+ENV SITE_URL="https://react-components.example.com"
+
+# Install the whole workspace (workspace:* deps resolve locally). We do a
+# fresh install rather than --frozen-lockfile to be resilient to lockfile
+# drift; the lockfile is present so resolution stays deterministic.
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile
+
+RUN pnpm --filter @ever-works/sample-basic build
+
+# ---- runner ----------------------------------------------------------------
+FROM nginx:${NGINX_VERSION} AS runner
+
+RUN cat > /etc/nginx/conf.d/default.conf <<'EOF'
+server {
+    listen 3000;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    location /_astro/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    location / {
+        try_files $uri $uri/ $uri.html /index.html;
+    }
+
+    location = /healthz {
+        access_log off;
+        return 200 "ok\n";
+        add_header Content-Type text/plain;
+    }
+}
+EOF
+
+COPY --from=builder /work/apps/sample-basic/dist /usr/share/nginx/html
+
+EXPOSE 3000
+CMD ["nginx", "-g", "daemon off;"]

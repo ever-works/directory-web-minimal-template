@@ -1,0 +1,66 @@
+# syntax=docker/dockerfile:1.7
+# Multi-stage build for @ever-works/docs-minimal (Docusaurus static site).
+#
+# pnpm + turbo monorepo: build runs from the repo root with the full
+# workspace present. Kaniko context == REPO ROOT; referenced via
+# --dockerfile=apps/docs/Dockerfile.everk8s.
+#
+# Docusaurus reads docs content from ../../docs (repo root docs/) so the whole
+# repo must be present. Output: apps/docs/build -> served by nginx on :3000.
+# Docusaurus is a multi-page site, so default nginx path routing is used
+# (no SPA fallback rewrite).
+
+ARG NODE_VERSION=22-alpine
+ARG NGINX_VERSION=1.27-alpine
+
+# ---- builder ---------------------------------------------------------------
+FROM node:${NODE_VERSION} AS builder
+WORKDIR /work
+
+RUN corepack enable
+RUN apk add --no-cache git libc6-compat
+
+# Copy the entire monorepo (Kaniko context == repo root).
+COPY . .
+
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile
+
+RUN pnpm --filter @ever-works/docs-minimal build
+
+# ---- runner ----------------------------------------------------------------
+FROM nginx:${NGINX_VERSION} AS runner
+
+RUN cat > /etc/nginx/conf.d/default.conf <<'EOF'
+server {
+    listen 3000;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Long-cache hashed Docusaurus assets.
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    # Multi-page site: serve pretty URLs, fall back to the 404 page.
+    location / {
+        try_files $uri $uri/ $uri.html /404.html;
+    }
+
+    location = /healthz {
+        access_log off;
+        return 200 "ok\n";
+        add_header Content-Type text/plain;
+    }
+}
+EOF
+
+COPY --from=builder /work/apps/docs/build /usr/share/nginx/html
+
+EXPOSE 3000
+CMD ["nginx", "-g", "daemon off;"]
