@@ -86,7 +86,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}, windows-latest]
+        os: ["${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}", windows-latest]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
