@@ -27,6 +27,18 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
 COPY apps/web/package.json ./apps/web/package.json
 COPY packages ./packages
 
+# Configure the npm/pnpm registry: prefer the internal Verdaccio cache
+# (VERDACCIO_REGISTRY build-arg, anonymous), else public npm. Empty (e.g. a
+# fork build, or the github-hosted platform deploy workflow that can't reach
+# the internal VIP) -> public npm, so this is backward-compatible and fork-safe.
+# The pnpm-lock.yaml rewrite is best-effort (non-fatal): a host mismatch
+# degrades to public downloads rather than breaking the build.
+ARG VERDACCIO_REGISTRY=""
+RUN if [ -n "$VERDACCIO_REGISTRY" ]; then \
+        echo "registry=${VERDACCIO_REGISTRY}" >> /work/.npmrc && \
+        { sed -i "s|https://registry.npmjs.org|${VERDACCIO_REGISTRY%/}|g" /work/pnpm-lock.yaml 2>/dev/null || true; }; \
+    fi
+
 RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile --filter "@ever-works/web-minimal..."
 
