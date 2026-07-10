@@ -1,0 +1,62 @@
+# syntax=docker/dockerfile:1.7
+# Static build for the Ever Works minimal-template SAMPLE apps (Astro), used by
+# the ever-static-dev demos. Parametrized by APP_PKG/APP_DIR so one Dockerfile
+# builds any sample:
+#   - sample-basic : local .content
+#   - sample-git   : clones its data repo at build via isomorphic-git
+#
+# Produces a small nginx image serving the sample's static `dist` on :80 (the
+# ever-static-dev deploys mount their nginx server block from the
+# nginx-static-serve ConfigMap, so the stock nginx:alpine :80 default is fine).
+#
+# ENABLE_ISR=false forces pure-static Astro output so the @astrojs/vercel adapter
+# (default-on in sample-git's astro.config) is never constructed and the build
+# emits apps/<app>/dist rather than .vercel/output. Vercel is decommissioned; the
+# adapter dependency is kept (no-removal rule) but stays dormant.
+
+ARG NODE_VERSION=22-alpine
+ARG NGINX_VERSION=1.27-alpine
+
+# ---- builder ---------------------------------------------------------------
+
+FROM node:${NODE_VERSION} AS builder
+WORKDIR /work
+RUN corepack enable && apk add --no-cache git libc6-compat
+
+ARG APP_PKG=@ever-works/sample-basic
+ARG APP_DIR=sample-basic
+ARG VERDACCIO_REGISTRY=""
+ENV ENABLE_ISR=false
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
+COPY . .
+
+# Prefer the internal Verdaccio cache when provided (our ARC runners can reach
+# the VIP); empty on forks / github-hosted -> public npm. The lockfile rewrite is
+# best-effort (non-fatal): a host mismatch degrades to public downloads.
+RUN if [ -n "$VERDACCIO_REGISTRY" ]; then \
+        echo "registry=${VERDACCIO_REGISTRY}" >> /work/.npmrc && \
+        { sed -i "s|https://registry.npmjs.org|${VERDACCIO_REGISTRY%/}|g" /work/pnpm-lock.yaml 2>/dev/null || true; }; \
+    fi
+
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --filter "${APP_PKG}..."
+
+# gh_token (optional) lifts the anonymous GitHub rate limit for sample-git's
+# build-time content clone; sample-basic ignores it (uses local .content).
+RUN --mount=type=secret,id=gh_token \
+    sh -c 'if [ -s /run/secrets/gh_token ]; then export GH_TOKEN=$(cat /run/secrets/gh_token); fi; \
+           pnpm --filter "${APP_PKG}" build'
+
+# ---- runner ----------------------------------------------------------------
+
+FROM nginx:${NGINX_VERSION} AS runner
+ARG APP_DIR=sample-basic
+ARG GITHUB_REPOSITORY=""
+ARG GITHUB_SHA=""
+LABEL org.opencontainers.image.source="https://github.com/${GITHUB_REPOSITORY}"
+LABEL org.opencontainers.image.revision="${GITHUB_SHA}"
+
+COPY --from=builder /work/apps/${APP_DIR}/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

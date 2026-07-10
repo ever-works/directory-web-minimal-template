@@ -59,9 +59,10 @@ const config: Config = {
 	favicon: 'img/favicon.ico',
 	// Set the production Url of your site here
 	url: 'https://ever-works.github.io', // Your website URL
-	// Set the /<baseUrl>/ pathname under which your site is served
-	// For GitHub pages deployment, it is often '/<projectName>/'
-	baseUrl: '/directory-web-minimal-template/',
+	// Set the /<baseUrl>/ pathname under which your site is served.
+	// For GitHub pages deployment, it is often '/<projectName>/'; the k8s/nginx
+	// image serves at host root, so it builds with DOCS_BASE_URL='/'.
+	baseUrl: process.env.DOCS_BASE_URL || '/directory-web-minimal-template/',
 
 	// GitHub pages deployment config.
 	// If you aren't using GitHub pages, you don't need these.
