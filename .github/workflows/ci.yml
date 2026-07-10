@@ -18,7 +18,7 @@ concurrency:
 jobs:
   ci:
     name: Lint, Typecheck, Test, Build
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
 
     steps:
       - name: Checkout
@@ -86,7 +86,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: ["${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}", windows-latest]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -150,7 +150,7 @@ jobs:
     # This is the canonical Phase 3 gate. Reviewers can also browse the
     # uploaded merged HTML artifact for per-file detail on PRs.
     name: Coverage Gate (≥80% branches per CT-migrated component)
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
     needs: [ci, test-ct]
     steps:
       - name: Checkout
@@ -196,7 +196,7 @@ jobs:
 
   e2e:
     name: E2E Tests
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
     needs: ci
 
     steps:
