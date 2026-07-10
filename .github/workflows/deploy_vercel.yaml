@@ -43,6 +43,11 @@ env:
 
 jobs:
   deploy:
+    # Vercel is decommissioned; the k8s/nginx path (deploy_prod.yaml -> deploy_k8s)
+    # is the deploy target. Gate (don't delete) this reusable Vercel deploy so a
+    # stray workflow_dispatch/workflow_call can't ship to Vercel unless the owner
+    # opts in with DEPLOY_PROVIDER=='vercel' (same idiom as deploy_prod.yaml).
+    if: ${{ vars.DEPLOY_PROVIDER == 'vercel' }}
     runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
     steps:
       - name: Target environment

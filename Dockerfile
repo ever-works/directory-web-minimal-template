@@ -67,6 +67,12 @@ COPY . .
 ARG DATA_REPOSITORY=""
 ENV DATA_REPOSITORY=${DATA_REPOSITORY}
 ENV NODE_OPTIONS="--max-old-space-size=4096"
+# Vercel is decommissioned; this image serves as static nginx on k8s. Force the
+# pure-static Astro build so the @astrojs/vercel adapter is never constructed and
+# the output is always `apps/web/dist` (not `.vercel/output`). Without this, if a
+# WEBHOOK_SECRET is ever injected at build time astro.config flips buildOutput to
+# 'server' and the `COPY dist` runner stage would break. (adapter dep is kept.)
+ENV ENABLE_ISR=false
 
 RUN --mount=type=secret,id=gh_token \
     sh -c 'if [ -s /run/secrets/gh_token ]; then export GH_TOKEN=$(cat /run/secrets/gh_token); fi; \

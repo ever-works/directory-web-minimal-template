@@ -1,0 +1,45 @@
+# syntax=docker/dockerfile:1.7
+# Static build for the Ever Works minimal-template DOCS app (Docusaurus), used by
+# the ever-static-dev demo (docs.demo-minimal.ever.works). Produces a small nginx
+# image serving apps/docs/build on :80.
+#
+# DOCS_BASE_URL='/' overrides the GitHub-Pages subpath baseUrl so the site serves
+# correctly at host root on k8s (the nginx server block is provided by the
+# nginx-static-serve ConfigMap, so the stock nginx:alpine :80 default is fine).
+
+ARG NODE_VERSION=22-alpine
+ARG NGINX_VERSION=1.27-alpine
+
+# ---- builder ---------------------------------------------------------------
+
+FROM node:${NODE_VERSION} AS builder
+WORKDIR /work
+RUN corepack enable && apk add --no-cache git libc6-compat
+
+ARG VERDACCIO_REGISTRY=""
+ENV DOCS_BASE_URL="/"
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
+COPY . .
+
+RUN if [ -n "$VERDACCIO_REGISTRY" ]; then \
+        echo "registry=${VERDACCIO_REGISTRY}" >> /work/.npmrc && \
+        { sed -i "s|https://registry.npmjs.org|${VERDACCIO_REGISTRY%/}|g" /work/pnpm-lock.yaml 2>/dev/null || true; }; \
+    fi
+
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --filter "@ever-works/docs-minimal..."
+
+RUN pnpm --filter "@ever-works/docs-minimal" build
+
+# ---- runner ----------------------------------------------------------------
+
+FROM nginx:${NGINX_VERSION} AS runner
+ARG GITHUB_REPOSITORY=""
+ARG GITHUB_SHA=""
+LABEL org.opencontainers.image.source="https://github.com/${GITHUB_REPOSITORY}"
+LABEL org.opencontainers.image.revision="${GITHUB_SHA}"
+
+COPY --from=builder /work/apps/docs/build /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

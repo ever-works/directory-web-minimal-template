@@ -19,6 +19,27 @@ jobs:
           - image: directory-web-minimal-template
             dockerfile: Dockerfile
             context: .
+            build_args: ""
+          # ever-static-dev demo images (docs.demo-minimal.ever.works +
+          # {basic,git}.demo-minimal.ever.works). Building them here gives them
+          # immutable sha-<sha> tags so ArgoCD Image Updater can pin the demos
+          # off the mutable :dev tag.
+          - image: directory-web-minimal-template-docs
+            dockerfile: Dockerfile.docs
+            context: .
+            build_args: ""
+          - image: directory-web-minimal-template-sample-basic
+            dockerfile: Dockerfile.sample
+            context: .
+            build_args: |
+              APP_PKG=@ever-works/sample-basic
+              APP_DIR=sample-basic
+          - image: directory-web-minimal-template-sample-git
+            dockerfile: Dockerfile.sample
+            context: .
+            build_args: |
+              APP_PKG=@ever-works/sample-git
+              APP_DIR=sample-git
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -43,8 +64,17 @@ jobs:
           # Route dep install through the internal Verdaccio VIP cache when the
           # org var is set (this workflow runs on our ARC runners, which can
           # reach it). Empty on forks / github-hosted builds -> public npm.
+          # matrix.build_args carries per-image args (APP_PKG/APP_DIR for the
+          # sample images); GITHUB_* feed the OCI source/revision labels.
           build-args: |
             VERDACCIO_REGISTRY=${{ vars.VERDACCIO_REGISTRY }}
+            GITHUB_REPOSITORY=${{ github.repository }}
+            GITHUB_SHA=${{ github.sha }}
+            ${{ matrix.build_args }}
+          # sample-git clones its data repo at build; pass a token to lift the
+          # anonymous GitHub rate limit (other images ignore the empty mount).
+          secrets: |
+            gh_token=${{ secrets.GITHUB_TOKEN }}
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:${{ steps.t.outputs.tag }}
             ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:sha-${{ github.sha }}
