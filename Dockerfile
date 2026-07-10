@@ -27,6 +27,18 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
 COPY apps/web/package.json ./apps/web/package.json
 COPY packages ./packages
 
+# Configure the npm/pnpm registry: prefer the internal Verdaccio cache
+# (VERDACCIO_REGISTRY build-arg, anonymous), else public npm. Empty (e.g. a
+# fork build, or the github-hosted platform deploy workflow that can't reach
+# the internal VIP) -> public npm, so this is backward-compatible and fork-safe.
+# The pnpm-lock.yaml rewrite is best-effort (non-fatal): a host mismatch
+# degrades to public downloads rather than breaking the build.
+ARG VERDACCIO_REGISTRY=""
+RUN if [ -n "$VERDACCIO_REGISTRY" ]; then \
+        echo "registry=${VERDACCIO_REGISTRY}" >> /work/.npmrc && \
+        { sed -i "s|https://registry.npmjs.org|${VERDACCIO_REGISTRY%/}|g" /work/pnpm-lock.yaml 2>/dev/null || true; }; \
+    fi
+
 RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile --filter "@ever-works/web-minimal..."
 
@@ -43,16 +55,23 @@ COPY --from=deps /work/apps/web/node_modules ./apps/web/node_modules
 COPY . .
 
 ARG DATA_REPOSITORY=""
-ARG GH_TOKEN=""
 ENV DATA_REPOSITORY=${DATA_REPOSITORY}
-ENV GH_TOKEN=${GH_TOKEN}
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-RUN pnpm --filter @ever-works/web-minimal run build
+RUN --mount=type=secret,id=gh_token \
+    sh -c 'if [ -s /run/secrets/gh_token ]; then export GH_TOKEN=$(cat /run/secrets/gh_token); fi; \
+           pnpm --filter @ever-works/web-minimal run build'
 
 # ---- runner ----------------------------------------------------------------
 
 FROM nginx:${NGINX_VERSION} AS runner
+
+ARG GITHUB_REPOSITORY=""
+ARG GITHUB_SHA=""
+
+LABEL org.opencontainers.image.source="https://github.com/${GITHUB_REPOSITORY}"
+LABEL org.opencontainers.image.revision="${GITHUB_SHA}"
+LABEL org.opencontainers.image.title="${GITHUB_REPOSITORY}"
 
 # Listen on 3000 so the Service's targetPort: 3000 from the k8s plugin
 # matches the Astro static template without special-casing.
