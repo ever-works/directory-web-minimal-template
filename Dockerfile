@@ -51,6 +51,16 @@ RUN apk add --no-cache git
 
 COPY --from=deps /work/node_modules ./node_modules
 COPY --from=deps /work/apps/web/node_modules ./apps/web/node_modules
+# Workspace packages' node_modules carry the per-package symlinks into the pnpm
+# virtual store (e.g. packages/adapters/node_modules/isomorphic-git -> ../../../
+# node_modules/.pnpm/...). isomorphic-git is a runtime dep of @ever-works/adapters
+# and is `ssr.external` in apps/web/astro.config.ts, so the SSR prerender resolves
+# it from packages/adapters/node_modules at build time — NOT root node_modules
+# (pnpm does not hoist it there, even with shamefully-hoist). Without this copy
+# `astro build` fails: "Cannot find module 'isomorphic-git'". `COPY . .` below
+# refreshes the source; node_modules are excluded from the context (.dockerignore)
+# so these persist.
+COPY --from=deps /work/packages ./packages
 
 COPY . .
 
