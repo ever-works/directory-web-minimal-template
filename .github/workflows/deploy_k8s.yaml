@@ -58,7 +58,7 @@ jobs:
       - name: Echo target environment
         run: echo "Deploying to ${{ inputs.environment }}"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # ---- Image tag ------------------------------------------------
 
@@ -103,7 +103,7 @@ jobs:
         uses: pnpm/action-setup@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: pnpm
@@ -118,7 +118,7 @@ jobs:
 
       - name: Login to GHCR
         if: env.K8S_REGISTRY_KIND == 'github'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -126,14 +126,14 @@ jobs:
 
       - name: Login to Docker Hub
         if: env.K8S_REGISTRY_KIND == 'dockerhub'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Login to Generic registry
         if: env.K8S_REGISTRY_KIND == 'generic'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ secrets.REGISTRY_SERVER }}
           username: ${{ secrets.REGISTRY_USERNAME }}
@@ -142,10 +142,10 @@ jobs:
       # ---- Build & push image ---------------------------------------
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build and push image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: Dockerfile
