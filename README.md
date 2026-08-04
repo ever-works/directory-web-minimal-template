@@ -162,6 +162,10 @@ vercel
 # Via GitHub Actions (automatic on push to main)
 ```
 
+## ⭐ Star History
+
+[![Star History Chart](https://stats-github.ever.works/svg?repos=ever-works/directory-web-minimal-template&type=Date)](https://stats-github.ever.works/#ever-works/directory-web-minimal-template&Date)
+
 ## License
 
 AGPL-3.0 — see [LICENSE](LICENSE)
