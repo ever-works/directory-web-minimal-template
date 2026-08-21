@@ -33,13 +33,14 @@ COPY packages ./packages
 # the internal VIP) -> public npm, so this is backward-compatible and fork-safe.
 # The pnpm-lock.yaml rewrite is best-effort (non-fatal): a host mismatch
 # degrades to public downloads rather than breaking the build.
-# A ~3s reachability probe (busybox wget against Verdaccio's /-/ping) guards the
-# redirect: if the cache is down or unreachable from this builder, warn and keep
+# A bounded reachability probe (busybox wget against Verdaccio's /-/ping) guards the
+# redirect (wget -T 3 caps network ops, the outer busybox timeout 5 caps total
+# runtime): if the cache is down or unreachable from this builder, warn and keep
 # the public registry (i.e. simply don't write the registry line / rewrite the
 # lockfile) instead of letting a Verdaccio outage fail every image build.
 ARG VERDACCIO_REGISTRY=""
 RUN if [ -n "$VERDACCIO_REGISTRY" ]; then \
-        if wget -q -T 3 -O /dev/null "${VERDACCIO_REGISTRY%/}/-/ping"; then \
+        if timeout 5 wget -q -T 3 -O /dev/null "${VERDACCIO_REGISTRY%/}/-/ping"; then \
             echo "registry=${VERDACCIO_REGISTRY}" >> /work/.npmrc && \
             { sed -i "s|https://registry.npmjs.org|${VERDACCIO_REGISTRY%/}|g" /work/pnpm-lock.yaml 2>/dev/null || true; }; \
         else \
