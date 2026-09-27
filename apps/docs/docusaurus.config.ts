@@ -33,28 +33,6 @@ function robotsTxtPlugin(): Plugin {
 	};
 }
 
-// The 404 page names no page URL. With trailingSlash, upstream gives 404.html a canonical, og:url
-// and hreflang of /404.html/, which the nginx-static-serve fallback answers with the home page:
-// a 200 soft 404 handed to crawlers as the page's own URL. The page is only meant to be the body
-// of a 404 response, so those tags are removed from it after the build.
-function notFoundPageUrlsPlugin(): Plugin {
-	return {
-		name: 'docs-404-page-urls',
-		async postBuild({ outDir }) {
-			const file = path.join(outDir, '404.html');
-			if (!fs.existsSync(file)) {
-				return;
-			}
-			const html = await fs.promises.readFile(file, 'utf8');
-			const stripped = html
-				.replace(/<link[^>]*\brel="canonical"[^>]*>/g, '')
-				.replace(/<meta[^>]*\bproperty="og:url"[^>]*>/g, '')
-				.replace(/<link[^>]*\brel="alternate"[^>]*\bhreflang="[^"]*"[^>]*>/g, '');
-			await fs.promises.writeFile(file, stripped);
-		}
-	};
-}
-
 /** @type {import('@docusaurus/types').Config} */
 const config: Config = {
 	themes: [
@@ -75,7 +53,6 @@ const config: Config = {
 	],
 	plugins: [
 		robotsTxtPlugin,
-		notFoundPageUrlsPlugin,
 		SENTRY_DNS &&
 			process.env.NODE_ENV === 'production' && [
 				'docusaurus-plugin-sentry',
