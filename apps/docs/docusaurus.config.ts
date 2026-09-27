@@ -1,4 +1,5 @@
-import type { Config } from '@docusaurus/types';
+import type { Config, Plugin } from '@docusaurus/types';
+import fs from 'fs';
 import path from 'path';
 import { themes as prismThemes } from 'prism-react-renderer';
 
@@ -8,6 +9,30 @@ const ALGOLIA_API_KEY = process.env.ALGOLIA_API_KEY || null;
 const ALGOLIA_INDEX_NAME = process.env.ALGOLIA_INDEX_NAME || null;
 const HAS_ALGOLIA_CREDENTIALS = ALGOLIA_APP_ID && ALGOLIA_API_KEY && ALGOLIA_INDEX_NAME;
 require('dotenv').config();
+
+// Canonical origin of THIS docs build. Docusaurus derives every rel="canonical", og:url,
+// alternate-language link and sitemap <loc> from `url`, so it must be the host the build is
+// really served on: docs.demo-minimal.ever.works. It used to say https://ever-works.github.io,
+// a GitHub Pages origin that is not enabled for this repository (it answers 404), so every
+// page declared itself a duplicate of a dead page on a domain we do not serve. DOCS_URL
+// overrides it at build time, e.g. for a repository generated from this template that serves
+// its docs on a host of its own.
+const DOCS_URL = (process.env.DOCS_URL || 'https://docs.demo-minimal.ever.works').replace(/\/+$/, '');
+
+// robots.txt, written from the SAME `url` (+ baseUrl) as the canonicals so it can never name
+// another host. Without it the origin had no robots.txt and nothing pointed crawlers at the
+// sitemap.
+function robotsTxtPlugin(): Plugin {
+	return {
+		name: 'docs-robots-txt',
+		async postBuild({ siteConfig, outDir }) {
+			const sitemap = `${siteConfig.url}${siteConfig.baseUrl}sitemap.xml`;
+			const body = ['User-agent: *', 'Allow: /', '', `Sitemap: ${sitemap}`, ''].join('\n');
+			await fs.promises.writeFile(path.join(outDir, 'robots.txt'), body);
+		}
+	};
+}
+
 /** @type {import('@docusaurus/types').Config} */
 const config: Config = {
 	themes: [
@@ -27,6 +52,7 @@ const config: Config = {
 		'@docusaurus/theme-mermaid'
 	],
 	plugins: [
+		robotsTxtPlugin,
 		SENTRY_DNS &&
 			process.env.NODE_ENV === 'production' && [
 				'docusaurus-plugin-sentry',
@@ -57,7 +83,7 @@ const config: Config = {
 	title: 'Ever Works Minimal Template', // Title for your website.
 	tagline: 'Minimal Directory Web Template Documentation',
 	favicon: 'img/favicon.ico',
-	// Set the production Url of your site here
+	// NOT the canonical origin any more: DOCS_URL replaces this value where the config is exported.
 	url: 'https://ever-works.github.io', // Your website URL
 	// Set the /<baseUrl>/ pathname under which your site is served
 	// For GitHub pages deployment, it is often '/<projectName>/'
@@ -306,4 +332,8 @@ const config: Config = {
 	}
 };
 
-export default config;
+// The canonical origin (see DOCS_URL at the top) is applied here rather than on the `url:` line
+// because main carries a main-only DOCS_BASE_URL change on the lines right next to it; editing
+// `url:` itself would make the develop -> stage -> main cascade conflict. Fold DOCS_URL into
+// the `url:` line once develop and main have converged.
+export default { ...config, url: DOCS_URL };
