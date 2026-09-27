@@ -38,6 +38,11 @@ RUN if [ -n "$VERDACCIO_REGISTRY" ]; then \
 RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile --filter "@ever-works/docs-minimal..."
 
+# Canonical origin of the docs (DOCS_URL in apps/docs/docusaurus.config.ts), passed by
+# k8s-build.yml from the repository variable of the same name. Empty keeps the config's own
+# default, so this is additive: it lets a deployment name its host without editing the config.
+ARG DOCS_URL=""
+ENV DOCS_URL=${DOCS_URL}
 RUN pnpm --filter "@ever-works/docs-minimal" build
 
 # ---- runner ----------------------------------------------------------------
@@ -49,5 +54,14 @@ LABEL org.opencontainers.image.source="https://github.com/${GITHUB_REPOSITORY}"
 LABEL org.opencontainers.image.revision="${GITHUB_SHA}"
 
 COPY --from=builder /work/apps/docs/build /usr/share/nginx/html
+# nginx issues its own 301 for a slash-less directory URL (/foo -> /foo/). TLS ends at the edge,
+# so this server only ever sees http and an absolute Location came out as
+# http://docs.demo-minimal.ever.works/foo/, which the edge then bounced back to https: two hops,
+# the first a scheme downgrade, for every slash-less URL - including every URL crawlers indexed
+# under the old slash-less canonicals. With absolute_redirect off the Location is relative
+# (/foo/) and resolves against the URL the client requested. The server block itself is the
+# nginx-static-serve ConfigMap, mounted over conf.d/default.conf alone (subPath), so this file
+# next to it is still included at http level by the stock nginx.conf and that server inherits it.
+RUN printf 'absolute_redirect off;\n' > /etc/nginx/conf.d/00-absolute-redirect.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

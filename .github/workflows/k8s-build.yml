@@ -66,8 +66,11 @@ jobs:
           # reach it). Empty on forks / github-hosted builds -> public npm.
           # matrix.build_args carries per-image args (APP_PKG/APP_DIR for the
           # sample images); GITHUB_* feed the OCI source/revision labels.
+          # DOCS_URL is the docs image's canonical origin (Dockerfile.docs); empty keeps the
+          # default in apps/docs/docusaurus.config.ts. The other Dockerfiles ignore it.
           build-args: |
             VERDACCIO_REGISTRY=${{ vars.VERDACCIO_REGISTRY }}
+            DOCS_URL=${{ vars.DOCS_URL }}
             GITHUB_REPOSITORY=${{ github.repository }}
             GITHUB_SHA=${{ github.sha }}
             ${{ matrix.build_args }}
