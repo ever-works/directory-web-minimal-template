@@ -336,4 +336,10 @@ const config: Config = {
 // because main carries a main-only DOCS_BASE_URL change on the lines right next to it; editing
 // `url:` itself would make the develop -> stage -> main cascade conflict. Fold DOCS_URL into
 // the `url:` line once develop and main have converged.
-export default { ...config, url: DOCS_URL };
+//
+// trailingSlash sits here for the same reason. With it every route is emitted as a directory
+// (foo/index.html) and every canonical, og:url, hreflang and sitemap <loc> names /foo/, the URL
+// that is actually served. Without it they named the slash-less /foo, which the nginx in front
+// of the build answers with a 301 to /foo/ - so almost every URL handed to crawlers was a
+// redirect instead of the page.
+export default { ...config, url: DOCS_URL, trailingSlash: true };
