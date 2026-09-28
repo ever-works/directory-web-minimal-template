@@ -1,19 +1,172 @@
-/*
- * Wraps @docusaurus/theme-classic's SiteMetadata. On every page but 404.html it renders upstream
- * unchanged. On 404.html upstream names the page's own URL as canonical, og:url and hreflang, and
- * with `trailingSlash: true` that URL is /404.html/, which the nginx-static-serve fallback in
- * front of this build answers with the home page: a 200 soft 404 handed to crawlers as the page's
- * URL. The 404 page is not a page crawlers should be pointed at, so it renders no site metadata
- * (it keeps its title and content, which are rendered elsewhere).
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  */
-import React, { type ReactNode } from 'react';
-import SiteMetadata from '@theme-original/SiteMetadata';
-import { useIsNotFoundPage } from '../../utils/servedUrl';
 
-export default function SiteMetadataWrapper(props: Record<string, never>): ReactNode {
+/*
+ * Ejected from @docusaurus/theme-classic 3.10.0 (theme/SiteMetadata). Re-diff it against the
+ * upstream component on every Docusaurus upgrade (docusaurus.config.ts stops the build when
+ * theme-classic leaves the minor it was ejected from). It replaces the wrapper that only dropped
+ * the 404 page's metadata: a wrapper cannot keep upstream from naming a host.
+ *
+ * The behavioral changes, all driven by src/utils/servedUrl:
+ * - A build with no canonical origin (`customFields.hasCanonicalOrigin` false: no DOCS_URL, so the
+ *   build is noindex) emits no canonical, og:url or alternate-language link at all - upstream
+ *   would name the placeholder host - and neither does the 404 page (upstream names /404.html/
+ *   there, which the nginx-static-serve fallback answers with the home page).
+ * - When the deployment redirects its site root (DOCS_HOME_CANONICAL_PATH in docusaurus.config.ts
+ *   names the page it is sent to), the root is never emitted as a canonical, og:url or
+ *   alternate-language URL: wherever upstream would emit the default locale's root URL, this
+ *   component emits the served page named by `customFields.homeCanonicalPath` instead.
+ * - The pages docusaurus.config.ts lists as not documentation (`customFields.noIndexPaths`: the
+ *   search page, the scaffold markdown page, the placeholder users page) render
+ *   <meta name="robots" content="noindex, follow">, which also keeps them out of the sitemap.
+ * With homeCanonicalPath "/" and a canonical origin it renders exactly what upstream renders on
+ * every page but 404.html and the noindex pages.
+ *
+ * The canonical URL is built with useAlternatePageUtils for the current locale: the same site url
+ * + locale baseUrl + trailing-slash-normalized pathname that upstream builds, without importing
+ * @docusaurus/utils-common, which is not a dependency of this app. The type reference below gives
+ * tsc theme-classic's `@theme/*` module declarations (for @theme/SearchMetadata); this app's
+ * tsconfig does not load them.
+ */
+/// <reference types="@docusaurus/theme-classic" />
+import React, { type ReactNode } from 'react';
+import Head from '@docusaurus/Head';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import { PageMetadata, useThemeConfig } from '@docusaurus/theme-common';
+import { DEFAULT_SEARCH_TAG, useAlternatePageUtils } from '@docusaurus/theme-common/internal';
+import SearchMetadata from '@theme/SearchMetadata';
+import { useHasCanonicalOrigin, useIsNoIndexPage, useIsNotFoundPage, useServedUrl } from '../../utils/servedUrl';
+
+// Canonical, og:url and hreflang are emitted only with a canonical origin, and never on 404.html.
+function useEmitsPageUrls(): boolean {
+    const hasCanonicalOrigin = useHasCanonicalOrigin();
     const isNotFoundPage = useIsNotFoundPage();
-    if (isNotFoundPage) {
-        return null;
-    }
-    return <SiteMetadata {...props} />;
+    return hasCanonicalOrigin && !isNotFoundPage;
+}
+
+// TODO move to SiteMetadataDefaults or theme-common ?
+// Useful for i18n/SEO
+// See https://developers.google.com/search/docs/advanced/crawling/localized-versions
+// See https://github.com/facebook/docusaurus/issues/3317
+function AlternateLangHeaders(): ReactNode {
+    const {
+        i18n: { currentLocale, defaultLocale, localeConfigs }
+    } = useDocusaurusContext();
+    const alternatePageUtils = useAlternatePageUtils();
+    const servedUrl = useServedUrl();
+    const emitsPageUrls = useEmitsPageUrls();
+    const currentHtmlLang = localeConfigs[currentLocale]!.htmlLang;
+
+    // HTML lang is a BCP 47 tag, but the Open Graph protocol requires
+    // using underscores instead of dashes.
+    // See https://ogp.me/#optional
+    // See https://en.wikipedia.org/wiki/IETF_language_tag)
+    const bcp47ToOpenGraphLocale = (code: string): string => code.replace('-', '_');
+
+    // Note: it is fine to use both "x-default" and "en" to target the same url
+    // See https://www.searchviu.com/en/multiple-hreflang-tags-one-url/
+    return (
+        <Head>
+            {emitsPageUrls &&
+                Object.entries(localeConfigs).map(([locale, { htmlLang }]) => (
+                    <link
+                        key={locale}
+                        rel="alternate"
+                        href={servedUrl(alternatePageUtils.createUrl({ locale, fullyQualified: true }))}
+                        hrefLang={htmlLang}
+                    />
+                ))}
+            {emitsPageUrls && (
+                <link
+                    rel="alternate"
+                    href={servedUrl(alternatePageUtils.createUrl({ locale: defaultLocale, fullyQualified: true }))}
+                    hrefLang="x-default"
+                />
+            )}
+
+            <meta property="og:locale" content={bcp47ToOpenGraphLocale(currentHtmlLang)} />
+            {Object.values(localeConfigs)
+                .filter((config) => currentHtmlLang !== config.htmlLang)
+                .map((config) => (
+                    <meta
+                        key={`meta-og-${config.htmlLang}`}
+                        property="og:locale:alternate"
+                        content={bcp47ToOpenGraphLocale(config.htmlLang)}
+                    />
+                ))}
+        </Head>
+    );
+}
+
+// TODO move to SiteMetadataDefaults or theme-common ?
+function CanonicalUrlHeaders(): ReactNode {
+    const {
+        i18n: { currentLocale }
+    } = useDocusaurusContext();
+    const alternatePageUtils = useAlternatePageUtils();
+    const servedUrl = useServedUrl();
+    const canonicalUrl = servedUrl(alternatePageUtils.createUrl({ locale: currentLocale, fullyQualified: true }));
+
+    return (
+        <Head>
+            <meta property="og:url" content={canonicalUrl} />
+            <link rel="canonical" href={canonicalUrl} />
+        </Head>
+    );
+}
+
+export default function SiteMetadata(): ReactNode {
+    const {
+        siteConfig: { noIndex: siteIsNoIndex },
+        i18n: { currentLocale }
+    } = useDocusaurusContext();
+
+    // TODO maybe move these 2 themeConfig to siteConfig?
+    // These seems useful for other themes as well
+    const { metadata, image: defaultImage } = useThemeConfig();
+    const emitsPageUrls = useEmitsPageUrls();
+    // A noindex site (no DOCS_URL) already carries a site-wide robots meta; one per page is enough.
+    const isNoIndexPage = useIsNoIndexPage() && !siteIsNoIndex;
+
+    return (
+        <>
+            <Head>
+                <meta name="twitter:card" content="summary_large_image" />
+                {/* The keyboard focus class name need to be applied when SSR so links
+                are outlined when JS is disabled */}
+                <body />
+            </Head>
+
+            {isNoIndexPage && (
+                <Head>
+                    <meta name="robots" content="noindex, follow" />
+                </Head>
+            )}
+
+            {defaultImage && <PageMetadata image={defaultImage} />}
+
+            {emitsPageUrls && <CanonicalUrlHeaders />}
+
+            <AlternateLangHeaders />
+
+            <SearchMetadata tag={DEFAULT_SEARCH_TAG} locale={currentLocale} />
+
+            {/*
+                It's important to have an additional <Head> element here, as it allows
+                react-helmet to override default metadata values set in previous <Head>
+                like "twitter:card". In same Head, the same meta would appear twice
+                instead of overriding.
+            */}
+            <Head>
+                {/* Yes, "metadatum" is the grammatically correct term */}
+                {metadata.map((metadatum, i) => (
+                    <meta key={i} {...metadatum} />
+                ))}
+            </Head>
+        </>
+    );
 }
