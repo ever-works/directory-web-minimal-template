@@ -234,7 +234,10 @@ const config: Config = {
 				blog: {
 				showReadingTime: true,
 				blogSidebarCount: 'ALL',
-				blogSidebarTitle: 'All Posts'
+				blogSidebarTitle: 'All Posts',
+				// RSS/Atom entries are absolute URLs on `url`, so a build without a canonical origin (no
+				// DOCS_URL) writes no feed rather than one naming the placeholder host.
+				feedOptions: { type: HAS_DOCS_URL ? ['rss', 'atom'] : null }
 			},
 				docs: false,
 				// When the deployment redirects its site root (DOCS_HOME_CANONICAL_PATH is not "/"), the
