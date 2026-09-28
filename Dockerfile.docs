@@ -38,11 +38,17 @@ RUN if [ -n "$VERDACCIO_REGISTRY" ]; then \
 RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile --filter "@ever-works/docs-minimal..."
 
-# Canonical origin of the docs (DOCS_URL in apps/docs/docusaurus.config.ts), passed by
-# k8s-build.yml from the repository variable of the same name. Empty keeps the config's own
-# default, so this is additive: it lets a deployment name its host without editing the config.
+# Canonical origin of the docs and the page a redirecting site root is sent to (DOCS_URL and
+# DOCS_HOME_CANONICAL_PATH in apps/docs/docusaurus.config.ts), passed by k8s-build.yml from the
+# repository variables of the same names, to the production image only. They describe the
+# deployment, not the template (which the platform syncs into every Work repo), so neither is
+# written in any file. Empty DOCS_URL => a noindex build that names no host (no canonical,
+# hreflang, og:image, JSON-LD or sitemap); empty DOCS_HOME_CANONICAL_PATH => "/". The config
+# rejects a malformed value of either, so a typo fails the build instead of shipping bad URLs.
 ARG DOCS_URL=""
-ENV DOCS_URL=${DOCS_URL}
+ARG DOCS_HOME_CANONICAL_PATH=""
+ENV DOCS_URL=${DOCS_URL} \
+    DOCS_HOME_CANONICAL_PATH=${DOCS_HOME_CANONICAL_PATH}
 RUN pnpm --filter "@ever-works/docs-minimal" build
 
 # ---- runner ----------------------------------------------------------------

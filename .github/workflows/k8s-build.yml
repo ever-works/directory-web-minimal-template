@@ -66,11 +66,16 @@ jobs:
           # reach it). Empty on forks / github-hosted builds -> public npm.
           # matrix.build_args carries per-image args (APP_PKG/APP_DIR for the
           # sample images); GITHUB_* feed the OCI source/revision labels.
-          # DOCS_URL is the docs image's canonical origin (Dockerfile.docs); empty keeps the
-          # default in apps/docs/docusaurus.config.ts. The other Dockerfiles ignore it.
+          # DOCS_URL / DOCS_HOME_CANONICAL_PATH are the docs image's canonical origin and the
+          # page a redirecting site root is sent to (Dockerfile.docs, apps/docs/docusaurus.config.ts).
+          # They describe ONE deployment, so they come only from this repository's own Actions
+          # variables, which the platform's template sync does not copy - this file names no
+          # host - and reach the production (:prod) image only. Empty DOCS_URL builds a noindex
+          # docs image that names no host. The other Dockerfiles ignore both.
           build-args: |
             VERDACCIO_REGISTRY=${{ vars.VERDACCIO_REGISTRY }}
-            DOCS_URL=${{ vars.DOCS_URL }}
+            DOCS_URL=${{ steps.t.outputs.tag == 'prod' && vars.DOCS_URL || '' }}
+            DOCS_HOME_CANONICAL_PATH=${{ steps.t.outputs.tag == 'prod' && vars.DOCS_HOME_CANONICAL_PATH || '' }}
             GITHUB_REPOSITORY=${{ github.repository }}
             GITHUB_SHA=${{ github.sha }}
             ${{ matrix.build_args }}
