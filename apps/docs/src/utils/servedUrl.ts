@@ -82,7 +82,8 @@ export function useServedUrl(): (url: string) => string {
 // Maps a site-relative href ("/architecture/overview", as sidebars and permalinks carry it) to
 // the path the deployment serves: the trailing slash applied the way Docusaurus's own <Link>
 // applies `trailingSlash`, and the default locale's root mapped to the served home page. Hrefs
-// that are not site-relative (external, hash-only) pass through unchanged.
+// that are not site-relative (external, protocol-relative, hash-only) and links to files (a last
+// segment with an extension, such as /img/logo.png) pass through unchanged.
 export function useServedHref(): (href: string) => string {
     const {
         siteConfig: { customFields, trailingSlash },
@@ -91,13 +92,16 @@ export function useServedHref(): (href: string) => string {
     const { baseUrl: rootPath } = localeConfigs[defaultLocale]!;
     const homePath = `${rootPath}${homeCanonicalPathOf(customFields).replace(/^\/+/, '')}`;
     return (href) => {
-        if (!href.startsWith('/')) {
+        if (!href.startsWith('/') || href.startsWith('//')) {
             return href;
         }
         const [pathname = href] = href.split(/[#?]/);
         const rest = href.slice(pathname.length);
         if (pathname === rootPath || pathname === rootPath.replace(/\/+$/, '')) {
             return `${homePath}${rest}`;
+        }
+        if (/\.[A-Za-z0-9]{1,5}$/.test(pathname.split('/').pop() ?? '')) {
+            return href;
         }
         if (trailingSlash === true && !pathname.endsWith('/')) {
             return `${pathname}/${rest}`;
@@ -106,6 +110,25 @@ export function useServedHref(): (href: string) => string {
             return `${pathname.replace(/\/+$/, '')}${rest}`;
         }
         return href;
+    };
+}
+
+// Maps a link to the default locale's root ("/", "/#section") to the served home page and leaves
+// every other href exactly as written - for links whose other hrefs <Link> already handles, such
+// as the ones in Markdown content.
+export function useServedRootHref(): (href: string | undefined) => string | undefined {
+    const {
+        siteConfig: { customFields },
+        i18n: { defaultLocale, localeConfigs }
+    } = useDocusaurusContext();
+    const { baseUrl: rootPath } = localeConfigs[defaultLocale]!;
+    const homePath = `${rootPath}${homeCanonicalPathOf(customFields).replace(/^\/+/, '')}`;
+    return (href) => {
+        if (href === undefined || homePath === rootPath) {
+            return href;
+        }
+        const [pathname = href] = href.split(/[#?]/);
+        return pathname === rootPath ? `${homePath}${href.slice(pathname.length)}` : href;
     };
 }
 

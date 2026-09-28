@@ -55,8 +55,8 @@ const HAS_DOCS_URL = DOCS_URL !== '';
 // (RFC 2606 .invalid) so it can never resolve, and nothing that reaches a crawler names it.
 const PLACEHOLDER_URL = 'https://docs.example.invalid';
 
-// src/theme/SiteMetadata and src/theme/DocBreadcrumbs/Items/Home are ejected from
-// @docusaurus/theme-classic 3.10 (SiteMetadata leans on @docusaurus/theme-common/internal), while
+// src/theme/SiteMetadata, src/theme/DocBreadcrumbs/Items/Home and src/theme/BlogListPage are ejected
+// from @docusaurus/theme-classic 3.10 (SiteMetadata leans on @docusaurus/theme-common/internal), while
 // package.json allows ^3.10.0. An upgrade to another minor would keep rendering the ejected 3.10
 // copies with nothing to say they diverged from upstream, so the build stops instead: re-diff
 // the ejected components against the new upstream, then update EJECTED_THEME_CLASSIC.
@@ -69,9 +69,9 @@ const THEME_CLASSIC_VERSION: string = createRequire(require.resolve('@docusaurus
 ).version;
 if (!THEME_CLASSIC_VERSION.startsWith(`${EJECTED_THEME_CLASSIC}.`)) {
 	throw new Error(
-		`@docusaurus/theme-classic is ${THEME_CLASSIC_VERSION}, but src/theme/SiteMetadata and ` +
-			`src/theme/DocBreadcrumbs/Items/Home are ejected from ${EJECTED_THEME_CLASSIC}.x: re-diff them against ` +
-			'the new upstream, then update EJECTED_THEME_CLASSIC in apps/docs/docusaurus.config.ts.'
+		`@docusaurus/theme-classic is ${THEME_CLASSIC_VERSION}, but src/theme/SiteMetadata, ` +
+			`src/theme/DocBreadcrumbs/Items/Home and src/theme/BlogListPage are ejected from ${EJECTED_THEME_CLASSIC}.x: ` +
+			're-diff them against the new upstream, then update EJECTED_THEME_CLASSIC in apps/docs/docusaurus.config.ts.'
 	);
 }
 

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Link from "@docusaurus/Link";
+import { useHomePath } from "../../utils/servedUrl";
 
 interface NavItem {
   to?: string;
@@ -18,6 +19,10 @@ interface CursorPosition {
 
 const DesktopMenu: React.FC = () => {
   const { siteConfig } = useDocusaurusContext();
+  // The home page as the deployment serves it (src/utils/servedUrl): the site root, or the page a
+  // redirecting root is sent to (DOCS_HOME_CANONICAL_PATH), so no page links a redirect.
+  // An item with neither `to` nor `href` (the docSidebar "Home" item) links it.
+  const homePath = useHomePath();
   const navbarItems = (siteConfig.themeConfig?.navbar as any)?.items || [];
   const [cursorPosition, setCursorPosition] = useState<CursorPosition>({
     left: 0,
@@ -52,7 +57,7 @@ const DesktopMenu: React.FC = () => {
       onMouseLeave={handleMouseLeave}
     >
       {leftItems.map((item: NavItem, index: number) => {
-        const href = item.to || item.href || "/";
+        const href = item.to || item.href || homePath;
         const isExternal = item.href?.startsWith("http");
 
         return (
