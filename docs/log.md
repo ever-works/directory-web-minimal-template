@@ -9796,7 +9796,7 @@ Next iteration(s) will execute `docs/plans/phase-4b-plugin-analytics.md` step-by
 3. Consider adding visual regression tests for key pages
 4. Explore reducing serialized props size for sample-git ItemBrowser
 
-# Change Log
+## Change Log
 
 > Tracks all documentation and specification changes.
 

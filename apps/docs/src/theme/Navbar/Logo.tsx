@@ -1,13 +1,17 @@
 import React from "react";
+import { useHomePath } from "../../utils/servedUrl";
 
 interface LogoProps {
   className?: string;
 }
 
 export const Logo: React.FC<LogoProps> = ({ className = "" }) => {
+  // The home page as the deployment serves it (src/utils/servedUrl): the site root, or the page a
+  // redirecting root is sent to (DOCS_HOME_CANONICAL_PATH), so no page links a redirect.
+  const homePath = useHomePath();
   return (
     <a
-      href="/"
+      href={homePath}
       aria-label="Ever Works - Go to homepage"
       className={`text-current flex items-center gap-2 max-w-[120px] sm:max-w-[150px] md:max-w-[210px] ${className}`}
     >
