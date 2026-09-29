@@ -3,7 +3,8 @@
     "tasks": {
         "build": {
             "dependsOn": ["^build"],
-            "outputs": ["dist/**", ".astro/**", "build/**"]
+            "outputs": ["dist/**", ".astro/**", "build/**"],
+            "env": ["DOCS_BASE_URL", "DOCS_HOME_CANONICAL_PATH", "DOCS_URL"]
         },
         "dev": {
             "cache": false,

@@ -7,7 +7,11 @@ import clsx from "clsx";
 import styles from "./index.module.css";
 
 import Link from "@docusaurus/Link";
+import { useHomePath } from "../utils/servedUrl";
 function UserspageHeader() {
+  // The home page as the deployment serves it: the site root, or the page a redirecting root
+  // is sent to (DOCS_HOME_CANONICAL_PATH, src/utils/servedUrl).
+  const homePath = useHomePath();
   return (
     <header className={clsx("hero", styles.heroBanner)}>
       <div className="container">
@@ -41,7 +45,7 @@ function UserspageHeader() {
         <div className={styles.buttons}>
           <Link
             className="button button--outline button--primary button--lg text-text--primary border--primary"
-            to="/"
+            to={homePath}
           >
             <Translate
               id="users.addCompany"

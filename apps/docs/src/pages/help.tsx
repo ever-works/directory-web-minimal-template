@@ -19,7 +19,7 @@ function HelpPageHeader() {
   return (
     <header className={clsx("hero ", styles.heroBanner)}>
       <div className="container text--left">
-        <Heading as="h2" className="hero__title">
+        <Heading as="h1" className="hero__title">
           {translate(
             { id: "help.message", message: "Need help?" },
             currentLocale
@@ -44,7 +44,7 @@ export default function Help() {
   const { siteConfig } = useDocusaurusContext();
   return (
     <Layout
-      title={`Help us ${siteConfig.title}`}
+      title={translate({ id: "help.title", message: "Help" })}
       description={siteConfig.tagline}
     >
       <HelpPageHeader />

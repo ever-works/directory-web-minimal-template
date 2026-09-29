@@ -29,6 +29,11 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  # docker/build-push-action uploads a build record artifact and a job summary for every build.
+  # The record holds every build-arg value in plain text, and on a public repo anyone signed in to
+  # GitHub can download it, so neither is produced. (BuildKit `secrets:` are never recorded.)
+  DOCKER_BUILD_RECORD_UPLOAD: false
+  DOCKER_BUILD_SUMMARY: false
   NODE_OPTIONS: '--max-old-space-size=4096'
   # NOTE: `K8S_REGISTRY_KIND` lives at the JOB level below — NOT here. The
   # `secrets` context is not available at workflow-level `env:` (it resolves
