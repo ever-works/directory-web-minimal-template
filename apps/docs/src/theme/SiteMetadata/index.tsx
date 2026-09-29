@@ -21,7 +21,8 @@
  *   alternate-language URL: wherever upstream would emit the default locale's root URL, this
  *   component emits the served page named by `customFields.homeCanonicalPath` instead.
  * - The pages docusaurus.config.ts lists as not documentation (`customFields.noIndexPaths`: the
- *   search page, the scaffold markdown page, the placeholder users page) render
+ *   search page, the scaffold markdown page, the placeholder users page, the blog's archive,
+ *   authors and tag pages) render
  *   <meta name="robots" content="noindex, follow">, which also keeps them out of the sitemap.
  * With homeCanonicalPath "/" and a canonical origin it renders exactly what upstream renders on
  * every page but 404.html and the noindex pages.

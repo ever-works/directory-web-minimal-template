@@ -44,7 +44,8 @@ export function useIsNotFoundPage(): boolean {
 }
 
 // True while rendering one of the pages docusaurus.config.ts lists as not documentation
-// (customFields.noIndexPaths, paths relative to the current locale's baseUrl).
+// (customFields.noIndexPaths, paths relative to the current locale's baseUrl; one ending in "/**"
+// covers that page and every page under it).
 export function useIsNoIndexPage(): boolean {
     const {
         siteConfig: { baseUrl, customFields }
@@ -52,9 +53,13 @@ export function useIsNoIndexPage(): boolean {
     const { pathname } = useLocation();
     const noIndexPaths = Array.isArray(customFields?.noIndexPaths) ? (customFields.noIndexPaths as unknown[]) : [];
     const current = `${pathname.replace(/\/+$/, '')}/`;
-    return noIndexPaths.some(
-        (noIndexPath) => typeof noIndexPath === 'string' && current === `${baseUrl}${noIndexPath.replace(/^\/+/, '')}`
-    );
+    return noIndexPaths.some((noIndexPath) => {
+        if (typeof noIndexPath !== 'string') {
+            return false;
+        }
+        const target = `${baseUrl}${noIndexPath.replace(/^\/+/, '')}`;
+        return target.endsWith('/**') ? current.startsWith(target.slice(0, -2)) : current === target;
+    });
 }
 
 // The site-relative path of the home page as the deployment serves it: the current locale's

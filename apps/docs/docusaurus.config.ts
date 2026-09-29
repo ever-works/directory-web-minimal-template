@@ -101,11 +101,14 @@ function readHomeCanonicalPath(): string {
 }
 const DOCS_HOME_CANONICAL_PATH = readHomeCanonicalPath();
 
-// Pages that are not documentation: the search page, the Docusaurus scaffold page and the
-// placeholder "Who is Using This?" page. They stay built and linked, but render
-// <meta name="robots" content="noindex, follow"> (src/theme/SiteMetadata) and are left out of the
-// sitemap. Paths are relative to baseUrl, with the trailing slash every page is served with.
-const NOINDEX_PATHS = ['/search/', '/markdown-page/', '/users/'];
+// Pages that are not documentation: the search page, the Docusaurus scaffold page, the
+// placeholder "Who is Using This?" page, and the blog's generated index pages (archive, authors,
+// the tag list and every tag page), which only repeat the post list /blog/ already carries. They
+// stay built and linked, but render <meta name="robots" content="noindex, follow">
+// (src/theme/SiteMetadata) and are left out of the sitemap. Paths are relative to baseUrl, with
+// the trailing slash every page is served with; one ending in "/**" covers that page and every
+// page under it.
+const NOINDEX_PATHS = ['/search/', '/markdown-page/', '/users/', '/blog/archive/', '/blog/authors/', '/blog/tags/**'];
 
 // robots.txt, written from the SAME `url` (+ baseUrl) as the canonicals so it can never name
 // another host. Without it the origin had no robots.txt and nothing pointed crawlers at the
@@ -251,11 +254,15 @@ const config: Config = {
 				// When the deployment redirects its site root (DOCS_HOME_CANONICAL_PATH is not "/"), the
 				// root is not a sitemap URL; the page it redirects to is listed in its own right. The
 				// non-documentation pages (NOINDEX_PATHS) are not sitemap URLs either. Route paths are
-				// matched with and without the trailing slash.
+				// matched with and without the trailing slash; a "/**" entry is passed as the glob it is,
+				// plus the page it sits under.
 				sitemap: {
 					ignorePatterns: [
 						...(DOCS_HOME_CANONICAL_PATH === '/' ? [] : ['/']),
-						...NOINDEX_PATHS.flatMap((noIndexPath) => [noIndexPath, noIndexPath.replace(/\/$/, '')])
+						...NOINDEX_PATHS.flatMap((noIndexPath) => {
+							const page = noIndexPath.replace(/\*\*$/, '');
+							return [...(page === noIndexPath ? [] : [noIndexPath]), page, page.replace(/\/$/, '')];
+						})
 					]
 				},
 				theme: {
