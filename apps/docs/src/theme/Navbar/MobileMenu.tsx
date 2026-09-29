@@ -3,6 +3,7 @@ import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import { useColorMode } from "@docusaurus/theme-common";
 import SearchBar from "@theme/SearchBar";
 import LocaleDropdown from "./LocaleDropdown";
+import { useHomePath } from "../../utils/servedUrl";
 
 interface NavItem {
   to?: string;
@@ -46,6 +47,9 @@ const CloseIcon = () => (
 
 const MobileMenu: React.FC = () => {
   const { siteConfig } = useDocusaurusContext();
+  // The home page as the deployment serves it (src/utils/servedUrl): the site root, or the page a
+  // redirecting root is sent to (DOCS_HOME_CANONICAL_PATH), so no page links a redirect.
+  const homePath = useHomePath();
   const { colorMode, setColorMode } = useColorMode();
   const navbarItems = (siteConfig.themeConfig?.navbar as any)?.items || [];
   const [isOpen, setIsOpen] = useState(false);
@@ -103,7 +107,7 @@ const MobileMenu: React.FC = () => {
 
             <nav className="flex flex-col gap-1">
               {navbarItems.map((item: NavItem, index: number) => {
-                const href = item.to || item.href || "/";
+                const href = item.to || item.href || homePath;
                 const isExternal = item.href?.startsWith("http");
 
                 return (
@@ -152,7 +156,7 @@ const MobileMenu: React.FC = () => {
             {/* Get Started Button */}
             <div className="mt-6 sm:hidden">
               <a
-                href="/"
+                href={homePath}
                 className="block w-full py-3 px-6 text-center text-white rounded-full font-medium transition-opacity hover:opacity-90"
                 style={{
                   background:

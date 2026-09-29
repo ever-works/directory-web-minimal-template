@@ -34,6 +34,11 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  # docker/build-push-action uploads a build record artifact and a job summary for every build.
+  # The record holds every build-arg value in plain text, and on a public repo anyone signed in to
+  # GitHub can download it, so neither is produced. (BuildKit `secrets:` are never recorded.)
+  DOCKER_BUILD_RECORD_UPLOAD: false
+  DOCKER_BUILD_SUMMARY: false
   DATA_REPOSITORY: 'https://github.com/${{ github.repository_owner }}/${{ secrets.DATA_REPOSITORY }}'
   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
   GH_TOKEN: ${{ secrets.GH_TOKEN }}

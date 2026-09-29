@@ -2,6 +2,7 @@ import React from "react";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import { useColorMode } from "@docusaurus/theme-common";
 import SearchBar from "@theme/SearchBar";
+import { useHomePath } from "../../utils/servedUrl";
 
 interface NavItem {
   to?: string;
@@ -51,6 +52,9 @@ const MoonIcon = () => (
 
 const RightMenu: React.FC = () => {
   const { siteConfig } = useDocusaurusContext();
+  // The home page as the deployment serves it (src/utils/servedUrl): the site root, or the page a
+  // redirecting root is sent to (DOCS_HOME_CANONICAL_PATH), so no page links a redirect.
+  const homePath = useHomePath();
   const { colorMode, setColorMode } = useColorMode();
   const navbarItems = (siteConfig.themeConfig?.navbar as any)?.items || [];
 
@@ -95,7 +99,7 @@ const RightMenu: React.FC = () => {
 
       {/* Get Started Button - gradient border outline style */}
       <a
-        href="/"
+        href={homePath}
         className="relative inline-flex items-center justify-center px-4 py-1.5 text-[13px] font-medium text-gray-700 dark:text-white rounded-full overflow-hidden transition-opacity duration-200 hover:opacity-90"
         style={{
           background: colorMode === 'dark'
