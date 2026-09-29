@@ -188,7 +188,7 @@ const config: Config = {
 				// verbatim into every Work repo, where an edit would be overwritten by the next sync), so
 				// the link opens the file in this template's repository, on main: the branch the
 				// production docs are built from, so every page's file is there.
-				editUrl: ({ docPath }) =>
+				editUrl: ({ docPath }: { docPath: string }) =>
 					`https://github.com/ever-works/directory-web-minimal-template/blob/main/docs/${docPath}`
 			}
 		]

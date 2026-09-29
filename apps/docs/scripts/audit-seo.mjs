@@ -169,7 +169,7 @@ for (const file of htmlFiles) {
         try {
             walkJson(JSON.parse(block));
         } catch {
-            add('json-ld-unparseable', page);
+            add('json-ld-unparsable', page);
         }
     }
 
