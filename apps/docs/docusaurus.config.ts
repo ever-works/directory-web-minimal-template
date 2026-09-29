@@ -178,7 +178,15 @@ const config: Config = {
 					'specs/**/*.{md,mdx}',
 					'plans/**/*.{md,mdx}'
 				],
-				editUrl: 'https://github.com/ever-works/directory-web-minimal-template/tree/main/docs/'
+				// "Edit this page" on every doc. A string editUrl is joined with the content path relative
+				// to this app ('../../docs'), so '…/tree/main/docs/' produced
+				// '…/tree/main/docs/../../docs/<file>.md', which resolves to '…/tree/docs/<file>.md' - a
+				// 404 on every doc page. The docs are this template's own docs/ (the platform syncs them
+				// verbatim into every Work repo, where an edit would be overwritten by the next sync), so
+				// the link opens the file in this template's repository, on main: the branch the
+				// production docs are built from, so every page's file is there.
+				editUrl: ({ docPath }) =>
+					`https://github.com/ever-works/directory-web-minimal-template/blob/main/docs/${docPath}`
 			}
 		]
 	],
