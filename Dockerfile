@@ -13,14 +13,16 @@
 # we override the nginx port to 3000 to match that contract (no need to
 # special-case the Astro template in the plugin).
 
-ARG NODE_VERSION=22-alpine
+ARG NODE_VERSION=26.12.1-alpine
 ARG NGINX_VERSION=1.27-alpine
 
 # ---- deps ------------------------------------------------------------------
 
 FROM node:${NODE_VERSION} AS deps
 WORKDIR /work
-RUN corepack enable
+# Node 25+ no longer ships corepack (on node:26-alpine a bare `corepack enable` exits 127),
+# so install it from npm first; it then activates the repo-pinned pnpm (packageManager).
+RUN npm install -g corepack@0.36.0 && corepack enable
 RUN apk add --no-cache libc6-compat
 
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
@@ -55,7 +57,9 @@ RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
 
 FROM node:${NODE_VERSION} AS builder
 WORKDIR /work
-RUN corepack enable
+# Node 25+ no longer ships corepack (on node:26-alpine a bare `corepack enable` exits 127),
+# so install it from npm first; it then activates the repo-pinned pnpm (packageManager).
+RUN npm install -g corepack@0.36.0 && corepack enable
 RUN apk add --no-cache git
 
 COPY --from=deps /work/node_modules ./node_modules
