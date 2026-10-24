@@ -14,14 +14,16 @@
 # emits apps/<app>/dist rather than .vercel/output. Vercel is decommissioned; the
 # adapter dependency is kept (no-removal rule) but stays dormant.
 
-ARG NODE_VERSION=22-alpine
+ARG NODE_VERSION=26.12.1-alpine
 ARG NGINX_VERSION=1.27-alpine
 
 # ---- builder ---------------------------------------------------------------
 
 FROM node:${NODE_VERSION} AS builder
 WORKDIR /work
-RUN corepack enable && apk add --no-cache git libc6-compat
+# Node 25+ no longer ships corepack (on node:26-alpine a bare `corepack enable` exits 127),
+# so install it from npm first; it then activates the repo-pinned pnpm (packageManager).
+RUN npm install -g corepack@0.36.0 && corepack enable && apk add --no-cache git libc6-compat
 
 ARG APP_PKG=@ever-works/sample-basic
 ARG APP_DIR=sample-basic
