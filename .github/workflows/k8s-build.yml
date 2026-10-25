@@ -55,5 +55,8 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:${{ steps.t.outputs.tag }}
             ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:sha-${{ github.sha }}
+          # mode=min: a mode=max export also uploads every builder layer (node_modules,
+          # .next cache), and on 2026-10-24 the homelab uplink ran it at ~67 KB/s (hours per build) and
+          # saturated it for everything else (owner Q7). mode=min only references the final image layers just pushed.
           cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:buildcache
-          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:buildcache,mode=max
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:buildcache,mode=min
