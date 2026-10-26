@@ -160,6 +160,11 @@ jobs:
           echo "Tracked npm configuration restored to its committed state."
 
       - name: Security audit
+        id: security-audit
+        # Advisory, not a gate (owner 2026-10-26): this step was red on every branch and, being first, stopped
+        # lint/typecheck/tests/build from running in CI for weeks. It still runs and is reported below; the
+        # flagged dependencies are bumped in their own PRs.
+        continue-on-error: true
         run: pnpm audit --audit-level=high
 
       - name: Doc-quality audit
@@ -196,6 +201,10 @@ jobs:
         env:
           # Build without data repo — pages will be empty but build should succeed
           SITE_URL: https://example.com
+
+      - name: Report security audit
+        if: ${{ steps.security-audit.outcome == 'failure' }}
+        run: echo "::warning title=pnpm audit::high/critical advisories found - see the Security audit step"
 
   test-ct:
     # Playwright Component Tests for the @ever-works/ui Preact components that
