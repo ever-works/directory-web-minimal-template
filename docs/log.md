@@ -5,7 +5,7 @@ sidebar_label: "Change Log"
 
 ## 2026-11-05 — Graphify code-navigation note for agents
 
-Added "Code navigation: Graphify" to `AGENTS.md`: when a local Graphify graph (`graphify-out/graph.json`) exists, agents use `graphify query|path|explain` before reading raw files and run `graphify update .` after code changes. `graphify-out/` is per-machine build output and is now in `.gitignore`. Docs only, no code change.
+Added "Code navigation: Graphify" to `AGENTS.md`: when a local Graphify graph (`graphify-out/graph.json`) exists, agents use `graphify query|path|explain` before reading raw files and run `graphify update .` after code changes. `graphify-out/` is per-machine build output and is now in `.gitignore`. Docs only, no code change (#54).
 
 ## 2026-05-19 — Pin Vercel framework to "astro" via apps/web/vercel.json + workflow verification
 
