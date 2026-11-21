@@ -10,7 +10,7 @@
  * - `GET` → `405`, `OPTIONS` → CORS preflight `204`, CORS `*` on every response. No sessions, no auth.
  */
 
-import { rankItems, sortItems, taxonomySlug, type ItemSort } from './search';
+import { normalizeText, rankItems, sortItems, taxonomySlug, type ItemSort } from './search';
 import type { AgentDataset, ItemSummary } from './types';
 
 /** Protocol revisions this server speaks, newest first. */
@@ -188,6 +188,12 @@ function integer(input: Record<string, unknown>, key: string, fallback: number, 
 
 function matchesTaxonomy(ids: readonly string[], names: readonly string[], wanted: string): boolean {
     const key = taxonomySlug(wanted);
+    if (!key) {
+        // Non-Latin values (e.g. "東京") slugify to "": compare normalized text instead, never via the empty slug,
+        // otherwise every non-Latin category would match every other one.
+        const text = normalizeText(wanted.trim());
+        return [...ids, ...names].some((value) => normalizeText(value.trim()) === text);
+    }
     return ids.some((id) => taxonomySlug(id) === key) || names.some((name) => taxonomySlug(name) === key);
 }
 
@@ -327,12 +333,19 @@ export async function handleMcpRequest(request: Request, options: McpHandlerOpti
         return rpcError(null, -32700, 'Parse error: body must be a JSON-RPC 2.0 message', 400);
     }
 
+    // MCP-Protocol-Version header (sent by clients after initialize): an unsupported value is a 400 per the spec.
+    const protocolHeader = request.headers.get('MCP-Protocol-Version');
+    if (protocolHeader && !(SUPPORTED_PROTOCOL_VERSIONS as readonly string[]).includes(protocolHeader)) {
+        return rpcError(null, -32600, `Unsupported MCP-Protocol-Version: ${protocolHeader.slice(0, 40)}`, 400);
+    }
     if (Array.isArray(message)) return rpcError(null, -32600, 'Batch requests are not supported', 400);
     if (message === null || typeof message !== 'object') return rpcError(null, -32600, 'Invalid request', 400);
 
     const rpc = message as JsonRpcRequest & { result?: unknown; error?: unknown };
     const hasId = 'id' in rpc && (typeof rpc.id === 'string' || typeof rpc.id === 'number');
     const id: JsonRpcId = hasId ? (rpc.id as string | number) : null;
+
+    if (rpc.jsonrpc !== '2.0') return rpcError(id, -32600, 'Invalid request: jsonrpc must be "2.0"', 400);
 
     // Client responses (to server requests; this server sends none) are acknowledged with 202 and no body.
     if (typeof rpc.method !== 'string') {

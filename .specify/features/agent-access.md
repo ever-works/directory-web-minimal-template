@@ -115,7 +115,14 @@ interface TagEntry { id: string; name: string; count: number; url: string }
 | `list_categories` | `{}` | `{ total, categories: CategoryEntry[] }` |
 | `list_tags` | `{ limit?: number }` | `{ total, tags: TagEntry[] }` sorted by count desc |
 
-`category` / `tag` filters accept an id, a display name or a slug (case-insensitive).
+`category` / `tag` filters accept an id, a display name or a slug (case-insensitive). A value that slugifies to an
+empty string (non-Latin names such as `東京`) is compared as normalized text, never through the empty slug.
+
+Date sorts (`date-desc`, `date-asc`) compare `updated_at` as instants (date-only and zone-less values read as UTC);
+items without a parseable date sort last in both directions, ties by name.
+
+Transport validation: an `MCP-Protocol-Version` request header with an unsupported value → HTTP `400`; `jsonrpc` other
+than `"2.0"` → `-32600` with HTTP `400`.
 
 Search ranking (shared): tokenize the query on non-alphanumerics; per token, score `+8` exact name, `+5` name
 prefix, `+3` name contains, `+2` category/tag name contains, `+1` description contains; all tokens must match
