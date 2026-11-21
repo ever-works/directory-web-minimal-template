@@ -63,6 +63,35 @@ describe('MCP transport', () => {
         expect(errorReply.response.status).toBe(202);
     });
 
+    it('rejects an unsupported MCP-Protocol-Version header and a wrong jsonrpc version', async () => {
+        const badHeader = await rpc(
+            { jsonrpc: '2.0', id: 1, method: 'ping' },
+            { headers: { 'Content-Type': 'application/json', 'MCP-Protocol-Version': '1999-01-01' } }
+        );
+        expect(badHeader.response.status).toBe(400);
+        const goodHeader = await rpc(
+            { jsonrpc: '2.0', id: 1, method: 'ping' },
+            { headers: { 'Content-Type': 'application/json', 'MCP-Protocol-Version': '2025-06-18' } }
+        );
+        expect(goodHeader.response.status).toBe(200);
+        const wrongVersion = await rpc({ jsonrpc: '1.0', id: 1, method: 'ping' });
+        expect(wrongVersion.response.status).toBe(400);
+        expect(wrongVersion.body.error.code).toBe(-32600);
+    });
+
+    it('does not match non-Latin taxonomy values through an empty slug', async () => {
+        const { filterSummaries } = await import('../mcp');
+        const base = {
+            slug: 'x', name: 'X', description: '', url: '', website: null, tags: [], tag_ids: [],
+            featured: false, logo: null, updated_at: null
+        };
+        const items = [
+            { ...base, slug: 'a', categories: ['東京'], category_ids: ['東京'] },
+            { ...base, slug: 'b', categories: ['大阪'], category_ids: ['大阪'] }
+        ];
+        expect(filterSummaries(items, { category: '東京' }).map((i) => i.slug)).toEqual(['a']);
+    });
+
     it('rejects a null request id', async () => {
         const nullId = await rpc({ jsonrpc: '2.0', id: null, method: 'tools/list' });
         expect(nullId.response.status).toBe(400);

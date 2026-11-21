@@ -44,7 +44,7 @@ export {
 } from './build';
 export type { AgentBuildOptions, TaxonomyIndex, TaxonomyRef } from './build';
 
-export { normalizeText, rankItems, scoreItem, sortItems, taxonomySlug, tokenize } from './search';
+export { dateValue, normalizeText, rankItems, scoreItem, sortItems, taxonomySlug, tokenize } from './search';
 export type { ItemSort, SearchableText, SortableItem } from './search';
 
 export {

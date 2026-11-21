@@ -132,8 +132,14 @@ export interface SortableItem {
  * @param toSortable - Maps an item to its sortable fields
  */
 export function sortItems<T>(items: readonly T[], sort: ItemSort, toSortable: (item: T) => SortableItem): T[] {
-    const decorated = items.map((item) => ({ item, key: toSortable(item) }));
+    const decorated = items.map((item) => {
+        const key = toSortable(item);
+        return { item, key, time: dateValue(key.updated) };
+    });
     const byName = (a: SortableItem, b: SortableItem) => a.name.localeCompare(b.name);
+    // Dates compare as instants; undated items always sort last (both directions), then by name.
+    const byDate = (a: number | null, b: number | null, direction: 1 | -1) =>
+        a === null ? (b === null ? 0 : 1) : b === null ? -1 : direction * (a - b);
     decorated.sort((x, y) => {
         const a = x.key;
         const b = y.key;
@@ -143,12 +149,28 @@ export function sortItems<T>(items: readonly T[], sort: ItemSort, toSortable: (i
             case 'name-desc':
                 return byName(b, a);
             case 'date-desc':
-                return (b.updated ?? '').localeCompare(a.updated ?? '') || byName(a, b);
+                return byDate(x.time, y.time, -1) || byName(a, b);
             case 'date-asc':
-                return (a.updated ?? '').localeCompare(b.updated ?? '') || byName(a, b);
+                return byDate(x.time, y.time, 1) || byName(a, b);
             default:
                 return Number(Boolean(b.featured)) - Number(Boolean(a.featured)) || byName(a, b);
         }
     });
     return decorated.map((entry) => entry.item);
+}
+
+/**
+ * Parse an item date (`YYYY-MM-DD`, `YYYY-MM-DD HH:mm`, or ISO-8601) to epoch milliseconds; `null` when absent or
+ * unparseable. Values without a zone are read as UTC so every runtime orders them the same way.
+ *
+ * @param value - Raw `updated_at`
+ */
+export function dateValue(value: string | null | undefined): number | null {
+    if (!value) return null;
+    const match = value.trim().match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?(.*)$/);
+    if (!match) return null;
+    const [, y, mo, d, h = '00', mi = '00', s = '00', rest = ''] = match;
+    const zone = /^(Z|[+-]\d{2}:?\d{2})$/i.test(rest.trim()) ? rest.trim() : 'Z';
+    const time = Date.parse(`${y}-${mo}-${d}T${h}:${mi}:${s}${zone}`);
+    return Number.isNaN(time) ? null : time;
 }
