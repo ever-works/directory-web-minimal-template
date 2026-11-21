@@ -1,15 +1,16 @@
 ---
 /**
- * Category Page — Lists all items in a specific category.
- *
- * Uses getStaticPaths to generate one page per category at build time.
+ * Category Page — every item in one category (server-rendered, crawlable), with in-page search, tag filters, sort
+ * and view switching. Alias URLs (id, slugified id or name) all canonicalize to `/category/<id>`.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getContent } from '../../lib/content';
-import { generateJsonLd } from '@ever-works/plugin-seo';
+import { getSite } from '../../lib/site';
+import { exampleNames, scopedTaxonomy, sortedCards } from '../../lib/listing';
+import { breadcrumbJsonLd, collectionPageJsonLd } from '../../lib/structured-data';
 import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
-import ItemGrid from '@ever-works/ui/astro/ItemGrid.astro';
-import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
+import CategoryIcon from '@ever-works/ui/astro/CategoryIcon.astro';
+import DirectoryBrowser from '@ever-works/ui/astro/DirectoryBrowser.astro';
 import { itemBelongsToCategory, uniquePathAliases } from '../../lib/taxonomy';
 
 export async function getStaticPaths() {
@@ -23,61 +24,57 @@ export async function getStaticPaths() {
 }
 
 const { category } = Astro.props;
-const { items, config } = await getContent();
-
-// Filter items by this category
-const categoryItems = items.filter((item) => itemBelongsToCategory(item, category));
-
-const breadcrumbItems = [
-    { label: 'Home', href: '/' },
-    { label: 'Categories', href: '/categories' },
-    { label: category.name },
-];
-
-const siteUrl = (config.app_url ?? '').replace(/\/$/, '');
-
-// JSON-LD ItemList for category listing
-const jsonLd = categoryItems.length > 0
-    ? generateJsonLd('ItemList', {
-        type: 'ItemList',
-        items: categoryItems.map((item) => ({
-            name: item.name,
-            url: `/item/${item.slug}`,
-        })),
-    })
-    : null;
-
-// BreadcrumbList JSON-LD: Home → Categories → <Category>
-const breadcrumbLd = generateJsonLd('BreadcrumbList', {
-    type: 'BreadcrumbList',
-    items: [
-        { name: 'Home', url: `${siteUrl}/` },
-        { name: 'Categories', url: `${siteUrl}/categories` },
-        { name: category.name, url: `${siteUrl}/category/${category.id}` },
-    ],
-});
+const site = await getSite();
+const { content, settings } = site;
+const { config } = content;
+const noun = config.items_name.toLowerCase();
+const cards = sortedCards(site, content.items.filter((item) => itemBelongsToCategory(item, category)));
+const scoped = scopedTaxonomy(site, cards);
+const path = `/category/${category.id}`;
+const count = cards.length;
+const description =
+    (typeof category.description === 'string' && category.description.trim()) ||
+    `Browse ${count} ${count === 1 ? config.item_name.toLowerCase() : noun} in ${category.name}${count ? `: ${exampleNames(cards)}` : ''}. Compare features, categories and tags on ${config.company_name}.`;
 ---
 
 <BaseLayout
-    title={category.name}
-    description={`Browse ${categoryItems.length} ${config.items_name.toLowerCase()} in ${category.name}`}
-    config={config}
-    markdownMirrorUrl={`/category/${category.id}.md`}
+    title={`${category.name} — ${count} ${count === 1 ? config.item_name : config.items_name}`}
+    description={description}
+    canonicalUrl={path}
+    markdownMirrorUrl={`${path}.md`}
+    jsonLd={[
+        collectionPageJsonLd(site, { name: category.name, description, path }, cards),
+        breadcrumbJsonLd(site, [
+            { name: 'Home', path: '/' },
+            { name: 'Categories', path: '/categories' },
+            { name: category.name, path }
+        ])
+    ]}
 >
-    <Fragment slot="head">
-        {jsonLd && <script is:inline type="application/ld+json" set:html={jsonLd} />}
-        <script is:inline type="application/ld+json" set:html={breadcrumbLd} />
-    </Fragment>
-    <Breadcrumbs items={breadcrumbItems} />
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Categories', href: '/categories' }, { label: category.name }]} />
 
     <section data-component="category-page">
-        <h1 data-part="heading">{category.name}</h1>
-        <p data-part="count">{categoryItems.length} {categoryItems.length === 1 ? config.item_name : config.items_name}</p>
+        <div class="dw-item-head" style="margin:0.5rem 0 1.5rem;align-items:center">
+            <CategoryIcon name={category.name} svg={category.icon_svg} url={category.icon_url} />
+            <div class="min-w-0">
+                <h1 data-part="heading" style="margin:0">{category.name}</h1>
+                <p data-part="count" style="color:var(--muted-foreground)">{count} {count === 1 ? config.item_name.toLowerCase() : noun}{typeof category.description === 'string' && category.description ? ` · ${category.description}` : ''}</p>
+            </div>
+        </div>
 
-        {categoryItems.length === 0 ? (
-            <EmptyState message={`No ${config.items_name.toLowerCase()} in this category.`} />
-        ) : (
-            <ItemGrid items={categoryItems} columns={3} />
-        )}
+        <DirectoryBrowser
+            items={cards}
+            total={count}
+            perPage={settings.itemsPerPage}
+            categories={site.content.categories.filter((c) => c.count > 0)}
+            tags={settings.sections.tags ? scoped.tags : []}
+            categoryMode="link"
+            scopeCategory={category.id}
+            basePath={path}
+            itemsName={config.items_name}
+            defaultSort={settings.homepage.defaultSort}
+            searchEnabled={settings.homepage.searchEnabled}
+            heading={`${category.name} ${noun}`}
+        />
     </section>
 </BaseLayout>

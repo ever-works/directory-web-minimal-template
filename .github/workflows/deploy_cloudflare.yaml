@@ -1,9 +1,14 @@
 name: Cloudflare deployment
 
 # Builds this directory as a pure static site (`ENABLE_ISR=false`, no server runtime) and publishes it to
-# Cloudflare Workers Static Assets: one assets-only Worker per directory, attached to its hostname as a Workers
-# Custom Domain (Cloudflare creates the DNS record and the certificate). Serving static assets on Workers is not
-# metered per request, so a low-traffic directory costs close to nothing to host.
+# Cloudflare Workers Static Assets: one Worker per directory, attached to its hostname as a Workers Custom Domain
+# (Cloudflare creates the DNS record and the certificate). Serving static assets on Workers is not metered per
+# request, so a low-traffic directory costs close to nothing to host.
+#
+# The Worker also carries a tiny script (apps/web/src/worker/mcp-worker.ts) that answers ONLY `/mcp` — the
+# directory's Model Context Protocol server for AI agents (`assets.run_worker_first: ["/mcp", "/mcp/*"]`). Every other
+# request is still served straight from static assets without invoking the script. Set the repository variable
+# `MCP_ENABLED=false` to publish an assets-only Worker instead. See .specify/features/agent-access.md.
 #
 # Dispatched by the Ever Works platform's `cloudflare` deploy provider (`getWorkflowFilenames()` →
 # `deploy_cloudflare.yaml`), which first pushes these repository secrets:
@@ -91,10 +96,14 @@ jobs:
       - name: Build static site
         env:
           SITE_URL: https://${{ secrets.CLOUDFLARE_HOSTNAME }}
+          DEPLOY_TARGET: cloudflare
+          MCP_ENABLED: ${{ vars.MCP_ENABLED || 'true' }}
         run: pnpm --filter @ever-works/web-minimal build
 
       - name: Write Cloudflare config
         working-directory: apps/web
+        env:
+          MCP_ENABLED: ${{ vars.MCP_ENABLED || 'true' }}
         run: |
           test -f dist/index.html || { echo "::error::the build produced no dist/index.html"; exit 1; }
           files=$(find dist -type f | wc -l)
@@ -119,10 +128,12 @@ jobs:
             const cfg = {
               name: process.env.CLOUDFLARE_WORKER_NAME,
               compatibility_date: "2026-11-01",
+              ...(process.env.MCP_ENABLED !== "false" ? { main: "src/worker/mcp-worker.ts" } : {}),
               assets: {
                 directory: "./dist",
                 not_found_handling: "404-page",
-                html_handling: "auto-trailing-slash"
+                html_handling: "auto-trailing-slash",
+                ...(process.env.MCP_ENABLED !== "false" ? { binding: "ASSETS", run_worker_first: ["/mcp", "/mcp/*"] } : {})
               },
               routes: [{ pattern: process.env.CLOUDFLARE_HOSTNAME, custom_domain: true }],
               workers_dev: false,
@@ -147,3 +158,13 @@ jobs:
             sleep 15
           done
           echo "::warning::https://$CLOUDFLARE_HOSTNAME/ did not answer 200 yet; the platform poller keeps checking"
+
+      - name: Check the MCP endpoint
+        if: ${{ vars.MCP_ENABLED != 'false' }}
+        run: |
+          body='{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"deploy-check","version":"1"}}}'
+          if curl -sf -X POST -H "Content-Type: application/json" -H "Accept: application/json, text/event-stream" -d "$body" "https://$CLOUDFLARE_HOSTNAME/mcp" | grep -q '"protocolVersion"'; then
+            echo "MCP endpoint https://$CLOUDFLARE_HOSTNAME/mcp answers initialize"
+          else
+            echo "::warning::https://$CLOUDFLARE_HOSTNAME/mcp did not answer an MCP initialize request yet"
+          fi

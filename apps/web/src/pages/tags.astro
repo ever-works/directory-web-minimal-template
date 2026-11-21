@@ -1,43 +1,43 @@
 ---
 /**
- * Tags Index Page — Lists all active tags with item counts.
+ * Tags Index — every used tag as a chip with its item count, most used first.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getContent } from '../lib/content';
-import { generateJsonLd } from '@ever-works/plugin-seo';
+import { getSite } from '../lib/site';
+import { breadcrumbJsonLd } from '../lib/structured-data';
 import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
-import TagList from '@ever-works/ui/astro/TagList.astro';
 import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
 
-const { tags, config } = await getContent();
-
-const siteUrl = (config.app_url ?? '').replace(/\/$/, '');
-const breadcrumbItems = [
-    { label: 'Home', href: '/' },
-    { label: 'Tags' },
-];
-const breadcrumbLd = generateJsonLd('BreadcrumbList', {
-    type: 'BreadcrumbList',
-    items: [
-        { name: 'Home', url: `${siteUrl}/` },
-        { name: 'Tags', url: `${siteUrl}/tags` },
-    ],
-});
+const site = await getSite();
+const { config, tags } = site.content;
+const used = tags.filter((t) => t.count > 0).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+const description = `Browse ${config.company_name} by tag: ${used
+    .slice(0, 8)
+    .map((t) => t.name)
+    .join(', ')}${used.length > 8 ? ` and ${used.length - 8} more` : ''}.`;
 ---
 
-<BaseLayout title="Tags" config={config}>
-    <Fragment slot="head">
-        <script is:inline type="application/ld+json" set:html={breadcrumbLd} />
-    </Fragment>
-    <Breadcrumbs items={breadcrumbItems} />
+<BaseLayout
+    title={`Tags — ${used.length} tags`}
+    description={description}
+    canonicalUrl="/tags"
+    jsonLd={[breadcrumbJsonLd(site, [{ name: 'Home', path: '/' }, { name: 'Tags', path: '/tags' }])]}
+>
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Tags' }]} />
 
     <section data-component="tags-page">
         <h1 data-part="heading">Tags</h1>
-
-        {tags.length === 0 ? (
+        <p style="color:var(--muted-foreground);margin-bottom:1.5rem">{used.length} tags</p>
+        {used.length === 0 ? (
             <EmptyState message="No tags defined." />
         ) : (
-            <TagList tags={tags} showCounts />
+            <div class="dw-tag-cloud" data-component="tag-list" style="gap:0.5rem">
+                {used.map((tag) => (
+                    <a href={`/tag/${encodeURIComponent(tag.id)}`} class="dw-chip" style="font-size:0.875rem;padding:0.35rem 0.85rem" data-part="tag">
+                        #{tag.name} <span class="dw-chip-count">{tag.count}</span>
+                    </a>
+                ))}
+            </div>
         )}
     </section>
 </BaseLayout>

@@ -1,0 +1,126 @@
+---
+/**
+ * DirectoryFooter — multi-column site footer: brand column (logo, description, social links, optional newsletter),
+ * link columns supplied by the page (e.g. Browse / Explore / Resources), and a bottom bar with copyright, version,
+ * theme selector and attribution.
+ *
+ * Hooks: `[data-component="site-footer"]`, `[data-part="brand"|"column"|"social"|"newsletter"|"bottom"|
+ * "copyright"|"version"|"theme-select"|"attribution"]`.
+ *
+ * @example
+ * ```astro
+ * <DirectoryFooter name="Awesome CRM" description="…" columns={[{ title: 'Browse', links: [...] }]} year={2026} />
+ * ```
+ */
+import Icon from './Icon.astro';
+import SiteLogo from './SiteLogo.astro';
+import type { IconName } from '../lib/icons';
+
+/** A footer link. */
+export interface FooterLink {
+    label: string;
+    href: string;
+    external?: boolean;
+}
+
+/** A footer column. */
+export interface FooterColumn {
+    title: string;
+    links: FooterLink[];
+}
+
+interface Props {
+    name: string;
+    logo?: { logo_image?: string; logo_image_dark?: string } | undefined;
+    description?: string | undefined;
+    columns: FooterColumn[];
+    year: number;
+    version?: string | undefined;
+    themeSelector?: boolean;
+    social?: Partial<Record<'github' | 'x' | 'linkedin' | 'facebook' | 'youtube' | 'discord' | 'website' | 'email', string>>;
+    /** Newsletter form action URL (POST, field `email`) */
+    newsletterUrl?: string | undefined;
+    /** Attribution link (default: Ever Works) */
+    attribution?: { label: string; href: string } | null;
+}
+
+const {
+    name,
+    logo,
+    description,
+    columns,
+    year,
+    version,
+    themeSelector = true,
+    social = {},
+    newsletterUrl,
+    attribution = { label: 'Ever Works', href: 'https://ever.works' }
+} = Astro.props;
+
+const socialIcons: Array<{ key: keyof NonNullable<Props['social']>; icon: IconName; label: string }> = [
+    { key: 'github', icon: 'github', label: 'GitHub' },
+    { key: 'x', icon: 'x-logo', label: 'X (Twitter)' },
+    { key: 'linkedin', icon: 'linkedin', label: 'LinkedIn' },
+    { key: 'facebook', icon: 'facebook', label: 'Facebook' },
+    { key: 'youtube', icon: 'youtube', label: 'YouTube' },
+    { key: 'discord', icon: 'discord', label: 'Discord' },
+    { key: 'website', icon: 'globe', label: 'Website' },
+    { key: 'email', icon: 'mail', label: 'Email' }
+];
+const socialLinks = socialIcons
+    .filter((entry) => social[entry.key])
+    .map((entry) => ({ ...entry, href: entry.key === 'email' ? `mailto:${social.email}` : (social[entry.key] as string) }));
+const external = (link: FooterLink) => (link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {});
+---
+
+<footer class="dw-footer" data-component="site-footer">
+    <div class="dw-container">
+        <div class="dw-footer-grid">
+            <div class="dw-footer-brand" data-part="brand">
+                <SiteLogo name={name} logo={logo} />
+                {description && <p data-part="description">{description}</p>}
+                {socialLinks.length > 0 && (
+                    <div class="dw-social" data-part="social">
+                        {socialLinks.map((entry) => (
+                            <a href={entry.href} class="dw-icon-btn" aria-label={entry.label} title={entry.label} {...(entry.key === 'email' ? {} : { target: '_blank', rel: 'noopener noreferrer me' })}>
+                                <Icon name={entry.icon} class="dw-icon-sm" />
+                            </a>
+                        ))}
+                    </div>
+                )}
+                {newsletterUrl && (
+                    <form class="dw-newsletter" data-part="newsletter" action={newsletterUrl} method="post" target="_blank">
+                        <label class="sr-only" for="dw-newsletter-email">Email address</label>
+                        <input id="dw-newsletter-email" class="dw-input" type="email" name="email" required placeholder="you@example.com" autocomplete="email" />
+                        <button type="submit" class="dw-btn dw-btn-primary">Subscribe</button>
+                    </form>
+                )}
+            </div>
+            {columns.filter((column) => column.links.length > 0).map((column) => (
+                <nav data-part="column" aria-label={column.title}>
+                    <h2>{column.title}</h2>
+                    <ul>
+                        {column.links.map((link) => (
+                            <li><a href={link.href} {...external(link)}>{link.label}</a></li>
+                        ))}
+                    </ul>
+                </nav>
+            ))}
+        </div>
+        <div class="dw-footer-bottom" data-part="bottom">
+            <p data-part="copyright">&copy; {year} {name} · All rights reserved{version && <span data-part="version"> · v{version}</span>}</p>
+            <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+                {themeSelector && (
+                    <div class="dw-segmented" role="group" aria-label="Color theme" data-part="theme-select" style="padding:0.2rem">
+                        <button type="button" data-pref="theme" data-value="light" aria-pressed="false" aria-label="Light theme" title="Light"><Icon name="sun" class="dw-icon-sm" /></button>
+                        <button type="button" data-pref="theme" data-value="dark" aria-pressed="false" aria-label="Dark theme" title="Dark"><Icon name="moon" class="dw-icon-sm" /></button>
+                        <button type="button" data-pref="theme" data-value="system" aria-pressed="false" aria-label="System theme" title="System"><Icon name="monitor" class="dw-icon-sm" /></button>
+                    </div>
+                )}
+                {attribution && (
+                    <p data-part="attribution">Built with <a href={attribution.href} style="text-decoration:underline" target="_blank" rel="noopener">{attribution.label}</a></p>
+                )}
+            </div>
+        </div>
+    </div>
+</footer>

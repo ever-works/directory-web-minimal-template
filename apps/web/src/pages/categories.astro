@@ -1,43 +1,39 @@
 ---
 /**
- * Categories Index Page — Lists all categories with item counts.
+ * Categories Index — every category as a card (icon, name, item count).
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getContent } from '../lib/content';
-import { generateJsonLd } from '@ever-works/plugin-seo';
+import { getSite } from '../lib/site';
+import { breadcrumbJsonLd } from '../lib/structured-data';
 import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
-import CategoryList from '@ever-works/ui/astro/CategoryList.astro';
+import CategoryCards from '@ever-works/ui/astro/CategoryCards.astro';
 import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
 
-const { categories, config } = await getContent();
-
-const siteUrl = (config.app_url ?? '').replace(/\/$/, '');
-const breadcrumbItems = [
-    { label: 'Home', href: '/' },
-    { label: 'Categories' },
-];
-const breadcrumbLd = generateJsonLd('BreadcrumbList', {
-    type: 'BreadcrumbList',
-    items: [
-        { name: 'Home', url: `${siteUrl}/` },
-        { name: 'Categories', url: `${siteUrl}/categories` },
-    ],
-});
+const site = await getSite();
+const { config, categories } = site.content;
+const used = categories.filter((c) => c.count > 0);
+const noun = config.items_name.toLowerCase();
+const description = `All ${used.length} categories of ${config.company_name}: ${used
+    .slice(0, 6)
+    .map((c) => c.name)
+    .join(', ')}${used.length > 6 ? ' and more' : ''}. Browse ${site.content.items.length} ${noun} by category.`;
 ---
 
-<BaseLayout title="Categories" config={config}>
-    <Fragment slot="head">
-        <script is:inline type="application/ld+json" set:html={breadcrumbLd} />
-    </Fragment>
-    <Breadcrumbs items={breadcrumbItems} />
+<BaseLayout
+    title={`Categories — ${used.length} categories`}
+    description={description}
+    canonicalUrl="/categories"
+    jsonLd={[breadcrumbJsonLd(site, [{ name: 'Home', path: '/' }, { name: 'Categories', path: '/categories' }])]}
+>
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Categories' }]} />
 
     <section data-component="categories-page">
         <h1 data-part="heading">Categories</h1>
-
-        {categories.length === 0 ? (
+        <p style="color:var(--muted-foreground);margin-bottom:1.5rem">{used.length} categories · {site.content.items.length} {noun}</p>
+        {used.length === 0 ? (
             <EmptyState message="No categories defined." />
         ) : (
-            <CategoryList categories={categories} showCounts />
+            <CategoryCards categories={used} itemName={config.item_name} itemsName={config.items_name} />
         )}
     </section>
 </BaseLayout>

@@ -34,4 +34,17 @@
  * Collections/compare:[data-component="collections-page"], [data-component="collection-page"],
  *                     [data-component="comparisons-page"], [data-component="comparison-card"]
  * System states:      [data-component="empty-state"], [data-component="not-found"]
+ * Listing browser:    [data-component="directory-browser"] with [data-part="sidebar"|"category-chips"|
+ *                     "toolbar"|"search"|"tag-filter"|"sort"|"view-toggle"|"result-count"|
+ *                     "active-filters"|"results"|"pagination"]
+ * Header extras:      [data-component="search-dialog"], [data-component="display-settings"],
+ *                     [data-component="theme-toggle"], [data-component="mobile-menu"],
+ *                     [data-part="search-trigger"], [data-part="submit"]
+ * Item page:          [data-component="item-detail"], [data-component="similar-items"],
+ *                     [data-component="share-links"], [data-part="gallery"|"info"|"sticky-cta"]
+ * Other:              [data-component="category-cards"], [data-component="submit-form"],
+ *                     [data-component="submit-cta"], [data-component="featured-section"],
+ *                     [data-component="back-to-top"], [data-component="legal-page"]
+ * Visitor prefs:      html[data-layout="classic|grid"], html[data-view="grid|list|compact"],
+ *                     html[data-width="fixed|full"], html[data-pagination="standard|infinite"]
  */

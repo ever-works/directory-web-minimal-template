@@ -1,0 +1,51 @@
+---
+/**
+ * CategoryIcon — renders a category's `icon_svg` (written by the Ever Works platform into categories.yml) safely.
+ *
+ * The SVG is never injected as markup: it becomes a `data:` URL used as a CSS mask, so it cannot run script or load
+ * anything, and it is painted with `currentColor` (works in light and dark mode). Falls back to `icon_url` as a mask,
+ * then to the category's initial.
+ *
+ * @example
+ * ```astro
+ * <CategoryIcon name={category.name} svg={category.icon_svg} />
+ * ```
+ */
+import { initialOf } from '../lib/directory-format';
+
+interface Props {
+    name: string;
+    svg?: string | null;
+    url?: string | null;
+    class?: string;
+}
+
+const { name, svg, url, class: className } = Astro.props;
+
+function svgMask(raw: string | null | undefined): string | null {
+    if (!raw) return null;
+    const trimmed = raw.trim();
+    if (!/^<svg[\s>]/i.test(trimmed) || trimmed.length > 20000) return null;
+    return `url("data:image/svg+xml,${encodeURIComponent(trimmed).replace(/'/g, '%27').replace(/"/g, '%22')}")`;
+}
+
+function urlMask(raw: string | null | undefined): string | null {
+    if (!raw || !/^https?:\/\/[^\s"'()]+$/i.test(raw.trim())) return null;
+    return `url("${raw.trim()}")`;
+}
+
+const mask = svgMask(svg) ?? urlMask(url);
+---
+
+{mask ? (
+    <span class:list={['dw-category-icon', className]} data-part="category-icon" aria-hidden="true">
+        <span style={`--dw-icon:${mask}`} />
+    </span>
+) : (
+    <span
+        class:list={['dw-category-icon', className]}
+        data-part="category-icon"
+        data-initial={initialOf(name)}
+        aria-hidden="true"
+    />
+)}

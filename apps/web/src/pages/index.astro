@@ -1,76 +1,120 @@
 ---
 /**
- * Home Page — Lists all approved items with basic navigation.
+ * Home Page — hero (title, description, search, stats), featured items, the directory browser (Classic or Modern
+ * Grid layout, filters, sort, pagination), "Browse by category" cards and a submit call to action.
  *
- * Shows a hero section, category navigation, and a paginated grid
- * of all directory items. Uses plugin-pagination for page slicing
- * and plugin-seo for structured data.
+ * Page 1 is fully server-rendered (crawlable, works without JS); `/page/N` renders the following pages. Visitors'
+ * filters/search run client-side over the compact index (`/data/search-index.json`).
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getContent } from '../lib/content';
-import { paginate } from '@ever-works/plugin-pagination';
-import { generateJsonLd } from '@ever-works/plugin-seo';
-import Hero from '@ever-works/ui/astro/Hero.astro';
-import CategoryList from '@ever-works/ui/astro/CategoryList.astro';
-import ItemGrid from '@ever-works/ui/astro/ItemGrid.astro';
-import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
-import Pagination from '@ever-works/ui/astro/Pagination.astro';
+import { getSite } from '../lib/site';
+import { collectionPageJsonLd, websiteJsonLd } from '../lib/structured-data';
+import { sortItems } from '@ever-works/agent-api/search';
+import Icon from '@ever-works/ui/astro/Icon.astro';
+import DirectoryBrowser from '@ever-works/ui/astro/DirectoryBrowser.astro';
+import DirectoryCard from '@ever-works/ui/astro/DirectoryCard.astro';
+import CategoryCards from '@ever-works/ui/astro/CategoryCards.astro';
 
-const { items, categories, config } = await getContent();
+const site = await getSite();
+const { content, settings } = site;
+const { config, items, categories, tags } = content;
+const noun = config.items_name.toLowerCase();
 
-/** Hero title: prefer config.homepage.hero_title, fall back to company name */
-const heroTitle = config.homepage?.hero_title ?? config.company_name;
+const sorted = sortItems(items, settings.homepage.defaultSort, (item) => ({
+    name: item.name,
+    featured: item.featured === true,
+    updated: item.updated_at
+}));
+const perPage = settings.itemsPerPage;
+const totalPages = Math.max(1, Math.ceil(sorted.length / perPage));
+const firstPage = sorted.slice(0, perPage).map(site.card);
+const featured = settings.sections.featured ? sorted.filter((item) => item.featured === true).slice(0, 6).map(site.card) : [];
+const visibleCategories = settings.sections.categories ? categories : [];
+const visibleTags = settings.sections.tags ? tags : [];
+const categoryCount = visibleCategories.filter((c) => c.count > 0).length;
 
-/** Hero subtitle: prefer config.homepage.hero_description, fall back to item count */
-const heroSubtitle = config.homepage?.hero_description
-    ?? `Browse ${items.length} ${items.length === 1 ? config.item_name : config.items_name}`;
-
-// Paginate items — page 1 of the full listing
-const perPage = config.pagination?.itemsPerPage ?? 12;
-const pagination = paginate(items, { page: 1, perPage });
-const totalPages = Math.ceil(items.length / perPage);
-
-// JSON-LD for the homepage
-const siteUrl = (config.app_url ?? '').replace(/\/$/, '');
-const jsonLd = generateJsonLd('WebSite', {
-    type: 'WebSite',
-    name: config.company_name,
-    url: config.app_url ?? '',
-});
-const breadcrumbLd = generateJsonLd('BreadcrumbList', {
-    type: 'BreadcrumbList',
-    items: [{ name: 'Home', url: `${siteUrl}/` }],
-});
+const heroTitle = settings.homepage.heroTitle ?? config.company_name;
+const clause = site.description.split(/[:.!?]/)[0]?.trim() ?? '';
+const pageTitle =
+    clause && clause.length <= 70 && clause.toLowerCase() !== config.company_name.toLowerCase()
+        ? `${config.company_name} — ${clause}`
+        : `${config.company_name} — ${items.length} ${config.items_name} by category`;
 ---
 
-<BaseLayout title="Home" config={config}>
-    <Fragment slot="head">
-        <script is:inline type="application/ld+json" set:html={jsonLd} />
-        <script is:inline type="application/ld+json" set:html={breadcrumbLd} />
-    </Fragment>
+<BaseLayout
+    title={pageTitle}
+    fullTitle
+    description={site.description}
+    canonicalUrl="/"
+    jsonLd={[
+        websiteJsonLd(site),
+        collectionPageJsonLd(site, { name: config.company_name, description: site.description, path: '/' }, firstPage)
+    ]}
+>
+    {settings.homepage.heroEnabled && (
+        <section class="dw-hero" data-component="hero">
+            <h1 data-part="title">{heroTitle}</h1>
+            <p data-part="subtitle">{site.heroSubtitle}</p>
+            {settings.homepage.searchEnabled && items.length > 0 && (
+                <form class="dw-hero-search" role="search" action="/" method="get" data-part="search">
+                    <Icon name="search" />
+                    <label class="sr-only" for="hero-q">Search {noun}</label>
+                    <input id="hero-q" class="dw-input" type="search" name="q" placeholder={`Search ${items.length} ${noun}`} autocomplete="off" data-browser-search />
+                </form>
+            )}
+            <p class="dw-stats" data-part="stats">
+                <span><strong>{items.length}</strong> {noun}</span>
+                {categoryCount > 0 && <span><strong>{categoryCount}</strong> categories</span>}
+                {visibleTags.length > 0 && <span><strong>{visibleTags.filter((t) => t.count > 0).length}</strong> tags</span>}
+            </p>
+        </section>
+    )}
+    {!settings.homepage.heroEnabled && <h1 class="sr-only">{heroTitle}</h1>}
 
-    <Hero
-        title={heroTitle}
-        subtitle={heroSubtitle}
-    />
-
-    {categories.length > 0 && (
-        <section data-component="category-nav">
-            <h2 data-part="heading">Categories</h2>
-            <CategoryList categories={categories} showCounts />
+    {featured.length > 0 && featured.length < items.length && (
+        <section class="dw-section" style="margin-top:1rem" data-component="featured-section" aria-labelledby="featured-heading">
+            <div class="dw-section-head"><h2 id="featured-heading">Featured</h2></div>
+            <div class="dw-results">
+                {featured.map((card) => <DirectoryCard item={card} />)}
+            </div>
         </section>
     )}
 
-    <section data-component="item-listing">
-        <h2 data-part="heading">All {config.items_name}</h2>
-        {pagination.items.length === 0 ? (
-            <EmptyState message={`No ${config.items_name.toLowerCase()} found.`} />
-        ) : (
-            <ItemGrid items={pagination.items} columns={3} />
-        )}
+    <div class="dw-section" style="margin-top:2rem" data-component="item-listing" id="listing">
+        <DirectoryBrowser
+            items={firstPage}
+            total={sorted.length}
+            perPage={perPage}
+            currentPage={1}
+            totalPages={totalPages}
+            pageHref={(page) => (page === 1 ? '/' : `/page/${page}`)}
+            categories={visibleCategories}
+            tags={visibleTags}
+            basePath="/"
+            itemsName={config.items_name}
+            defaultSort={settings.homepage.defaultSort}
+            searchEnabled={settings.homepage.searchEnabled}
+            heading={`All ${noun}`}
+        />
+    </div>
 
-        {totalPages > 1 && (
-            <Pagination currentPage={1} totalPages={totalPages} baseUrl="/" />
-        )}
-    </section>
+    {categoryCount > 1 && (
+        <section class="dw-section" data-component="category-nav" aria-labelledby="categories-heading">
+            <div class="dw-section-head">
+                <h2 id="categories-heading">Browse by category</h2>
+                <a href="/categories">All categories →</a>
+            </div>
+            <CategoryCards categories={visibleCategories} itemName={config.item_name} itemsName={config.items_name} />
+        </section>
+    )}
+
+    {site.submitHref && (
+        <section class="dw-cta-band" data-component="submit-cta">
+            <div>
+                <h2>Know {/^[aeiou]/i.test(config.item_name) ? 'an' : 'a'} {config.item_name.toLowerCase()} that belongs here?</h2>
+                <p>Suggest it — every submission is reviewed before it is listed</p>
+            </div>
+            <a href={site.submitHref} class="dw-btn dw-btn-primary"><Icon name="plus" class="dw-icon-sm" />Submit {config.item_name.toLowerCase()}</a>
+        </section>
+    )}
 </BaseLayout>

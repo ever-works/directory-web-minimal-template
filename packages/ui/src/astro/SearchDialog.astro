@@ -1,0 +1,50 @@
+---
+/**
+ * SearchDialog — the site-wide quick-search `<dialog>` (opened by `[data-open-search]`, `/`, or `Ctrl/⌘+K`).
+ * Results come from the lazily loaded compact index; see `client/search-dialog.ts`.
+ *
+ * @example
+ * ```astro
+ * <SearchDialog itemsName="Tools" listingPath="/" />
+ * ```
+ */
+import Icon from './Icon.astro';
+
+interface Props {
+    /** Plural item noun for the placeholder */
+    itemsName: string;
+    /** Path of the full listing that accepts `?q=` (default `/`) */
+    listingPath?: string;
+}
+
+const { itemsName, listingPath = '/' } = Astro.props;
+---
+
+<dialog class="dw-dialog" data-component="search-dialog" data-listing-path={listingPath} aria-label={`Search ${itemsName.toLowerCase()}`}>
+    <div class="dw-dialog-search">
+        <Icon name="search" />
+        <input
+            type="search"
+            data-part="search-input"
+            placeholder={`Search ${itemsName.toLowerCase()}, categories and tags`}
+            autocomplete="off"
+            spellcheck="false"
+            role="combobox"
+            aria-expanded="true"
+            aria-controls="dw-search-results"
+            aria-autocomplete="list"
+            aria-label={`Search ${itemsName.toLowerCase()}`}
+        />
+        <button type="button" class="dw-icon-btn" data-close-search aria-label="Close search"><Icon name="x" /></button>
+    </div>
+    <div class="dw-dialog-results" id="dw-search-results" role="listbox" data-part="search-results" aria-label="Search results"></div>
+    <div class="dw-dialog-footer">
+        <span><span class="dw-kbd">↑</span> <span class="dw-kbd">↓</span> to navigate · <span class="dw-kbd">Enter</span> to open</span>
+        <a href={listingPath} data-part="see-all" style="text-decoration:underline">See all results</a>
+    </div>
+</dialog>
+
+<script>
+    import { initSearchDialog } from '../client/search-dialog';
+    initSearchDialog();
+</script>

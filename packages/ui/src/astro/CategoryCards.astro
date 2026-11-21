@@ -1,0 +1,32 @@
+---
+/**
+ * CategoryCards — a grid of category cards (icon, name, item count). Used for "Browse by category" on the homepage
+ * and on `/categories`.
+ *
+ * Hooks: `[data-component="category-cards"]`, `[data-part="category-card"|"category-icon"|"name"|"count"]`.
+ */
+import CategoryIcon from './CategoryIcon.astro';
+
+interface Props {
+    categories: Array<{ id: string; name: string; count: number; description?: string | undefined; icon_svg?: string | undefined; icon_url?: string | undefined }>;
+    itemName: string;
+    itemsName: string;
+    /** Hide empty categories (default true) */
+    hideEmpty?: boolean;
+}
+
+const { categories, itemName, itemsName, hideEmpty = true } = Astro.props;
+const shown = hideEmpty ? categories.filter((c) => c.count > 0) : categories;
+---
+
+<div class="dw-category-cards" data-component="category-cards">
+    {shown.map((c) => (
+        <a href={`/category/${encodeURIComponent(c.id)}`} class="dw-category-card" data-part="category-card">
+            <CategoryIcon name={c.name} svg={c.icon_svg} url={c.icon_url} />
+            <span class="min-w-0">
+                <strong data-part="name">{c.name}</strong>
+                <small data-part="count">{c.count} {(c.count === 1 ? itemName : itemsName).toLowerCase()}</small>
+            </span>
+        </a>
+    ))}
+</div>

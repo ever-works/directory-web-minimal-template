@@ -12,19 +12,21 @@
  */
 
 import type { APIRoute } from 'astro';
-import { getContent } from '../lib/content';
+import { getSite } from '../lib/site';
 import { buildAiCrawlerRules, generateRobotsTxt, resolveAiCrawlerPolicy } from '@ever-works/plugin-seo';
 
+// '/api/' only holds the ISR webhook. The agent data API lives under '/data/' and stays crawlable.
 const SHARED_DISALLOW = ['/api/'] as const;
 
 export const GET: APIRoute = async () => {
-    const { config: siteConfig } = await getContent();
+    const site = await getSite();
 
     const policy = resolveAiCrawlerPolicy(process.env['AI_CRAWLERS']);
     const aiRules = buildAiCrawlerRules(policy, SHARED_DISALLOW);
 
     const txt = generateRobotsTxt({
-        siteUrl: siteConfig.app_url ?? '',
+        // Absolute Sitemap: line (SITE_URL, else app_url) — a relative sitemap URL is ignored by crawlers.
+        siteUrl: site.siteUrl,
         rules: [
             { userAgent: '*', allow: ['/'], disallow: [...SHARED_DISALLOW] },
             ...aiRules,
