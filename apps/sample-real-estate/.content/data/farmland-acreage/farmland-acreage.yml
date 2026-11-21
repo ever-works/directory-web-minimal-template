@@ -1,0 +1,17 @@
+name: "Farmland Acreage"
+description: "Productive farmland with irrigation rights and fertile soil. Includes a small barn, equipment shed, and well. Currently leased for organic vegetable farming."
+source_url: "https://dreamproperties.example.com/farmland"
+category: "land"
+tags: ["investment", "suburban", "pet-friendly"]
+updated_at: "2026-02-18 10:00"
+status: "approved"
+featured: false
+meta:
+  price: "$320,000"
+  bedrooms: "N/A"
+  bathrooms: "N/A"
+  sqft: "N/A"
+  location: "Willamette Valley, OR"
+  year_built: "N/A"
+  lot_size: "10 acres"
+  mls_number: "DP-2026-010"

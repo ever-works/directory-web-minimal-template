@@ -1,0 +1,8 @@
+name: "Material UI"
+description: "Ready-to-use foundational React components implementing Google's Material Design."
+source_url: "https://mui.com"
+category: "form-components"
+tags: ["typescript", "accessible", "styled", "open-source", "design-system"]
+updated_at: "2026-01-03 10:00"
+status: "approved"
+featured: false

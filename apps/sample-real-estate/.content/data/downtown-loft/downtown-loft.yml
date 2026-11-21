@@ -1,0 +1,17 @@
+name: "Downtown Loft"
+description: "Stunning open-plan loft in a converted warehouse. Exposed brick, 14-foot ceilings, floor-to-ceiling windows with city skyline views. Walking distance to restaurants, galleries, and transit."
+source_url: "https://dreamproperties.example.com/downtown-loft"
+category: "apartment"
+tags: ["downtown", "furnished", "luxury"]
+updated_at: "2026-03-15 10:00"
+status: "approved"
+featured: true
+meta:
+  price: "$485,000"
+  bedrooms: "1"
+  bathrooms: "1"
+  sqft: "1,200"
+  location: "Portland, OR"
+  year_built: "1920 (renovated 2024)"
+  lot_size: "N/A"
+  mls_number: "DP-2026-001"

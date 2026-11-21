@@ -1,0 +1,17 @@
+name: "Suburban Family Home"
+description: "Spacious 4-bedroom home on a quiet cul-de-sac. Updated kitchen with granite countertops, hardwood floors throughout, large fenced backyard perfect for kids and pets."
+source_url: "https://dreamproperties.example.com/suburban-family-home"
+category: "house"
+tags: ["suburban", "garden", "parking", "pet-friendly"]
+updated_at: "2026-03-10 10:00"
+status: "approved"
+featured: true
+meta:
+  price: "$625,000"
+  bedrooms: "4"
+  bathrooms: "2.5"
+  sqft: "2,400"
+  location: "Austin, TX"
+  year_built: "2018"
+  lot_size: "0.25 acres"
+  mls_number: "DP-2026-002"

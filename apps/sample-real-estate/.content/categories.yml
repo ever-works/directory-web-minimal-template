@@ -1,0 +1,15 @@
+- id: "apartment"
+  name: "Apartment"
+  description: "Condos, lofts, and multi-unit dwellings in urban locations"
+
+- id: "house"
+  name: "House"
+  description: "Single-family homes, townhouses, and detached residences"
+
+- id: "commercial"
+  name: "Commercial"
+  description: "Office spaces, retail units, and mixed-use properties"
+
+- id: "land"
+  name: "Land"
+  description: "Vacant lots, development parcels, and agricultural land"

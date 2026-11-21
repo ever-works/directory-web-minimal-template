@@ -1,0 +1,49 @@
+- id: "remote"
+  name: "Remote"
+  description: "Fully remote, work from anywhere in the listed time zones"
+  isActive: true
+
+- id: "full-time"
+  name: "Full-Time"
+  description: "Permanent full-time employment"
+  isActive: true
+
+- id: "part-time"
+  name: "Part-Time"
+  description: "Permanent part-time employment"
+  isActive: true
+
+- id: "contract"
+  name: "Contract"
+  description: "Fixed-term or freelance contract"
+  isActive: true
+
+- id: "senior"
+  name: "Senior"
+  description: "Five or more years of relevant experience"
+  isActive: true
+
+- id: "junior"
+  name: "Junior"
+  description: "Entry level, up to two years of experience"
+  isActive: true
+
+- id: "mid-level"
+  name: "Mid-Level"
+  description: "Two to five years of relevant experience"
+  isActive: true
+
+- id: "startup"
+  name: "Startup"
+  description: "Company with fewer than 500 employees"
+  isActive: true
+
+- id: "enterprise"
+  name: "Enterprise"
+  description: "Company with 500 or more employees"
+  isActive: true
+
+- id: "visa-sponsor"
+  name: "Visa Sponsor"
+  description: "Sponsors work visas or relocation for this role"
+  isActive: true

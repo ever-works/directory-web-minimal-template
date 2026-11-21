@@ -3,7 +3,8 @@ import { test, expect } from '@playwright/test';
 /**
  * Git sample — static pages E2E tests.
  * Verifies pages/[slug] route for sample-git data:
- * - .content/pages/about.en.md → /pages/about.en/ (title: "About Time Tracking Directory")
+ * - .content/pages/about.en.md → /pages/about.en/ (title starts with "About"; the remote data repo owns the
+ *   site name, which changed from "Time Tracking Directory" to "Awesome Time Tracking", so it is not pinned)
  * - .content/pages/cookies.en.md → /pages/cookies.en/ (title: "Cookie Policy")
  * - .content/pages/privacy-policy.en.md → /pages/privacy-policy.en/ (title: "Privacy Policy")
  * - .content/pages/terms-of-service.en.md → /pages/terms-of-service.en/ (title: "Terms of Service")
@@ -12,7 +13,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Git Static Pages', () => {
 	test('should render about page', async ({ page }) => {
 		await page.goto('/pages/about.en/');
-		await expect(page).toHaveTitle(/About Time Tracking Directory/);
+		await expect(page).toHaveTitle(/^About /);
 		const heading = page.locator('h1').first();
 		await expect(heading).toBeVisible();
 	});

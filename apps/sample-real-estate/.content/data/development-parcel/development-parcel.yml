@@ -1,0 +1,17 @@
+name: "Development Parcel"
+description: "Prime development land zoned for mixed-use. Utilities at the lot line, environmental assessment completed, and architectural plans available for a 12-unit residential project."
+source_url: "https://dreamproperties.example.com/dev-parcel"
+category: "land"
+tags: ["investment", "downtown", "new-build"]
+updated_at: "2026-02-25 10:00"
+status: "approved"
+featured: false
+meta:
+  price: "$750,000"
+  bedrooms: "N/A"
+  bathrooms: "N/A"
+  sqft: "N/A"
+  location: "Portland, OR"
+  year_built: "N/A"
+  lot_size: "0.4 acres"
+  mls_number: "DP-2026-008"

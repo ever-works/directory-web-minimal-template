@@ -1,0 +1,40 @@
+title: "shadcn/ui vs Chakra UI"
+item_a_slug: "shadcn-ui"
+item_b_slug: "chakra-ui"
+item_a_name: "shadcn/ui"
+item_b_name: "Chakra UI"
+summary: "Copy-in components you own versus an installed, themeable component library."
+verdict: "shadcn/ui comes out ahead for most new projects: you own the component code, it builds on Radix UI primitives and Tailwind CSS, and it adds nothing to your dependency tree. Chakra UI remains a strong choice when a team wants a ready-made theme system."
+verdict_winner: "item_a"
+dimensions:
+  - name: "Customization"
+    item_a_summary: "Components are copied into your codebase and edited freely"
+    item_b_summary: "Theme tokens and style props cover most needs"
+    item_a_score: 10
+    item_b_score: 8
+    winner: "item_a"
+  - name: "Accessibility"
+    item_a_summary: "Inherits the accessibility of Radix UI primitives"
+    item_b_summary: "Accessible components with built-in focus handling"
+    item_a_score: 9
+    item_b_score: 9
+    winner: "tie"
+  - name: "Styling Approach"
+    item_a_summary: "Tailwind CSS utility classes"
+    item_b_summary: "Style props backed by a theme system"
+    item_a_score: 8
+    item_b_score: 8
+    winner: "tie"
+  - name: "Bundle Size"
+    item_a_summary: "Only the components you add, no runtime library"
+    item_b_summary: "Ships the component library and its styling runtime"
+    item_a_score: 9
+    item_b_score: 6
+    winner: "item_a"
+  - name: "Learning Curve"
+    item_a_summary: "Familiar if you already know Tailwind CSS"
+    item_b_summary: "Style props are quick to learn"
+    item_a_score: 8
+    item_b_score: 8
+    winner: "tie"
+generated_at: "2026-03-20"
