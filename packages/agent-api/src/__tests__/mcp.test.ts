@@ -124,7 +124,7 @@ describe('MCP transport', () => {
             { loadDataset: async () => Promise.reject(new Error('assets down')) }
         );
         const body = await failing.json();
-        expect(body.error).toEqual({ code: -32603, message: 'Internal error: assets down' });
+        expect(body.error).toEqual({ code: -32603, message: 'Internal error: the directory data could not be loaded' });
     });
 });
 

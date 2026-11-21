@@ -95,8 +95,10 @@ interface TagEntry { id: string; name: string; count: number; url: string }
 ### MCP (`/mcp`)
 
 - Transport: MCP **Streamable HTTP**, stateless (no `Mcp-Session-Id`), every response is a single
-  `application/json` JSON-RPC message. `GET /mcp` → `405` with `Allow: POST`; `OPTIONS` → `204` CORS preflight;
-  CORS `*` on every response.
+  `application/json` JSON-RPC message. `GET /mcp` → `405` with `Allow: POST, OPTIONS`; `OPTIONS` → `204` CORS
+  preflight; CORS `*` on every response. Client responses (`result`/`error`, no `method`) → `202`; a `null` request
+  id → `-32600`; internal errors use a generic message (no file paths or upstream URLs). An optional
+  `allowedOrigins` list enables an `Origin` check (off by default: public, read-only data).
 - Methods: `initialize` (negotiates `protocolVersion` from `2025-11-25`, `2025-06-18`, `2025-03-26`, `2024-11-05`;
   unknown → latest), `notifications/*` → `202` empty body, `ping`, `tools/list`, `tools/call`. Unknown method →
   JSON-RPC error `-32601`. Batches are not supported (`-32600`).
@@ -108,7 +110,7 @@ interface TagEntry { id: string; name: string; count: number; url: string }
 | --- | --- | --- |
 | `get_directory_info` | `{}` | `DirectoryInfo` |
 | `search_items` | `{ query: string; category?: string; tag?: string; limit?: number (1-50, default 10) }` | `{ total, items: ItemSummary[] }` ranked by relevance |
-| `list_items` | `{ category?: string; tag?: string; featured?: boolean; offset?: number; limit?: number (1-100, default 25) }` | `{ total, offset, limit, items: ItemSummary[] }` |
+| `list_items` | `{ category?: string; tag?: string; featured?: boolean; sort?: 'featured' \| 'name-asc' \| 'name-desc' \| 'date-desc' \| 'date-asc'; offset?: number; limit?: number (1-100, default 25) }` | `{ total, offset, limit, items: ItemSummary[] }` |
 | `get_item` | `{ slug: string }` | `ItemDetail` (`isError: true` when not found) |
 | `list_categories` | `{}` | `{ total, categories: CategoryEntry[] }` |
 | `list_tags` | `{ limit?: number }` | `{ total, tags: TagEntry[] }` sorted by count desc |

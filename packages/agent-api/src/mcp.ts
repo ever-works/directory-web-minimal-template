@@ -394,8 +394,8 @@ export async function handleMcpRequest(request: Request, options: McpHandlerOpti
             default:
                 return rpcError(id, -32601, `Method not found: ${rpc.method}`);
         }
-    } catch (error) {
-        const detail = error instanceof Error ? error.message : String(error);
-        return rpcError(id, -32603, `Internal error: ${detail}`);
+    } catch {
+        // Generic message: loader errors can carry file paths or upstream URLs that callers should not see.
+        return rpcError(id, -32603, 'Internal error: the directory data could not be loaded');
     }
 }
