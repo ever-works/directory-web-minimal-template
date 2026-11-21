@@ -1,0 +1,55 @@
+---
+/**
+ * SiteSearch — full-text search over the directory's items.
+ *
+ * Uses the Pagefind index that `@ever-works/plugin-search` already builds into `/pagefind/` after every static
+ * build, so it needs no server and works on any static host (Cloudflare Workers assets, Vercel, nginx).
+ * Only item pages are indexed: `ItemDetail` marks its article with `data-pagefind-body`, and Pagefind drops every
+ * page without that marker from the index once one page has it.
+ *
+ * Styling goes through the `--pagefind-ui-*` variables, mapped to the theme tokens in global.css, and the
+ * `[data-component="site-search"]` hook (theme.css can restyle it).
+ *
+ * @example
+ * ```astro
+ * <Hero title="…"><SiteSearch placeholder="Search 120 tools" /></Hero>
+ * ```
+ */
+interface Props {
+    /** Placeholder text of the search field */
+    placeholder?: string;
+    /** Where the Pagefind bundle is served (default `/pagefind/`) */
+    bundlePath?: string;
+    class?: string;
+}
+
+const { placeholder = 'Search…', bundlePath = '/pagefind/', class: className } = Astro.props;
+const base = bundlePath.endsWith('/') ? bundlePath : `${bundlePath}/`;
+---
+
+<div
+    class:list={['mx-auto mt-8 w-full max-w-xl text-left', className]}
+    data-component="site-search"
+    data-placeholder={placeholder}
+>
+    <noscript><a href="/categories">Browse all categories</a></noscript>
+</div>
+<link rel="stylesheet" href={`${base}pagefind-ui.css`} />
+<script is:inline defer src={`${base}pagefind-ui.js`}></script>
+<script is:inline>
+    window.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('[data-component="site-search"]').forEach(function (el) {
+            // The bundle exists only after a production build; in `astro dev` the field is simply absent.
+            if (!window.PagefindUI || el.getAttribute('data-ready')) return;
+            el.setAttribute('data-ready', '1');
+            new window.PagefindUI({
+                element: el,
+                showSubResults: false,
+                showImages: false,
+                resetStyles: false,
+                pageSize: 8,
+                translations: { placeholder: el.getAttribute('data-placeholder') || 'Search…' }
+            });
+        });
+    });
+</script>

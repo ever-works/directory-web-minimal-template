@@ -199,3 +199,18 @@
   [data-part="content"] :where(pre) { background: var(--muted); padding: 1rem; border-radius: var(--radius); overflow-x: auto; }
   [data-part="content"] :where(blockquote) { border-left: 3px solid var(--border); padding-left: 1rem; color: var(--muted-foreground); }
 }
+
+/* Site search (Pagefind UI) mapped to the theme tokens; theme.css can still override. 2026-11-21 */
+@layer components {
+  [data-component="site-search"] {
+    --pagefind-ui-primary: var(--primary);
+    --pagefind-ui-text: var(--foreground);
+    --pagefind-ui-background: var(--background);
+    --pagefind-ui-border: var(--border);
+    --pagefind-ui-tag: var(--muted);
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: var(--radius);
+    --pagefind-ui-font: inherit;
+    --pagefind-ui-scale: 0.85;
+  }
+}

@@ -3,6 +3,20 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-11-21 — Site search, item-only search index, nav hides empty sections, monogram favicon
+
+- **Search on the home page** (`packages/ui/src/astro/SiteSearch.astro`, in the Hero slot of `pages/index.astro`):
+  Pagefind UI over the index `@ever-works/plugin-search` already builds into `/pagefind/` (static, any host). Styled
+  through `--pagefind-ui-*` variables mapped to theme tokens in `global.css`.
+- **Only items are indexed**: `ItemDetail` marks its article `data-pagefind-body` (title from
+  `data-pagefind-meta="title"`), with the meta row and related items `data-pagefind-ignore`. Before, category/tag
+  pages and button labels polluted results. On a 22-item directory the index now holds exactly 22 pages.
+- **Nav hides empty sections**: the default header drops Collections/Comparisons when the directory has none (a
+  freshly generated directory usually has neither, and an empty page behind a top-level link looks broken).
+  `custom_header` is untouched.
+- **Default favicon**: `/favicon.svg` (`pages/favicon.svg.ts`), a monogram of the directory name ("Awesome CRM" →
+  "C"), linked when `logo.favicon` is not set; every generated site previously had no icon.
+
 ## 2026-11-21 — Cloudflare Workers deploy, rendered item markdown, default directory layout
 
 - **Cloudflare deploy** (`.github/workflows/deploy_cloudflare.yaml`, plus a `Cloudflare` job in `deploy_prod.yaml`):

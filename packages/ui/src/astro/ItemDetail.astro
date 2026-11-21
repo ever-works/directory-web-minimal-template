@@ -38,7 +38,7 @@ const { item, relatedItems = [], class: className, ...attrs } = Astro.props;
 const categories = Array.isArray(item.category) ? item.category : [item.category];
 ---
 
-<article class={className} data-component="item-detail" {...attrs}>
+<article class={className} data-component="item-detail" data-pagefind-body {...attrs}>
     <Card>
         <CardHeader>
             <div class="flex items-start gap-4">
@@ -53,7 +53,7 @@ const categories = Array.isArray(item.category) ? item.category : [item.category
                 )}
                 <div class="min-w-0">
                     <CardTitle class="text-2xl">
-                        <span data-part="name">{item.name}</span>
+                        <span data-part="name" data-pagefind-meta="title">{item.name}</span>
                     </CardTitle>
                     {item.description && (
                         <CardDescription data-part="description" class="mt-1">
@@ -65,7 +65,7 @@ const categories = Array.isArray(item.category) ? item.category : [item.category
         </CardHeader>
 
         <CardContent>
-            <div data-part="meta" class="flex flex-wrap items-center gap-2">
+            <div data-part="meta" class="flex flex-wrap items-center gap-2" data-pagefind-ignore>
                 {categories.length > 0 && categories.map((cat) => (
                     <Badge as="a" href={`/category/${taxonomyPath(cat)}`} variant="outline" data-part="category">
                         {cat}
@@ -106,7 +106,7 @@ const categories = Array.isArray(item.category) ? item.category : [item.category
     <slot />
 
     {relatedItems.length > 0 && (
-        <section data-part="related" class="mt-8">
+        <section data-part="related" class="mt-8" data-pagefind-ignore>
             <h2 data-part="related-heading" class="mb-4 text-lg font-semibold">Related Items</h2>
             <div data-part="related-items" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {relatedItems.map((related) => (

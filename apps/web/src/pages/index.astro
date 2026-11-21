@@ -15,6 +15,7 @@ import CategoryList from '@ever-works/ui/astro/CategoryList.astro';
 import ItemGrid from '@ever-works/ui/astro/ItemGrid.astro';
 import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
 import Pagination from '@ever-works/ui/astro/Pagination.astro';
+import SiteSearch from '@ever-works/ui/astro/SiteSearch.astro';
 
 const { items, categories, config } = await getContent();
 
@@ -52,7 +53,9 @@ const breadcrumbLd = generateJsonLd('BreadcrumbList', {
     <Hero
         title={heroTitle}
         subtitle={heroSubtitle}
-    />
+    >
+        <SiteSearch placeholder={`Search ${items.length} ${items.length === 1 ? config.item_name.toLowerCase() : config.items_name.toLowerCase()}`} />
+    </Hero>
 
     {categories.length > 0 && (
         <section data-component="category-nav">

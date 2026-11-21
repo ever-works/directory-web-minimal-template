@@ -12,6 +12,7 @@ import type { PageMeta } from '@ever-works/plugin-seo';
 import SiteHeader from '@ever-works/ui/astro/SiteHeader.astro';
 import SiteFooter from '@ever-works/ui/astro/SiteFooter.astro';
 import MobileMenu from '@ever-works/ui/preact/MobileMenu';
+import { getContent } from '../lib/content';
 import '../styles/global.css';
 import '../styles/theme.css';
 
@@ -63,8 +64,17 @@ const defaultNavItems = [
     { label: 'Comparisons', href: '/comparisons' },
 ];
 
+// Default nav hides sections a directory has no content for yet (a freshly generated directory usually has no
+// collections or comparisons, and an empty page behind a top-level link looks broken). custom_header is kept as is.
+const { collections, comparisons } = await getContent();
+const visibleDefaultNavItems = defaultNavItems.filter(
+    (item) =>
+        (item.href !== '/collections' || collections.length > 0) &&
+        (item.href !== '/comparisons' || comparisons.length > 0)
+);
+
 /** Resolve nav items: prefer config.custom_header, fall back to defaults */
-const navItems = (config.custom_header ?? defaultNavItems).map((item: NavLinkItem | { label: string; href: string }) => ({
+const navItems = (config.custom_header ?? visibleDefaultNavItems).map((item: NavLinkItem | { label: string; href: string }) => ({
     label: item.label,
     href: item.href,
 }));
@@ -90,7 +100,9 @@ const footerLinks: NavLinkItem[] = config.custom_footer ?? [];
         })}
 
         {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
-        {config.logo?.favicon && <link rel="icon" href={config.logo.favicon} />}
+        {config.logo?.favicon
+            ? <link rel="icon" href={config.logo.favicon} />
+            : <link rel="icon" type="image/svg+xml" href="/favicon.svg" />}
 
         {/* Feed autodiscovery — RSS 2.0, Atom 1.0, JSON Feed 1.1 */}
         <link rel="alternate" type="application/rss+xml" title={`${config.company_name} RSS Feed`} href="/rss.xml" />
