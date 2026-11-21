@@ -51,6 +51,11 @@ describe('@ever-works/core barrel exports', () => {
     });
 
     // Logger
+    it('exports renderMarkdown and isSafeMarkdownUrl', () => {
+        expect(typeof core.renderMarkdown).toBe('function');
+        expect(typeof core.isSafeMarkdownUrl).toBe('function');
+    });
+
     it('exports coreLogger and createCoreLogger', () => {
         expect(core.coreLogger).toBeDefined();
         expect(core.createCoreLogger).toBeTypeOf('function');
@@ -62,6 +67,7 @@ describe('@ever-works/core barrel exports', () => {
             'loadItems', 'loadItem', 'loadComparisons', 'loadComparison',
             'loadPages', 'loadPage', 'loadContent', 'ContentCache',
             'coreLogger', 'createCoreLogger',
+            'renderMarkdown', 'isSafeMarkdownUrl',
         ];
         const actualExports = Object.keys(core);
         for (const key of actualExports) {

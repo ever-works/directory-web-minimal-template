@@ -53,3 +53,6 @@ export type { ContentCacheConfig, CacheStatus } from './content-cache';
 // Logger
 export { coreLogger, createCoreLogger } from './logger';
 export type { CoreLogger } from './logger';
+
+// Markdown rendering (item bodies)
+export { renderMarkdown, isSafeMarkdownUrl } from './markdown';

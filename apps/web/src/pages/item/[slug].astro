@@ -11,6 +11,7 @@ import { generateItemJsonLd, generateJsonLd } from '@ever-works/plugin-seo';
 import type { ItemData } from '@ever-works/core';
 import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
 import ItemDetail from '@ever-works/ui/astro/ItemDetail.astro';
+import { resolveCategory } from '../../lib/taxonomy';
 
 export async function getStaticPaths() {
     const { items } = await getContent();
@@ -40,7 +41,9 @@ const relatedItems = primaryCategory
     : [];
 
 // Resolve category name for breadcrumbs
-const categoryData = categories.find((c) => c.id === primaryCategory);
+// Data repos may store the category by id or by display name (platform data uses the name);
+// resolveCategory matches either, so the breadcrumb and JSON-LD always get the category.
+const categoryData = primaryCategory ? resolveCategory(categories, primaryCategory) : null;
 
 // JSON-LD for the item (auto-selects SoftwareApplication or Product)
 const jsonLd = generateItemJsonLd({

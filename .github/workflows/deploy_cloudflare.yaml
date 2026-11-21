@@ -1,0 +1,149 @@
+name: Cloudflare deployment
+
+# Builds this directory as a pure static site (`ENABLE_ISR=false`, no server runtime) and publishes it to
+# Cloudflare Workers Static Assets: one assets-only Worker per directory, attached to its hostname as a Workers
+# Custom Domain (Cloudflare creates the DNS record and the certificate). Serving static assets on Workers is not
+# metered per request, so a low-traffic directory costs close to nothing to host.
+#
+# Dispatched by the Ever Works platform's `cloudflare` deploy provider (`getWorkflowFilenames()` →
+# `deploy_cloudflare.yaml`), which first pushes these repository secrets:
+#   CLOUDFLARE_TOKEN        scoped API token (Workers Scripts edit + Workers Routes/DNS edit on the zone)
+#   CLOUDFLARE_ACCOUNT_ID   Cloudflare account id
+#   CLOUDFLARE_WORKER_NAME  Worker script name, e.g. `ew-crm`
+#   CLOUDFLARE_HOSTNAME     public hostname, e.g. `crm.ever.works`
+#   DATA_REPOSITORY         data repository NAME (same convention as deploy_vercel.yaml)
+#   GH_TOKEN                optional, only needed when the data repository is private
+#
+# Like the other deploy workflows of this template it never runs on push: deploys are platform-initiated
+# (or started by hand from the Actions tab). It runs on a GitHub-hosted runner by default so that a burst of
+# directory deploys does not land on the self-hosted pool; set the `CLOUDFLARE_DEPLOY_RUNNER` variable to
+# override.
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment label (production, preview, staging)'
+        required: false
+        default: production
+        type: string
+  workflow_call:
+    inputs:
+      environment:
+        required: false
+        default: production
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DATA_REPOSITORY: 'https://github.com/${{ github.repository_owner }}/${{ secrets.DATA_REPOSITORY }}'
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  CLOUDFLARE_WORKER_NAME: ${{ secrets.CLOUDFLARE_WORKER_NAME }}
+  CLOUDFLARE_HOSTNAME: ${{ secrets.CLOUDFLARE_HOSTNAME }}
+  ENABLE_ISR: 'false'
+
+jobs:
+  deploy:
+    runs-on: ${{ vars.CLOUDFLARE_DEPLOY_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    steps:
+      - name: Check deploy configuration
+        env:
+          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN || secrets.DEPLOY_TOKEN }}
+          DATA_REPOSITORY_NAME: ${{ secrets.DATA_REPOSITORY }}
+        run: |
+          missing=""
+          [ -n "$CLOUDFLARE_TOKEN" ] || missing="$missing CLOUDFLARE_TOKEN"
+          [ -n "$CLOUDFLARE_ACCOUNT_ID" ] || missing="$missing CLOUDFLARE_ACCOUNT_ID"
+          [ -n "$CLOUDFLARE_WORKER_NAME" ] || missing="$missing CLOUDFLARE_WORKER_NAME"
+          [ -n "$CLOUDFLARE_HOSTNAME" ] || missing="$missing CLOUDFLARE_HOSTNAME"
+          [ -n "$DATA_REPOSITORY_NAME" ] || missing="$missing DATA_REPOSITORY"
+          if [ -n "$missing" ]; then
+            echo "::error title=Cloudflare deploy is not configured::missing repository secrets:$missing"
+            exit 1
+          fi
+          case "$CLOUDFLARE_WORKER_NAME" in
+            *[!a-z0-9-]*|-*|*-) echo "::error::CLOUDFLARE_WORKER_NAME must be lowercase letters, digits and hyphens"; exit 1 ;;
+          esac
+          echo "Deploying ${{ github.repository }} (${{ inputs.environment || 'production' }}) to https://$CLOUDFLARE_HOSTNAME as Worker $CLOUDFLARE_WORKER_NAME"
+
+      - uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '26.12.1'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build static site
+        env:
+          SITE_URL: https://${{ secrets.CLOUDFLARE_HOSTNAME }}
+        run: pnpm --filter @ever-works/web-minimal build
+
+      - name: Write Cloudflare config
+        working-directory: apps/web
+        run: |
+          test -f dist/index.html || { echo "::error::the build produced no dist/index.html"; exit 1; }
+          files=$(find dist -type f | wc -l)
+          echo "Static output: $files files, $(du -sh dist | cut -f1)"
+          if [ "$files" -gt 20000 ]; then
+            echo "::warning::$files files is above the 20,000-file asset limit of some Workers plans"
+          fi
+          # Long-lived caching for content-hashed build assets; HTML stays revalidated.
+          if [ ! -f dist/_headers ]; then
+            cat > dist/_headers <<'HEADERS'
+          /_astro/*
+            Cache-Control: public, max-age=31536000, immutable
+          /pagefind/*
+            Cache-Control: public, max-age=3600
+          /*
+            X-Content-Type-Options: nosniff
+            Referrer-Policy: strict-origin-when-cross-origin
+          HEADERS
+            sed -i 's/^          //' dist/_headers
+          fi
+          node -e '
+            const cfg = {
+              name: process.env.CLOUDFLARE_WORKER_NAME,
+              compatibility_date: "2026-11-01",
+              assets: {
+                directory: "./dist",
+                not_found_handling: "404-page",
+                html_handling: "auto-trailing-slash"
+              },
+              routes: [{ pattern: process.env.CLOUDFLARE_HOSTNAME, custom_domain: true }],
+              workers_dev: false,
+              observability: { enabled: false }
+            };
+            require("fs").writeFileSync("wrangler.deploy.json", JSON.stringify(cfg, null, 2));
+            console.log(JSON.stringify(cfg));
+          '
+
+      - name: Deploy to Cloudflare
+        working-directory: apps/web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN || secrets.DEPLOY_TOKEN }}
+        run: npx --yes wrangler@4 deploy --config wrangler.deploy.json
+
+      - name: Check the live site
+        run: |
+          for i in 1 2 3 4 5 6 7 8 9 10 11 12; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "https://$CLOUDFLARE_HOSTNAME/" || true)
+            if [ "$code" = "200" ]; then echo "https://$CLOUDFLARE_HOSTNAME/ answers 200"; exit 0; fi
+            echo "attempt $i: HTTP $code (new custom domains need a minute for DNS + certificate)"
+            sleep 15
+          done
+          echo "::warning::https://$CLOUDFLARE_HOSTNAME/ did not answer 200 yet; the platform poller keeps checking"
