@@ -18,6 +18,7 @@ import Badge from '../primitives/badge/Badge.astro';
 import Separator from '../primitives/separator/Separator.astro';
 import Button from '../primitives/button/Button.astro';
 import ItemCard from './ItemCard.astro';
+import { renderMarkdown } from '@ever-works/core';
 
 function taxonomyPath(value: string): string {
     return encodeURIComponent(
@@ -95,8 +96,8 @@ const categories = Array.isArray(item.category) ? item.category : [item.category
             <>
                 <Separator />
                 <CardContent>
-                    {/* Content is pre-rendered from trusted git-backed YAML; no runtime user input. Safe for set:html. */}
-                    <div data-part="content" class="prose dark:prose-invert max-w-none" set:html={item.markdown} />
+                    {/* The `markdown` field is Markdown (platform data repos); renderMarkdown escapes raw HTML and unsafe URLs. */}
+                    <div data-part="content" class="prose dark:prose-invert max-w-none" set:html={renderMarkdown(item.markdown)} />
                 </CardContent>
             </>
         )}

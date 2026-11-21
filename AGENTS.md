@@ -126,6 +126,14 @@ Every document, specification, code file, and decision MUST comply with these ru
 3. Proceed with the default choice
 4. Owner will review and adjust later
 
+## Code navigation: Graphify
+
+Machines that work on this repo may keep a local [Graphify](https://github.com/Graphify-Labs/graphify) knowledge graph of the code in `graphify-out/` (per-machine build output, refreshed nightly, never committed).
+
+- When a graph exists (`graphify-out/graph.json` in this checkout or, in a git worktree, in the primary checkout), answer code questions with `graphify query "<question>"`, `graphify path "<A>" "<B>"` or `graphify explain "<symbol>"` first, then open the files it points to. In a worktree, pass the primary checkout's graph with `--graph <primary checkout>/graphify-out/graph.json`; it does not know the files your branch added or changed, so search those directly (`git grep`, `rg`), and fall back to a normal search whenever the graph has no answer.
+- After changing code in a checkout that has its own `graphify-out/`, run `graphify update .` (AST only: no LLM, no cost). Never build a new graph inside a worktree: use the primary checkout's graph and search your branch's own changes directly.
+- Never commit `graphify-out/` (it is in `.gitignore`).
+
 ## File Structure Conventions
 
 ```
