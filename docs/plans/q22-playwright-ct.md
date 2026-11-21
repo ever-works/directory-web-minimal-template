@@ -274,7 +274,7 @@ section to `docs/log.md` summarizing the migration.
 
 | Step | Risk | Mitigation |
 |------|------|------------|
-| 1 | Version skew with `apps/web-e2e` `@playwright/test` | Pin to identical `^1.59.1` constraint; verify lockfile resolves to same exact version |
+| 1 | Version skew with `apps/web-e2e` `@playwright/test` | Pin to identical `^1.59.1` constraint; verify lockfile resolves to same exact version. **Superseded 2026-11-21:** the versions now differ on purpose. `apps/web-e2e` is on `^1.65.1` (latest); `packages/ui` pins `@playwright/test` and `@playwright/experimental-ct-react` to exactly `1.61.1`, because CT releases stopped at 1.62.1 and 1.62.1 needs Vite 8, which re-resolves the workspace's Tailwind and Vitest peers onto Vite 8 and breaks every Astro 6 (Vite 7) build. Each package resolves its own copy; `monocart-reporter`, which imports Playwright types without declaring them, gets an explicit `@playwright/test` peer through root `pnpm.packageExtensions` so it follows `packages/ui` (see `docs/log.md` 2026-11-21). |
 | 3 | `experimental-ct-preact` does not mount Preact 10.29.1 | Smoke test is the decision gate; rollback per spec if it fails |
 | 4 | Behavioral drift — CT `expect.toBeVisible()` is stricter than `expect.toBeTruthy()` | Run after every 2-3 cases; if a previously-passing assertion fails, debug whether the *production component* has a real visibility bug or whether the new assertion is too strict, and choose the correct fix |
 | 5 | Coverage regression alarm | Update `vitest.config.ts` exclude AND `.specify/features/testing.md` AC #10 in the *same commit* as the file deletion to keep specs in sync |

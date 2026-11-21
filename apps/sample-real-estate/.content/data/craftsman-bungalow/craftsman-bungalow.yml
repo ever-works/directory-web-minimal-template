@@ -1,0 +1,17 @@
+name: "Craftsman Bungalow"
+description: "Charming 1920s Craftsman with original details preserved. Built-in bookcases, window seats, wrap-around porch, and mature landscaping. Detached studio perfect for home office."
+source_url: "https://dreamproperties.example.com/craftsman-bungalow"
+category: "house"
+tags: ["garden", "pet-friendly", "suburban"]
+updated_at: "2026-03-05 10:00"
+status: "approved"
+featured: true
+meta:
+  price: "$445,000"
+  bedrooms: "3"
+  bathrooms: "2"
+  sqft: "1,800"
+  location: "Portland, OR"
+  year_built: "1924"
+  lot_size: "0.15 acres"
+  mls_number: "DP-2026-004"

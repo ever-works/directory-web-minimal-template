@@ -1,0 +1,49 @@
+- id: "downtown"
+  name: "Downtown"
+  description: "Located in the city center or business district"
+  isActive: true
+
+- id: "suburban"
+  name: "Suburban"
+  description: "Located in residential suburbs with good schools"
+  isActive: true
+
+- id: "waterfront"
+  name: "Waterfront"
+  description: "Ocean, lake, or river views and access"
+  isActive: true
+
+- id: "garden"
+  name: "Garden"
+  description: "Private garden, yard, or outdoor space"
+  isActive: true
+
+- id: "parking"
+  name: "Parking"
+  description: "Dedicated parking spaces or garage included"
+  isActive: true
+
+- id: "furnished"
+  name: "Furnished"
+  description: "Comes fully or partially furnished"
+  isActive: true
+
+- id: "pet-friendly"
+  name: "Pet-Friendly"
+  description: "Allows pets with no restrictions"
+  isActive: true
+
+- id: "new-build"
+  name: "New Build"
+  description: "Recently constructed or renovated property"
+  isActive: true
+
+- id: "investment"
+  name: "Investment"
+  description: "Strong rental yield or appreciation potential"
+  isActive: true
+
+- id: "luxury"
+  name: "Luxury"
+  description: "High-end finishes, premium amenities, prime location"
+  isActive: true

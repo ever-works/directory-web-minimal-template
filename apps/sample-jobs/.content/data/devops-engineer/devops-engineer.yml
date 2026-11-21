@@ -1,0 +1,13 @@
+name: "DevOps Engineer"
+description: "Operate the infrastructure behind GitLab.com in an all-remote company. You will automate Kubernetes and Terraform workflows, improve observability and take part in an on-call rotation."
+source_url: "https://about.gitlab.com/jobs/"
+category: "devops"
+tags: ["remote", "full-time", "mid-level", "enterprise"]
+updated_at: "2026-03-10 09:00"
+status: "approved"
+featured: false
+meta:
+  company: "GitLab"
+  location: "Remote (worldwide)"
+  employment_type: "Full-Time"
+  experience: "3+ years"

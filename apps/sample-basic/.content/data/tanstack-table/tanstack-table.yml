@@ -1,0 +1,8 @@
+name: "TanStack Table"
+description: "Headless UI for building powerful tables and datagrids with first-class TypeScript support."
+source_url: "https://tanstack.com/table"
+category: "data-display"
+tags: ["typescript", "headless", "open-source"]
+updated_at: "2026-01-11 10:00"
+status: "approved"
+featured: false

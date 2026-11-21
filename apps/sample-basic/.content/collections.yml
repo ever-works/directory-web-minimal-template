@@ -1,0 +1,18 @@
+- id: "top-picks"
+  slug: "top-picks"
+  name: "Top Picks"
+  description: "Our recommended component libraries for new projects."
+  items:
+    - "shadcn-ui"
+    - "radix-ui"
+    - "react-aria"
+    - "mantine"
+
+- id: "headless-libraries"
+  slug: "headless-libraries"
+  name: "Headless Libraries"
+  description: "Unstyled, composable component libraries you can style your way."
+  items:
+    - "radix-ui"
+    - "headless-ui"
+    - "react-aria"

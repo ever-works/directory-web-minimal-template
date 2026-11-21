@@ -1,0 +1,17 @@
+- id: "top-remote-engineering-jobs"
+  slug: "top-remote-engineering-jobs"
+  name: "Top Remote Engineering Jobs"
+  description: "Hand-picked fully remote engineering roles at companies with strong remote cultures."
+  items:
+    - "senior-frontend-engineer"
+    - "backend-engineer-rust"
+    - "devops-engineer"
+    - "junior-react-developer"
+
+- id: "design-and-product-roles"
+  slug: "design-and-product-roles"
+  name: "Design & Product Roles"
+  description: "Remote roles for designers and product managers who shape what gets built."
+  items:
+    - "product-designer"
+    - "product-manager"

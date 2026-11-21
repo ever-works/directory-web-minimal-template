@@ -1,0 +1,17 @@
+name: "Waterfront Penthouse"
+description: "Ultra-luxury penthouse with panoramic ocean views. Private rooftop terrace, chef's kitchen, smart home system, and concierge service. Two reserved parking spots in secured garage."
+source_url: "https://dreamproperties.example.com/waterfront-penthouse"
+category: "apartment"
+tags: ["waterfront", "luxury", "parking", "new-build"]
+updated_at: "2026-02-28 10:00"
+status: "approved"
+featured: true
+meta:
+  price: "$2,850,000"
+  bedrooms: "3"
+  bathrooms: "3.5"
+  sqft: "3,800"
+  location: "Miami Beach, FL"
+  year_built: "2025"
+  lot_size: "N/A"
+  mls_number: "DP-2026-003"

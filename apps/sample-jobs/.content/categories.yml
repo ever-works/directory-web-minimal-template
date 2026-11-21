@@ -1,0 +1,23 @@
+- id: "engineering"
+  name: "Engineering"
+  description: "Frontend, backend, full-stack and mobile software engineering roles"
+
+- id: "design"
+  name: "Design"
+  description: "Product, UX, UI and brand design roles"
+
+- id: "product"
+  name: "Product"
+  description: "Product management and product operations roles"
+
+- id: "marketing"
+  name: "Marketing"
+  description: "Growth, content, brand and product marketing roles"
+
+- id: "data-science"
+  name: "Data Science"
+  description: "Data science, analytics and machine learning roles"
+
+- id: "devops"
+  name: "DevOps"
+  description: "Infrastructure, platform, SRE and release engineering roles"

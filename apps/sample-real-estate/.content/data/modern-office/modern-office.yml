@@ -1,0 +1,17 @@
+name: "Modern Office Space"
+description: "Class A office space in a LEED-certified building. Open floor plan, private meeting rooms, fiber internet, and building amenities including gym, cafe, and rooftop lounge."
+source_url: "https://dreamproperties.example.com/modern-office"
+category: "commercial"
+tags: ["downtown", "new-build", "parking"]
+updated_at: "2026-03-01 10:00"
+status: "approved"
+featured: false
+meta:
+  price: "$1,200,000"
+  bedrooms: "N/A"
+  bathrooms: "4"
+  sqft: "5,000"
+  location: "Denver, CO"
+  year_built: "2023"
+  lot_size: "N/A"
+  mls_number: "DP-2026-005"

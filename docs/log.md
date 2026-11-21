@@ -3,6 +3,39 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-11-21 — E2E suite green again (sample seeds) + CI browser-install hang fixed
+
+The E2E suite failed 108 of its tests on `develop` (and identically after the directory-experience work below),
+and in-cluster CI could not run the Playwright CT, coverage or E2E jobs at all.
+
+- **CI hang, root cause:** not the network. `playwright install` downloaded Chrome for Testing in seconds, then
+  Playwright 1.59.1's bundled unzip (`extract-zip` + `yauzl` in a child process) stalled mid-archive on Node 26,
+  with its event loop idle, until the runner was killed ~4 h later. Reproduced locally with the same zip: Node 24.14
+  extracts it in about 5 s, Node 26.10 stalls on the same entry as CI (`libwidevinecdm.so`, 18.09 of 18.25 MB
+  written). Fixed from Playwright 1.60.0 (1.60.0 to 1.65.1 all extract it in 7–8 s on Node 26).
+- **Upgrade:** `apps/web-e2e` `@playwright/test` `^1.65.1` (latest). `packages/ui` `@playwright/test` and
+  `@playwright/experimental-ct-react` exactly `1.61.1`: CT releases stop at 1.62.1, and 1.62.1 depends on Vite 8,
+  which flips the workspace's `@tailwindcss/vite` and Vitest peers to Vite 8 and breaks every Astro 6 build.
+  `monocart-reporter` (the CT coverage reporter) imports `TestInfo` from `@playwright/test` without declaring it,
+  so its types picked up the hoisted 1.65.1 copy (TS2345 in `packages/ui` typecheck); root `pnpm.packageExtensions`
+  now declares that peer, and pnpm links it to the consumer's 1.61.1. The lockfile change is Playwright-only.
+- **CI (`ci.yml`):** the E2E step gates the job again (no `continue-on-error`); the three browser-install steps get
+  `timeout-minutes: 15`, so a stuck install fails in minutes. Browser caching would not have helped: the first
+  install is the one that hangs, and the in-cluster runner's act cache lives in a per-pod `emptyDir`.
+- **Sample seeds:** `apps/sample-jobs` and `apps/sample-real-estate` had no `.content/` at all (only
+  `.works/works.yml` is read since the works-config-path migration, and they had none), so they rendered the default
+  site. Both now track a full seed: real estate straight from the YAML in `.specify/features/sample-real-estate.md`,
+  jobs from `.specify/features/sample-jobs.md` (8 jobs, careers-page links, no salary figures). `sample-basic` grows
+  from 1 to the spec's 12 libraries plus the collections, comparisons and about page its tests render. The
+  `.gitignore` now tracks the whole `.content/` of the four seeded samples; sample-git still clones its data.
+- **Static pages:** the five samples' `pages/[slug].astro` breadcrumb `<nav>` gets `data-component="breadcrumb-nav"`,
+  `aria-label="Breadcrumb"` and `aria-current="page"`, matching `BreadcrumbNav` (the breadcrumbs plugin has no
+  `/pages/*` trails, so the component would render nothing there).
+- **Test:** `git-static-pages.spec.ts` matches `/^About /`; the about-page title comes from the remote data repo,
+  which renamed the site from "Time Tracking Directory" to "Awesome Time Tracking".
+- **Result:** the five CI projects (`chromium`, `events-chromium`, `jobs-chromium`, `re-chromium`, `git-chromium`)
+  go from 108 failures to 331 passed, 0 failed (26 mobile-only tests skip on desktop projects). `apps/web` unchanged.
+
 ## 2026-11-21 — Directory experience v2 + Agent Access (search, filters, layouts, submit, SEO, MCP)
 
 Owner request: the minimal template is now the default for Ever Works directories (static on Cloudflare); make it
