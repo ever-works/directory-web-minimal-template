@@ -1,0 +1,17 @@
+name: "Micro Studio"
+description: "Efficiently designed studio in a brand-new micro-housing development. Murphy bed, kitchenette, in-unit laundry, and rooftop community space. Ideal for young professionals."
+source_url: "https://dreamproperties.example.com/micro-studio"
+category: "apartment"
+tags: ["downtown", "new-build", "furnished"]
+updated_at: "2026-03-08 10:00"
+status: "approved"
+featured: false
+meta:
+  price: "$195,000"
+  bedrooms: "Studio"
+  bathrooms: "1"
+  sqft: "350"
+  location: "Seattle, WA"
+  year_built: "2025"
+  lot_size: "N/A"
+  mls_number: "DP-2026-009"

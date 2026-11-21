@@ -1,0 +1,17 @@
+- id: "under-500k"
+  name: "Under $500K"
+  description: "Quality properties at an accessible price point — great first homes and investment opportunities."
+  items:
+    - "downtown-loft"
+    - "craftsman-bungalow"
+    - "coworking-retail"
+    - "micro-studio"
+    - "farmland-acreage"
+
+- id: "luxury-collection"
+  name: "Luxury Collection"
+  description: "Premium properties with exceptional finishes, prime locations, and top-tier amenities."
+  items:
+    - "waterfront-penthouse"
+    - "suburban-family-home"
+    - "lake-house-retreat"

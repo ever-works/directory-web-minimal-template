@@ -1,0 +1,8 @@
+name: "Chakra UI"
+description: "A simple, modular and accessible component library that gives you the building blocks for React apps."
+source_url: "https://chakra-ui.com"
+category: "layout"
+tags: ["typescript", "accessible", "styled", "open-source", "design-system"]
+updated_at: "2026-01-08 10:00"
+status: "approved"
+featured: false

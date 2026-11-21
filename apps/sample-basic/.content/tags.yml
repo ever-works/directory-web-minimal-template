@@ -37,3 +37,19 @@
 - id: "small-bundle"
   name: "Small Bundle"
   isActive: true
+
+- id: "styled"
+  name: "Styled"
+  isActive: true
+
+- id: "react-server-components"
+  name: "RSC Compatible"
+  isActive: true
+
+- id: "animation"
+  name: "Animation"
+  isActive: true
+
+- id: "design-system"
+  name: "Design System"
+  isActive: true

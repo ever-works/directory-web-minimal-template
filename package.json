@@ -58,6 +58,13 @@
         ]
     },
     "pnpm": {
+        "packageExtensions": {
+            "monocart-reporter": {
+                "peerDependencies": {
+                    "@playwright/test": "*"
+                }
+            }
+        },
         "overrides": {
             "webpack": "5.104.1",
             "serialize-javascript": ">=7.0.5",

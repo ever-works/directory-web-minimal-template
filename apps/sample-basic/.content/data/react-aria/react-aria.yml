@@ -1,0 +1,8 @@
+name: "React Aria"
+description: "A library of React Hooks that provides accessible UI primitives for your design system."
+source_url: "https://react-spectrum.adobe.com/react-aria"
+category: "form-components"
+tags: ["typescript", "accessible", "headless", "open-source"]
+updated_at: "2026-01-12 10:00"
+status: "approved"
+featured: false

@@ -1,0 +1,28 @@
+title: "Linear vs Figma"
+item_a_slug: "product-designer"
+item_b_slug: "product-manager"
+item_a_name: "Product Designer"
+item_b_name: "Product Manager"
+summary: "A full-time design role at Linear compared with a contract product management role at Figma."
+verdict: "The Linear role suits designers who want a permanent seat on a small craft-focused team. The Figma contract suits experienced product managers who want flexibility and a well-known product."
+verdict_winner: "item_a"
+dimensions:
+  - name: "Employment Type"
+    item_a_summary: "Full-time, permanent"
+    item_b_summary: "Fixed-term contract"
+    item_a_score: 9
+    item_b_score: 6
+    winner: "item_a"
+  - name: "Team Size"
+    item_a_summary: "Small, design-led product team"
+    item_b_summary: "Large cross-functional organization"
+    item_a_score: 8
+    item_b_score: 7
+    winner: "item_a"
+  - name: "Remote Flexibility"
+    item_a_summary: "Remote in North America and Europe"
+    item_b_summary: "Remote in the Americas"
+    item_a_score: 8
+    item_b_score: 7
+    winner: "item_a"
+generated_at: "2026-03-20"

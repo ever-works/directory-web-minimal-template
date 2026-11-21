@@ -1,0 +1,17 @@
+name: "Lake House Retreat"
+description: "Peaceful lake house with private dock. Wraparound deck overlooking the water, stone fireplace, updated kitchen, and detached boat house. Perfect weekend getaway or Airbnb investment."
+source_url: "https://dreamproperties.example.com/lake-house"
+category: "house"
+tags: ["waterfront", "garden", "investment", "pet-friendly"]
+updated_at: "2026-03-12 10:00"
+status: "approved"
+featured: false
+meta:
+  price: "$520,000"
+  bedrooms: "3"
+  bathrooms: "2"
+  sqft: "2,100"
+  location: "Lake Tahoe, CA"
+  year_built: "1985 (renovated 2022)"
+  lot_size: "0.5 acres"
+  mls_number: "DP-2026-007"

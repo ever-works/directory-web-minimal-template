@@ -1,0 +1,33 @@
+title: "Downtown Loft vs Suburban Family Home"
+item_a_slug: "downtown-loft"
+item_b_slug: "suburban-family-home"
+item_a_name: "Downtown Loft"
+item_b_name: "Suburban Family Home"
+summary: "City loft living versus suburban family home — comparing lifestyle, space, and value."
+verdict: "The loft suits single professionals or couples who value walkability and urban culture. The suburban home is ideal for families needing space, a yard, and quieter surroundings."
+verdict_winner: "tie"
+dimensions:
+  - name: "Price"
+    item_a_summary: "$485,000 for 1,200 sqft"
+    item_b_summary: "$625,000 for 2,400 sqft"
+    item_a_score: 7
+    item_b_score: 8
+    winner: "item_b"
+  - name: "Location"
+    item_a_summary: "Downtown Portland, walkable to everything"
+    item_b_summary: "Quiet Austin suburb, car-dependent"
+    item_a_score: 9
+    item_b_score: 6
+    winner: "item_a"
+  - name: "Space"
+    item_a_summary: "1 bed / 1 bath, open-plan living"
+    item_b_summary: "4 bed / 2.5 bath, fenced yard"
+    item_a_score: 5
+    item_b_score: 9
+    winner: "item_b"
+  - name: "Investment Potential"
+    item_a_summary: "Strong rental market in downtown area"
+    item_b_summary: "Good appreciation in growing suburb"
+    item_a_score: 8
+    item_b_score: 8
+    winner: "tie"

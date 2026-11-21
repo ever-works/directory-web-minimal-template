@@ -1,0 +1,8 @@
+name: "Framer Motion"
+description: "A production-ready motion library for React with declarative animations and gesture support."
+source_url: "https://www.framer.com/motion"
+category: "feedback"
+tags: ["typescript", "open-source", "animation"]
+updated_at: "2026-01-14 10:00"
+status: "approved"
+featured: false
