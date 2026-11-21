@@ -44,18 +44,35 @@ import type {
 export function generateJsonLd(type: JsonLdType, data: JsonLdInput): string {
     switch (type) {
         case 'WebSite':
-            return JSON.stringify(buildWebSite(data as WebSiteInput));
+            return serializeJsonLd(buildWebSite(data as WebSiteInput));
         case 'ItemList':
-            return JSON.stringify(buildItemList(data as ItemListInput));
+            return serializeJsonLd(buildItemList(data as ItemListInput));
         case 'Product':
-            return JSON.stringify(buildProduct(data as ProductInput));
+            return serializeJsonLd(buildProduct(data as ProductInput));
         case 'BreadcrumbList':
-            return JSON.stringify(buildBreadcrumbList(data as BreadcrumbListInput));
+            return serializeJsonLd(buildBreadcrumbList(data as BreadcrumbListInput));
         case 'SoftwareApplication':
-            return JSON.stringify(buildSoftwareApplication(data as SoftwareApplicationInput));
+            return serializeJsonLd(buildSoftwareApplication(data as SoftwareApplicationInput));
         case 'Article':
-            return JSON.stringify(buildArticle(data as ArticleInput));
+            return serializeJsonLd(buildArticle(data as ArticleInput));
     }
+}
+
+/**
+ * Serialize a JSON-LD object for embedding in `<script type="application/ld+json">`.
+ *
+ * `JSON.stringify` alone is unsafe there: a value containing `</script>` (item names come from community-edited
+ * data repositories) would close the script element. `<`, U+2028 and U+2029 are written as JSON unicode escapes,
+ * which every JSON parser reads back unchanged.
+ *
+ * @param value - Structured data object
+ * @returns A JSON string safe to place inside a script element
+ */
+export function serializeJsonLd(value: unknown): string {
+    return JSON.stringify(value)
+        .replace(/</g, '\\u003c')
+        .replace(/\u2028/g, '\\u2028')
+        .replace(/\u2029/g, '\\u2029');
 }
 
 /**

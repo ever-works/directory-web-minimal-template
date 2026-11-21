@@ -57,6 +57,31 @@ describe('MCP transport', () => {
         expect(note.body).toBeNull();
         const reply = await rpc({ jsonrpc: '2.0', result: {} });
         expect(reply.response.status).toBe(202);
+        const replyWithId = await rpc({ jsonrpc: '2.0', id: 1, result: {} });
+        expect(replyWithId.response.status).toBe(202);
+        const errorReply = await rpc({ jsonrpc: '2.0', id: 2, error: { code: -1, message: 'x' } });
+        expect(errorReply.response.status).toBe(202);
+    });
+
+    it('rejects a null request id', async () => {
+        const nullId = await rpc({ jsonrpc: '2.0', id: null, method: 'tools/list' });
+        expect(nullId.response.status).toBe(400);
+        expect(nullId.body.error.code).toBe(-32600);
+    });
+
+    it('enforces allowedOrigins when configured', async () => {
+        const call = (origin: string | null) =>
+            handleMcpRequest(
+                new Request('https://crm.ever.works/mcp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...(origin ? { Origin: origin } : {}) },
+                    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'ping' })
+                }),
+                { loadDataset, allowedOrigins: ['https://crm.ever.works'] }
+            );
+        expect((await call('https://evil.example')).status).toBe(403);
+        expect((await call('https://crm.ever.works')).status).toBe(200);
+        expect((await call(null)).status).toBe(200);
     });
 
     it('initializes with version negotiation', async () => {

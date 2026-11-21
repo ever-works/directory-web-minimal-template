@@ -32,6 +32,11 @@ export interface McpHandlerOptions {
     loadDataset: () => Promise<AgentDataset>;
     /** Server version reported in `serverInfo` (default `1.0.0`) */
     version?: string;
+    /**
+     * Browser origins allowed to call the endpoint (exact match, e.g. `https://crm.ever.works`). When omitted every
+     * origin is allowed, which is the default because the data is public and read-only.
+     */
+    allowedOrigins?: readonly string[];
 }
 
 type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
@@ -300,6 +305,13 @@ function instructions(dataset: AgentDataset): string {
  */
 export async function handleMcpRequest(request: Request, options: McpHandlerOptions): Promise<Response> {
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS });
+    // Origin check (MCP transport spec, DNS-rebinding protection). Off by default: this server only serves public,
+    // read-only data with CORS `*`; deployments that want it pass `allowedOrigins`. Requests without an Origin
+    // header (non-browser MCP clients) are always allowed.
+    const origin = request.headers.get('Origin');
+    if (origin && options.allowedOrigins && !options.allowedOrigins.includes(origin)) {
+        return json({ jsonrpc: '2.0', id: null, error: { code: -32000, message: 'Origin not allowed' } }, 403);
+    }
     if (request.method !== 'POST') {
         return json(
             { jsonrpc: '2.0', id: null, error: { code: -32000, message: 'Method not allowed. POST JSON-RPC messages to this endpoint.' } },
@@ -318,15 +330,18 @@ export async function handleMcpRequest(request: Request, options: McpHandlerOpti
     if (Array.isArray(message)) return rpcError(null, -32600, 'Batch requests are not supported', 400);
     if (message === null || typeof message !== 'object') return rpcError(null, -32600, 'Invalid request', 400);
 
-    const rpc = message as JsonRpcRequest;
+    const rpc = message as JsonRpcRequest & { result?: unknown; error?: unknown };
     const hasId = 'id' in rpc && (typeof rpc.id === 'string' || typeof rpc.id === 'number');
     const id: JsonRpcId = hasId ? (rpc.id as string | number) : null;
 
-    // Notifications and client responses are acknowledged without a body.
+    // Client responses (to server requests; this server sends none) are acknowledged with 202 and no body.
     if (typeof rpc.method !== 'string') {
-        if (!hasId) return new Response(null, { status: 202, headers: CORS_HEADERS });
+        if ('result' in rpc || 'error' in rpc) return new Response(null, { status: 202, headers: CORS_HEADERS });
         return rpcError(id, -32600, 'Invalid request: missing method', 400);
     }
+    // A request id must be a string or number; `null` (or any other type) is invalid, not a notification.
+    if ('id' in rpc && !hasId) return rpcError(null, -32600, 'Invalid request: id must be a string or number', 400);
+    // Notifications (no id) are acknowledged with 202 and no body.
     if (!hasId) return new Response(null, { status: 202, headers: CORS_HEADERS });
 
     const params = args(rpc.params);

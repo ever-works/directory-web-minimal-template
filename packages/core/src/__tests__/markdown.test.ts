@@ -67,3 +67,12 @@ describe('prepareItemMarkdown', () => {
         expect(prepareItemMarkdown(undefined, 'x')).toBe('');
     });
 });
+
+describe('isSafeMarkdownUrl — protocol-relative tricks', () => {
+    it('rejects /\host and //host', async () => {
+        const { isSafeMarkdownUrl } = await import('../markdown');
+        expect(isSafeMarkdownUrl(`/${String.fromCharCode(92)}evil.example`)).toBe(false);
+        expect(isSafeMarkdownUrl('//evil.example')).toBe(false);
+        expect(isSafeMarkdownUrl('/item/ok')).toBe(true);
+    });
+});

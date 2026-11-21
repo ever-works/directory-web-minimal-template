@@ -83,17 +83,22 @@ function branchFromHead(): string | null {
 }
 
 /**
- * Detect the public GitHub data repository from `DATA_REPOSITORY`. One GitHub API call per build (4s timeout):
- * private repositories never get public "suggest an edit" / pull-request links. Network failures assume public
- * (the repository URL is already public knowledge to the build) only when no token marks it private.
+ * Detect the public GitHub data repository from `DATA_REPOSITORY`. One GitHub API call per build (4s timeout,
+ * `GH_TOKEN` or the workflow's `GITHUB_TOKEN` when available).
+ *
+ * Fails closed: the repository is treated as public only when GitHub answers `private: false`. A 401/403 (bad
+ * token, rate limit), 404, 5xx, timeout or offline build all mean "no public links", so a private repository never
+ * gets "Suggest an edit", pull-request or "Data on GitHub" links. `DATA_REPOSITORY_PUBLIC=true|false` overrides the
+ * check (no API call).
  */
 async function detectDataRepository(): Promise<DataRepositoryInfo | null> {
-    if (process.env['DATA_REPOSITORY_PUBLIC'] === 'false') return null;
+    const override = process.env['DATA_REPOSITORY_PUBLIC'];
+    if (override === 'false') return null;
     const parsed = parseGitHubRepository(process.env['DATA_REPOSITORY']);
     if (!parsed) return null;
     const slug = `${parsed.owner}/${parsed.repo}`;
     let branch = process.env['DATA_REPOSITORY_BRANCH'] || branchFromHead() || 'main';
-    if (process.env['DATA_REPOSITORY_PUBLIC'] !== 'true') {
+    if (override !== 'true') {
         try {
             const token = process.env['GH_TOKEN'] || process.env['GITHUB_TOKEN'];
             const response = await fetch(`https://api.github.com/repos/${slug}`, {
@@ -104,14 +109,12 @@ async function detectDataRepository(): Promise<DataRepositoryInfo | null> {
                 },
                 signal: AbortSignal.timeout(4000)
             });
-            if (response.status === 404) return null; // private (or gone) for anonymous visitors
-            if (response.ok) {
-                const repo = (await response.json()) as { private?: boolean; default_branch?: string };
-                if (repo.private) return null;
-                if (!process.env['DATA_REPOSITORY_BRANCH'] && repo.default_branch) branch = repo.default_branch;
-            }
+            if (!response.ok) return null;
+            const repo = (await response.json()) as { private?: boolean; default_branch?: string };
+            if (repo.private !== false) return null;
+            if (!process.env['DATA_REPOSITORY_BRANCH'] && repo.default_branch) branch = repo.default_branch;
         } catch {
-            /* offline build: keep the repository, branch from HEAD */
+            return null;
         }
     }
     return { url: `https://github.com/${slug}`, slug, branch };

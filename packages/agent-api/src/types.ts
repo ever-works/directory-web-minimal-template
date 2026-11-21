@@ -161,6 +161,6 @@ export interface SearchIndexItem {
     l?: string;
     /** website URL */
     w?: string;
-    /** updated date `YYYY-MM-DD` */
+    /** `updated_at` as stored (e.g. `YYYY-MM-DD HH:mm`), so date sorting matches the server-rendered order */
     u?: string;
 }

@@ -113,7 +113,8 @@ export function generateMetaTags(page: PageMeta, options: SeoPluginOptions): Met
  */
 function resolveTitle(title: string, options: SeoPluginOptions): string {
     if (options.titleTemplate) {
-        return options.titleTemplate.replace('%s', title);
+        // Function replacer: a title containing `$&` or `$'` must not be expanded as a replacement pattern.
+        return options.titleTemplate.replace('%s', () => title);
     }
     return title;
 }

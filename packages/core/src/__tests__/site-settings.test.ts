@@ -195,3 +195,17 @@ describe('individual resolvers', () => {
         expect(resolveNavLink(null)).toBeNull();
     });
 });
+
+describe('site-relative URL safety', () => {
+    it('rejects /\host and //host navigation links', () => {
+        const s = resolveSiteSettings({
+            ...base,
+            custom_header: [
+                { label: 'Backslash', href: `/${String.fromCharCode(92)}evil.example` },
+                { label: 'Proto', href: '//evil.example' },
+                { label: 'Ok', href: '/pages/about' }
+            ]
+        });
+        expect(s.nav.header.map((l) => l.label)).toEqual(['Ok']);
+    });
+});

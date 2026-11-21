@@ -105,7 +105,7 @@ describe('documents', () => {
             f: 1,
             l: 'https://hubspot.example.com/logo.png',
             w: 'https://hubspot.example.com',
-            u: '2026-03-01'
+            u: '2026-03-01 09:00'
         });
         expect(index.c[0]).toEqual(['sales-crm', 'Sales CRM']);
         expect(index.t[0]).toEqual(['freemium', 'Freemium']);

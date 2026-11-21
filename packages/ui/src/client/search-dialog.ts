@@ -6,7 +6,7 @@
  * footer link opens the full listing filtered by the query (`/?q=`).
  */
 
-import { normalizeText, rankItems } from '@ever-works/agent-api/search';
+import { normalizeText, rankItems, tokenize } from '@ever-works/agent-api/search';
 import { escapeHtml, initialOf, logoSources, LOGO_ONERROR } from '../lib/directory-format';
 import { loadSearchIndex, type DecodedIndex } from './search-index';
 
@@ -21,7 +21,8 @@ function renderResults(index: DecodedIndex, query: string, listingPath: string):
     const q = normalizeText(query.trim());
     let html = '';
     let count = 0;
-    if (!q) {
+    // A query without letters or digits (e.g. "!!!") would match everything: show the browse state instead.
+    if (!q || tokenize(query).length === 0) {
         const top = index.categories.slice(0, 8);
         if (top.length) {
             html += '<div class="dw-dialog-group" role="presentation">Browse categories</div>';

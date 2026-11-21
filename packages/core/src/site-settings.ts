@@ -38,7 +38,8 @@ function text(value: unknown): string | undefined {
 function safeUrl(value: unknown): string | undefined {
     const url = text(value);
     if (!url) return undefined;
-    if (url.startsWith('/') && !url.startsWith('//')) return url;
+    // Site-relative only: reject protocol-relative `//host` and `/\host` (browsers treat `\` as `/`).
+    if (url.startsWith('/')) return /^\/(?![\\/])/.test(url) ? url : undefined;
     return /^(https?:|mailto:)/i.test(url) ? url : undefined;
 }
 

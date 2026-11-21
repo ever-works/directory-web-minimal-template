@@ -20,7 +20,8 @@ const escapeHtml = (value: string): string =>
 export function isSafeMarkdownUrl(href: string | null | undefined): boolean {
     if (!href) return false;
     const value = href.trim();
-    if (value.startsWith('#') || (value.startsWith('/') && !value.startsWith('//'))) return true;
+    // Same-site paths only: `//host` and `/\host` (browsers treat `\` as `/`) leave the site.
+    if (value.startsWith('#') || /^\/(?![\\/])/.test(value)) return true;
     return /^(https?:|mailto:)/i.test(value);
 }
 

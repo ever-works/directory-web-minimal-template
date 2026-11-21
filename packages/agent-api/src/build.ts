@@ -319,7 +319,8 @@ export function buildSearchIndex(content: ContentData, maxDescription = 160): Se
         const website = httpUrl(item.source_url);
         if (website) entry.w = website;
         const updated = text(item.updated_at);
-        if (updated) entry.u = updated.slice(0, 10);
+        // Full value (not just the date) so client-side date sorting matches the server-rendered order.
+        if (updated) entry.u = updated;
         return entry;
     });
 

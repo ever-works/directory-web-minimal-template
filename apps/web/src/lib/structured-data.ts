@@ -7,12 +7,13 @@
  */
 
 import type { ItemData } from '@ever-works/core';
+import { serializeJsonLd } from '@ever-works/plugin-seo';
 import type { DirectoryCardData } from '@ever-works/ui/lib/directory-format';
 import type { SiteContext } from './site';
 
 type Json = Record<string, unknown>;
 
-const stringify = (value: Json) => JSON.stringify(value).replace(/</g, '\\u003c');
+const stringify = (value: Json) => serializeJsonLd(value);
 
 function organization(site: SiteContext): Json {
     const { config } = site.content;

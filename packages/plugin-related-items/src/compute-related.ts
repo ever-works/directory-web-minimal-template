@@ -93,7 +93,7 @@ export function computeScore(
  * @param source - The item to find related items for
  * @param allItems - All items in the directory
  * @param config - Scoring configuration
- * @returns Sorted array of related item references (ties keep data order, then sort by name)
+ * @returns Related item references, highest score first (ties keep data order)
  */
 export function computeRelatedItems(
     source: ItemData,

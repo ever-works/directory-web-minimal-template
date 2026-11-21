@@ -2030,3 +2030,10 @@ the work could ship overnight; each can be changed without touching the data con
    once per build; private repositories never get public GitHub links.
 6. **Default homepage layout** — **[DEFAULT] Classic** (sidebar), matching the full template and the platform's
    `layout_default: home1`. Visitors can switch; `layout_default: home2` makes Modern Grid the default.
+7. **MCP `Origin` check** — **[DEFAULT] off** (`handleMcpRequest(…, { allowedOrigins })` enables it). The transport
+   spec asks servers to validate `Origin` against DNS rebinding, which matters for local servers and servers with
+   private data; directory MCP servers serve only public, read-only data with CORS `*`, so any origin may call them.
+   Requests without an `Origin` header (non-browser MCP clients) are always allowed.
+8. **Data-repository visibility check fails closed** — GitHub links (Submit via PR, Suggest an edit, Data on GitHub)
+   appear only when the API answers `private: false`; any error hides them. `DATA_REPOSITORY_PUBLIC=true|false`
+   skips the check. The Cloudflare workflow passes `github.token` so the call is not rate-limited.

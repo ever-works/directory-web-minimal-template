@@ -63,6 +63,8 @@ jobs:
         env:
           CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN || secrets.DEPLOY_TOKEN }}
           DATA_REPOSITORY_NAME: ${{ secrets.DATA_REPOSITORY }}
+          TARGET_REPOSITORY: ${{ github.repository }}
+          TARGET_ENVIRONMENT: ${{ inputs.environment || 'production' }}
         run: |
           missing=""
           [ -n "$CLOUDFLARE_TOKEN" ] || missing="$missing CLOUDFLARE_TOKEN"
@@ -77,7 +79,7 @@ jobs:
           case "$CLOUDFLARE_WORKER_NAME" in
             *[!a-z0-9-]*|-*|*-) echo "::error::CLOUDFLARE_WORKER_NAME must be lowercase letters, digits and hyphens"; exit 1 ;;
           esac
-          echo "Deploying ${{ github.repository }} (${{ inputs.environment || 'production' }}) to https://$CLOUDFLARE_HOSTNAME as Worker $CLOUDFLARE_WORKER_NAME"
+          echo "Deploying $TARGET_REPOSITORY ($TARGET_ENVIRONMENT) to https://$CLOUDFLARE_HOSTNAME as Worker $CLOUDFLARE_WORKER_NAME"
 
       - uses: actions/checkout@v7
 
@@ -97,6 +99,8 @@ jobs:
         env:
           SITE_URL: https://${{ secrets.CLOUDFLARE_HOSTNAME }}
           DEPLOY_TARGET: cloudflare
+          # Read-only token for the single data-repository visibility check (fails closed without it).
+          GITHUB_TOKEN: ${{ github.token }}
           MCP_ENABLED: ${{ vars.MCP_ENABLED || 'true' }}
         run: pnpm --filter @ever-works/web-minimal build
 
