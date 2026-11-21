@@ -34,6 +34,9 @@ export interface SeoPluginOptions {
     /** Twitter handle for the site (e.g., "\@mysite"). */
     twitterHandle?: string;
 
+    /** Site name for `og:site_name` (omitted when not set). */
+    siteName?: string;
+
     /** Default language / locale code (e.g., "en_US"). */
     locale?: string;
 
@@ -67,6 +70,15 @@ export interface PageMeta {
 
     /** Article / item last-modified date in ISO-8601 format. */
     modifiedAt?: string;
+
+    /**
+     * Robots directive for this page (default `"index, follow"`), e.g.
+     * `"index, follow, max-image-preview:large"` or `"noindex, follow"`.
+     */
+    robots?: string;
+
+    /** Alt text for the Open Graph image (`og:image:alt` / `twitter:image:alt`). */
+    imageAlt?: string;
 }
 
 // ---------------------------------------------------------------------------

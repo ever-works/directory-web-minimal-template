@@ -1,0 +1,35 @@
+---
+/**
+ * Icon — tiny inline SVG icon set (Lucide-style 24x24 strokes; brand marks filled). No icon font, no runtime.
+ *
+ * @example
+ * ```astro
+ * <Icon name="search" class="dw-icon" />
+ * ```
+ */
+import { FILLED_ICONS, STROKE_ICONS, type IconName } from '../lib/icons';
+
+interface Props {
+    name: IconName;
+    class?: string;
+    /** Accessible label; when omitted the icon is decorative (`aria-hidden`). */
+    label?: string;
+}
+
+const { name, class: className = 'dw-icon', label } = Astro.props;
+const isFilled = name in FILLED_ICONS;
+const body = isFilled ? FILLED_ICONS[name as keyof typeof FILLED_ICONS] : STROKE_ICONS[name as keyof typeof STROKE_ICONS];
+---
+
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    class={className}
+    fill={isFilled ? 'currentColor' : 'none'}
+    stroke={isFilled ? 'none' : 'currentColor'}
+    stroke-width="1.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    {...(label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true', focusable: 'false' })}
+    set:html={body}
+/>

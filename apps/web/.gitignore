@@ -1,1 +1,5 @@
 .vercel/
+# Local Cloudflare runs (wrangler dev) and the config the deploy workflow generates
+.wrangler/
+wrangler.deploy.json
+wrangler.local.json

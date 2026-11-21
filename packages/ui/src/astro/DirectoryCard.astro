@@ -1,0 +1,25 @@
+---
+/**
+ * DirectoryCard — a listing card (logo with fallbacks, name, website host, featured badge, description, category
+ * and tag chips, updated date, "Visit" link). The whole card is clickable (stretched link); chips and "Visit" stay
+ * independently clickable.
+ *
+ * Rendered from the same `renderDirectoryCard()` the browser uses after filtering, so server and client cards are
+ * byte-identical. Hooks: `[data-component="item-card"]` with `[data-part="icon|name|host|featured-badge|description|
+ * category|tag|updated|source-link"]`, `[data-featured]` on featured cards.
+ *
+ * @example
+ * ```astro
+ * <DirectoryCard item={{ slug, name, description, logo, website, featured, categories, tags, updated }} />
+ * ```
+ */
+import { renderDirectoryCard, type DirectoryCardData } from '../lib/directory-format';
+
+interface Props {
+    item: DirectoryCardData;
+}
+
+const { item } = Astro.props;
+---
+
+<Fragment set:html={renderDirectoryCard(item)} />

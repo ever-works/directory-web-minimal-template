@@ -1,0 +1,271 @@
+---
+/**
+ * DirectoryBrowser — the listing used on the homepage, `/page/N`, category and tag pages.
+ *
+ * Server-renders one page of cards with static pagination links (complete without JS and crawlable). Two layouts are
+ * rendered from the same markup and switched by CSS (`html[data-layout]`):
+ * - **Classic**: sticky sidebar (categories with icons and counts, popular tags) + results.
+ * - **Modern grid**: a category chip row and a tag dropdown above the results.
+ * `client/directory-browser.ts` adds search, multi-select filters, sort, infinite scroll and URL state.
+ *
+ * Hooks: `[data-component="directory-browser"]` with `[data-part="sidebar"|"category-chips"|"toolbar"|"search"|
+ * "tag-filter"|"sort"|"view-toggle"|"result-count"|"active-filters"|"results"|"pagination"|"sentinel"]`.
+ */
+import Icon from './Icon.astro';
+import CategoryIcon from './CategoryIcon.astro';
+import DirectoryCard from './DirectoryCard.astro';
+import type { DirectoryCardData } from '../lib/directory-format';
+
+/** A category option in the sidebar / chip row. */
+export interface BrowserCategory {
+    id: string;
+    name: string;
+    count: number;
+    icon_svg?: string | undefined;
+    icon_url?: string | undefined;
+}
+
+/** A tag option. */
+export interface BrowserTag {
+    id: string;
+    name: string;
+    count: number;
+}
+
+interface Props {
+    /** Cards for the server-rendered page */
+    items: DirectoryCardData[];
+    /** Number of items in this listing (scope) */
+    total: number;
+    perPage: number;
+    /** Server-rendered page number (1 on the homepage, N on /page/N) */
+    currentPage?: number;
+    /** Static pagination: total pages and URL builder. Omit `pageHref` when the page renders every item. */
+    totalPages?: number;
+    pageHref?: (page: number) => string;
+    categories: BrowserCategory[];
+    tags: BrowserTag[];
+    /** `filter` = buttons that filter in place (homepage); `link` = navigation links (taxonomy pages) */
+    categoryMode?: 'filter' | 'link';
+    /** Restrict the client listing to this category / tag id (taxonomy pages) */
+    scopeCategory?: string | undefined;
+    scopeTag?: string | undefined;
+    /** URL the browser writes its query string onto */
+    basePath: string;
+    itemsName: string;
+    defaultSort: 'featured' | 'name-asc' | 'name-desc' | 'date-desc' | 'date-asc';
+    searchEnabled?: boolean;
+    /** Visible heading (optional) */
+    heading?: string | undefined;
+    /** Max tags in the sidebar cloud */
+    sidebarTagLimit?: number;
+}
+
+const {
+    items,
+    total,
+    perPage,
+    currentPage = 1,
+    totalPages = 1,
+    pageHref,
+    categories,
+    tags,
+    categoryMode = 'filter',
+    scopeCategory,
+    scopeTag,
+    basePath,
+    itemsName,
+    defaultSort,
+    searchEnabled = true,
+    heading,
+    sidebarTagLimit = 24
+} = Astro.props;
+
+const noun = itemsName.toLowerCase();
+const visibleCategories = categories.filter((c) => c.count > 0);
+const sortedTags = [...tags].filter((t) => t.count > 0).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+const sidebarTags = sortedTags.slice(0, sidebarTagLimit);
+const start = items.length ? (currentPage - 1) * perPage + 1 : 0;
+const end = (currentPage - 1) * perPage + items.length;
+const countText =
+    total === 0 ? `No ${noun} yet` : total <= items.length ? `Showing ${total} ${noun}` : `Showing ${start}–${end} of ${total} ${noun}`;
+
+const pages: Array<number | '…'> = [];
+for (let p = 1; p <= totalPages; p++) {
+    if (p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1) pages.push(p);
+    else if (pages[pages.length - 1] !== '…') pages.push('…');
+}
+const sortOptions = [
+    { value: 'featured', label: 'Featured first' },
+    { value: 'name-asc', label: 'Name A–Z' },
+    { value: 'name-desc', label: 'Name Z–A' },
+    { value: 'date-desc', label: 'Recently updated' },
+    { value: 'date-asc', label: 'Oldest updated' }
+];
+const categoryHref = (id: string) => `/category/${encodeURIComponent(id)}`;
+const tagHref = (id: string) => `/tag/${encodeURIComponent(id)}`;
+---
+
+<section
+    class="dw-browser"
+    data-component="directory-browser"
+    data-per-page={perPage}
+    data-initial-page={currentPage}
+    data-default-sort={defaultSort}
+    data-scope-category={scopeCategory}
+    data-scope-tag={scopeTag}
+    data-base-path={basePath}
+    data-items-name={itemsName}
+    data-complete={items.length >= total ? '' : undefined}
+    aria-label={heading ?? `All ${noun}`}
+>
+    <div class="dw-browser-grid">
+        <aside class="dw-sidebar" data-part="sidebar" aria-label="Filters">
+            <div class="dw-sidebar-inner">
+                {visibleCategories.length > 0 && (
+                    <div class="dw-side-section">
+                        <h2 class="dw-sidebar-title">Categories</h2>
+                        <div class="dw-side-list">
+                            {categoryMode === 'filter' ? (
+                                <>
+                                    <a href="/" class="dw-side-link" data-clear-filters>
+                                        <span class="dw-side-name">All {noun}</span>
+                                    </a>
+                                    {visibleCategories.map((c) => (
+                                        <a href={categoryHref(c.id)} class="dw-side-link" data-filter-category={c.id} aria-pressed="false">
+                                            <CategoryIcon name={c.name} svg={c.icon_svg} url={c.icon_url} />
+                                            <span class="dw-side-name">{c.name}</span>
+                                            <span class="dw-chip-count">{c.count}</span>
+                                        </a>
+                                    ))}
+                                </>
+                            ) : (
+                                <>
+                                    <a href="/" class="dw-side-link"><span class="dw-side-name">All {noun}</span></a>
+                                    {visibleCategories.map((c) => (
+                                        <a href={categoryHref(c.id)} class="dw-side-link" aria-current={c.id === scopeCategory ? 'page' : undefined}>
+                                            <CategoryIcon name={c.name} svg={c.icon_svg} url={c.icon_url} />
+                                            <span class="dw-side-name">{c.name}</span>
+                                            <span class="dw-chip-count">{c.count}</span>
+                                        </a>
+                                    ))}
+                                </>
+                            )}
+                        </div>
+                    </div>
+                )}
+                {sidebarTags.length > 0 && (
+                    <div class="dw-side-section">
+                        <h2 class="dw-sidebar-title">Popular tags</h2>
+                        <div class="dw-tag-cloud">
+                            {sidebarTags.map((t) =>
+                                t.id === scopeTag ? (
+                                    <a href={tagHref(t.id)} class="dw-chip" aria-current="page">#{t.name}</a>
+                                ) : (
+                                    <a href={tagHref(t.id)} class="dw-chip" data-filter-tag={t.id} aria-pressed="false">
+                                        #{t.name} <span class="dw-chip-count">{t.count}</span>
+                                    </a>
+                                )
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
+        </aside>
+
+        <div class="dw-main" data-part="main">
+            {heading && <h2 data-part="heading" class="sr-only">{heading}</h2>}
+
+            {visibleCategories.length > 0 && (
+                <div class="dw-chips-row" data-part="category-chips" role="group" aria-label="Categories" style="margin-bottom:0.875rem">
+                    {categoryMode === 'filter'
+                        ? visibleCategories.map((c) => (
+                              <a href={categoryHref(c.id)} class="dw-chip dw-chip-category" data-filter-category={c.id} aria-pressed="false">
+                                  {c.name} <span class="dw-chip-count">{c.count}</span>
+                              </a>
+                          ))
+                        : visibleCategories.map((c) => (
+                              <a href={categoryHref(c.id)} class="dw-chip dw-chip-category" aria-current={c.id === scopeCategory ? 'page' : undefined}>
+                                  {c.name} <span class="dw-chip-count">{c.count}</span>
+                              </a>
+                          ))}
+                </div>
+            )}
+
+            <div class="dw-toolbar" data-part="toolbar">
+                {searchEnabled && (
+                    <form class="dw-search-box" data-part="search" role="search" action={basePath} method="get">
+                        <Icon name="search" class="dw-icon-sm" />
+                        <label class="sr-only" for="dw-browser-q">Search {noun}</label>
+                        <input id="dw-browser-q" class="dw-input" type="search" name="q" placeholder={`Filter ${noun}`} autocomplete="off" data-browser-search />
+                    </form>
+                )}
+                <div class="dw-toolbar-end">
+                    {sortedTags.length > 0 && (
+                        <details class="dw-popover dw-tag-filter" data-popover data-part="tag-filter">
+                            <summary class="dw-btn dw-btn-outline">
+                                Tags <span class="dw-chip-count" data-part="tag-filter-count"></span>
+                                <Icon name="chevron-down" class="dw-icon-sm" />
+                            </summary>
+                            <div class="dw-popover-panel dw-tag-panel" role="group" aria-label="Filter by tag">
+                                {sortedTags.map((t) => (
+                                    <label>
+                                        <input type="checkbox" value={t.id} data-filter-tag-checkbox />
+                                        <span>{t.name}</span>
+                                        <span class="dw-chip-count">{t.count}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </details>
+                    )}
+                    <label class="sr-only" for="dw-browser-sort">Sort by</label>
+                    <select id="dw-browser-sort" class="dw-select" data-browser-sort data-part="sort">
+                        {sortOptions.map((option) => (
+                            <option value={option.value} selected={option.value === defaultSort}>{option.label}</option>
+                        ))}
+                    </select>
+                    <div class="dw-view-toggle" role="group" aria-label="Card view" data-part="view-toggle">
+                        <button type="button" data-pref="view" data-value="grid" aria-pressed="false" aria-label="Grid view" title="Grid"><Icon name="grid" class="dw-icon-sm" /></button>
+                        <button type="button" data-pref="view" data-value="list" aria-pressed="false" aria-label="List view" title="List"><Icon name="list" class="dw-icon-sm" /></button>
+                        <button type="button" data-pref="view" data-value="compact" aria-pressed="false" aria-label="Compact view" title="Compact"><Icon name="rows" class="dw-icon-sm" /></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dw-result-info">
+                <p data-part="result-count" aria-live="polite">{countText}</p>
+                <div class="dw-active-filters" data-part="active-filters"></div>
+            </div>
+
+            <div class="dw-results" data-part="results">
+                {items.length === 0 ? (
+                    <div class="dw-empty" data-part="empty-state"><p>No {noun} here yet</p></div>
+                ) : (
+                    items.map((item) => <DirectoryCard item={item} />)
+                )}
+            </div>
+
+            {pageHref && totalPages > 1 && (
+                <nav class="dw-pagination" data-part="pagination" aria-label="Pagination">
+                    {currentPage > 1 ? (
+                        <a href={pageHref(currentPage - 1)} rel="prev"><span aria-hidden="true">←</span><span class="sr-only">Previous page</span></a>
+                    ) : null}
+                    {pages.map((p) =>
+                        p === '…' ? <span>…</span> : <a href={pageHref(p)} aria-current={p === currentPage ? 'page' : undefined}>{p}</a>
+                    )}
+                    {currentPage < totalPages ? (
+                        <a href={pageHref(currentPage + 1)} rel="next"><span aria-hidden="true">→</span><span class="sr-only">Next page</span></a>
+                    ) : null}
+                </nav>
+            )}
+            {!(pageHref && totalPages > 1) && <nav class="dw-pagination" data-part="pagination" aria-label="Pagination" hidden></nav>}
+            <div class="dw-sentinel" data-part="sentinel" aria-hidden="true"></div>
+            <p class="dw-loading-more" role="status">Loading more {noun}…</p>
+        </div>
+    </div>
+</section>
+
+<script>
+    import { initDirectoryBrowsers } from '../client/directory-browser';
+    initDirectoryBrowsers();
+</script>

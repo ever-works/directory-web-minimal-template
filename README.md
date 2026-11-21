@@ -19,6 +19,33 @@ This template is an **intentionally blank canvas** with headless, composable bui
 - **TypeScript** throughout — strict mode, full type safety
 - **Extreme performance** — minimal JS, CDN-optimized static output
 
+## What a directory gets out of the box
+
+- **Header** with logo (light/dark), active navigation, quick search (`/` or `Ctrl/⌘+K`), display settings
+  (Classic or Modern Grid layout, card view, content width, standard or infinite pagination), theme toggle and a
+  "Submit" button — all switchable from the data repo's `.works/works.yml` (`settings.header.*`).
+- **Listing** with search, multi-select category and tag filters, five sort orders, grid / list / compact views
+  and shareable URLs, server-rendered first page for crawlers, a few KB of vanilla JS for the rest.
+- **Item pages** with logos (icon → brand logo → favicon → monogram), screenshots, Markdown write-up,
+  "Alternatives to …", previous/next, share links and "Suggest an edit".
+- **Submit page**: pre-filled GitHub pull request / issue on the data repo, email, or an external form.
+- **SEO**: canonical URLs, Open Graph, JSON-LD (WebSite + SearchAction, CollectionPage, item pages, breadcrumbs),
+  sitemap with `lastmod`, robots with AI-crawler rules.
+
+## For AI agents
+
+Every directory exposes the same Agent Access Contract (`.specify/features/agent-access.md`):
+
+- `/llms.txt` and `/llms-full.txt`, plus a Markdown twin of every page (`/item/<slug>.md`, …)
+- Read API: `/data/directory.json`, `/data/items.json`, `/data/items/<slug>.json`, `/data/categories.json`,
+  `/data/tags.json`, described by `/data/openapi.json` (OpenAPI 3.1)
+- MCP server at `/mcp` (Streamable HTTP, tools `search_items`, `list_items`, `get_item`, `list_categories`,
+  `list_tags`, `get_directory_info`), card at `/.well-known/mcp.json`; `/.well-known/api-catalog` (RFC 9727)
+
+```bash
+claude mcp add --transport http awesome-crm https://crm.ever.works/mcp
+```
+
 ## What's NOT Included (By Design)
 
 - No authentication / user accounts
@@ -78,6 +105,7 @@ packages/
   plugin-rss/         RSS 2.0 + Atom 1.0 feed generation
   plugin-analytics/   Privacy-friendly analytics (Plausible, Umami, Fathom, GA4, custom)
   plugin-related-items/ Compute related items based on shared tags/categories
+  agent-api/          AI-agent access: /data/*.json read API, search ranking, MCP server handler, OpenAPI
   tsconfig/           Shared TypeScript configurations
   eslint-config/      Shared ESLint configuration
 ```

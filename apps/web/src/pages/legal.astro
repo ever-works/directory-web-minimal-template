@@ -1,0 +1,27 @@
+---
+/**
+ * Legal Page — renders the data repository's `markdown/footer.md` (legal notice, license, AI-content disclaimer
+ * written by the Ever Works platform). When the repository has no footer block, the page says so and is `noindex`.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getSite } from '../lib/site';
+import { renderMarkdown } from '@ever-works/core';
+import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
+
+const site = await getSite();
+const { config, blocks } = site.content;
+const html = renderMarkdown(blocks?.footer);
+---
+
+<BaseLayout
+    title="Legal & license"
+    description={`Legal notice, license and content disclaimer for ${config.company_name}.`}
+    canonicalUrl="/legal"
+    noindex={!html}
+>
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Legal & license' }]} />
+    <article data-component="legal-page">
+        <h1 data-part="heading">Legal &amp; license</h1>
+        {html ? <div data-part="content" set:html={html} /> : <p>No legal notice has been published for this directory.</p>}
+    </article>
+</BaseLayout>

@@ -9,7 +9,10 @@ import { getContent } from '../../lib/content';
 import type { CollectionData } from '@ever-works/core';
 import { generateJsonLd } from '@ever-works/plugin-seo';
 import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
-import ItemGrid from '@ever-works/ui/astro/ItemGrid.astro';
+import DirectoryCard from '@ever-works/ui/astro/DirectoryCard.astro';
+import { getSite } from '../../lib/site';
+import { sortedCards } from '../../lib/listing';
+import { collectionPageJsonLd } from '../../lib/structured-data';
 import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
 import { itemBelongsToCollection, uniquePathAliases } from '../../lib/taxonomy';
 
@@ -34,6 +37,9 @@ const { items, config } = await getContent();
 
 // Filter items that belong to this collection
 const collectionItems = items.filter((item) => itemBelongsToCollection(item, collection));
+const site = await getSite();
+const cards = sortedCards(site, collectionItems);
+const description = collection.description || `${collectionItems.length} ${config.items_name.toLowerCase()} in the ${collection.name} collection on ${config.company_name}.`;
 
 const breadcrumbItems = [
     { label: 'Home', href: '/' },
@@ -54,8 +60,9 @@ const breadcrumbLd = generateJsonLd('BreadcrumbList', {
 
 <BaseLayout
     title={collection.name}
-    description={collection.description || `Browse items in the ${collection.name} collection`}
-    config={config}
+    description={description}
+    canonicalUrl={`/collection/${collection.slug}`}
+    jsonLd={[collectionPageJsonLd(site, { name: collection.name, description, path: `/collection/${collection.slug}` }, cards)]}
     markdownMirrorUrl={`/collection/${collection.slug}.md`}
 >
     <Fragment slot="head">
@@ -80,7 +87,9 @@ const breadcrumbLd = generateJsonLd('BreadcrumbList', {
         {collectionItems.length === 0 ? (
             <EmptyState message={`No ${config.items_name.toLowerCase()} in this collection.`} />
         ) : (
-            <ItemGrid items={collectionItems} columns={3} />
+            <div class="dw-results" data-component="item-grid" style="margin-top:1.5rem">
+                {cards.map((card) => <DirectoryCard item={card} />)}
+            </div>
         )}
     </section>
 </BaseLayout>

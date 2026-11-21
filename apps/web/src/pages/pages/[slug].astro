@@ -27,7 +27,7 @@ interface Props {
 const { page } = Astro.props;
 const { config } = await getContent();
 
-const siteUrl = config.site_url ?? '';
+const siteUrl = String(config.app_url ?? config.site_url ?? '').replace(/\/+$/, '');
 
 // Article JSON-LD for static content pages
 const articleLd = generateJsonLd('Article', {

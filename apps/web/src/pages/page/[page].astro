@@ -1,71 +1,67 @@
 ---
 /**
- * Paginated Listing Page — Shows items for a specific page number.
- *
- * Uses getStaticPaths with plugin-pagination to generate all pages.
- * Page 1 redirects to / (home page handles it).
+ * Paginated Listing Page — `/page/N` (N ≥ 2) of the homepage listing, in the homepage's default sort order.
+ * Same DirectoryBrowser as the homepage; static pagination links keep every item crawlable.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getContent } from '../../lib/content';
-import { paginate, generatePagePaths } from '@ever-works/plugin-pagination';
-import { generateJsonLd } from '@ever-works/plugin-seo';
-import ItemGrid from '@ever-works/ui/astro/ItemGrid.astro';
-import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
-import Pagination from '@ever-works/ui/astro/Pagination.astro';
+import { getSite } from '../../lib/site';
+import { breadcrumbJsonLd, collectionPageJsonLd } from '../../lib/structured-data';
+import { generatePagePaths } from '@ever-works/plugin-pagination';
+import { resolveSiteSettings } from '@ever-works/core';
+import { sortItems } from '@ever-works/agent-api/search';
+import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
+import DirectoryBrowser from '@ever-works/ui/astro/DirectoryBrowser.astro';
 
 export async function getStaticPaths() {
     const { items, config } = await getContent();
-    const perPage = config.pagination?.itemsPerPage ?? 12;
+    const perPage = resolveSiteSettings(config).itemsPerPage;
     return generatePagePaths(items.length, perPage).filter((entry) => entry.params.page !== '1');
 }
 
-const { currentPage, totalPages } = Astro.props;
-const { items, config } = await getContent();
-const perPage = config.pagination?.itemsPerPage ?? 12;
-const pagination = paginate(items, { page: currentPage, perPage });
-
-const siteUrl = (config.app_url ?? '').replace(/\/$/, '');
-
-// JSON-LD for the listing page
-const jsonLd = generateJsonLd('ItemList', {
-    type: 'ItemList',
-    items: pagination.items.map((item) => ({
-        name: item.name,
-        url: `/item/${item.slug}`,
-    })),
-});
-
-// BreadcrumbList JSON-LD: Home → Page N
-const breadcrumbLd = generateJsonLd('BreadcrumbList', {
-    type: 'BreadcrumbList',
-    items: [
-        { name: 'Home', url: `${siteUrl}/` },
-        { name: `Page ${currentPage}`, url: `${siteUrl}/page/${currentPage}` },
-    ],
-});
+const { currentPage, totalPages } = Astro.props as { currentPage: number; totalPages: number };
+const site = await getSite();
+const { content, settings } = site;
+const { config, items, categories, tags } = content;
+const perPage = settings.itemsPerPage;
+const sorted = sortItems(items, settings.homepage.defaultSort, (item) => ({
+    name: item.name,
+    featured: item.featured === true,
+    updated: item.updated_at
+}));
+const offset = (currentPage - 1) * perPage;
+const pageCards = sorted.slice(offset, offset + perPage).map(site.card);
+const title = `All ${config.items_name} — Page ${currentPage} of ${totalPages}`;
+const description = `${site.description} Page ${currentPage} of ${totalPages}.`;
 ---
 
 <BaseLayout
-    title={`${config.items_name} — Page ${currentPage}`}
-    description={`Browse ${config.items_name} — Page ${currentPage} of ${totalPages}`}
-    config={config}
+    title={title}
+    description={description}
+    jsonLd={[
+        collectionPageJsonLd(site, { name: title, description, path: `/page/${currentPage}` }, pageCards, offset),
+        breadcrumbJsonLd(site, [
+            { name: 'Home', path: '/' },
+            { name: `Page ${currentPage}`, path: `/page/${currentPage}` }
+        ])
+    ]}
 >
-    <Fragment slot="head">
-        <script is:inline type="application/ld+json" set:html={jsonLd} />
-        <script is:inline type="application/ld+json" set:html={breadcrumbLd} />
-    </Fragment>
-
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: `Page ${currentPage}` }]} />
     <section data-component="item-listing">
-        <h1 data-part="heading">
-            {config.items_name} — Page {currentPage} of {totalPages}
-        </h1>
-
-        {pagination.items.length === 0 ? (
-            <EmptyState message={`No ${config.items_name.toLowerCase()} found.`} />
-        ) : (
-            <ItemGrid items={pagination.items} columns={3} />
-        )}
-
-        <Pagination currentPage={currentPage} totalPages={totalPages} baseUrl="/" />
+        <h1 data-part="heading">{title}</h1>
+        <DirectoryBrowser
+            items={pageCards}
+            total={sorted.length}
+            perPage={perPage}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageHref={(page) => (page === 1 ? '/' : `/page/${page}`)}
+            categories={settings.sections.categories ? categories : []}
+            tags={settings.sections.tags ? tags : []}
+            basePath="/"
+            itemsName={config.items_name}
+            defaultSort={settings.homepage.defaultSort}
+            searchEnabled={settings.homepage.searchEnabled}
+        />
     </section>
 </BaseLayout>

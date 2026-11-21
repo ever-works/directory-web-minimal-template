@@ -3,6 +3,46 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-11-21 — Directory experience v2 + Agent Access (search, filters, layouts, submit, SEO, MCP)
+
+Owner request: the minimal template is now the default for Ever Works directories (static on Cloudflare); make it
+feel as complete as the full Next.js template without making it heavy, and make every directory discoverable and
+queryable by AI agents. Specs: `.specify/features/directory-experience.md`, `.specify/features/agent-access.md`.
+
+- **Settings from works.yml are honoured** (`resolveSiteSettings()` in `@ever-works/core`): `settings.header.*`
+  (submit / layout / theme toggles, `layout_default` home1→Classic, home2→Modern Grid, `pagination_default`,
+  `theme_default`), `settings.homepage.*` (hero, search, `default_view`, `default_sort`), `settings.footer.*`,
+  section toggles, `custom_menu.{header,footer}` (+ legacy `custom_header`/`custom_footer`), `submit`, `social`.
+  Before, the platform wrote these keys and the template ignored them. 18 unit tests.
+- **Header**: logo (light/dark images or a monogram mark), active nav, quick search (`/`, `Ctrl/⌘+K`, native
+  `<dialog>`), display settings (Classic / Modern Grid layout, card view, content width, standard / infinite
+  pagination — persisted per visitor, applied before first paint), theme toggle, "Submit" button, `<details>`
+  mobile menu.
+- **Listing** (`DirectoryBrowser`): server-rendered first page with static pagination (crawlable, works without
+  JS) + vanilla-TS enhancement: search, multi-select category and tag filters, 5 sorts, 3 views, infinite scroll,
+  shareable URL state (`?q=&category=&tag=&sort=&page=`). Filters run over a lazily fetched compact index
+  (`/data/search-index.json`, ~85 bytes/item gzip). Category and tag pages use the same browser, scoped.
+- **Item page**: logo fallback chain (icon → brand logo → favicon → monogram), visit + share, info panel,
+  screenshot gallery (broken images remove themselves), Markdown with a single `<h1>` (`prepareItemMarkdown`),
+  "Alternatives to …" (`@ever-works/plugin-related-items`, now matching names and ids), previous/next in the
+  category, "Suggest an edit" (GitHub), sticky mobile CTA.
+- **Submit page** (`/submit`): static form → pre-filled GitHub pull request (new `data/<slug>/<slug>.yml`), issue,
+  or email; `submit.url` sends visitors to an external form. Public/private data repos are detected at build time.
+- **Footer**: brand column, social links, Browse / Explore / For developers & AI columns, theme selector,
+  version, attribution; `/legal` renders `markdown/footer.md`; `markdown/header.md` feeds the site description.
+- **SEO**: absolute canonical everywhere (SITE_URL now fills `app_url`, fixing relative URLs in llms.txt, feeds,
+  Markdown twins and robots `Sitemap:`), descriptive titles and descriptions, `og:site_name` / image alt /
+  modified time, `WebSite` + `SearchAction`, `Organization`, `CollectionPage`/`ItemList`, item `WebPage` +
+  `SoftwareApplication` (configurable `seo.item_type`), absolute breadcrumbs, sitemap `lastmod`, alias and empty
+  taxonomy URLs out of the sitemap, generated SVG favicon, `theme-color`.
+- **Agent access** (new `@ever-works/agent-api`): read API `/data/{directory,items,categories,tags}.json`,
+  `/data/items/{slug}.json`, `/data/openapi.json`; `/.well-known/mcp.json`, `/.well-known/api-catalog`
+  (RFC 9727); richer `llms.txt`; MCP server at `/mcp` (Streamable HTTP, 6 read-only tools) — a 5 KB Cloudflare
+  Worker that runs only for `/mcp` (`run_worker_first`), or an on-demand Astro route in ISR mode. 33 unit tests.
+- **Size**: no Preact on the default site any more; a listing page loads ~7 KB gzip of JS, an item page less.
+- **Design pass** (unslop, polish mode): heading weights ≤ 600, sentence-case labels, 4px-grid spacing, 1.5 icon
+  stroke, quiet flat CTA surface, mono tabular figures for counts and dates.
+
 ## 2026-11-21 — Cloudflare Workers deploy, rendered item markdown, default directory layout
 
 - **Cloudflare deploy** (`.github/workflows/deploy_cloudflare.yaml`, plus a `Cloudflare` job in `deploy_prod.yaml`):

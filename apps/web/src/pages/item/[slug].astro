@@ -1,23 +1,30 @@
 ---
 /**
- * Item Detail Page — Shows full details for a single directory item.
- *
- * Uses getStaticPaths to generate one page per approved item at build time.
- * Integrates with plugin-seo for Product JSON-LD structured data.
+ * Item Detail Page — logo (with favicon/monogram fallbacks), name, featured badge, description, "Visit website",
+ * share links, categories/tags, info panel, screenshots, rendered Markdown write-up, "Alternatives to …" (related
+ * items from plugin-related-items), previous/next in the category, "Suggest an edit" (public GitHub data repos),
+ * and a sticky mobile "Visit" button. JSON-LD: WebPage + item entity + BreadcrumbList.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getContent } from '../../lib/content';
-import { generateItemJsonLd, generateJsonLd } from '@ever-works/plugin-seo';
+import { getSite } from '../../lib/site';
+import { categoryCards } from '../../lib/listing';
+import { breadcrumbJsonLd, itemJsonLd, toIsoDate } from '../../lib/structured-data';
 import type { ItemData } from '@ever-works/core';
+import { prepareItemMarkdown, renderMarkdown } from '@ever-works/core';
+import { relatedSlugsOf } from '@ever-works/agent-api';
+import { formatShortDate, hostOf } from '@ever-works/ui/lib/directory-format';
 import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
-import ItemDetail from '@ever-works/ui/astro/ItemDetail.astro';
-import { resolveCategory } from '../../lib/taxonomy';
+import Icon from '@ever-works/ui/astro/Icon.astro';
+import ItemLogo from '@ever-works/ui/astro/ItemLogo.astro';
+import DirectoryCard from '@ever-works/ui/astro/DirectoryCard.astro';
+import ShareLinks from '@ever-works/ui/astro/ShareLinks.astro';
 
 export async function getStaticPaths() {
     const { items } = await getContent();
     return items.map((item) => ({
         params: { slug: item.slug },
-        props: { item },
+        props: { item }
     }));
 }
 
@@ -26,65 +33,169 @@ interface Props {
 }
 
 const { item } = Astro.props;
-const { config, items, categories } = await getContent();
+const site = await getSite();
+const { content } = site;
+const { config, items } = content;
+const card = site.card(item);
+const primary = card.categories[0];
+const host = hostOf(card.website);
+const updated = formatShortDate(card.updated);
+const images = (Array.isArray(item.images) ? item.images : []).filter(
+    (url): url is string => typeof url === 'string' && /^https?:\/\//i.test(url)
+).slice(0, 6);
+// The page owns the only <h1>: drop a repeated title and demote other H1s in the write-up.
+const html = renderMarkdown(prepareItemMarkdown(item.markdown, item.name));
 
-// Find related items (same category, excluding self)
-const primaryCategory: string | undefined = Array.isArray(item.category) ? item.category[0] : item.category;
-const relatedItems = primaryCategory
-    ? items
-        .filter((i) => {
-            if (i.slug === item.slug) return false;
-            const cats = Array.isArray(i.category) ? i.category : [i.category];
-            return cats.includes(primaryCategory);
-        })
-        .slice(0, 6)
-    : [];
+// Alternatives: plugin-related-items scores (shared tags + category); fall back to the same category.
+const bySlug = new Map(items.map((entry) => [entry.slug, entry]));
+const related = relatedSlugsOf(item)
+    .map((slug) => bySlug.get(slug))
+    .filter((entry): entry is ItemData => !!entry)
+    .slice(0, 6);
+const siblings = primary ? categoryCards(site, primary.id) : [];
+const relatedCards =
+    related.length > 0 ? related.map(site.card) : siblings.filter((entry) => entry.slug !== item.slug).slice(0, 6);
 
-// Resolve category name for breadcrumbs
-// Data repos may store the category by id or by display name (platform data uses the name);
-// resolveCategory matches either, so the breadcrumb and JSON-LD always get the category.
-const categoryData = primaryCategory ? resolveCategory(categories, primaryCategory) : null;
+// Previous / next within the primary category (default sort order).
+const position = siblings.findIndex((entry) => entry.slug === item.slug);
+const previous = position > 0 ? siblings[position - 1] : undefined;
+const next = position >= 0 && position < siblings.length - 1 ? siblings[position + 1] : undefined;
 
-// JSON-LD for the item (auto-selects SoftwareApplication or Product)
-const jsonLd = generateItemJsonLd({
-    name: item.name,
-    description: item.description,
-    url: item.source_url ?? '',
-    image: item.icon_url,
-});
-
-// BreadcrumbList JSON-LD for navigation trail
-const siteUrl = config.site_url ?? '';
-const breadcrumbLd = generateJsonLd('BreadcrumbList', {
-    type: 'BreadcrumbList',
-    items: [
-        { name: 'Home', url: `${siteUrl}/` },
-        ...(categoryData ? [{ name: categoryData.name, url: `${siteUrl}/category/${categoryData.id}` }] : []),
-        { name: item.name, url: `${siteUrl}/item/${item.slug}` },
-    ],
-});
-
-// Breadcrumb items for UI component
-const breadcrumbItems = [
-    { label: 'Home', href: '/' },
-    ...(categoryData ? [{ label: categoryData.name, href: `/category/${categoryData.id}` }] : []),
-    { label: item.name },
-];
+const editUrl = site.dataRepository
+    ? `${site.dataRepository.url}/edit/${encodeURIComponent(site.dataRepository.branch)}/data/${encodeURIComponent(item.slug)}/${encodeURIComponent(item.slug)}.yml`
+    : null;
+const pageUrl = site.absolute(`/item/${item.slug}`);
+const title = primary ? `${item.name} — ${primary.name}` : item.name;
+const metaDesc = item.description || `${item.name} on ${config.company_name}.`;
+const brand = typeof item.brand === 'string' && item.brand !== item.name ? item.brand : null;
+const publisher = typeof item.publisher === 'string' ? item.publisher : null;
 ---
 
 <BaseLayout
-    title={item.name}
-    description={item.description}
-    config={config}
-    pageType="product"
+    title={title}
+    description={metaDesc}
+    canonicalUrl={`/item/${item.slug}`}
+    pageType="article"
+    ogImage={images[0] ?? card.logo}
+    ogImageAlt={`${item.name}`}
+    modifiedAt={card.updated ? toIsoDate(card.updated) : undefined}
     markdownMirrorUrl={`/item/${item.slug}.md`}
+    stickyCta={!!card.website}
+    jsonLd={[
+        itemJsonLd(site, item, card, images),
+        breadcrumbJsonLd(site, [
+            { name: 'Home', path: '/' },
+            ...(primary ? [{ name: primary.name, path: `/category/${primary.id}` }] : []),
+            { name: item.name, path: `/item/${item.slug}` }
+        ])
+    ]}
 >
-    <Fragment slot="head">
-        <script is:inline type="application/ld+json" set:html={jsonLd} />
-        <script is:inline type="application/ld+json" set:html={breadcrumbLd} />
-    </Fragment>
+    <Breadcrumbs
+        items={[
+            { label: 'Home', href: '/' },
+            ...(primary ? [{ label: primary.name, href: `/category/${primary.id}` }] : []),
+            { label: item.name }
+        ]}
+    />
 
-    <Breadcrumbs items={breadcrumbItems} />
+    <div class="dw-item" data-component="item-detail" data-featured={card.featured ? '' : undefined}>
+        <article class="min-w-0">
+            <header class="dw-item-head">
+                <ItemLogo name={item.name} logo={card.logo} website={card.website} size="lg" eager />
+                <div class="min-w-0">
+                    <h1 data-part="name">{item.name}</h1>
+                    <p style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;margin-top:0.5rem;color:var(--muted-foreground);font-size:0.875rem">
+                        {card.featured && <span class="dw-badge-featured" data-part="featured-badge">Featured</span>}
+                        {host && <span data-part="host">{host}</span>}
+                        {updated && <span data-part="updated-at">· Updated {updated}</span>}
+                    </p>
+                </div>
+            </header>
 
-    <ItemDetail item={item} relatedItems={relatedItems} />
+            {item.description && <p class="dw-item-lead" data-part="description">{item.description}</p>}
+
+            <div class="dw-item-actions">
+                {card.website && (
+                    <a href={card.website} class="dw-btn dw-btn-primary" data-part="source-link" target="_blank" rel="noopener nofollow">
+                        Visit {host ?? 'website'} <Icon name="external" class="dw-icon-sm" />
+                    </a>
+                )}
+                <ShareLinks url={pageUrl} title={`${item.name} — ${config.company_name}`} />
+            </div>
+
+            {(card.categories.length > 0 || card.tags.length > 0) && (
+                <div class="dw-item-taxonomy" data-part="meta">
+                    {card.categories.map((c) => <a class="dw-chip dw-chip-category" data-part="category" href={`/category/${encodeURIComponent(c.id)}`}>{c.name}</a>)}
+                    {card.tags.map((t) => <a class="dw-chip" data-part="tag" href={`/tag/${encodeURIComponent(t.id)}`}>#{t.name}</a>)}
+                </div>
+            )}
+
+            {images.length > 0 && (
+                <div class="dw-gallery" data-part="gallery">
+                    {images.map((src, index) => (
+                        <a href={src} target="_blank" rel="noopener nofollow" aria-label={`${item.name} screenshot ${index + 1} (opens in a new tab)`}>
+                            <img src={src} alt={`${item.name} screenshot ${index + 1}`} loading="lazy" decoding="async" width="640" height="400" referrerpolicy="no-referrer" onerror="this.parentElement.remove()" />
+                        </a>
+                    ))}
+                </div>
+            )}
+
+            {html && <div data-part="content" class="prose dark:prose-invert max-w-none" set:html={html} />}
+
+            {editUrl && (
+                <p style="margin-top:2rem;font-size:0.875rem;color:var(--muted-foreground)">
+                    <a href={editUrl} target="_blank" rel="noopener" style="display:inline-flex;gap:0.4rem;align-items:center;text-decoration:underline" data-part="suggest-edit">
+                        <Icon name="edit" class="dw-icon-sm" />Suggest an edit to this page
+                    </a>
+                </p>
+            )}
+        </article>
+
+        <aside class="dw-aside" aria-label={`About ${item.name}`}>
+            <div class="dw-panel" data-part="info">
+                <h2>Information</h2>
+                <dl class="dw-info">
+                    {host && <div><dt>Website</dt><dd><a href={card.website ?? '#'} target="_blank" rel="noopener nofollow" style="text-decoration:underline">{host}</a></dd></div>}
+                    {primary && <div><dt>Category</dt><dd><a href={`/category/${primary.id}`} style="text-decoration:underline">{primary.name}</a></dd></div>}
+                    {brand && <div><dt>Brand</dt><dd>{brand}</dd></div>}
+                    {publisher && <div><dt>Publisher</dt><dd>{publisher}</dd></div>}
+                    {updated && <div><dt>Last updated</dt><dd><time datetime={toIsoDate(card.updated ?? '')}>{updated}</time></dd></div>}
+                    {card.tags.length > 0 && <div><dt>Tags</dt><dd>{card.tags.length}</dd></div>}
+                </dl>
+            </div>
+            <div class="dw-panel" data-part="machine-readable">
+                <h2>For AI &amp; developers</h2>
+                <ul style="display:grid;gap:0.4rem;font-size:0.875rem">
+                    <li><a href={`/item/${item.slug}.md`} style="text-decoration:underline">Markdown version</a></li>
+                    <li><a href={`/data/items/${item.slug}.json`} style="text-decoration:underline">JSON (Data API)</a></li>
+                    {site.mcpEnabled && <li><a href="/llms.txt" style="text-decoration:underline">Query this directory via MCP</a></li>}
+                </ul>
+            </div>
+        </aside>
+    </div>
+
+    {relatedCards.length > 0 && (
+        <section class="dw-section" data-component="similar-items" aria-labelledby="alternatives-heading">
+            <div class="dw-section-head">
+                <h2 id="alternatives-heading">Alternatives to {item.name}</h2>
+                {primary && <a href={`/category/${primary.id}`}>More in {primary.name} →</a>}
+            </div>
+            <div class="dw-results">
+                {relatedCards.map((related) => <DirectoryCard item={related} />)}
+            </div>
+        </section>
+    )}
+
+    {(previous || next) && (
+        <nav class="dw-prev-next" aria-label={`More in ${primary?.name ?? 'this category'}`}>
+            {previous ? <a href={`/item/${previous.slug}`} data-part="previous" rel="prev"><small>← Previous</small>{previous.name}</a> : <span />}
+            {next && <a href={`/item/${next.slug}`} data-part="next" rel="next"><small>Next →</small>{next.name}</a>}
+        </nav>
+    )}
+
+    {card.website && (
+        <div class="dw-sticky-cta" data-part="sticky-cta">
+            <a href={card.website} class="dw-btn dw-btn-primary" target="_blank" rel="noopener nofollow">Visit {host ?? 'website'} <Icon name="external" class="dw-icon-sm" /></a>
+        </div>
+    )}
 </BaseLayout>

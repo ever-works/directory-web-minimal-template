@@ -1,0 +1,11 @@
+---
+/**
+ * BackToTopButton — floating "back to top" button, shown after scrolling 600px. Behaviour lives in
+ * `client/site-chrome.ts` (no extra script). Hook: `[data-component="back-to-top"]`.
+ */
+import Icon from './Icon.astro';
+---
+
+<button type="button" class="dw-icon-btn dw-back-to-top" data-component="back-to-top" aria-label="Back to top" title="Back to top">
+    <Icon name="arrow-up" />
+</button>

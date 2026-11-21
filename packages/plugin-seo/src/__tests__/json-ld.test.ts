@@ -487,3 +487,30 @@ describe('generateJsonLd', () => {
         });
     });
 });
+
+describe('serializeJsonLd / script breakout', () => {
+    it('escapes < so data cannot close the script element', async () => {
+        const { serializeJsonLd, generateJsonLd } = await import('../json-ld.js');
+        const evil = 'x</script><script>alert(1)</script>';
+        const out = serializeJsonLd({ name: evil });
+        expect(out).not.toContain('</script>');
+        expect(JSON.parse(out).name).toBe(evil);
+        const ld = generateJsonLd('WebSite', { type: 'WebSite', name: evil, url: 'https://x.y' });
+        expect(ld).not.toContain('<');
+        expect(JSON.parse(ld).name).toBe(evil);
+    });
+
+    it('escapes U+2028 and U+2029', async () => {
+        const { serializeJsonLd } = await import('../json-ld.js');
+        const ls = String.fromCharCode(0x2028);
+        const ps = String.fromCharCode(0x2029);
+        const backslash = String.fromCharCode(92);
+        const value = 'a' + ls + 'b' + ps + 'c';
+        const out = serializeJsonLd({ a: value });
+        expect(out).not.toContain(ls);
+        expect(out).not.toContain(ps);
+        expect(out).toContain(backslash + 'u2028');
+        expect(out).toContain(backslash + 'u2029');
+        expect(JSON.parse(out).a).toBe(value);
+    });
+});
