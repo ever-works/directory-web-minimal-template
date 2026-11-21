@@ -1,0 +1,8 @@
+name: "Radix UI"
+description: "Unstyled, accessible components for building high-quality design systems and web apps."
+source_url: "https://www.radix-ui.com"
+category: "form-components"
+tags: ["typescript", "accessible", "headless", "open-source"]
+updated_at: "2026-01-15 10:00"
+status: "approved"
+featured: true

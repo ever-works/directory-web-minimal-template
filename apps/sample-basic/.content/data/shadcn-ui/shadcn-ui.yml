@@ -1,0 +1,8 @@
+name: "shadcn/ui"
+description: "Beautifully designed components built with Radix UI and Tailwind CSS. Copy and paste into your apps."
+source_url: "https://ui.shadcn.com"
+category: "form-components"
+tags: ["typescript", "accessible", "open-source", "styled"]
+updated_at: "2026-01-20 10:00"
+status: "approved"
+featured: true

@@ -1,0 +1,13 @@
+company_name: "Remote Tech Jobs"
+item_name: "Job"
+items_name: "Jobs"
+copyright_year: 2026
+app_url: "https://remote-tech-jobs.example.com"
+
+pagination:
+  type: "standard"
+  itemsPerPage: 12
+
+settings:
+  categories_enabled: true
+  tags_enabled: true

@@ -1,0 +1,40 @@
+title: "Radix UI vs Headless UI"
+item_a_slug: "radix-ui"
+item_b_slug: "headless-ui"
+item_a_name: "Radix UI"
+item_b_name: "Headless UI"
+summary: "A side-by-side comparison of two leading headless component libraries for React: the broad primitive set of Radix UI against the Tailwind-first components of Headless UI."
+verdict: "Both are excellent unstyled foundations. Radix UI covers more component types and suits teams building a full design system; Headless UI is quicker to adopt in a Tailwind CSS project that needs the common widgets."
+verdict_winner: "tie"
+dimensions:
+  - name: "Component Variety"
+    item_a_summary: "30+ primitives, from dialogs to sliders and toolbars"
+    item_b_summary: "A focused set of about a dozen common widgets"
+    item_a_score: 9
+    item_b_score: 6
+    winner: "item_a"
+  - name: "Accessibility"
+    item_a_summary: "WAI-ARIA patterns, focus management and keyboard support"
+    item_b_summary: "WAI-ARIA patterns, focus management and keyboard support"
+    item_a_score: 9
+    item_b_score: 9
+    winner: "tie"
+  - name: "Ease of Integration"
+    item_a_summary: "One package per primitive, more wiring per component"
+    item_b_summary: "Drops into Tailwind CSS projects with little setup"
+    item_a_score: 7
+    item_b_score: 9
+    winner: "item_b"
+  - name: "TypeScript Support"
+    item_a_summary: "Written in TypeScript with precise prop types"
+    item_b_summary: "Written in TypeScript with good prop types"
+    item_a_score: 9
+    item_b_score: 8
+    winner: "item_a"
+  - name: "Community & Ecosystem"
+    item_a_summary: "Foundation of shadcn/ui and many design systems"
+    item_b_summary: "Backed by the Tailwind Labs team and its users"
+    item_a_score: 8
+    item_b_score: 8
+    winner: "tie"
+generated_at: "2026-03-20"

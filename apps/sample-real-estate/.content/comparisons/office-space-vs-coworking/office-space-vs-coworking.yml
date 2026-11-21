@@ -1,0 +1,33 @@
+title: "Modern Office vs Coworking Retail Unit"
+item_a_slug: "modern-office"
+item_b_slug: "coworking-retail"
+item_a_name: "Modern Office Space"
+item_b_name: "Coworking Retail Unit"
+summary: "Comparing a premium Class A office to a street-level coworking space for small business owners."
+verdict: "The Class A office is best for established companies needing prestige and privacy. The retail coworking space offers better street presence and lower entry cost for startups and boutiques."
+verdict_winner: "tie"
+dimensions:
+  - name: "Price"
+    item_a_summary: "$1,200,000 for 5,000 sqft"
+    item_b_summary: "$380,000 for 2,200 sqft"
+    item_a_score: 5
+    item_b_score: 9
+    winner: "item_b"
+  - name: "Visibility"
+    item_a_summary: "Upper-floor office, limited street presence"
+    item_b_summary: "Street-level with large storefront windows"
+    item_a_score: 5
+    item_b_score: 9
+    winner: "item_b"
+  - name: "Amenities"
+    item_a_summary: "Gym, cafe, rooftop, fiber internet"
+    item_b_summary: "Shared courtyard, basic utilities"
+    item_a_score: 9
+    item_b_score: 6
+    winner: "item_a"
+  - name: "Prestige"
+    item_a_summary: "LEED-certified Class A building"
+    item_b_summary: "Trendy neighborhood retail space"
+    item_a_score: 9
+    item_b_score: 7
+    winner: "item_a"

@@ -1,0 +1,8 @@
+name: "Mantine"
+description: "A fully featured React components library with 100+ hooks and components for building modern web apps."
+source_url: "https://mantine.dev"
+category: "form-components"
+tags: ["typescript", "accessible", "styled", "open-source", "animation"]
+updated_at: "2026-01-18 10:00"
+status: "approved"
+featured: true

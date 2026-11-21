@@ -1,0 +1,8 @@
+name: "Headless UI"
+description: "Completely unstyled, fully accessible UI components, designed to integrate with Tailwind CSS."
+source_url: "https://headlessui.com"
+category: "navigation"
+tags: ["typescript", "accessible", "headless", "open-source"]
+updated_at: "2026-01-10 10:00"
+status: "approved"
+featured: true

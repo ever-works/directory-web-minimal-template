@@ -1,0 +1,17 @@
+name: "Coworking Retail Unit"
+description: "Street-level retail space ideal for coworking or boutique use. High foot traffic area, large storefront windows, ADA accessible, and shared courtyard."
+source_url: "https://dreamproperties.example.com/coworking-retail"
+category: "commercial"
+tags: ["downtown", "furnished", "investment"]
+updated_at: "2026-02-20 10:00"
+status: "approved"
+featured: false
+meta:
+  price: "$380,000"
+  bedrooms: "N/A"
+  bathrooms: "2"
+  sqft: "2,200"
+  location: "Nashville, TN"
+  year_built: "2019"
+  lot_size: "N/A"
+  mls_number: "DP-2026-006"

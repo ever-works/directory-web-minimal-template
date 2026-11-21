@@ -1,0 +1,8 @@
+name: "Ant Design"
+description: "An enterprise-class UI design language and React UI library with high-quality components."
+source_url: "https://ant.design"
+category: "data-display"
+tags: ["typescript", "styled", "open-source", "design-system"]
+updated_at: "2026-01-05 10:00"
+status: "approved"
+featured: false
