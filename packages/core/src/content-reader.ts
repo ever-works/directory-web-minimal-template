@@ -12,6 +12,7 @@ import { loadCollections } from './loaders/collection-loader';
 import { loadItems } from './loaders/item-loader';
 import { loadComparisons } from './loaders/comparison-loader';
 import { loadPages } from './loaders/page-loader';
+import { loadMarkdownBlocks } from './loaders/markdown-block-loader';
 
 function slugify(value: string): string {
     return value
@@ -110,14 +111,15 @@ function computeTagCounts(tags: { id: string; name: string; isActive?: boolean }
  * @returns Complete content data with all items, categories, tags, collections, and comparisons
  */
 export async function loadContent(adapter: DataAdapter): Promise<ContentData> {
-    const [config, rawCategories, rawTags, collections, items, comparisons, pages] = await Promise.all([
+    const [config, rawCategories, rawTags, collections, items, comparisons, pages, blocks] = await Promise.all([
         loadConfig(adapter),
         loadCategories(adapter),
         loadTags(adapter),
         loadCollections(adapter),
         loadItems(adapter),
         loadComparisons(adapter),
-        loadPages(adapter)
+        loadPages(adapter),
+        loadMarkdownBlocks(adapter)
     ]);
 
     const categories = computeCategoryCounts(rawCategories, items);
@@ -131,6 +133,7 @@ export async function loadContent(adapter: DataAdapter): Promise<ContentData> {
         collections,
         comparisons,
         pages,
-        total: items.length
+        total: items.length,
+        ...(blocks ? { blocks } : {})
     };
 }

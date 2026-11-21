@@ -31,8 +31,31 @@ export type {
     SettingsConfig,
     NavLinkItem,
     HomepageConfig,
-    ContentData
+    ContentData,
+    MarkdownBlocks,
+    ResolvedSiteSettings,
+    ResolvedNavLink,
+    SiteLayout,
+    SitePagination,
+    SiteTheme,
+    SiteView,
+    SiteSort,
+    SiteSocialLinks
 } from './types/index';
+
+// Site settings (normalized works.yml)
+export {
+    resolveSiteSettings,
+    resolveLayout,
+    resolvePagination,
+    resolveTheme,
+    resolveView,
+    resolveSort,
+    resolveNavLink
+} from './site-settings';
+
+// Markdown blocks (markdown/header.md, markdown/footer.md)
+export { loadMarkdownBlocks, firstMarkdownParagraph, MARKDOWN_BLOCK_PATHS } from './loaders/markdown-block-loader';
 
 // Loaders
 export { loadConfig } from './loaders/config-loader';
@@ -55,4 +78,4 @@ export { coreLogger, createCoreLogger } from './logger';
 export type { CoreLogger } from './logger';
 
 // Markdown rendering (item bodies)
-export { renderMarkdown, isSafeMarkdownUrl } from './markdown';
+export { renderMarkdown, isSafeMarkdownUrl, prepareItemMarkdown } from './markdown';

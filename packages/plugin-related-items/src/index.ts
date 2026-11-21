@@ -12,7 +12,7 @@
  */
 
 export { relatedItemsPlugin } from './plugin';
-export { computeRelatedItems, computeScore } from './compute-related';
+export { computeRelatedItems, computeScore, relationKey } from './compute-related';
 export { resolveRelatedConfig } from './resolve-config';
 export type {
     RelatedItemRef,

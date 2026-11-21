@@ -57,3 +57,31 @@ export function renderMarkdown(markdown: string | null | undefined): string {
     if (typeof markdown !== 'string' || markdown.trim() === '') return '';
     return itemMarked.parse(markdown, { async: false }) as string;
 }
+
+/**
+ * Prepare an item's Markdown body for rendering under the page's own `<h1>`:
+ * drops a leading `# Title` that repeats the item name and demotes any other level-1 heading to level 2 (outside
+ * fenced code blocks), so item pages keep exactly one `<h1>` (an SEO and accessibility requirement).
+ *
+ * @param markdown - Item Markdown body
+ * @param itemName - The item's display name
+ * @returns Markdown ready for {@link renderMarkdown}
+ */
+export function prepareItemMarkdown(markdown: string | null | undefined, itemName: string): string {
+    if (typeof markdown !== 'string') return '';
+    const normalize = (value: string) => value.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
+    const lines = markdown.replace(/\r\n/g, '\n').split('\n');
+    const first = lines.findIndex((line) => line.trim() !== '');
+    if (first >= 0) {
+        const title = lines[first]?.match(/^#\s+(.+?)\s*#*\s*$/);
+        if (title?.[1] && normalize(title[1]) === normalize(itemName)) lines.splice(first, 1);
+    }
+    let fenced = false;
+    return lines
+        .map((line) => {
+            if (/^\s*(```|~~~)/.test(line)) fenced = !fenced;
+            return !fenced && /^#\s/.test(line) ? `#${line}` : line;
+        })
+        .join('\n')
+        .trim();
+}

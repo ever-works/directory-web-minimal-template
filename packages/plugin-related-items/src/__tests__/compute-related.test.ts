@@ -314,3 +314,17 @@ describe('computeScore — additional branch coverage', () => {
         expect(computeScore(source, candidate, DEFAULT_CONFIG)).toBe(0);
     });
 });
+
+describe('normalized matching (platform data stores names, taxonomies use ids)', () => {
+    it('relates items whose tags/categories differ only in case, spacing or punctuation', () => {
+        const source = makeItem({ slug: 'a', category: 'Open-Source & Self-Hosted CRM', tags: ['Open Source', 'API'] });
+        const candidate = makeItem({ slug: 'b', category: 'open source self hosted crm', tags: ['open-source', 'Paid'] });
+        expect(computeScore(source, candidate, DEFAULT_CONFIG)).toBe(3);
+    });
+
+    it('relationKey normalizes accents and punctuation', async () => {
+        const { relationKey } = await import('../compute-related');
+        expect(relationKey('  Café & Bar ')).toBe('cafe-bar');
+        expect(relationKey('')).toBe('');
+    });
+});

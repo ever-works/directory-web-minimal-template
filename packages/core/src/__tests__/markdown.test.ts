@@ -54,3 +54,16 @@ describe('isSafeMarkdownUrl', () => {
         }
     });
 });
+
+describe('prepareItemMarkdown', () => {
+    it('drops a leading title that repeats the item name and demotes other H1s', async () => {
+        const { prepareItemMarkdown } = await import('../markdown');
+        expect(prepareItemMarkdown('\n# Attio\n\n## Overview\n\nText\n\n# Pricing\n', 'Attio')).toBe('## Overview\n\nText\n\n## Pricing');
+    });
+
+    it('keeps a leading H1 that is not the item name (demoted) and ignores code fences', async () => {
+        const { prepareItemMarkdown } = await import('../markdown');
+        expect(prepareItemMarkdown('# Intro\n```\n# not a heading\n```', 'Attio')).toBe('## Intro\n```\n# not a heading\n```');
+        expect(prepareItemMarkdown(undefined, 'x')).toBe('');
+    });
+});

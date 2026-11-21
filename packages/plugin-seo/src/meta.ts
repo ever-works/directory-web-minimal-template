@@ -44,7 +44,7 @@ export function generateMetaTags(page: PageMeta, options: SeoPluginOptions): Met
         tags.push({ key: 'name', value: 'description', content: description });
     }
 
-    tags.push({ key: 'name', value: 'robots', content: 'index, follow' });
+    tags.push({ key: 'name', value: 'robots', content: page.robots || 'index, follow' });
 
     // --- Open Graph ---
 
@@ -57,12 +57,27 @@ export function generateMetaTags(page: PageMeta, options: SeoPluginOptions): Met
     tags.push({ key: 'property', value: 'og:type', content: ogType });
     tags.push({ key: 'property', value: 'og:locale', content: locale });
 
+    if (options.siteName) {
+        tags.push({ key: 'property', value: 'og:site_name', content: options.siteName });
+    }
+
     if (url) {
         tags.push({ key: 'property', value: 'og:url', content: url });
     }
 
     if (image) {
         tags.push({ key: 'property', value: 'og:image', content: image });
+        if (page.imageAlt) {
+            tags.push({ key: 'property', value: 'og:image:alt', content: page.imageAlt });
+        }
+    }
+
+    if (page.modifiedAt) {
+        tags.push({
+            key: 'property',
+            value: ogType === 'article' ? 'article:modified_time' : 'og:updated_time',
+            content: page.modifiedAt
+        });
     }
 
     // --- Twitter Card ---
