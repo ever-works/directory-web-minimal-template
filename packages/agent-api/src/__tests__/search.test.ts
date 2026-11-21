@@ -76,11 +76,28 @@ describe('sortItems', () => {
         { name: 'c', featured: true, updated: null }
     ];
     const id = (i: (typeof items)[number]) => i;
-    it('sorts by each order', () => {
+    it('sorts by each order (undated items last in both date directions)', () => {
         expect(sortItems(items, 'featured', id).map((i) => i.name)).toEqual(['c', 'a', 'b']);
         expect(sortItems(items, 'name-asc', id).map((i) => i.name)).toEqual(['a', 'b', 'c']);
         expect(sortItems(items, 'name-desc', id).map((i) => i.name)).toEqual(['c', 'b', 'a']);
         expect(sortItems(items, 'date-desc', id).map((i) => i.name)).toEqual(['a', 'b', 'c']);
-        expect(sortItems(items, 'date-asc', id).map((i) => i.name)).toEqual(['c', 'b', 'a']);
+        expect(sortItems(items, 'date-asc', id).map((i) => i.name)).toEqual(['b', 'a', 'c']);
+    });
+
+    it('compares dates as instants across formats', () => {
+        const mixed = [
+            { name: 'iso-offset', updated: '2026-01-02T01:00:00+02:00' }, // 2026-01-01 23:00Z
+            { name: 'plain', updated: '2026-01-01 23:30' },
+            { name: 'date-only', updated: '2026-01-01' }
+        ];
+        expect(sortItems(mixed, 'date-desc', (i) => i).map((i) => i.name)).toEqual(['plain', 'iso-offset', 'date-only']);
+    });
+
+    it('parses item dates', async () => {
+        const { dateValue } = await import('../search');
+        expect(dateValue('2026-01-01')).toBe(Date.UTC(2026, 0, 1));
+        expect(dateValue('2026-01-01 10:30')).toBe(Date.UTC(2026, 0, 1, 10, 30));
+        expect(dateValue('nope')).toBeNull();
+        expect(dateValue(null)).toBeNull();
     });
 });
