@@ -6,6 +6,12 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "@ever-works/sample-basic", "dev"],
       "port": 4321
+    },
+    {
+      "name": "web-preview",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@ever-works/web-minimal", "preview", "--port", "4400"],
+      "port": 4400
     }
   ]
 }

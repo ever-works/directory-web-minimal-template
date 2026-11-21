@@ -1,76 +1,96 @@
 ---
 /**
- * BaseLayout — Root layout for all pages.
+ * BaseLayout — root layout for every page.
  *
- * Provides HTML document structure, meta tags, header, and footer.
- * Integrates with plugin-seo for Open Graph and JSON-LD structured data.
- * Uses SiteHeader and SiteFooter from @ever-works/ui for consistent layout.
+ * - SEO: absolute canonical URL, descriptive title, meta description, robots, Open Graph + Twitter (via
+ *   plugin-seo), theme-color, feed autodiscovery, optional Markdown twin, page JSON-LD.
+ * - Agent discovery: links to llms.txt, the JSON read API, its OpenAPI description and (when served) the MCP card.
+ * - Chrome: theme/layout preferences applied before paint (ThemeScript), DirectoryHeader (logo, nav, search,
+ *   display settings, theme toggle, submit), DirectoryFooter (columns, social, theme selector), back-to-top.
+ *
+ * All behaviour is configured from `.works/works.yml` through `getSite()` / `resolveSiteSettings()`.
  */
-import type { SiteConfig, NavLinkItem } from '@ever-works/core';
 import { generateMetaTags } from '@ever-works/plugin-seo';
 import type { PageMeta } from '@ever-works/plugin-seo';
-import SiteHeader from '@ever-works/ui/astro/SiteHeader.astro';
-import SiteFooter from '@ever-works/ui/astro/SiteFooter.astro';
-import MobileMenu from '@ever-works/ui/preact/MobileMenu';
+import ThemeScript from '@ever-works/ui/astro/ThemeScript.astro';
+import DirectoryHeader from '@ever-works/ui/astro/DirectoryHeader.astro';
+import DirectoryFooter from '@ever-works/ui/astro/DirectoryFooter.astro';
+import BackToTopButton from '@ever-works/ui/astro/BackToTopButton.astro';
+import { getSite, metaDescription } from '../lib/site';
+import type { SiteConfig } from '@ever-works/core';
 import '../styles/global.css';
 import '../styles/theme.css';
 
 interface Props {
-    /** Page title (appended to site name) */
+    /** Page title; `| Site name` is appended unless `fullTitle` is set */
     title: string;
-    /** Meta description for SEO */
+    /** Use `title` as the complete `<title>` (homepage) */
+    fullTitle?: boolean;
+    /** Meta description (trimmed to ~158 chars) */
     description?: string;
-    /** Site configuration */
-    config: SiteConfig;
-    /** Optional canonical URL */
+    /** Kept for backwards compatibility; the layout reads config itself */
+    config?: SiteConfig;
+    /** Canonical URL or path (defaults to the current path) */
     canonicalUrl?: string;
-    /** Optional Open Graph image */
-    ogImage?: string;
-    /** Page type for structured data */
+    /** Open Graph image (absolute URL) */
+    ogImage?: string | null | undefined;
+    /** Alt text for the Open Graph image */
+    ogImageAlt?: string | undefined;
+    /** Page type for Open Graph */
     pageType?: 'website' | 'article' | 'product';
-    /**
-     * Optional URL of a Markdown twin of this page. When set, advertised
-     * via `<link rel="alternate" type="text/markdown">` so AI agents can
-     * fetch the clean Markdown version of the page without parsing HTML.
-     */
+    /** Last modified time (ISO) */
+    modifiedAt?: string | undefined;
+    /** URL of the page's Markdown twin (advertised for AI agents) */
     markdownMirrorUrl?: string;
+    /** Exclude from search engines (thin / utility pages) */
+    noindex?: boolean;
+    /** JSON-LD documents (JSON strings) to embed */
+    jsonLd?: Array<string | null | undefined>;
+    /** Page shows a sticky mobile CTA (moves back-to-top up) */
+    stickyCta?: boolean;
 }
 
-const { title, description, config, canonicalUrl, ogImage, pageType = 'website', markdownMirrorUrl } = Astro.props;
-const siteTitle = `${title} | ${config.company_name}`;
-const metaDescription = description || `${config.company_name} — Browse ${config.items_name}`;
+const {
+    title,
+    fullTitle = false,
+    description,
+    canonicalUrl,
+    ogImage,
+    ogImageAlt,
+    pageType = 'website',
+    modifiedAt,
+    markdownMirrorUrl,
+    noindex = false,
+    jsonLd = [],
+    stickyCta = false
+} = Astro.props;
 
-// Generate SEO meta tags via plugin
+const site = await getSite();
+const { content, settings } = site;
+const { config } = content;
+const siteName = config.company_name;
+const pageTitle = fullTitle ? title : `${title} | ${siteName}`;
+const metaDesc = metaDescription(description || site.description);
+const canonical = canonicalUrl
+    ? /^https?:\/\//.test(canonicalUrl)
+        ? canonicalUrl
+        : site.absolute(canonicalUrl)
+    : site.absolute(Astro.url.pathname.replace(/index\.html$/, ''));
+const safeImage = (value: string | null | undefined) => (value && /^https?:\/\//i.test(value) ? value : undefined);
+const image = safeImage(ogImage) ?? safeImage(config.logo?.logo_image) ?? undefined;
+
 const pageMeta: PageMeta = {
-    title: siteTitle,
-    description: metaDescription,
-    url: canonicalUrl || Astro.url.href,
-    image: ogImage,
+    title: pageTitle,
+    description: metaDesc,
+    url: canonical,
+    image,
+    imageAlt: ogImageAlt ?? (image ? `${siteName}` : undefined),
     type: pageType,
+    modifiedAt,
+    robots: noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large, max-snippet:-1'
 };
-
-const metaTags = generateMetaTags(pageMeta, {});
-
-/**
- * Default nav items used when config.custom_header is not set.
- * Sites can override via config.custom_header in .works/works.yml.
- */
-const defaultNavItems = [
-    { label: 'Home', href: '/' },
-    { label: 'Categories', href: '/categories' },
-    { label: 'Tags', href: '/tags' },
-    { label: 'Collections', href: '/collections' },
-    { label: 'Comparisons', href: '/comparisons' },
-];
-
-/** Resolve nav items: prefer config.custom_header, fall back to defaults */
-const navItems = (config.custom_header ?? defaultNavItems).map((item: NavLinkItem | { label: string; href: string }) => ({
-    label: item.label,
-    href: item.href,
-}));
-
-/** Footer links from config.custom_footer (empty if not configured) */
-const footerLinks: NavLinkItem[] = config.custom_footer ?? [];
+const metaTags = generateMetaTags(pageMeta, { siteName });
+const favicon = config.logo?.favicon;
 ---
 
 <!doctype html>
@@ -78,59 +98,68 @@ const footerLinks: NavLinkItem[] = config.custom_footer ?? [];
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <ThemeScript
+            theme={settings.header.themeDefault}
+            layout={settings.header.layoutDefault}
+            pagination={settings.header.paginationDefault}
+            view={settings.homepage.defaultView}
+        />
+        <title>{pageTitle}</title>
         <meta name="generator" content={Astro.generator} />
-        <title>{siteTitle}</title>
-
-        {/* Standard + OG + Twitter meta tags from SEO plugin */}
-        {metaTags.map((tag) => {
-            if (tag.key === 'property') {
-                return <meta property={tag.value} content={tag.content} />;
-            }
-            return <meta name={tag.value} content={tag.content} />;
-        })}
-
-        {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
-        {config.logo?.favicon && <link rel="icon" href={config.logo.favicon} />}
-
-        {/* Feed autodiscovery — RSS 2.0, Atom 1.0, JSON Feed 1.1 */}
-        <link rel="alternate" type="application/rss+xml" title={`${config.company_name} RSS Feed`} href="/rss.xml" />
-        <link rel="alternate" type="application/atom+xml" title={`${config.company_name} Atom Feed`} href="/atom.xml" />
-        <link rel="alternate" type="application/feed+json" title={`${config.company_name} JSON Feed`} href="/feed.json" />
-
-        {/* Markdown twin for AI agents (per llmstxt.org per-page mirror convention) */}
-        {markdownMirrorUrl && (
-            <link rel="alternate" type="text/markdown" title="Markdown version" href={markdownMirrorUrl} />
+        {metaTags.map((tag) =>
+            tag.key === 'property' ? <meta property={tag.value} content={tag.content} /> : <meta name={tag.value} content={tag.content} />
         )}
+        <link rel="canonical" href={canonical} />
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+        <meta name="color-scheme" content="light dark" />
+        <link rel="icon" href={favicon && (/^https?:\/\//.test(favicon) || favicon.startsWith('/')) ? favicon : '/favicon.svg'} />
+        <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
 
+        {/* Feeds */}
+        <link rel="alternate" type="application/rss+xml" title={`${siteName} RSS Feed`} href="/rss.xml" />
+        <link rel="alternate" type="application/atom+xml" title={`${siteName} Atom Feed`} href="/atom.xml" />
+        <link rel="alternate" type="application/feed+json" title={`${siteName} JSON Feed`} href="/feed.json" />
+
+        {/* AI agents: llms.txt, JSON read API + OpenAPI description, MCP server card, Markdown twin */}
+        <link rel="alternate" type="text/plain" title="llms.txt" href="/llms.txt" />
+        <link rel="alternate" type="application/json" title={`${siteName} data (JSON)`} href="/data/items.json" />
+        <link rel="service-desc" type="application/openapi+json" href="/data/openapi.json" />
+        {site.mcpEnabled && <link rel="alternate" type="application/json" title="MCP server" href="/.well-known/mcp.json" />}
+        {markdownMirrorUrl && <link rel="alternate" type="text/markdown" title="Markdown version" href={markdownMirrorUrl} />}
+
+        {jsonLd.filter(Boolean).map((doc) => <script is:inline type="application/ld+json" set:html={doc} />)}
         <slot name="head" />
     </head>
-    <body data-component="body">
-        <SiteHeader config={config} nav={navItems}>
-            <MobileMenu client:load items={navItems} />
-        </SiteHeader>
+    <body data-component="body" data-has-sticky-cta={stickyCta ? '' : undefined}>
+        <DirectoryHeader
+            name={siteName}
+            logo={config.logo}
+            nav={site.nav}
+            currentPath={Astro.url.pathname}
+            itemsName={config.items_name}
+            itemName={config.item_name}
+            searchEnabled={settings.header.searchEnabled}
+            themeEnabled={settings.header.themeEnabled}
+            layoutEnabled={settings.header.layoutEnabled}
+            submitHref={site.submitHref ?? undefined}
+        />
 
-        <main id="main-content" data-component="main">
+        <main id="main-content" data-component="main" class="dw-container">
             <slot />
         </main>
 
-        <SiteFooter config={config}>
-            {footerLinks.length > 0 && (
-                <nav data-part="footer-nav" aria-label="Footer navigation">
-                    <ul class="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                        {footerLinks.map((link) => (
-                            <li>
-                                <a
-                                    href={link.href}
-                                    class="hover:text-foreground transition-colors"
-                                    {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                                >
-                                    {link.label}
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
-                </nav>
-            )}
-        </SiteFooter>
+        <DirectoryFooter
+            name={siteName}
+            logo={config.logo}
+            description={site.description}
+            columns={site.footerColumns}
+            year={config.copyright_year}
+            version={settings.footer.versionEnabled ? settings.version : undefined}
+            themeSelector={settings.footer.themeSelectorEnabled}
+            social={settings.social}
+            newsletterUrl={settings.footer.newsletterUrl}
+        />
+        <BackToTopButton />
     </body>
 </html>

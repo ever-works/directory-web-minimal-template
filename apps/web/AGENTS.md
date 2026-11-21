@@ -27,8 +27,12 @@ A professional customization must be coherent across the full directory surface:
 - Comparison index/detail: `src/pages/comparisons.astro`, `src/pages/comparison/[slug].astro`
 - Static content pages: `src/pages/pages/[slug].astro`
 - Not found: `src/pages/404.astro`
+- Submit: `src/pages/submit.astro`; legal: `src/pages/legal.astro`
+- Chrome shared by every route: `DirectoryHeader` (search dialog, display settings, theme toggle), `DirectoryFooter`, `DirectoryBrowser` (listings) from `@ever-works/ui`
 
-Feed, sitemap, robots, and LLM text routes are data outputs and do not need visual styling.
+Feed, sitemap, robots, LLM text, `/data/*.json`, `/.well-known/*` and `/mcp` are data outputs and do not need visual styling.
+
+Visitor preferences are attributes on `<html>`: `data-layout="classic|grid"`, `data-view="grid|list|compact"`, `data-width="fixed|full"`, `data-pagination="standard|infinite"`, plus the `.dark` class. Style per layout with selectors like `html[data-layout="grid"] [data-component="directory-browser"]`.
 
 ## Quality Bar
 

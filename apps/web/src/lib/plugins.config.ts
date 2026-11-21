@@ -19,6 +19,7 @@ import { searchPlugin } from '@ever-works/plugin-search';
 import { sortPlugin } from '@ever-works/plugin-sort';
 import { sitemapPlugin } from '@ever-works/plugin-sitemap';
 import { rssPlugin } from '@ever-works/plugin-rss';
+import { relatedItemsPlugin } from '@ever-works/plugin-related-items';
 
 /**
  * Active plugins for this site.
@@ -47,4 +48,8 @@ export const plugins = definePlugins([
 
     // RSS 2.0 and Atom 1.0 feed generation
     rssPlugin(),
+
+    // "Alternatives to …" on item pages + `related` in the Data API / MCP get_item.
+    // minScore 0.5 drops candidates whose only link is the featured boost.
+    relatedItemsPlugin({ maxItems: 6, minScore: 0.5 }),
 ]);

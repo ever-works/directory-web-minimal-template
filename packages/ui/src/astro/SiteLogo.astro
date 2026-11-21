@@ -1,0 +1,41 @@
+---
+/**
+ * SiteLogo — the directory's brand: `logo.logo_image` (with `logo.logo_image_dark` swapped in dark mode), or a
+ * monogram mark + the site name when no logo is configured.
+ *
+ * @example
+ * ```astro
+ * <SiteLogo name={config.company_name} logo={config.logo} />
+ * ```
+ */
+import { initialOf } from '../lib/directory-format';
+
+interface Props {
+    name: string;
+    logo?: { logo_image?: string; logo_image_dark?: string } | undefined;
+    /** Show the site name next to an image logo (default: only for the monogram) */
+    showName?: boolean;
+    href?: string;
+}
+
+const { name, logo, showName = false, href = '/' } = Astro.props;
+const safe = (value: string | undefined) =>
+    value && (/^https?:\/\//i.test(value) || (value.startsWith('/') && !value.startsWith('//'))) ? value : undefined;
+const light = safe(logo?.logo_image);
+const dark = safe(logo?.logo_image_dark);
+---
+
+<a href={href} class="dw-brand" data-part="logo-link" aria-label={`${name} — home`}>
+    {light ? (
+        <>
+            <img src={light} alt="" data-part="logo" data-theme="light" data-has-dark={dark ? '' : undefined} height="32" decoding="async" />
+            {dark && <img src={dark} alt="" data-part="logo" data-theme="dark" height="32" decoding="async" />}
+            {showName && <span class="dw-brand-name" data-part="site-name">{name}</span>}
+        </>
+    ) : (
+        <>
+            <span class="dw-brand-mark" data-part="logo-mark" aria-hidden="true">{initialOf(name)}</span>
+            <span class="dw-brand-name" data-part="site-name">{name}</span>
+        </>
+    )}
+</a>

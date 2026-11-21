@@ -1,0 +1,55 @@
+---
+/**
+ * ThemeScript — blocking inline script for `<head>` that applies the visitor's theme and display preferences
+ * (layout, content width, pagination style, card view) before first paint, so there is no flash of the wrong theme or
+ * layout. Defaults come from the site config; the visitor's choices (localStorage) win.
+ *
+ * Sets on <html>: `.dark`, `data-theme`, `data-theme-choice`, `data-layout`, `data-width`, `data-pagination`,
+ * `data-view`, and `color-scheme`. Storage keys match `client/site-chrome.ts`.
+ *
+ * @example
+ * ```astro
+ * <head><ThemeScript theme="system" layout="classic" pagination="standard" view="grid" /></head>
+ * ```
+ */
+
+interface Props {
+    theme?: 'light' | 'dark' | 'system';
+    layout?: 'classic' | 'grid';
+    width?: 'fixed' | 'full';
+    pagination?: 'standard' | 'infinite';
+    view?: 'grid' | 'list' | 'compact';
+}
+
+const { theme = 'system', layout = 'classic', width = 'fixed', pagination = 'standard', view = 'grid' } = Astro.props;
+const defaults = { theme, layout, width, pagination, view };
+---
+
+<script is:inline define:vars={{ defaults }}>
+    (function () {
+        var d = document.documentElement;
+        var allowed = {
+            theme: ['light', 'dark', 'system'],
+            layout: ['classic', 'grid'],
+            width: ['fixed', 'full'],
+            pagination: ['standard', 'infinite'],
+            view: ['grid', 'list', 'compact']
+        };
+        var keys = { theme: 'theme-preference', layout: 'ew-layout', width: 'ew-width', pagination: 'ew-pagination', view: 'ew-view' };
+        function pick(name) {
+            var value = null;
+            try { value = localStorage.getItem(keys[name]); } catch (e) {}
+            return allowed[name].indexOf(value) >= 0 ? value : defaults[name];
+        }
+        var choice = pick('theme');
+        var dark = choice === 'dark' || (choice === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        d.classList.toggle('dark', !!dark);
+        d.setAttribute('data-theme', dark ? 'dark' : 'light');
+        d.setAttribute('data-theme-choice', choice);
+        d.style.colorScheme = dark ? 'dark' : 'light';
+        d.setAttribute('data-layout', pick('layout'));
+        d.setAttribute('data-width', pick('width'));
+        d.setAttribute('data-pagination', pick('pagination'));
+        d.setAttribute('data-view', pick('view'));
+    })();
+</script>

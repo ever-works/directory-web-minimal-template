@@ -1,20 +1,23 @@
 ---
 /**
- * 404 Page — Shown when a requested page is not found.
- *
- * Provides a clear error message, a suggestion, and a prominent
- * link back to the homepage so users can recover easily.
+ * 404 Page — friendly not-found page with a search box (opens the listing filtered by the query), popular
+ * categories, and links back home. `noindex`.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getContent } from '../lib/content';
+import { getSite } from '../lib/site';
+import Icon from '@ever-works/ui/astro/Icon.astro';
 import EmptyState from '@ever-works/ui/astro/EmptyState.astro';
+import CategoryCards from '@ever-works/ui/astro/CategoryCards.astro';
 
-const { config } = await getContent();
+const site = await getSite();
+const { config, categories, items } = site.content;
+const top = [...categories].filter((c) => c.count > 0).sort((a, b) => b.count - a.count).slice(0, 6);
 ---
 
-<BaseLayout title="Page Not Found" config={config}>
-    <section data-component="not-found" class="flex flex-col items-center justify-center px-4 py-24 text-center">
-        <p class="text-6xl font-bold text-muted-foreground/30" aria-hidden="true">404</p>
+<BaseLayout title="Page Not Found" description={`This page does not exist on ${config.company_name}.`} noindex canonicalUrl="/404">
+    <section data-component="not-found" class="flex flex-col items-center justify-center px-4 py-16 text-center">
+        <h1 class="sr-only">Page not found</h1>
+        <p class="text-6xl font-semibold text-muted-foreground/30" aria-hidden="true">404</p>
 
         <EmptyState
             message="Page Not Found"
@@ -22,21 +25,24 @@ const { config } = await getContent();
             class="mt-4"
         />
 
+        {items.length > 0 && (
+            <form class="dw-hero-search" role="search" action="/" method="get" style="width:100%">
+                <Icon name="search" />
+                <label class="sr-only" for="nf-q">Search {config.items_name.toLowerCase()}</label>
+                <input id="nf-q" class="dw-input" type="search" name="q" placeholder={`Search ${items.length} ${config.items_name.toLowerCase()}`} />
+            </form>
+        )}
+
         <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <a
-                href="/"
-                data-part="home-link"
-                class="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
-            >
-                Go back home
-            </a>
-            <a
-                href="/categories"
-                data-part="browse-link"
-                class="inline-flex h-10 items-center justify-center rounded-md border border-border bg-background px-4 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground"
-            >
-                Browse categories
-            </a>
+            <a href="/" data-part="home-link" class="dw-btn dw-btn-primary">Go back home</a>
+            <a href="/categories" data-part="browse-link" class="dw-btn dw-btn-outline">Browse categories</a>
         </div>
     </section>
+
+    {top.length > 1 && (
+        <section class="dw-section" aria-labelledby="nf-categories">
+            <div class="dw-section-head"><h2 id="nf-categories">Popular categories</h2></div>
+            <CategoryCards categories={top} itemName={config.item_name} itemsName={config.items_name} />
+        </section>
+    )}
 </BaseLayout>

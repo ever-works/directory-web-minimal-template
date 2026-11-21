@@ -10,4 +10,14 @@ export type { CollectionData } from './collection';
 export type { ComparisonData, ComparisonDimension } from './comparison';
 export type { PageData } from './page';
 export type { SiteConfig, LogoConfig, PaginationConfig, SettingsConfig, NavLinkItem, HomepageConfig } from './config';
-export type { ContentData } from './content-data';
+export type { ContentData, MarkdownBlocks } from './content-data';
+export type {
+    ResolvedSiteSettings,
+    ResolvedNavLink,
+    SiteLayout,
+    SitePagination,
+    SiteTheme,
+    SiteView,
+    SiteSort,
+    SiteSocialLinks
+} from './site-settings';

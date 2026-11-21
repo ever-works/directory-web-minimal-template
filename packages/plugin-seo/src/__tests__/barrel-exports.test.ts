@@ -44,6 +44,7 @@ describe('@ever-works/plugin-seo barrel exports', () => {
             'generateMetaTags',
             'generateJsonLd',
             'generateItemJsonLd',
+            'serializeJsonLd',
             'generateRobotsTxt',
             'AI_CRAWLER_USER_AGENTS',
             'resolveAiCrawlerPolicy',

@@ -28,7 +28,7 @@ export { seoPlugin } from './plugin';
 
 // Utility functions
 export { generateMetaTags } from './meta';
-export { generateJsonLd, generateItemJsonLd } from './json-ld';
+export { generateJsonLd, generateItemJsonLd, serializeJsonLd } from './json-ld';
 export {
     generateRobotsTxt,
     AI_CRAWLER_USER_AGENTS,

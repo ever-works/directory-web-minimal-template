@@ -14,6 +14,9 @@
  */
 @source "../../../../packages/ui/src";
 
+/* Directory experience components (header, footer, listing, cards, search, item page). Layered as components. */
+@import "@ever-works/ui/styles/directory.css";
+
 @custom-variant dark (&:is(.dark *));
 
 /*
@@ -144,8 +147,8 @@
 
   [data-component="main"] > section + section,
   [data-component="main"] > article + section { margin-top: 2.5rem; }
-  [data-component="main"] h1:not([data-component="hero"] h1) { font-size: 1.875rem; font-weight: 700; letter-spacing: -0.02em; margin: 1.5rem 0 0.75rem; }
-  [data-component="main"] h2[data-part="heading"] {
+  :where([data-component="main"] h1:not([data-component="hero"] h1)) { font-size: 1.875rem; font-weight: 600; letter-spacing: -0.02em; margin: 1.5rem 0 0.75rem; }
+  :where([data-component="main"] h2[data-part="heading"]) {
     font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 1rem;
   }
 

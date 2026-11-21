@@ -61,13 +61,23 @@ describe('@ever-works/core barrel exports', () => {
         expect(core.createCoreLogger).toBeTypeOf('function');
     });
 
+    it('exports the site-settings resolver and markdown blocks helpers', () => {
+        expect(core.resolveSiteSettings).toBeTypeOf('function');
+        expect(core.loadMarkdownBlocks).toBeTypeOf('function');
+        expect(core.firstMarkdownParagraph).toBeTypeOf('function');
+        expect(core.MARKDOWN_BLOCK_PATHS.header).toBe('markdown/header.md');
+    });
+
     it('does not export unexpected runtime values', () => {
         const expectedExports = [
             'loadConfig', 'loadCategories', 'loadTags', 'loadCollections',
             'loadItems', 'loadItem', 'loadComparisons', 'loadComparison',
             'loadPages', 'loadPage', 'loadContent', 'ContentCache',
             'coreLogger', 'createCoreLogger',
-            'renderMarkdown', 'isSafeMarkdownUrl',
+            'renderMarkdown', 'isSafeMarkdownUrl', 'prepareItemMarkdown',
+            'resolveSiteSettings', 'resolveLayout', 'resolvePagination', 'resolveTheme',
+            'resolveView', 'resolveSort', 'resolveNavLink',
+            'loadMarkdownBlocks', 'firstMarkdownParagraph', 'MARKDOWN_BLOCK_PATHS',
         ];
         const actualExports = Object.keys(core);
         for (const key of actualExports) {
