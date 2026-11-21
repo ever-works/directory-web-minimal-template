@@ -370,7 +370,10 @@ jobs:
       - name: Install Playwright browsers
         # `--with-deps` is a no-op on Windows but installs OS dependencies
         # (apt/dnf) on Ubuntu — see docs/questions.md Q22 iteration-104 note
-        # for the install-path nuance discovered locally.
+        # for the install-path nuance discovered locally. The timeout turns a
+        # stuck install (Playwright 1.59.1 on Node 26 hung for ~4 h) into a
+        # fast, readable failure.
+        timeout-minutes: 15
         run: pnpm exec playwright install --with-deps chromium
         working-directory: packages/ui
 
@@ -544,6 +547,7 @@ jobs:
             ${{ runner.os }}-playwright-
 
       - name: Install Playwright browsers
+        timeout-minutes: 15
         run: pnpm exec playwright install --with-deps chromium
         working-directory: packages/ui
 
@@ -722,35 +726,24 @@ jobs:
           SITE_URL: https://git-directory.example.com
 
       - name: Install Playwright browsers
+        # Playwright 1.59.1 hung here for ~4 h on Node 26 (its bundled unzip
+        # stalls mid-archive; fixed from 1.60.0, see docs/log.md 2026-11-21).
+        # A healthy install takes about a minute, so a hang now fails fast.
+        timeout-minutes: 15
         run: npx playwright install --with-deps chromium
         working-directory: apps/web-e2e
 
       - name: Run E2E tests (all samples)
-        # E2E currently runs against all 5 samples (sample-basic +
-        # sample-events / -jobs / -real-estate / -git). Each sample's
-        # `.content/` is gitignored (per the established design — samples
-        # pull data from external repos at runtime). sample-basic has a
-        # tracked seed (added in this PR to satisfy category/tag tests);
-        # the other four samples have no tracked content, so their tests
-        # fail with `unexpected value "Page Not Found"` until matching
-        # seeds are added or content is cloned in CI. The right long-term
-        # fix is one of:
-        #   (a) track minimal seed `.content/` for each of the four
-        #       remaining samples (mirroring sample-basic's pattern);
-        #   (b) clone real data repos in CI under DATA_REPOSITORY env
-        #       (requires per-sample secrets);
-        #   (c) split E2E into per-sample jobs so a missing seed only
-        #       skips its own project.
-        # Until then, `continue-on-error: true` mirrors the Lighthouse step
-        # so the WORKFLOW conclusion is green (the artifacts uploaded
-        # below still surface the test report for triage).
-        continue-on-error: true
+        # Runs against all 5 samples. sample-basic, -events, -jobs and
+        # -real-estate render their tracked `.content/` seed (the tests are
+        # written against it); sample-git clones its public data repo at
+        # build time. This step gates the job: a red E2E run fails CI.
         run: npx playwright test --project=chromium --project=events-chromium --project=jobs-chromium --project=re-chromium --project=git-chromium
         working-directory: apps/web-e2e
 
       - name: Run visual regression tests
-        # Same rationale as above — visual tests render real pages that
-        # require seeded `.content/` to produce stable snapshots.
+        # Not a gate: the committed baselines are win32 screenshots, so on
+        # Linux runners this step only refreshes snapshots for the report.
         continue-on-error: true
         run: npx playwright test --project=visual --update-snapshots
         working-directory: apps/web-e2e
