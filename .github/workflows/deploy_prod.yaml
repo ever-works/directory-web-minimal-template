@@ -44,3 +44,13 @@ jobs:
     secrets: inherit
     with:
       environment: ${{ inputs.environment || 'production' }}
+
+  Cloudflare:
+    # The platform's `cloudflare` deploy provider sets DEPLOY_PROVIDER=cloudflare
+    # and dispatches deploy_cloudflare.yaml directly; this job lets a manual
+    # "Production deployment" run from the Actions tab reach the same path.
+    if: ${{ vars.DEPLOY_PROVIDER == 'cloudflare' }}
+    uses: ./.github/workflows/deploy_cloudflare.yaml
+    secrets: inherit
+    with:
+      environment: ${{ inputs.environment || 'production' }}

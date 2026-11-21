@@ -3,6 +3,26 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-11-21 — Cloudflare Workers deploy, rendered item markdown, default directory layout
+
+- **Cloudflare deploy** (`.github/workflows/deploy_cloudflare.yaml`, plus a `Cloudflare` job in `deploy_prod.yaml`):
+  builds the site as pure static output (`ENABLE_ISR=false`) and publishes it to Cloudflare Workers Static Assets,
+  one assets-only Worker per directory attached to its hostname as a Workers Custom Domain. Runs on a GitHub-hosted
+  runner by default (`CLOUDFLARE_DEPLOY_RUNNER` overrides). Used by the platform's new `cloudflare` deploy provider.
+  Proven live on `crm.ever.works` (121 pages, 386 files, 6 MB, build 30 s).
+- **Item markdown is rendered** (`packages/core/src/markdown.ts`, `renderMarkdown`): platform data repos store the
+  item body as Markdown, but `ItemDetail` injected it as HTML, so pages showed raw `## Overview …`. It is now
+  rendered with `marked`; raw HTML is escaped and only http(s)/mailto/relative URLs survive. Unit tests added.
+- **Item breadcrumb shows the category**: `item/[slug].astro` resolves the category by id OR name
+  (`resolveCategory`), because platform data stores the category name.
+- **Default layout** (`apps/web/src/styles/global.css`, `@layer components`): the main column now lines up with the
+  header/footer (max-w-7xl, responsive padding), with section spacing, category chips, clamped card descriptions,
+  breadcrumbs, pagination and typography for item markdown. `theme.css` (unlayered) still overrides all of it.
+
+## 2026-11-05 — Graphify code-navigation note for agents
+
+Added "Code navigation: Graphify" to `AGENTS.md`: when a local Graphify graph (`graphify-out/graph.json`) exists, agents use `graphify query|path|explain` before reading raw files and run `graphify update .` after code changes. `graphify-out/` is per-machine build output and is now in `.gitignore`. Docs only, no code change (#54).
+
 ## 2026-05-19 — Pin Vercel framework to "astro" via apps/web/vercel.json + workflow verification
 
 Live deploy failed on a custom-template Work with:

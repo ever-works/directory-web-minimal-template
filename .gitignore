@@ -67,3 +67,6 @@ coverage/
 
 # Multi-option-support scratch verification dirs (per docs/plans/multi-option-support.md)
 tmp/
+
+# Graphify knowledge graph: local, per-machine build output (never commit)
+graphify-out/
