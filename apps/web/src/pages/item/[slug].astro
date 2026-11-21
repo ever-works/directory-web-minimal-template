@@ -134,7 +134,7 @@ const publisher = typeof item.publisher === 'string' ? item.publisher : null;
                 <div class="dw-gallery" data-part="gallery">
                     {images.map((src, index) => (
                         <a href={src} target="_blank" rel="noopener nofollow" aria-label={`${item.name} screenshot ${index + 1} (opens in a new tab)`}>
-                            <img src={src} alt={`${item.name} screenshot ${index + 1}`} loading="lazy" decoding="async" width="640" height="400" referrerpolicy="no-referrer" onerror="this.parentElement.remove()" />
+                            <img src={src} alt={`${item.name} screenshot ${index + 1}`} loading="lazy" decoding="async" width="640" height="400" referrerpolicy="no-referrer" onload="this.parentElement.setAttribute('data-loaded','')" onerror="var g=this.closest('.dw-gallery');this.parentElement.remove();if(g&&!g.querySelector('img'))g.remove()" />
                         </a>
                     ))}
                 </div>
