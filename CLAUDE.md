@@ -34,6 +34,7 @@ This is a **minimal, static-rendered Astro template** for AI-generated directory
 │   ├── plugins/          — Plugin system (runner, types, define-plugins)
 │   ├── plugin-*/         — Built-in plugins (search, filters, pagination, seo, sitemap, sort, breadcrumbs, rss, analytics, related-items)
 │   ├── astro-integration/— Astro integration for plugin build lifecycle hooks
+│   ├── agent-api/        — AI-agent access: /data/*.json builders, search ranking, MCP handler, OpenAPI
 │   ├── adapters/         — Data source adapters (git, filesystem, etc.)
 │   ├── sync/             — Content sync orchestration (webhooks, polling, ISR)
 │   ├── tsconfig/         — Shared TypeScript configurations

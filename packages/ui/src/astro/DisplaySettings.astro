@@ -1,0 +1,47 @@
+---
+/**
+ * DisplaySettings — header popover to switch homepage layout (Classic / Modern Grid), content width (Fixed / Full),
+ * pagination style (Standard / Infinite scroll) and card view (Grid / List / Compact). Mirrors the full template's
+ * settings modal. Choices are stored per visitor; defaults come from works.yml (see ThemeScript).
+ *
+ * Built on `<details>` (works without JS as a disclosure); `client/site-chrome.ts` handles the buttons.
+ */
+import Icon from './Icon.astro';
+---
+
+<details class="dw-popover" data-popover data-component="display-settings">
+    <summary class="dw-icon-btn" aria-label="Display settings" title="Display settings">
+        <Icon name="sliders" />
+    </summary>
+    <div class="dw-popover-panel" role="group" aria-label="Display settings">
+        <div class="dw-settings-group">
+            <p class="dw-settings-label" id="dw-set-layout">Layout</p>
+            <div class="dw-segmented" role="group" aria-labelledby="dw-set-layout">
+                <button type="button" data-pref="layout" data-value="classic" aria-pressed="false"><Icon name="sidebar" class="dw-icon-sm" />Classic</button>
+                <button type="button" data-pref="layout" data-value="grid" aria-pressed="false"><Icon name="layout-grid" class="dw-icon-sm" />Modern grid</button>
+            </div>
+        </div>
+        <div class="dw-settings-group">
+            <p class="dw-settings-label" id="dw-set-view">Cards</p>
+            <div class="dw-segmented" role="group" aria-labelledby="dw-set-view">
+                <button type="button" data-pref="view" data-value="grid" aria-pressed="false"><Icon name="grid" class="dw-icon-sm" />Grid</button>
+                <button type="button" data-pref="view" data-value="list" aria-pressed="false"><Icon name="list" class="dw-icon-sm" />List</button>
+                <button type="button" data-pref="view" data-value="compact" aria-pressed="false"><Icon name="rows" class="dw-icon-sm" />Compact</button>
+            </div>
+        </div>
+        <div class="dw-settings-group">
+            <p class="dw-settings-label" id="dw-set-width">Content width</p>
+            <div class="dw-segmented" role="group" aria-labelledby="dw-set-width">
+                <button type="button" data-pref="width" data-value="fixed" aria-pressed="false"><Icon name="minimize" class="dw-icon-sm" />Fixed</button>
+                <button type="button" data-pref="width" data-value="full" aria-pressed="false"><Icon name="maximize" class="dw-icon-sm" />Full width</button>
+            </div>
+        </div>
+        <div class="dw-settings-group">
+            <p class="dw-settings-label" id="dw-set-pagination">Pagination</p>
+            <div class="dw-segmented" role="group" aria-labelledby="dw-set-pagination">
+                <button type="button" data-pref="pagination" data-value="standard" aria-pressed="false"><Icon name="pages" class="dw-icon-sm" />Standard</button>
+                <button type="button" data-pref="pagination" data-value="infinite" aria-pressed="false"><Icon name="infinity" class="dw-icon-sm" />Infinite</button>
+            </div>
+        </div>
+    </div>
+</details>

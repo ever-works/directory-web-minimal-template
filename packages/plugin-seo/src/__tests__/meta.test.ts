@@ -202,3 +202,29 @@ describe('generateMetaTags', () => {
         expect(descTag?.key).toBe('name');
     });
 });
+
+describe('generateMetaTags — extended fields', () => {
+    it('emits robots override, og:site_name, image alt and modified time', () => {
+        const tags = generateMetaTags(
+            {
+                title: 'T',
+                description: 'D',
+                image: 'https://x.y/i.png',
+                imageAlt: 'Alt',
+                robots: 'noindex, follow',
+                modifiedAt: '2026-11-20T00:00:00Z'
+            },
+            { siteName: 'Site' }
+        );
+        const get = (value: string) => tags.find((tag) => tag.value === value)?.content;
+        expect(get('robots')).toBe('noindex, follow');
+        expect(get('og:site_name')).toBe('Site');
+        expect(get('og:image:alt')).toBe('Alt');
+        expect(get('og:updated_time')).toBe('2026-11-20T00:00:00Z');
+    });
+
+    it('uses article:modified_time for articles', () => {
+        const tags = generateMetaTags({ title: 'T', description: 'D', type: 'article', modifiedAt: '2026-01-01' }, {});
+        expect(tags.find((tag) => tag.value === 'article:modified_time')?.content).toBe('2026-01-01');
+    });
+});

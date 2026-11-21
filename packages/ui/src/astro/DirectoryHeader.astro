@@ -1,0 +1,128 @@
+---
+/**
+ * DirectoryHeader — sticky site header for directory sites: logo, primary navigation (with active state), quick
+ * search, display settings, theme toggle, "Submit" call to action, and a mobile menu.
+ *
+ * Every feature is switchable from works.yml via `resolveSiteSettings()` (`settings.header.*`). Hooks:
+ * `[data-component="site-header"]`, `[data-part="nav"|"nav-link"|"actions"|"search-trigger"|"submit"]`.
+ *
+ * @example
+ * ```astro
+ * <DirectoryHeader name="Awesome CRM" logo={config.logo} nav={nav} currentPath={Astro.url.pathname}
+ *     itemsName="Tools" searchEnabled themeEnabled layoutEnabled submitHref="/submit" />
+ * ```
+ */
+import Icon from './Icon.astro';
+import SiteLogo from './SiteLogo.astro';
+import SearchDialog from './SearchDialog.astro';
+import DisplaySettings from './DisplaySettings.astro';
+
+/** A header navigation entry. */
+export interface DirectoryNavLink {
+    label: string;
+    href: string;
+    external?: boolean;
+}
+
+interface Props {
+    name: string;
+    logo?: { logo_image?: string; logo_image_dark?: string } | undefined;
+    nav: DirectoryNavLink[];
+    /** Current pathname, for `aria-current` */
+    currentPath: string;
+    itemsName: string;
+    searchEnabled?: boolean;
+    themeEnabled?: boolean;
+    layoutEnabled?: boolean;
+    /** Submit page URL; omit to hide the button */
+    submitHref?: string | undefined;
+    /** Singular item noun for the submit button */
+    itemName?: string;
+}
+
+const {
+    name,
+    logo,
+    nav,
+    currentPath,
+    itemsName,
+    searchEnabled = true,
+    themeEnabled = true,
+    layoutEnabled = true,
+    submitHref,
+    itemName = 'Item'
+} = Astro.props;
+
+const normalize = (path: string) => (path.length > 1 ? path.replace(/\/+$/, '') : path);
+const current = normalize(currentPath);
+const isActive = (href: string) => {
+    if (/^[a-z]+:/i.test(href)) return false;
+    const target = normalize(href.split(/[?#]/)[0] ?? href);
+    if (target === '/') return current === '/' || current.startsWith('/page/');
+    return current === target || current.startsWith(`${target}/`) ||
+        (target === '/categories' && current.startsWith('/category/')) ||
+        (target === '/tags' && current.startsWith('/tag/')) ||
+        (target === '/collections' && current.startsWith('/collection/')) ||
+        (target === '/comparisons' && current.startsWith('/comparison/'));
+};
+const linkAttrs = (link: DirectoryNavLink) =>
+    link.external ? { target: '_blank', rel: 'noopener noreferrer' } : { 'aria-current': isActive(link.href) ? 'page' : undefined };
+---
+
+<a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow-lg focus:ring-2 focus:ring-ring" data-component="skip-to-content">Skip to content</a>
+
+<header class="dw-header" data-component="site-header">
+    <div class="dw-container dw-header-inner">
+        <div data-part="branding" class="min-w-0">
+            <SiteLogo name={name} logo={logo} />
+        </div>
+
+        {nav.length > 0 && (
+            <nav class="dw-nav" data-part="nav" aria-label="Main">
+                <ul>
+                    {nav.map((link) => (
+                        <li><a href={link.href} data-part="nav-link" {...linkAttrs(link)}>{link.label}</a></li>
+                    ))}
+                </ul>
+            </nav>
+        )}
+
+        <div class="dw-header-actions" data-part="actions">
+            {searchEnabled && (
+                <button type="button" class="dw-search-trigger" data-open-search data-part="search-trigger" aria-label={`Search ${itemsName.toLowerCase()}`} aria-keyshortcuts="Control+K Meta+K /">
+                    <Icon name="search" class="dw-icon-sm" />
+                    <span class="dw-search-trigger-label">Search</span>
+                    <span class="dw-kbd">/</span>
+                </button>
+            )}
+            {layoutEnabled && <DisplaySettings />}
+            {themeEnabled && (
+                <button type="button" class="dw-icon-btn" data-component="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+                    <Icon name="moon" class="dw-icon dw-icon-moon" />
+                    <Icon name="sun" class="dw-icon dw-icon-sun" />
+                </button>
+            )}
+            {submitHref && (
+                <a href={submitHref} class="dw-btn dw-btn-primary dw-submit-btn" data-part="submit">
+                    <Icon name="plus" class="dw-icon-sm" />Submit {itemName.toLowerCase()}
+                </a>
+            )}
+            <details class="dw-mobile-menu" data-popover data-component="mobile-menu">
+                <summary class="dw-icon-btn" aria-label="Open menu"><Icon name="menu" /></summary>
+                <nav class="dw-mobile-panel" aria-label="Mobile">
+                    {nav.map((link) => (
+                        <a href={link.href} {...linkAttrs(link)}>{link.label}</a>
+                    ))}
+                    {submitHref && <a href={submitHref}>Submit {itemName.toLowerCase()}</a>}
+                </nav>
+            </details>
+        </div>
+    </div>
+</header>
+
+{searchEnabled && <SearchDialog itemsName={itemsName} />}
+
+<script>
+    import { initSiteChrome } from '../client/site-chrome';
+    initSiteChrome();
+</script>

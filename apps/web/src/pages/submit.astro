@@ -1,0 +1,90 @@
+---
+/**
+ * Submit Page — how visitors add an item, fully static:
+ * - `submit.url` in works.yml → link to that external form;
+ * - public GitHub data repository → form that opens a pre-filled pull request (new `data/<slug>/<slug>.yml`) or issue;
+ * - `submit.email` → the same form opens a pre-filled email.
+ * Without JavaScript the plain GitHub links still work.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getSite } from '../lib/site';
+import { breadcrumbJsonLd } from '../lib/structured-data';
+import Breadcrumbs from '@ever-works/ui/astro/Breadcrumbs.astro';
+import Icon from '@ever-works/ui/astro/Icon.astro';
+import SubmitForm from '@ever-works/ui/astro/SubmitForm.astro';
+
+const site = await getSite();
+const { content, settings, dataRepository } = site;
+const { config, categories } = content;
+const itemName = config.item_name;
+const noun = itemName.toLowerCase();
+/** 'a tool' / 'an item' */
+const withArticle = `${/^[aeiou]/i.test(noun) ? 'an' : 'a'} ${noun}`;
+const external = settings.submit.url;
+const github = settings.submit.github && dataRepository ? dataRepository : null;
+const email = settings.submit.email;
+const open = settings.header.submitEnabled && Boolean(external || github || email);
+const usedCategories = categories.filter((c) => c.count > 0);
+const issueUrl = github ? `${github.url}/issues/new?title=${encodeURIComponent(`Add: <${noun} name>`)}` : null;
+const newFileUrl = github ? `${github.url}/new/${encodeURIComponent(github.branch)}?filename=${encodeURIComponent('data/<slug>/<slug>.yml')}` : null;
+---
+
+<BaseLayout
+    title={`Submit ${withArticle}`}
+    description={`Suggest ${withArticle.replace(/^a(n?) /, "a new ")} for ${config.company_name}. Submissions are reviewed by the maintainers before they are listed.`}
+    canonicalUrl="/submit"
+    noindex={!open}
+    jsonLd={[breadcrumbJsonLd(site, [{ name: 'Home', path: '/' }, { name: `Submit ${withArticle}`, path: '/submit' }])]}
+>
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: `Submit ${withArticle}` }]} />
+
+    <div class="dw-item" data-component="submit-page">
+        <section class="min-w-0">
+            <h1 data-part="heading">Submit {withArticle}</h1>
+            <p class="dw-item-lead">Know {withArticle} that belongs in {config.company_name}? Tell us about it. Every submission is reviewed before it appears in the directory.</p>
+
+            <div class="dw-panel" style="margin-top:1.5rem">
+                {!open ? (
+                    <p>Submissions are not open for this directory yet.</p>
+                ) : external ? (
+                    <div style="display:grid;gap:1rem">
+                        <p>Submissions for {config.company_name} are collected with a short form.</p>
+                        <p><a href={external} class="dw-btn dw-btn-primary" target="_blank" rel="noopener">Open the submission form <Icon name="external" class="dw-icon-sm" /></a></p>
+                    </div>
+                ) : (
+                    <SubmitForm
+                        itemName={itemName}
+                        categories={usedCategories}
+                        githubRepo={github?.slug}
+                        githubBranch={github?.branch}
+                        email={email}
+                    />
+                )}
+            </div>
+            {open && !external && github && (
+                <noscript>
+                    <p class="dw-alert" style="margin-top:1rem">
+                        JavaScript is off: <a href={newFileUrl ?? '#'} style="text-decoration:underline">add a file on GitHub</a> or <a href={issueUrl ?? '#'} style="text-decoration:underline">open an issue</a>.
+                    </p>
+                </noscript>
+            )}
+        </section>
+
+        <aside class="dw-aside" aria-label="How it works">
+            <div class="dw-panel">
+                <h2>How it works</h2>
+                <ol class="dw-steps">
+                    <li>Fill in the name, website and a short factual description.</li>
+                    {github ? <li>GitHub opens with your entry pre-filled as a pull request (or an issue).</li> : <li>Send the pre-filled submission.</li>}
+                    <li>A maintainer reviews it; once merged it appears here automatically.</li>
+                </ol>
+            </div>
+            {github && (
+                <div class="dw-panel">
+                    <h2>Open data</h2>
+                    <p style="font-size:0.875rem;color:var(--muted-foreground)">This directory is a public Git repository — you can also <a href={github.url} target="_blank" rel="noopener" style="text-decoration:underline">fork it on GitHub</a> and edit the YAML files directly.</p>
+                </div>
+            )}
+        </aside>
+    </div>
+</BaseLayout>

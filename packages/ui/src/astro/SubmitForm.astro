@@ -1,0 +1,84 @@
+---
+/**
+ * SubmitForm — static "submit an item" form. With JavaScript it opens a pre-filled GitHub pull request (new file
+ * `data/<slug>/<slug>.yml` in the data repository), a pre-filled GitHub issue, or a pre-filled email — whichever
+ * targets are enabled. Without JavaScript the page still offers plain links (rendered by the page).
+ *
+ * Hooks: `[data-component="submit-form"]`, `[data-part="status"]`.
+ */
+import Icon from './Icon.astro';
+
+interface Props {
+    itemName: string;
+    categories: Array<{ id: string; name: string }>;
+    /** `owner/repo` of the public GitHub data repository */
+    githubRepo?: string | undefined;
+    githubBranch?: string | undefined;
+    email?: string | undefined;
+}
+
+const { itemName, categories, githubRepo, githubBranch, email } = Astro.props;
+const noun = itemName.toLowerCase();
+---
+
+<form class="dw-form" data-component="submit-form" data-github-repo={githubRepo} data-github-branch={githubBranch} data-email={email} novalidate={false}>
+    <div class="dw-form-row">
+        <div class="dw-field">
+            <label for="submit-name">{itemName} name *</label>
+            <input id="submit-name" name="name" class="dw-input" required maxlength="120" autocomplete="off" />
+        </div>
+        <div class="dw-field">
+            <label for="submit-website">Website *</label>
+            <input id="submit-website" name="website" type="url" class="dw-input" required placeholder="https://" inputmode="url" />
+        </div>
+    </div>
+    <div class="dw-field">
+        <label for="submit-description">Short description *</label>
+        <textarea id="submit-description" name="description" class="dw-input" required minlength="20" maxlength="600" rows="3"></textarea>
+        <small>One or two factual sentences: what it is, who it is for, pricing model.</small>
+    </div>
+    <div class="dw-form-row">
+        {categories.length > 0 && (
+            <div class="dw-field">
+                <label for="submit-category">Category</label>
+                <select id="submit-category" name="category" class="dw-input">
+                    <option value="">Choose a category…</option>
+                    {categories.map((c) => <option value={c.name}>{c.name}</option>)}
+                </select>
+            </div>
+        )}
+        <div class="dw-field">
+            <label for="submit-tags">Tags</label>
+            <input id="submit-tags" name="tags" class="dw-input" placeholder="e.g. Open Source, API, Free Plan" />
+            <small>Comma separated.</small>
+        </div>
+    </div>
+    <div class="dw-form-row">
+        <div class="dw-field">
+            <label for="submit-email">Your email (optional)</label>
+            <input id="submit-email" name="email" type="email" class="dw-input" autocomplete="email" />
+        </div>
+        <div class="dw-field">
+            <label for="submit-notes">Notes for the maintainers (optional)</label>
+            <input id="submit-notes" name="notes" class="dw-input" maxlength="300" />
+        </div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:0.5rem">
+        {githubRepo && (
+            <>
+                <button type="submit" value="github-pr" class="dw-btn dw-btn-primary"><Icon name="github" class="dw-icon-sm" />Open a pull request</button>
+                <button type="submit" value="github-issue" class="dw-btn dw-btn-outline">Submit as an issue</button>
+            </>
+        )}
+        {email && (
+            <button type="submit" value="email" class:list={['dw-btn', githubRepo ? 'dw-btn-outline' : 'dw-btn-primary']}><Icon name="mail" class="dw-icon-sm" />Send by email</button>
+        )}
+    </div>
+    <p class="dw-alert" data-part="status" role="status" hidden></p>
+    <p style="font-size:0.8125rem;color:var(--muted-foreground)">Every {noun} is reviewed by a maintainer before it appears. A GitHub account is needed for the pull-request and issue options.</p>
+</form>
+
+<script>
+    import { initSubmitForm } from '../client/submit-form';
+    initSubmitForm();
+</script>

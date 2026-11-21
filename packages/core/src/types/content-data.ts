@@ -11,6 +11,18 @@ import type { ComparisonData } from './comparison';
 import type { PageData } from './page';
 import type { SiteConfig } from './config';
 
+/**
+ * Optional inline Markdown blocks from the data repository's `markdown/` folder.
+ * Written by the Ever Works platform into every generated data repository.
+ */
+export interface MarkdownBlocks {
+    /** `markdown/header.md` — directory introduction (H1 + description paragraph) */
+    header?: string;
+
+    /** `markdown/footer.md` — legal notice and license text */
+    footer?: string;
+}
+
 /** The complete loaded content from a data repository */
 export interface ContentData {
     /** All approved items with populated relations */
@@ -36,6 +48,12 @@ export interface ContentData {
 
     /** Total number of approved items */
     total: number;
+
+    /**
+     * Inline Markdown blocks (`markdown/header.md`, `markdown/footer.md`).
+     * Present only when the data repository ships at least one of them.
+     */
+    blocks?: MarkdownBlocks;
 
     /**
      * Plugin-injected breadcrumb map.

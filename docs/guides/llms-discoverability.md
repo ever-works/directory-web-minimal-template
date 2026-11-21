@@ -139,3 +139,48 @@ To remove the `/llms-full.txt` and per-page `.md` mirrors entirely,
 delete the corresponding files under `apps/web/src/pages/` and revert
 the `<link rel="alternate" type="text/markdown">` line in
 `apps/web/src/layouts/BaseLayout.astro`. Nothing else depends on them.
+
+## Data API, OpenAPI and MCP (Agent Access Contract v1, 2026-11-21)
+
+Every directory also exposes structured data for agents. The full contract (shapes, ranking, transport details) is
+in [`.specify/features/agent-access.md`](https://github.com/ever-works/directory-web-minimal-template/blob/main/.specify/features/agent-access.md);
+the full Next.js template implements the same contract.
+
+| URL | What it is |
+| --- | --- |
+| `/data/directory.json` | Name, description, counts, endpoint map, data repository, submit URL |
+| `/data/items.json` | Every item: name, description, page URL, website, categories, tags, logo, updated date |
+| `/data/items/<slug>.json` | One item with its Markdown write-up, images and related slugs |
+| `/data/categories.json`, `/data/tags.json` | Taxonomies with item counts |
+| `/data/openapi.json` | OpenAPI 3.1 description of the above (import into ChatGPT Actions or any OpenAPI client) |
+| `/.well-known/mcp.json` | MCP server card |
+| `/.well-known/api-catalog` | RFC 9727 API catalog (linkset) |
+| `/mcp` | MCP server (Streamable HTTP, no auth): `get_directory_info`, `search_items`, `list_items`, `get_item`, `list_categories`, `list_tags` |
+
+All of them are read-only, need no account, and send `Access-Control-Allow-Origin: *`.
+
+Connect an MCP client:
+
+```bash
+claude mcp add --transport http awesome-crm https://crm.ever.works/mcp
+```
+
+```json
+{ "mcpServers": { "awesome-crm": { "type": "http", "url": "https://crm.ever.works/mcp" } } }
+```
+
+Where `/mcp` runs:
+
+- **Cloudflare** (`deploy_cloudflare.yaml`): a ~5 KB Worker script (`apps/web/src/worker/mcp-worker.ts`) with
+  `run_worker_first: ["/mcp", "/mcp/*"]`, so only `/mcp` invokes code and every other request is served from static
+  assets. It reads the site's own `/data/*.json`. Set the repository variable `MCP_ENABLED=false` to deploy an
+  assets-only Worker.
+- **Vercel / ISR builds**: an on-demand Astro route injected by `astro.config.ts`.
+- **Pure static hosts** (nginx, S3): no `/mcp`; `directory.json` reports `"mcp": null` and the read API still works.
+
+Try it by hand:
+
+```bash
+curl -s https://crm.ever.works/mcp -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"search_items","arguments":{"query":"open source"}}}'
+```

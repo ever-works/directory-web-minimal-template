@@ -1,0 +1,50 @@
+---
+/**
+ * ItemLogo — an item's logo with a resilient fallback chain:
+ * `logo` (icon_url / brand_logo_url) → the website's favicon → a monogram tile (first letter of the name).
+ *
+ * Broken or missing images never show a broken-image icon: an inline `onerror` swaps to the fallback, then removes
+ * the image so the monogram (CSS `::before`) shows. Exposes `[data-part="icon"]` like the other card parts.
+ *
+ * @example
+ * ```astro
+ * <ItemLogo name={item.name} logo={item.icon_url ?? item.brand_logo_url} website={item.source_url} size="lg" />
+ * ```
+ */
+import { initialOf, logoSources, LOGO_ONERROR } from '../lib/directory-format';
+
+interface Props {
+    name: string;
+    logo?: string | null;
+    website?: string | null;
+    /** `md` = 40px (cards), `lg` = 72px (item page) */
+    size?: 'md' | 'lg';
+    /** Load eagerly (above-the-fold item page logo) */
+    eager?: boolean;
+    class?: string;
+}
+
+const { name, logo, website, size = 'md', eager = false, class: className } = Astro.props;
+const [src, fallback] = logoSources(logo, website);
+const px = size === 'lg' ? 72 : 40;
+---
+
+<span
+    data-part="icon"
+    class:list={['dw-logo', size === 'lg' && 'dw-logo-lg', className]}
+    data-initial={initialOf(name)}
+>
+    {src && (
+        <img
+            src={src}
+            data-fallback={fallback}
+            alt={`${name} logo`}
+            width={px}
+            height={px}
+            loading={eager ? 'eager' : 'lazy'}
+            decoding="async"
+            referrerpolicy="no-referrer"
+            onerror={LOGO_ONERROR}
+        />
+    )}
+</span>

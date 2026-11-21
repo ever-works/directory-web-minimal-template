@@ -157,6 +157,14 @@ export async function getContent(): Promise<ContentData> {
 		await _initPromise;
 
 		data = await runner.runDataLoaded(data, baseContext);
+
+		// One absolute site URL for everything (feeds, Markdown twins, JSON-LD, llms.txt, robots): the deployed
+		// SITE_URL wins over works.yml `app_url`, which platform data repos usually leave empty — without this, those
+		// outputs emitted relative URLs that crawlers and agents cannot use.
+		const deployedUrl = (process.env['SITE_URL'] ?? '').trim().replace(/\/+$/, '');
+		if (deployedUrl && deployedUrl !== 'https://example.com') {
+			data = { ...data, config: { ...data.config, app_url: deployedUrl } };
+		}
 		return data;
 	});
 }
