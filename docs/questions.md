@@ -2006,3 +2006,27 @@ applies between multi-option-cohort phases (no new audit-class inventions;
 light-touch verification ticks during pure-cron-tick runs; per-phase
 landing comes with its own `docs/log.md` entry per the plan).
 
+
+## Q30: Directory experience v2 + Agent Access — design decisions (2026-11-21)
+
+Context: `.specify/features/directory-experience.md` and `.specify/features/agent-access.md`. Defaults chosen so
+the work could ship overnight; each can be changed without touching the data contract.
+
+1. **Client search/filter engine** — **[DEFAULT] compact JSON index + shared ranking** (`/data/search-index.json`,
+   `@ever-works/agent-api/search`), loaded on first interaction. Alternatives: Pagefind UI (full-text over every
+   page, chunked; heavier UI bundle, no structured filters), or embedding all items in the page (too heavy for
+   3,200-item directories). Pagefind indexing still runs (`plugin-search`) for anyone who wants its UI.
+2. **Favicon fallback service** — **[DEFAULT] DuckDuckGo icons** (`icons.duckduckgo.com/ip3/<host>.ico`: no
+   cookies, 404 for unknown sites so the monogram shows). Alternative: Google S2 (sharper icons, Google request per
+   visitor). Change in `packages/ui/src/lib/directory-format.ts` (`faviconUrl`).
+3. **Item JSON-LD type** — **[DEFAULT] `SoftwareApplication`** (most directories list software), overridable per
+   directory with `seo.item_type` in works.yml. No ratings or offers are emitted because the data has none.
+4. **Where `/mcp` runs on static hosts** — **[DEFAULT] a tiny Worker script on the same Cloudflare Worker**,
+   `run_worker_first` limited to `/mcp`, reading the site's own `/data/*.json` through the assets binding.
+   Alternatives: one central MCP hub for all Ever Works directories (cross-directory search; needs its own
+   service), or no MCP on static hosts. Opt out with the repository variable `MCP_ENABLED=false`.
+5. **Submission flow without a backend** — **[DEFAULT] GitHub "create new file" pull request**, then issue, then
+   email; `submit.url` overrides with an external form (e.g. a platform form). Repository visibility is checked
+   once per build; private repositories never get public GitHub links.
+6. **Default homepage layout** — **[DEFAULT] Classic** (sidebar), matching the full template and the platform's
+   `layout_default: home1`. Visitors can switch; `layout_default: home2` makes Modern Grid the default.
