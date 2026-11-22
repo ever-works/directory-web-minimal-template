@@ -140,24 +140,78 @@ describe('ensureProxiedRecord', () => {
         });
     });
 
-    it('keeps an existing proxied record and creates nothing', async () => {
+    it('reuses the record it created for the same Worker and creates nothing', async () => {
         const { api, calls } = fakeApi(
             [],
-            [{ type: 'CNAME', name: 'rmm.ever.works', content: 'x.example.net', proxied: true }]
+            [
+                {
+                    type: 'AAAA',
+                    name: 'rmm.ever.works',
+                    content: '100::',
+                    proxied: true,
+                    comment: `${ROUTE_RECORD_MARKER}: ew-rmm`
+                }
+            ]
         );
-        await expect(ensureProxiedRecord(api, 'z1', 'rmm.ever.works')).resolves.toMatchObject({
-            status: 'existing',
-            type: 'CNAME'
-        });
+        await expect(ensureProxiedRecord(api, 'z1', 'rmm.ever.works', { workerName: 'ew-rmm' })).resolves.toMatchObject(
+            { status: 'existing', type: 'AAAA' }
+        );
         expect(calls.some((c) => c.method === 'POST')).toBe(false);
     });
 
-    it('refuses to touch unproxied records', async () => {
+    it('refuses a proxied record that serves another site (no traffic takeover)', async () => {
+        const { api, calls } = fakeApi(
+            [],
+            [{ type: 'CNAME', name: 'docs.ever.works', content: 'docs.example.net', proxied: true }]
+        );
+        await expect(ensureProxiedRecord(api, 'z1', 'docs.ever.works', { workerName: 'ew-docs' })).rejects.toThrow(
+            /did not create for ew-docs: CNAME docs.example.net \(proxied\).*take over/
+        );
+        expect(calls.some((c) => c.method === 'POST')).toBe(false);
+    });
+
+    it("refuses another Worker's custom domain or route record", async () => {
+        const customDomain = fakeApi([], [{ type: 'AAAA', name: 'a.ever.works', content: '100::', proxied: true }]);
+        await expect(
+            ensureProxiedRecord(customDomain.api, 'z1', 'a.ever.works', { workerName: 'ew-a' })
+        ).rejects.toThrow(/AAAA 100:: \(proxied\)/);
+        const otherRoute = fakeApi(
+            [],
+            [
+                {
+                    type: 'AAAA',
+                    name: 'a.ever.works',
+                    content: '100::',
+                    proxied: true,
+                    comment: `${ROUTE_RECORD_MARKER}: ew-other`
+                }
+            ]
+        );
+        await expect(ensureProxiedRecord(otherRoute.api, 'z1', 'a.ever.works', { workerName: 'ew-a' })).rejects.toThrow(
+            /ew-other/
+        );
+        expect([...customDomain.calls, ...otherRoute.calls].some((c) => c.method === 'POST')).toBe(false);
+    });
+
+    it('adopts an existing proxied record only when told to', async () => {
+        const { api, calls } = fakeApi(
+            [],
+            [{ type: 'AAAA', name: 'a.ever.works', content: '100::', proxied: true, comment: 'placeholder' }]
+        );
+        await expect(
+            ensureProxiedRecord(api, 'z1', 'a.ever.works', { workerName: 'ew-a', adoptExisting: true })
+        ).resolves.toMatchObject({ status: 'existing' });
+        expect(calls.some((c) => c.method === 'POST')).toBe(false);
+    });
+
+    it('refuses unproxied records, even with adoption on', async () => {
         const { api, calls } = fakeApi(
             [],
             [{ type: 'A', name: 'rmm.ever.works', content: '192.0.2.1', proxied: false }]
         );
-        await expect(ensureProxiedRecord(api, 'z1', 'rmm.ever.works')).rejects.toThrow(/not proxied \(A 192.0.2.1\)/);
+        await expect(
+            ensureProxiedRecord(api, 'z1', 'rmm.ever.works', { workerName: 'ew-rmm', adoptExisting: true })
+        ).rejects.toThrow(/did not create for ew-rmm: A 192[.]0[.]2[.]1[.] A Workers route/);
         expect(calls.some((c) => c.method === 'POST')).toBe(false);
     });
 
@@ -191,8 +245,9 @@ describe('hasRouteRecord and withRoute', () => {
             [],
             [{ type: 'AAAA', name: 'a.ever.works', content: '100::', proxied: true, comment: 'manual' }]
         );
-        await expect(hasRouteRecord(ours.api, 'z1', 'a.ever.works')).resolves.toBe(true);
-        await expect(hasRouteRecord(foreign.api, 'z1', 'a.ever.works')).resolves.toBe(false);
+        await expect(hasRouteRecord(ours.api, 'z1', 'a.ever.works', 'ew-a')).resolves.toBe(true);
+        await expect(hasRouteRecord(ours.api, 'z1', 'a.ever.works', 'ew-other')).resolves.toBe(false);
+        await expect(hasRouteRecord(foreign.api, 'z1', 'a.ever.works', 'ew-a')).resolves.toBe(false);
     });
 
     it('replaces the custom-domain route with a zone route and keeps the rest', () => {

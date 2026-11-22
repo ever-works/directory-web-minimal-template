@@ -13,9 +13,11 @@ The `ever.works` zone reached Cloudflare's limit of 100 Workers Custom Domains, 
   hostname as a Workers route `<host>/*` (1,000 per zone) and deploys again, with a `::warning::`. A hostname that
   already runs as a route goes straight to the route. New repository variables: `CLOUDFLARE_ROUTE_MODE`
   (`auto` default, `custom_domain`, `route`) and optional `CLOUDFLARE_ZONE_NAME`.
-- **DNS:** `apps/web/scripts/cloudflare-route.ts` finds the zone, creates a proxied `AAAA <host> 100::` record with
-  a marker comment when the hostname has none, keeps any proxied record, and refuses to touch unproxied ones.
-- **Tests:** `apps/web` gets a `test` script (`vitest run scripts`, so `pnpm test` runs it): 20 cases, including the
+- **DNS:** `apps/web/scripts/cloudflare-route.ts` finds the zone and creates a proxied `AAAA <host> 100::` record
+  with a marker comment (worker name included) when the hostname has none. It reuses only its own record for the
+  same Worker. Any other record (another site, another Worker's route or custom domain) stops the deploy, so a route
+  never takes over traffic. `CLOUDFLARE_ROUTE_ADOPT_EXISTING=true` reuses a proxied placeholder on purpose.
+- **Tests:** `apps/web` gets a `test` script (`vitest run scripts`, so `pnpm test` runs it): 23 cases, including the
   real wrangler 4 error text. `apps/web/tsconfig.json` now includes `scripts/**/*.ts`, so `typecheck` covers them.
 - **Docs:** spec `.specify/features/cloudflare-deploy.md`, the deployment guide's new Cloudflare Workers section, and
   `docs/questions.md` Q31.

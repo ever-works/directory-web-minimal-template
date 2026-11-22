@@ -47,13 +47,17 @@ token can read.
 - Zone lookup: `GET /zones?name=<candidate>&account.id=<CLOUDFLARE_ACCOUNT_ID>` for the hostname and each parent
   domain down to two labels, longest first; or only `CLOUDFLARE_ZONE_NAME`.
 - Only A, AAAA and CNAME records named exactly like the hostname count.
-- A proxied record already there is kept, whatever it points to (a route intercepts proxied traffic). Custom-domain
-  hostnames show up as a proxied `AAAA 100::` record with no comment.
-- Unproxied records stop the deploy with an error naming them. The workflow never edits or deletes a record.
 - No record: create `AAAA <host> 100::`, proxied, TTL auto, comment `ever-works directory worker route: <worker>`.
   `100::` is the discard prefix Cloudflare documents for hostnames served only by Workers.
-- `has-route` returns true only for a proxied record whose comment starts with that marker, so a hostname moved to
-  a route stays a route on later deploys, without a failed custom-domain attempt first.
+- The record this script created for the same Worker (same comment, worker name included) is reused.
+- **Any other record stops the deploy** with an error that lists it. A route intercepts every proxied request for
+  `<host>/*`, so reusing another record would silently take over whatever it serves: another site behind a proxied
+  CNAME, another Worker's route (marker with another worker name), or a custom domain (Cloudflare shows those as a
+  proxied `AAAA 100::` with no comment). The workflow never edits or deletes a record.
+- `CLOUDFLARE_ROUTE_ADOPT_EXISTING=true` (repository variable) reuses an existing proxied record anyway, for a
+  placeholder the zone owner made for this Worker. Unproxied records still stop the deploy.
+- `has-route` returns true only for the record with this Worker's exact comment, so a hostname moved to a route
+  stays a route on later deploys, without a failed custom-domain attempt first.
 
 ### Token permissions
 

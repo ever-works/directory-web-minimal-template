@@ -2051,6 +2051,10 @@ Domains (99 directories plus the directory hub), and the next directory deploy f
    workflow, never touching existing records**. Alternative: one proxied wildcard `*.zone` record. It needs no
    per-site record, but it makes every unknown subdomain of the zone resolve to Cloudflare, which is a zone-wide
    decision for its owner.
-3. **One Worker per hostname** — **[DEFAULT] kept** (1,000 routes per zone is the next ceiling). Past that,
+3. **A hostname that already has a DNS record** — **[DEFAULT] stop the deploy** unless the record is the one the
+   workflow made for this Worker, because a `<host>/*` route would take over whatever the record serves.
+   `CLOUDFLARE_ROUTE_ADOPT_EXISTING=true` reuses a proxied record on purpose. Alternative: reuse any proxied record
+   (simpler, but a typo in `CLOUDFLARE_HOSTNAME` could silently hijack another live site).
+4. **One Worker per hostname** — **[DEFAULT] kept** (1,000 routes per zone is the next ceiling). Past that,
    Cloudflare points to Workers for Platforms (one dispatch Worker, per-site user Workers), which would be a
    platform change rather than a template one.

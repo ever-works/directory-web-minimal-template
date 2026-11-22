@@ -19,6 +19,7 @@
  * - CLOUDFLARE_HOSTNAME: public hostname, e.g. `crm.ever.works`
  * - CLOUDFLARE_WORKER_NAME: Worker name, written into the DNS record comment
  * - CLOUDFLARE_ZONE_NAME: optional zone name when the zone is not a parent domain the lookup can find
+ * - CLOUDFLARE_ROUTE_ADOPT_EXISTING: `true` reuses a proxied record this script did not create (default: stop)
  */
 
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -70,6 +71,7 @@ export interface RouteEnv {
     host: string;
     workerName: string | undefined;
     zoneName: string | undefined;
+    adoptExisting: boolean;
 }
 
 /** Throws unless `host` is a lowercase DNS hostname with at least two labels. */
@@ -166,42 +168,60 @@ export async function listAddressRecords(api: CloudflareApi, zoneId: string, hos
         .filter((r) => ADDRESS_TYPES.has(r.type) && r.name === host);
 }
 
+/** The comment this script writes on the DNS record it creates for `workerName`'s route. */
+export function routeRecordComment(workerName?: string): string {
+    return `${ROUTE_RECORD_MARKER}${workerName ? `: ${workerName}` : ''}`.slice(0, 100);
+}
+
 /**
- * Make sure `host` has a proxied address record, which a Workers route needs to receive traffic. A proxied record
- * is kept as it is. Unproxied records are reported and left alone: they point somewhere on purpose.
+ * Make sure `host` has a proxied address record, which a Workers route needs to receive traffic.
+ *
+ * Only a record this script created for the same Worker is reused. Any other record means the hostname already
+ * serves something (another site, or another Worker's custom domain or route), and a `<host>/*` route on top of it
+ * would silently take that traffic over, so the deploy stops instead. With `adoptExisting`, an existing proxied
+ * record is reused anyway (for a placeholder the zone owner added for this Worker). Records are never edited.
  */
 export async function ensureProxiedRecord(
     api: CloudflareApi,
     zoneId: string,
     host: string,
-    { workerName }: { workerName?: string } = {}
+    { workerName, adoptExisting = false }: { workerName?: string; adoptExisting?: boolean } = {}
 ): Promise<RecordResult> {
     const records = await listAddressRecords(api, zoneId, host);
-    const proxied = records.find((r) => r.proxied);
-    if (proxied) return { status: 'existing', type: proxied.type, content: proxied.content };
+    const ours = records.find((r) => r.proxied === true && r.comment === routeRecordComment(workerName));
+    if (ours) return { status: 'existing', type: ours.type, content: ours.content };
+    const adoptable = adoptExisting ? records.find((r) => r.proxied === true) : undefined;
+    if (adoptable) return { status: 'existing', type: adoptable.type, content: adoptable.content };
     if (records.length > 0) {
-        const list = records.map((r) => `${r.type} ${r.content}`).join(', ');
+        const list = records
+            .map((r) => `${r.type} ${r.content}${r.proxied ? ' (proxied)' : ''}${r.comment ? ` "${r.comment}"` : ''}`)
+            .join(', ');
         throw new Error(
-            `${host} has DNS records that are not proxied (${list}). A Workers route only receives proxied traffic; ` +
-                'proxy or remove them in Cloudflare first. This workflow does not change existing records.'
+            `${host} already has DNS records that this workflow did not create for ${workerName ?? 'this Worker'}: ${list}. ` +
+                'A Workers route on top of them would take over whatever they serve. Remove them in Cloudflare, or set ' +
+                'the repository variable CLOUDFLARE_ROUTE_ADOPT_EXISTING=true if they are placeholders for this Worker.'
         );
     }
-    const comment = `${ROUTE_RECORD_MARKER}${workerName ? `: ${workerName}` : ''}`.slice(0, 100);
     await api('POST', `/zones/${zoneId}/dns_records`, {
         type: 'AAAA',
         name: host,
         content: ROUTE_RECORD_CONTENT,
         proxied: true,
         ttl: 1,
-        comment
+        comment: routeRecordComment(workerName)
     });
     return { status: 'created', type: 'AAAA', content: ROUTE_RECORD_CONTENT };
 }
 
-/** True when an earlier deploy already attached `host` as a route (it left a proxied record with our marker). */
-export async function hasRouteRecord(api: CloudflareApi, zoneId: string, host: string): Promise<boolean> {
+/** True when an earlier deploy already attached `host` to this Worker as a route (it left our marker record). */
+export async function hasRouteRecord(
+    api: CloudflareApi,
+    zoneId: string,
+    host: string,
+    workerName?: string
+): Promise<boolean> {
     const records = await listAddressRecords(api, zoneId, host);
-    return records.some((r) => r.proxied === true && (r.comment ?? '').startsWith(ROUTE_RECORD_MARKER));
+    return records.some((r) => r.proxied === true && r.comment === routeRecordComment(workerName));
 }
 
 /** The config with its routes replaced by one Workers route for `host` on `zoneId`. */
@@ -215,7 +235,8 @@ export function readRouteEnv(env: NodeJS.ProcessEnv): RouteEnv {
         accountId: env.CLOUDFLARE_ACCOUNT_ID || undefined,
         host: assertHostname(env.CLOUDFLARE_HOSTNAME),
         workerName: env.CLOUDFLARE_WORKER_NAME || undefined,
-        zoneName: env.CLOUDFLARE_ZONE_NAME || undefined
+        zoneName: env.CLOUDFLARE_ZONE_NAME || undefined,
+        adoptExisting: env.CLOUDFLARE_ROUTE_ADOPT_EXISTING === 'true'
     };
 }
 
@@ -235,7 +256,7 @@ export async function main(
         try {
             const api = cloudflareApi(e.token, fetchImpl);
             const zone = await findZone(api, e.host, e);
-            const found = await hasRouteRecord(api, zone.id, e.host);
+            const found = await hasRouteRecord(api, zone.id, e.host, e.workerName);
             if (found) log(`${e.host} already runs as a Workers route on zone ${zone.name}`);
             return found ? 0 : 1;
         } catch (err) {
