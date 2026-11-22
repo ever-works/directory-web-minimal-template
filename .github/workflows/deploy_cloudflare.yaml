@@ -10,6 +10,16 @@ name: Cloudflare deployment
 # request is still served straight from static assets without invoking the script. Set the repository variable
 # `MCP_ENABLED=false` to publish an assets-only Worker instead. See .specify/features/agent-access.md.
 #
+# Cloudflare allows 100 Workers Custom Domains per zone. When a deploy fails on that limit (API error 100122), the
+# workflow attaches the hostname as a Workers route `<host>/*` instead (1,000 routes per zone): it creates a proxied
+# `AAAA 100::` DNS record for the hostname (apps/web/scripts/cloudflare-route.ts) and deploys again. A hostname that
+# already has a DNS record the workflow did not create for this Worker stops the deploy instead, so a route never
+# takes over another site's traffic; records are never edited. Later deploys go straight to the route. Variables:
+#   CLOUDFLARE_ROUTE_MODE            `auto` (default: custom domain, route past the limit), `custom_domain` or `route`
+#   CLOUDFLARE_ZONE_NAME             optional zone name when it is not a parent domain of the hostname
+#   CLOUDFLARE_ROUTE_ADOPT_EXISTING  `true` reuses an existing proxied record (a placeholder made for this Worker)
+# See .specify/features/cloudflare-deploy.md.
+#
 # Dispatched by the Ever Works platform's `cloudflare` deploy provider (`getWorkflowFilenames()` →
 # `deploy_cloudflare.yaml`), which first pushes these repository secrets:
 #   CLOUDFLARE_TOKEN        scoped API token (Workers Scripts edit + Workers Routes/DNS edit on the zone)
@@ -151,14 +161,35 @@ jobs:
         working-directory: apps/web
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN || secrets.DEPLOY_TOKEN }}
-        run: npx --yes wrangler@4 deploy --config wrangler.deploy.json
+          ROUTE_MODE: ${{ vars.CLOUDFLARE_ROUTE_MODE || 'auto' }}
+          CLOUDFLARE_ZONE_NAME: ${{ vars.CLOUDFLARE_ZONE_NAME }}
+          CLOUDFLARE_ROUTE_ADOPT_EXISTING: ${{ vars.CLOUDFLARE_ROUTE_ADOPT_EXISTING }}
+        run: |
+          route() { pnpm exec tsx scripts/cloudflare-route.ts "$@"; }
+          case "$ROUTE_MODE" in
+            auto|custom_domain|route) ;;
+            *) echo "::error::CLOUDFLARE_ROUTE_MODE must be auto, custom_domain or route (got '$ROUTE_MODE')"; exit 1 ;;
+          esac
+          # A hostname that an earlier deploy attached as a route stays a route.
+          if [ "$ROUTE_MODE" = auto ] && route has-route; then ROUTE_MODE=route; fi
+          if [ "$ROUTE_MODE" != route ]; then
+            set +e
+            npx --yes wrangler@4 deploy --config wrangler.deploy.json 2>&1 | tee wrangler-deploy.log
+            rc=${PIPESTATUS[0]}
+            set -e
+            if [ "$rc" = 0 ]; then exit 0; fi
+            if [ "$ROUTE_MODE" = custom_domain ] || ! route is-limit-error wrangler-deploy.log; then exit "$rc"; fi
+            echo "::warning title=Workers custom-domain limit::the zone of $CLOUDFLARE_HOSTNAME is at its Workers custom-domain limit, so it is attached as a Workers route instead"
+          fi
+          route ensure --config wrangler.deploy.json
+          npx --yes wrangler@4 deploy --config wrangler.deploy.json
 
       - name: Check the live site
         run: |
           for i in 1 2 3 4 5 6 7 8 9 10 11 12; do
             code=$(curl -s -o /dev/null -w '%{http_code}' "https://$CLOUDFLARE_HOSTNAME/" || true)
             if [ "$code" = "200" ]; then echo "https://$CLOUDFLARE_HOSTNAME/ answers 200"; exit 0; fi
-            echo "attempt $i: HTTP $code (new custom domains need a minute for DNS + certificate)"
+            echo "attempt $i: HTTP $code (a new custom domain or route needs a minute for DNS + certificate)"
             sleep 15
           done
           echo "::warning::https://$CLOUDFLARE_HOSTNAME/ did not answer 200 yet; the platform poller keeps checking"
