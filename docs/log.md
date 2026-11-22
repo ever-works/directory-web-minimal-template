@@ -3,6 +3,23 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-11-22 — Cloudflare deploy: Workers route fallback past 100 custom domains per zone
+
+The `ever.works` zone reached Cloudflare's limit of 100 Workers Custom Domains, and the next directory deploy failed
+("You have exceeded the limit of 100 Workers custom domains on zone 'ever.works'", API error `100122`), because
+`deploy_cloudflare.yaml` could only attach a hostname as a custom domain.
+
+- **Workflow:** the deploy step now tries the custom domain first (unchanged). On that one error it attaches the
+  hostname as a Workers route `<host>/*` (1,000 per zone) and deploys again, with a `::warning::`. A hostname that
+  already runs as a route goes straight to the route. New repository variables: `CLOUDFLARE_ROUTE_MODE`
+  (`auto` default, `custom_domain`, `route`) and optional `CLOUDFLARE_ZONE_NAME`.
+- **DNS:** `apps/web/scripts/cloudflare-route.ts` finds the zone, creates a proxied `AAAA <host> 100::` record with
+  a marker comment when the hostname has none, keeps any proxied record, and refuses to touch unproxied ones.
+- **Tests:** `apps/web` gets a `test` script (`vitest run scripts`, so `pnpm test` runs it): 20 cases, including the
+  real wrangler 4 error text. `apps/web/tsconfig.json` now includes `scripts/**/*.ts`, so `typecheck` covers them.
+- **Docs:** spec `.specify/features/cloudflare-deploy.md`, the deployment guide's new Cloudflare Workers section, and
+  `docs/questions.md` Q31.
+
 ## 2026-11-21 — E2E suite green again (sample seeds) + CI browser-install hang fixed
 
 The E2E suite failed 108 of its tests on `develop` (and identically after the directory-experience work below),

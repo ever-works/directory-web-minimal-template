@@ -2037,3 +2037,20 @@ the work could ship overnight; each can be changed without touching the data con
 8. **Data-repository visibility check fails closed** — GitHub links (Submit via PR, Suggest an edit, Data on GitHub)
    appear only when the API answers `private: false`; any error hides them. `DATA_REPOSITORY_PUBLIC=true|false`
    skips the check. The Cloudflare workflow passes `github.token` so the call is not rate-limited.
+
+## Q31: Directories past Cloudflare's 100 custom domains per zone (2026-11-22)
+
+Context: `.specify/features/cloudflare-deploy.md`. On 2026-11-22 the `ever.works` zone held 100 Workers Custom
+Domains (99 directories plus the directory hub), and the next directory deploy failed with API error `100122`.
+
+1. **What happens past the limit** — **[DEFAULT] fall back to a Workers route `<host>/*` automatically**
+   (`CLOUDFLARE_ROUTE_MODE=auto`). Alternatives: fail as before and ask Cloudflare for a higher limit (the zone
+   owner can still do that; the fallback does not prevent it), or move every directory to routes (needless churn
+   for 100 working sites).
+2. **DNS for route hostnames** — **[DEFAULT] one proxied `AAAA <host> 100::` record per hostname, created by the
+   workflow, never touching existing records**. Alternative: one proxied wildcard `*.zone` record. It needs no
+   per-site record, but it makes every unknown subdomain of the zone resolve to Cloudflare, which is a zone-wide
+   decision for its owner.
+3. **One Worker per hostname** — **[DEFAULT] kept** (1,000 routes per zone is the next ceiling). Past that,
+   Cloudflare points to Workers for Platforms (one dispatch Worker, per-site user Workers), which would be a
+   platform change rather than a template one.

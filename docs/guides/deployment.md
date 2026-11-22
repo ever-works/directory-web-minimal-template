@@ -155,6 +155,27 @@ ENABLE_ISR=false pnpm --filter @ever-works/web-minimal build
 # Set build output directory to apps/web/dist
 ```
 
+### Cloudflare Workers (`deploy_cloudflare.yaml`)
+
+The Ever Works platform deploys directories with `.github/workflows/deploy_cloudflare.yaml`: a static build published
+as one Worker with static assets, plus a small script that answers only `/mcp`. Secrets: `CLOUDFLARE_TOKEN`,
+`CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_WORKER_NAME`, `CLOUDFLARE_HOSTNAME`, `DATA_REPOSITORY` (`GH_TOKEN` for a
+private data repository).
+
+The hostname is attached as a Workers Custom Domain. Cloudflare allows 100 of those per zone. Past that, the
+workflow attaches the hostname as a Workers route `<host>/*` instead (1,000 per zone). It creates a proxied
+`AAAA <host> 100::` DNS record when the hostname has none, and never changes an existing record. Repository
+variables:
+
+| Variable | Default | Meaning |
+| --- | --- | --- |
+| `CLOUDFLARE_ROUTE_MODE` | `auto` | `auto`: custom domain, route past the limit. `custom_domain`: never fall back. `route`: always a route |
+| `CLOUDFLARE_ZONE_NAME` | — | zone name, when it is not a parent domain of the hostname |
+| `MCP_ENABLED` | `true` | `false` publishes an assets-only Worker without `/mcp` |
+| `CLOUDFLARE_DEPLOY_RUNNER` | `ubuntu-latest` | runner label |
+
+Spec and edge cases: `.specify/features/cloudflare-deploy.md`.
+
 ### GitHub Pages
 
 Use the build output from `apps/web/dist/` and configure GitHub Pages to serve from that directory. You may need to add a `.nojekyll` file to the output.
