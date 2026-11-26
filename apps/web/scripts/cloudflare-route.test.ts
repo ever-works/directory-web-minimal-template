@@ -8,8 +8,10 @@ import {
     assertHostname,
     cloudflareApi,
     ensureProxiedRecord,
+    findProxiedWildcard,
     findZone,
     hasRouteRecord,
+    hasWorkerRoute,
     isCustomDomainLimitError,
     main,
     withRoute,
@@ -37,7 +39,8 @@ interface Call {
 /** Fake API over an in-memory zone list and DNS table. */
 function fakeApi(
     zones: { id: string; name: string }[],
-    records: Record<string, unknown>[] = []
+    records: Record<string, unknown>[] = [],
+    routes: { pattern: string; script?: string }[] = []
 ): { api: CloudflareApi; calls: Call[] } {
     const calls: Call[] = [];
     const api: CloudflareApi = async (method, path, body) => {
@@ -45,6 +48,9 @@ function fakeApi(
         const url = new URL(`https://x${path}`);
         if (method === 'GET' && url.pathname === '/zones') {
             return zones.filter((z) => z.name === url.searchParams.get('name'));
+        }
+        if (method === 'GET' && url.pathname.endsWith('/workers/routes')) {
+            return routes;
         }
         if (method === 'GET' && url.pathname.endsWith('/dns_records')) {
             return records.filter((r) => r.name === url.searchParams.get('name'));
@@ -224,6 +230,62 @@ describe('ensureProxiedRecord', () => {
         await expect(ensureProxiedRecord(wrapped, 'z1', 'rmm.ever.works')).resolves.toMatchObject({
             status: 'created'
         });
+    });
+});
+
+describe('proxied wildcard (no record of its own)', () => {
+    const wildcard = {
+        type: 'CNAME',
+        name: '*.ever.works',
+        content: 't1.cfargotunnel.com',
+        proxied: true,
+        comment: 'wildcard'
+    };
+
+    it('creates no record when a proxied *.<parent> record already answers the host', async () => {
+        const { api, calls } = fakeApi([], [wildcard]);
+        await expect(
+            ensureProxiedRecord(api, 'z1', 'new-dir.ever.works', { workerName: 'ew-new-dir' })
+        ).resolves.toEqual({ status: 'wildcard', type: 'CNAME', content: 't1.cfargotunnel.com' });
+        expect(calls.some((c) => c.method === 'POST')).toBe(false);
+    });
+
+    it('still refuses a host that has records of its own, wildcard or not', async () => {
+        const { api, calls } = fakeApi(
+            [],
+            [wildcard, { type: 'CNAME', name: 'docs.ever.works', content: 'docs-site.example', proxied: true }]
+        );
+        await expect(ensureProxiedRecord(api, 'z1', 'docs.ever.works', { workerName: 'ew-docs' })).rejects.toThrow(
+            /already has DNS records/
+        );
+        expect(calls.some((c) => c.method === 'POST')).toBe(false);
+    });
+
+    it('still creates its record when the wildcard is DNS-only', async () => {
+        const { api } = fakeApi([], [{ ...wildcard, proxied: false }]);
+        await expect(
+            ensureProxiedRecord(api, 'z1', 'new-dir.ever.works', { workerName: 'ew-new-dir' })
+        ).resolves.toEqual({ status: 'created', type: 'AAAA', content: ROUTE_RECORD_CONTENT });
+    });
+
+    it('only the direct parent wildcard counts (one level, like Universal SSL)', async () => {
+        const { api } = fakeApi([], [wildcard]);
+        await expect(findProxiedWildcard(api, 'z1', 'a.b.ever.works')).resolves.toBeUndefined();
+        await expect(findProxiedWildcard(api, 'z1', 'b.ever.works')).resolves.toMatchObject({ name: '*.ever.works' });
+    });
+
+    it('hasWorkerRoute finds an existing <host>/* route for the Worker', async () => {
+        const { api } = fakeApi(
+            [],
+            [],
+            [
+                { pattern: 'new-dir.ever.works/*', script: 'ew-new-dir' },
+                { pattern: 'other.ever.works/*', script: 'ew-other' }
+            ]
+        );
+        await expect(hasWorkerRoute(api, 'z1', 'new-dir.ever.works', 'ew-new-dir')).resolves.toBe(true);
+        await expect(hasWorkerRoute(api, 'z1', 'new-dir.ever.works', 'ew-someone-else')).resolves.toBe(false);
+        await expect(hasWorkerRoute(api, 'z1', 'missing.ever.works', 'ew-new-dir')).resolves.toBe(false);
     });
 });
 

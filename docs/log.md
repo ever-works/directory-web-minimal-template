@@ -3,6 +3,22 @@ title: "Change Log"
 sidebar_label: "Change Log"
 ---
 
+## 2026-11-26 — Cloudflare route fallback: no DNS record when a proxied wildcard covers the host
+
+The `ever.works` zone is on Cloudflare's Free plan, which allows 200 DNS records, and it holds 181. It now also has a
+proxied `*.ever.works` record. A Workers route receives traffic for any proxied hostname, including one that only the
+wildcard answers, so the route fallback no longer needs a record of its own for each directory past the 100 custom
+domains.
+
+- **`cloudflare-route.ts ensure`:** when the hostname has no A/AAAA/CNAME record, and a **proxied** `*.<direct parent>`
+  record exists, it creates nothing and reports `wildcard`. A hostname WITH records is still refused exactly as before,
+  so a route still never takes over another site. DNS-only wildcards and deeper names (`a.b.ever.works`) still get
+  `AAAA 100::`.
+- **`has-route`:** it also finds an existing `<host>/*` route for this Worker in the zone's Workers routes, because a
+  wildcard-served host has no marker record.
+- **Tests:** 5 new cases in `apps/web/scripts/cloudflare-route.test.ts`.
+- **Docs:** spec `.specify/features/cloudflare-deploy.md` (DNS record rules) and the workflow header comment.
+
 ## 2026-11-22 — Cloudflare deploy: Workers route fallback past 100 custom domains per zone
 
 The `ever.works` zone reached Cloudflare's limit of 100 Workers Custom Domains, and the next directory deploy failed

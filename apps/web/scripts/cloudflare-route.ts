@@ -57,7 +57,12 @@ export interface DnsRecord {
 }
 
 export interface RecordResult {
-    status: 'created' | 'existing';
+    /**
+     * `created`: this script added the `AAAA 100::` record. `existing`: a record it may reuse was already there.
+     * `wildcard`: the host has no record of its own, but a proxied `*.<parent>` record already answers it, so the
+     * route receives traffic without a new record (a zone's DNS record quota is small: 200 on Cloudflare Free).
+     */
+    status: 'created' | 'existing' | 'wildcard';
     type: string;
     content: string;
 }
@@ -168,6 +173,22 @@ export async function listAddressRecords(api: CloudflareApi, zoneId: string, hos
         .filter((r) => ADDRESS_TYPES.has(r.type) && r.name === host);
 }
 
+/**
+ * The proxied wildcard record that answers `host` when `host` has no record of its own: `*.<parent>` for
+ * `<label>.<parent>`. Only the direct parent counts: Universal SSL covers one level of subdomain, so a deeper name
+ * behind a wildcard would not get a certificate. Resolves to `undefined` when there is none or it is DNS-only.
+ */
+export async function findProxiedWildcard(
+    api: CloudflareApi,
+    zoneId: string,
+    host: string
+): Promise<DnsRecord | undefined> {
+    const dot = host.indexOf('.');
+    if (dot < 0) return undefined;
+    const records = await listAddressRecords(api, zoneId, `*.${host.slice(dot + 1)}`);
+    return records.find((r) => r.proxied === true);
+}
+
 /** The comment this script writes on the DNS record it creates for `workerName`'s route. */
 export function routeRecordComment(workerName?: string): string {
     return `${ROUTE_RECORD_MARKER}${workerName ? `: ${workerName}` : ''}`.slice(0, 100);
@@ -202,6 +223,10 @@ export async function ensureProxiedRecord(
                 'the repository variable CLOUDFLARE_ROUTE_ADOPT_EXISTING=true if they are placeholders for this Worker.'
         );
     }
+    // No record of its own: a proxied wildcard already sends the host through Cloudflare, so the route gets its
+    // traffic without spending one of the zone's records. (A host WITH records was handled above and never gets here.)
+    const wildcard = await findProxiedWildcard(api, zoneId, host);
+    if (wildcard) return { status: 'wildcard', type: wildcard.type, content: wildcard.content };
     await api('POST', `/zones/${zoneId}/dns_records`, {
         type: 'AAAA',
         name: host,
@@ -222,6 +247,21 @@ export async function hasRouteRecord(
 ): Promise<boolean> {
     const records = await listAddressRecords(api, zoneId, host);
     return records.some((r) => r.proxied === true && r.comment === routeRecordComment(workerName));
+}
+
+/**
+ * True when the zone already has the Workers route `<host>/*` for `workerName` (any script when unnamed). A host that
+ * a proxied wildcard serves gets no marker record, so this is how later deploys know it already runs as a route.
+ */
+export async function hasWorkerRoute(
+    api: CloudflareApi,
+    zoneId: string,
+    host: string,
+    workerName?: string
+): Promise<boolean> {
+    const routes = await api('GET', `/zones/${zoneId}/workers/routes`);
+    if (!Array.isArray(routes)) return false;
+    return routes.filter(isRecord).some((r) => r.pattern === `${host}/*` && (!workerName || r.script === workerName));
 }
 
 /** The config with its routes replaced by one Workers route for `host` on `zoneId`. */
@@ -256,7 +296,9 @@ export async function main(
         try {
             const api = cloudflareApi(e.token, fetchImpl);
             const zone = await findZone(api, e.host, e);
-            const found = await hasRouteRecord(api, zone.id, e.host, e.workerName);
+            const found =
+                (await hasRouteRecord(api, zone.id, e.host, e.workerName)) ||
+                (await hasWorkerRoute(api, zone.id, e.host, e.workerName));
             if (found) log(`${e.host} already runs as a Workers route on zone ${zone.name}`);
             return found ? 0 : 1;
         } catch (err) {
@@ -276,7 +318,9 @@ export async function main(
         log(
             record.status === 'created'
                 ? `created proxied DNS record ${e.host} AAAA ${ROUTE_RECORD_CONTENT} on zone ${zone.name}`
-                : `kept the existing proxied ${record.type} record of ${e.host} on zone ${zone.name}`
+                : record.status === 'wildcard'
+                  ? `no DNS record needed: the proxied wildcard ${record.type} record of zone ${zone.name} answers ${e.host}`
+                  : `kept the existing proxied ${record.type} record of ${e.host} on zone ${zone.name}`
         );
         const config = withRoute(JSON.parse(readFileSync(configPath, 'utf8')) as object, e.host, zone.id);
         writeFileSync(configPath, JSON.stringify(config, null, 2));
