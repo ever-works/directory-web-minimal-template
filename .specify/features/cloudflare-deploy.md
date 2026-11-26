@@ -49,6 +49,11 @@ token can read.
 - Only A, AAAA and CNAME records named exactly like the hostname count.
 - No record: create `AAAA <host> 100::`, proxied, TTL auto, comment `ever-works directory worker route: <worker>`.
   `100::` is the discard prefix Cloudflare documents for hostnames served only by Workers.
+- No record, but the zone has a **proxied wildcard** `*.<parent>` for the hostname's direct parent: create nothing.
+  The wildcard already sends the hostname through Cloudflare, so the route receives its traffic. A zone's records are
+  limited (200 on Cloudflare Free), so this keeps one record per directory free. Only the direct parent counts,
+  because Universal SSL covers one level; a DNS-only wildcard does not count. Later deploys recognise the route from
+  the zone's Workers routes (`<host>/*` for this Worker), since no marker record exists (`has-route`).
 - The record this script created for the same Worker (same comment, worker name included) is reused.
 - **Any other record stops the deploy** with an error that lists it. A route intercepts every proxied request for
   `<host>/*`, so reusing another record would silently take over whatever it serves: another site behind a proxied
